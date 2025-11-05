@@ -497,7 +497,7 @@
         <!-- Main Header -->
         <div class="dashboard-header">
             <h1>🏆 Game of the Week Dashboard</h1>
-            <div class="subtitle">2025-2026 Season | Weeks 3-17</div>
+            <div class="subtitle">2025-2026 Season</div>
             <div class="last-updated" id="lastUpdated">Loading...</div>
         </div>
 
@@ -548,15 +548,14 @@
     </div> <!-- end dashboard-container -->
 
     <script>
-        const resultsUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQzlWT-fLjZtuIgD_dkw5GGv-nswtEDuLqvhPsCXsZjFT-RyCtHVktApaeZCTT3uag9veMcIenXVpV3/pub?gid=927965067&single=true&output=csv";
-        const picksUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQnmmhuQnwWZWLj4zxw-kxRFH-uiZ4AeGA2OmA4ngMJN5xuZgPmSNjH79V6ibSuLlsP7_sa7O-0psur/pub?output=csv";
-        const scheduleUrl = "game-of-the-week-2025-2026.csv";
+        const matchupsUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQi6KQIneboHgXLY48j6eRSCPD66Sbf4-WzSvmB7gAZv4duklJ0nluIUZZT3S68FTLp1DGcfZVHqq6n/pub?gid=1301060622&single=true&output=csv";
+        const picksUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQi6KQIneboHgXLY48j6eRSCPD66Sbf4-WzSvmB7gAZv4duklJ0nluIUZZT3S68FTLp1DGcfZVHqq6n/pub?gid=881893402&single=true&output=csv";
 
         let leaderboardData = [];
         let currentSort = 'rank';
         let currentDirection = 'asc';
-        let scheduleData = {};
-        let picksData = {};
+        let matchupsData = {}; // Map of gameKey -> game info
+        let allGames = []; // Array of all games in order
         let isExpanded = false;
         let horseRaceData = [];
         let playerColors = {};
@@ -567,58 +566,108 @@
             return name.replace(/[^a-zA-Z0-9-_]/g, '-');
         }
 
+        // Create a unique key for a game based on Week, Date, Time, Sheet
+        function createGameKey(week, date, time, sheet) {
+            return `${week}_${date}_${time}_${sheet}`;
+        }
+
+        // Parse game column header to extract Week, Date, Time, Sheet
+        function parseGameColumn(header) {
+            // Format: "Week 3 | 11/12/2025 | 6:35 PM | Sheet 1"
+            const match = header.match(/Week\s+(\d+)\s*\|\s*([^|]+)\s*\|\s*([^|]+)\s*\|\s*Sheet\s+(\d+)/i);
+            if (match) {
+                return {
+                    week: match[1].trim(),
+                    date: match[2].trim(),
+                    time: match[3].trim(),
+                    sheet: match[4].trim()
+                };
+            }
+            return null;
+        }
+
+        // Parse matchups CSV and create game map
+        function parseMatchups(rawMatchups) {
+            const gameMap = {};
+            const gamesArray = [];
+
+            rawMatchups.forEach((row, index) => {
+                const gameKey = createGameKey(row.Week, row.Date, row.Time, row.Sheet);
+                const gameInfo = {
+                    gameNumber: index + 1,
+                    week: row.Week,
+                    date: row.Date,
+                    time: row.Time,
+                    sheet: row.Sheet,
+                    team1: row.Team1_Skip,
+                    team2: row.Team2_Skip,
+                    winner: row.Winner || null,
+                    gameKey: gameKey
+                };
+                gameMap[gameKey] = gameInfo;
+                gamesArray.push(gameInfo);
+            });
+
+            return { gameMap, gamesArray };
+        }
+
         // Analyze pick distribution for each game
-        function analyzePickDistribution(rawPicks, schedule) {
+        function analyzePickDistribution(rawPicks, gameMap) {
             const analysis = {};
 
-            // For each week/game, count picks
-            schedule.forEach((gameRow, gameIndex) => {
-                const weekNum = parseInt(gameRow.Week, 10);
-                const team1 = gameRow.Team1_Skip;
-                const team2 = gameRow.Team2_Skip;
+            // Get all game column headers from picks CSV
+            const headers = Object.keys(rawPicks[0] || {});
+            const gameHeaders = headers.filter(h => h.includes('Week'));
 
-                if (!analysis[weekNum]) {
-                    analysis[weekNum] = {
-                        team1: team1,
-                        team2: team2,
-                        team1Picks: 0,
-                        team2Picks: 0,
-                        totalPicks: 0,
-                        chalkPick: null,
-                        chalkPercentage: 0
-                    };
-                }
+            // For each game column, count picks
+            gameHeaders.forEach(header => {
+                const gameInfo = parseGameColumn(header);
+                if (!gameInfo) return;
+
+                const gameKey = createGameKey(gameInfo.week, gameInfo.date, gameInfo.time, gameInfo.sheet);
+                const game = gameMap[gameKey];
+                if (!game) return;
+
+                const pickCounts = {};
+                pickCounts[game.team1] = 0;
+                pickCounts[game.team2] = 0;
+                let totalPicks = 0;
 
                 // Count picks for this game
                 rawPicks.forEach(row => {
-                    const headers = Object.keys(row);
-                    headers.forEach(header => {
-                        const gameMatch = header.match(/Week (\d+)/i);
-                        if (gameMatch && parseInt(gameMatch[1], 10) === weekNum) {
-                            const pick = row[header];
-                            if (pick === team1) {
-                                analysis[weekNum].team1Picks++;
-                                analysis[weekNum].totalPicks++;
-                            } else if (pick === team2) {
-                                analysis[weekNum].team2Picks++;
-                                analysis[weekNum].totalPicks++;
-                            }
-                        }
-                    });
+                    const pick = row[header];
+                    if (pick === game.team1) {
+                        pickCounts[game.team1]++;
+                        totalPicks++;
+                    } else if (pick === game.team2) {
+                        pickCounts[game.team2]++;
+                        totalPicks++;
+                    }
                 });
 
                 // Determine chalk (majority pick)
-                const weekData = analysis[weekNum];
-                if (weekData.team1Picks > weekData.team2Picks) {
-                    weekData.chalkPick = team1;
-                    weekData.chalkPercentage = (weekData.team1Picks / weekData.totalPicks * 100).toFixed(0);
-                } else if (weekData.team2Picks > weekData.team1Picks) {
-                    weekData.chalkPick = team2;
-                    weekData.chalkPercentage = (weekData.team2Picks / weekData.totalPicks * 100).toFixed(0);
-                } else {
-                    weekData.chalkPick = null; // Tie
-                    weekData.chalkPercentage = 50;
+                let chalkPick = null;
+                let chalkPercentage = 50;
+
+                if (totalPicks > 0) {
+                    if (pickCounts[game.team1] > pickCounts[game.team2]) {
+                        chalkPick = game.team1;
+                        chalkPercentage = (pickCounts[game.team1] / totalPicks * 100).toFixed(0);
+                    } else if (pickCounts[game.team2] > pickCounts[game.team1]) {
+                        chalkPick = game.team2;
+                        chalkPercentage = (pickCounts[game.team2] / totalPicks * 100).toFixed(0);
+                    }
                 }
+
+                analysis[gameKey] = {
+                    team1: game.team1,
+                    team2: game.team2,
+                    team1Picks: pickCounts[game.team1],
+                    team2Picks: pickCounts[game.team2],
+                    totalPicks: totalPicks,
+                    chalkPick: chalkPick,
+                    chalkPercentage: chalkPercentage
+                };
             });
 
             return analysis;
@@ -634,90 +683,40 @@
             return colors;
         }
 
-        // Parse schedule data and create player game mappings
-        function parseSchedule(rawSchedule) {
-            const playerGameMap = {};
+        // Process picks data into leaderboard format
+        function processData(rawPicks, gameMap, gamesArray) {
+            if (!rawPicks || rawPicks.length === 0) return [];
 
-            rawSchedule.forEach((row, index) => {
-                const leagueGameNum = index + 1;
-                const gameInfo = {
-                    leagueGame: leagueGameNum,
-                    team1: row.Team1_Skip,
-                    team2: row.Team2_Skip,
-                    week: row.Week,
-                    date: row.Date,
-                    time: row.Time,
-                    sheet: row.Sheet
-                };
+            const headers = Object.keys(rawPicks[0]);
+            const nameHeader = headers.find(h => h.toLowerCase().includes('name'));
+            const gameHeaders = headers.filter(h => h.includes('Week'));
 
-                if (!playerGameMap[row.Team1_Skip]) {
-                    playerGameMap[row.Team1_Skip] = [];
-                }
-                if (!playerGameMap[row.Team2_Skip]) {
-                    playerGameMap[row.Team2_Skip] = [];
-                }
-
-                playerGameMap[row.Team1_Skip].push({...gameInfo, opponent: row.Team2_Skip});
-                playerGameMap[row.Team2_Skip].push({...gameInfo, opponent: row.Team1_Skip});
-            });
-
-            return playerGameMap;
-        }
-
-        // Parse picks data
-        function parsePicks(rawPicks) {
-            const picks = {};
-            rawPicks.forEach(row => {
-                const headers = Object.keys(row);
-                const nameHeader = headers.find(h => h.toLowerCase().includes('name') || h === headers[1]);
-                const playerName = row[nameHeader];
-
-                if (!playerName) return;
-
-                picks[playerName] = {};
-
-                headers.forEach(header => {
-                    const gameMatch = header.match(/Week (\d+)/i);
-                    if (gameMatch) {
-                        const gameNum = parseInt(gameMatch[1], 10);
-                        picks[playerName][gameNum] = row[header];
-                    }
-                });
-            });
-            return picks;
-        }
-
-        // Process CSV data into leaderboard format
-        function processData(rawData) {
-            if (!rawData || rawData.length === 0) return [];
-
-            const headers = Object.keys(rawData[0]);
-            const nameHeader = headers[0];
-            const gameHeaders = headers.slice(1);
-
-            const players = rawData.map(row => {
+            const players = rawPicks.map(row => {
                 const name = row[nameHeader];
+                if (!name) return null;
+
                 const gameResults = [];
-                let totalGames = 0;
                 let totalWins = 0;
                 let currentStreak = { type: null, count: 0 };
 
-                // Process each game
-                gameHeaders.forEach((gameHeader, index) => {
-                    const cumulativeWins = parseInt(row[gameHeader], 10);
-                    if (!isNaN(cumulativeWins)) {
-                        const gameNumber = parseInt(gameHeader.replace('Game', ''), 10);
-                        totalGames = gameNumber;
-                        totalWins = cumulativeWins;
+                // Process each game column
+                gameHeaders.forEach((gameHeader, headerIndex) => {
+                    const gameInfo = parseGameColumn(gameHeader);
+                    if (!gameInfo) return;
 
-                        // Calculate if this game was a win or loss
-                        let result;
-                        if (index === 0) {
-                            result = cumulativeWins > 0 ? 'W' : 'L';
-                        } else {
-                            const previousWins = parseInt(row[gameHeaders[index - 1]], 10);
-                            result = cumulativeWins > previousWins ? 'W' : 'L';
-                        }
+                    const gameKey = createGameKey(gameInfo.week, gameInfo.date, gameInfo.time, gameInfo.sheet);
+                    const game = gameMap[gameKey];
+                    if (!game) return;
+
+                    const playerPick = row[gameHeader];
+                    if (!playerPick) return; // Player didn't make a pick
+
+                    // Determine result
+                    let result = null;
+                    if (game.winner) {
+                        // Game has been played
+                        result = (playerPick === game.winner) ? 'W' : 'L';
+                        if (result === 'W') totalWins++;
 
                         // Track streaks
                         if (currentStreak.type === result) {
@@ -725,47 +724,51 @@
                         } else {
                             currentStreak = { type: result, count: 1 };
                         }
-
-                        // Get matchup information for this player's Nth game
-                        const playerGames = scheduleData[name];
-                        const matchup = playerGames && playerGames[gameNumber - 1];
-
-                        // Get pick information - use week number from matchup
-                        const weekNum = matchup ? parseInt(matchup.week, 10) : null;
-                        const playerPick = weekNum ? picksData[name]?.[weekNum] : null;
-
-                        // Check if this was a contrarian pick
-                        const gameAnalysis = weekNum ? pickAnalysis[weekNum] : null;
-                        const isContrarian = gameAnalysis && playerPick &&
-                            playerPick !== gameAnalysis.chalkPick &&
-                            gameAnalysis.chalkPick !== null;
-
-                        gameResults.push({
-                            game: gameNumber,
-                            result: result,
-                            cumulativeWins: cumulativeWins,
-                            cumulativeLosses: gameNumber - cumulativeWins,
-                            isStreak: currentStreak.count >= 3,
-                            matchup: matchup,
-                            pick: playerPick,
-                            isContrarian: isContrarian,
-                            pickAnalysis: gameAnalysis
-                        });
                     }
+                    // If no winner yet, result stays null (game not played)
+
+                    // Determine opponent
+                    const opponent = (playerPick === game.team1) ? game.team2 : game.team1;
+
+                    // Check if this was a contrarian pick
+                    const gameAnalysis = pickAnalysis[gameKey];
+                    const isContrarian = gameAnalysis && gameAnalysis.chalkPick &&
+                        playerPick !== gameAnalysis.chalkPick;
+
+                    gameResults.push({
+                        game: game.gameNumber,
+                        result: result,
+                        cumulativeWins: totalWins,
+                        cumulativeLosses: gameResults.filter(g => g.result === 'L').length,
+                        isStreak: currentStreak.count >= 3 && result !== null,
+                        matchup: {
+                            opponent: opponent,
+                            week: game.week,
+                            date: game.date,
+                            time: game.time,
+                            sheet: game.sheet
+                        },
+                        pick: playerPick,
+                        isContrarian: isContrarian,
+                        pickAnalysis: gameAnalysis
+                    });
                 });
 
-                const totalLosses = totalGames - totalWins;
+                // Filter only completed games for stats
+                const completedGames = gameResults.filter(g => g.result !== null);
+                const totalGames = completedGames.length;
+                const totalLosses = completedGames.filter(g => g.result === 'L').length;
                 const winPct = totalGames > 0 ? (totalWins / totalGames) * 100 : 0;
 
                 // Calculate contrarian stats
-                const contrarianPicks = gameResults.filter(g => g.isContrarian);
+                const contrarianPicks = completedGames.filter(g => g.isContrarian);
                 const contrarianWins = contrarianPicks.filter(g => g.result === 'W').length;
                 const contrarianTotal = contrarianPicks.length;
-                const contrarianPct = contrarianTotal > 0 ? (contrarianTotal / totalGames * 100) : 0;
+                const contrarianPct = totalGames > 0 ? (contrarianTotal / totalGames * 100) : 0;
                 const contrarianWinRate = contrarianTotal > 0 ? (contrarianWins / contrarianTotal * 100) : 0;
 
-                // Get recent form (last 5 games)
-                const recentForm = gameResults.slice(-5);
+                // Get recent form (last 5 completed games)
+                const recentForm = completedGames.slice(-5);
 
                 return {
                     name: name,
@@ -774,14 +777,14 @@
                     losses: totalLosses,
                     winPct: winPct,
                     recentForm: recentForm,
-                    allResults: gameResults,
+                    allResults: completedGames, // Only show completed games
                     contrarianTotal: contrarianTotal,
                     contrarianWins: contrarianWins,
                     contrarianLosses: contrarianTotal - contrarianWins,
                     contrarianPct: contrarianPct,
                     contrarianWinRate: contrarianWinRate
                 };
-            });
+            }).filter(p => p !== null);
 
             // Sort by wins (descending), then by win percentage
             players.sort((a, b) => {
@@ -1234,19 +1237,19 @@
 
         // Load and display data
         Promise.all([
-            d3.csv(resultsUrl),
-            d3.csv(scheduleUrl),
+            d3.csv(matchupsUrl),
             d3.csv(picksUrl)
-        ]).then(([results, schedule, picks]) => {
-            // Parse schedule and picks data first
-            scheduleData = parseSchedule(schedule);
-            picksData = parsePicks(picks);
+        ]).then(([matchups, picks]) => {
+            // Parse matchups CSV
+            const { gameMap, gamesArray } = parseMatchups(matchups);
+            matchupsData = gameMap;
+            allGames = gamesArray;
 
             // Analyze pick distribution to identify chalk/contrarian picks
-            pickAnalysis = analyzePickDistribution(picks, schedule);
+            pickAnalysis = analyzePickDistribution(picks, gameMap);
 
-            // Then process results with the additional data
-            leaderboardData = processData(results);
+            // Process picks data to create leaderboard
+            leaderboardData = processData(picks, gameMap, gamesArray);
             horseRaceData = leaderboardData; // Same data for horse race
 
             // Generate consistent colors for all players
