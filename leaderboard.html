@@ -221,35 +221,52 @@
             background-color: #e0e0e0;
         }
 
-        .expand-btn {
+        .expand-header-btn {
             cursor: pointer;
             color: #4CAF50;
             font-weight: bold;
-            font-size: 16px;
-            padding: 0 5px;
+            font-size: 18px;
+            margin-left: 8px;
             user-select: none;
             transition: transform 0.3s;
+            display: inline-block;
         }
 
-        .expand-btn:hover {
+        .expand-header-btn:hover {
             color: #45a049;
         }
 
-        .expand-btn.expanded {
+        .expand-header-btn.expanded {
             transform: rotate(90deg);
         }
 
-        .full-history {
-            display: none;
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.3s ease-out;
+        th.game-history-header {
+            cursor: pointer;
+            min-width: 150px;
         }
 
-        .full-history.show {
+        .game-history-cell {
+            transition: all 0.3s ease;
+        }
+
+        .game-history-cell.collapsed .recent-form {
             display: flex;
-            max-height: 500px;
-            overflow-x: auto;
+            gap: 3px;
+            justify-content: center;
+            flex-wrap: nowrap;
+        }
+
+        .game-history-cell.expanded .recent-form {
+            display: flex;
+            gap: 3px;
+            justify-content: flex-start;
+            flex-wrap: wrap;
+            max-width: 800px;
+            padding: 5px;
+        }
+
+        tbody tr:hover .game-history-cell {
+            background-color: #f8f9fa;
         }
 
         .streak-indicator {
@@ -338,7 +355,10 @@
                     <th class="center sortable" data-sort="wins">Wins</th>
                     <th class="center sortable" data-sort="losses">Losses</th>
                     <th class="center sortable" data-sort="winPct">Win %</th>
-                    <th class="center">Recent Form</th>
+                    <th class="center game-history-header" id="gameHistoryHeader">
+                        <span id="gameHistoryLabel">Recent Form</span>
+                        <span class="expand-header-btn" id="expandHeaderBtn" title="Expand to show all games">▶</span>
+                    </th>
                 </tr>
             </thead>
             <tbody id="leaderboardBody">
@@ -358,6 +378,7 @@
         let currentDirection = 'asc';
         let scheduleData = {};
         let picksData = {};
+        let isExpanded = false;
 
         // Parse schedule data and create player game mappings
         function parseSchedule(rawSchedule) {
@@ -549,7 +570,6 @@
 
             data.forEach((player, playerIndex) => {
                 const row = document.createElement('tr');
-                row.setAttribute('data-player-index', playerIndex);
 
                 // Rank with medal colors
                 let rankClass = 'rank';
@@ -563,8 +583,9 @@
                 else if (player.winPct >= 40) winPctClass += ' medium';
                 else winPctClass += ' low';
 
-                // Recent form indicators with expand button
-                const recentFormHtml = player.recentForm.map(gameData =>
+                // Show either recent form or all games based on expanded state
+                const gamesToShow = isExpanded ? player.allResults : player.recentForm;
+                const gameHistoryHtml = gamesToShow.map(gameData =>
                     renderGameCell(gameData, player)
                 ).join('');
 
@@ -574,35 +595,12 @@
                     <td class="center">${player.wins}</td>
                     <td class="center">${player.losses}</td>
                     <td class="center ${winPctClass}">${player.winPct.toFixed(1)}%</td>
-                    <td class="center">
-                        <div style="display: flex; align-items: center; justify-content: center; gap: 5px;">
-                            <span class="expand-btn" data-player-index="${playerIndex}">▶</span>
-                            <div class="recent-form">${recentFormHtml}</div>
-                        </div>
-                        <div class="full-history" id="full-history-${playerIndex}">
-                            ${renderAllGames(player)}
-                        </div>
+                    <td class="center game-history-cell ${isExpanded ? 'expanded' : 'collapsed'}">
+                        <div class="recent-form">${gameHistoryHtml}</div>
                     </td>
                 `;
 
                 tbody.appendChild(row);
-            });
-
-            // Setup expand/collapse handlers
-            document.querySelectorAll('.expand-btn').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const playerIndex = this.getAttribute('data-player-index');
-                    const fullHistory = document.getElementById(`full-history-${playerIndex}`);
-                    const isExpanded = fullHistory.classList.contains('show');
-
-                    if (isExpanded) {
-                        fullHistory.classList.remove('show');
-                        this.classList.remove('expanded');
-                    } else {
-                        fullHistory.classList.add('show');
-                        this.classList.add('expanded');
-                    }
-                });
             });
         }
 
@@ -618,11 +616,26 @@
                 onmouseleave="hideTooltip()">${gameData.result}${streakDot}</span>`;
         }
 
-        // Render all games for expanded view
-        function renderAllGames(player) {
-            return player.allResults.map(gameData =>
-                renderGameCell(gameData, player)
-            ).join('');
+        // Toggle expand/collapse for all players
+        function toggleExpandCollapse() {
+            isExpanded = !isExpanded;
+
+            const expandBtn = document.getElementById('expandHeaderBtn');
+            const label = document.getElementById('gameHistoryLabel');
+
+            if (isExpanded) {
+                expandBtn.classList.add('expanded');
+                expandBtn.title = 'Collapse to show recent form';
+                label.textContent = 'Game History';
+            } else {
+                expandBtn.classList.remove('expanded');
+                expandBtn.title = 'Expand to show all games';
+                label.textContent = 'Recent Form';
+            }
+
+            // Re-render the leaderboard with the new state
+            const sortedData = sortData(leaderboardData, currentSort, currentDirection);
+            renderLeaderboard(sortedData);
         }
 
         // Show tooltip
@@ -716,6 +729,22 @@
             });
         }
 
+        // Setup expand/collapse button
+        function setupExpandCollapse() {
+            const expandBtn = document.getElementById('expandHeaderBtn');
+            const gameHistoryHeader = document.getElementById('gameHistoryHeader');
+
+            // Click on either the button or the header to toggle
+            const toggleHandler = (e) => {
+                // Prevent sorting if clicking on the game history header
+                e.stopPropagation();
+                toggleExpandCollapse();
+            };
+
+            expandBtn.addEventListener('click', toggleHandler);
+            gameHistoryHeader.addEventListener('click', toggleHandler);
+        }
+
         // Load and display data
         Promise.all([
             d3.csv(resultsUrl),
@@ -748,6 +777,7 @@
             renderStatsSummary(leaderboardData);
             renderLeaderboard(leaderboardData);
             setupHeaderSort();
+            setupExpandCollapse();
 
         }).catch(error => {
             console.error("Error fetching or parsing CSV:", error);
