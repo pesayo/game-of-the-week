@@ -200,6 +200,13 @@
             color: white;
             text-align: center;
             line-height: 20px;
+            cursor: pointer;
+            transition: opacity 0.2s, transform 0.2s;
+        }
+
+        .form-indicator:hover {
+            opacity: 0.8;
+            transform: scale(1.1);
         }
 
         .form-indicator.win {
@@ -208,6 +215,64 @@
 
         .form-indicator.loss {
             background-color: #f44336;
+        }
+
+        .form-indicator.no-game {
+            background-color: #e0e0e0;
+        }
+
+        .expand-btn {
+            cursor: pointer;
+            color: #4CAF50;
+            font-weight: bold;
+            font-size: 16px;
+            padding: 0 5px;
+            user-select: none;
+            transition: transform 0.3s;
+        }
+
+        .expand-btn:hover {
+            color: #45a049;
+        }
+
+        .expand-btn.expanded {
+            transform: rotate(90deg);
+        }
+
+        .full-history {
+            display: none;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+        }
+
+        .full-history.show {
+            display: flex;
+            max-height: 500px;
+            overflow-x: auto;
+        }
+
+        .streak-indicator {
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background-color: gold;
+        }
+
+        .tooltip {
+            position: absolute;
+            padding: 10px;
+            background-color: rgba(0, 0, 0, 0.9);
+            color: white;
+            border-radius: 5px;
+            font-size: 13px;
+            pointer-events: none;
+            display: none;
+            z-index: 1000;
+            max-width: 200px;
         }
 
         .loading {
@@ -279,14 +344,73 @@
             <tbody id="leaderboardBody">
             </tbody>
         </table>
+
+        <div class="tooltip" id="tooltip"></div>
     </div>
 
     <script>
-        const csvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQzlWT-fLjZtuIgD_dkw5GGv-nswtEDuLqvhPsCXsZjFT-RyCtHVktApaeZCTT3uag9veMcIenXVpV3/pub?gid=927965067&single=true&output=csv";
+        const resultsUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQzlWT-fLjZtuIgD_dkw5GGv-nswtEDuLqvhPsCXsZjFT-RyCtHVktApaeZCTT3uag9veMcIenXVpV3/pub?gid=927965067&single=true&output=csv";
+        const picksUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQnmmhuQnwWZWLj4zxw-kxRFH-uiZ4AeGA2OmA4ngMJN5xuZgPmSNjH79V6ibSuLlsP7_sa7O-0psur/pub?output=csv";
+        const scheduleUrl = "game-of-the-week-2025-2026.csv";
 
         let leaderboardData = [];
         let currentSort = 'rank';
         let currentDirection = 'asc';
+        let scheduleData = {};
+        let picksData = {};
+
+        // Parse schedule data and create player game mappings
+        function parseSchedule(rawSchedule) {
+            const playerGameMap = {};
+
+            rawSchedule.forEach((row, index) => {
+                const leagueGameNum = index + 1;
+                const gameInfo = {
+                    leagueGame: leagueGameNum,
+                    team1: row.Team1_Skip,
+                    team2: row.Team2_Skip,
+                    week: row.Week,
+                    date: row.Date,
+                    time: row.Time,
+                    sheet: row.Sheet
+                };
+
+                if (!playerGameMap[row.Team1_Skip]) {
+                    playerGameMap[row.Team1_Skip] = [];
+                }
+                if (!playerGameMap[row.Team2_Skip]) {
+                    playerGameMap[row.Team2_Skip] = [];
+                }
+
+                playerGameMap[row.Team1_Skip].push({...gameInfo, opponent: row.Team2_Skip});
+                playerGameMap[row.Team2_Skip].push({...gameInfo, opponent: row.Team1_Skip});
+            });
+
+            return playerGameMap;
+        }
+
+        // Parse picks data
+        function parsePicks(rawPicks) {
+            const picks = {};
+            rawPicks.forEach(row => {
+                const headers = Object.keys(row);
+                const nameHeader = headers.find(h => h.toLowerCase().includes('name') || h === headers[1]);
+                const playerName = row[nameHeader];
+
+                if (!playerName) return;
+
+                picks[playerName] = {};
+
+                headers.forEach(header => {
+                    const gameMatch = header.match(/Week (\d+)/i);
+                    if (gameMatch) {
+                        const gameNum = parseInt(gameMatch[1], 10);
+                        picks[playerName][gameNum] = row[header];
+                    }
+                });
+            });
+            return picks;
+        }
 
         // Process CSV data into leaderboard format
         function processData(rawData) {
@@ -298,25 +422,52 @@
 
             const players = rawData.map(row => {
                 const name = row[nameHeader];
-                const games = [];
+                const gameResults = [];
                 let totalGames = 0;
                 let totalWins = 0;
+                let currentStreak = { type: null, count: 0 };
 
                 // Process each game
-                gameHeaders.forEach(gameHeader => {
-                    const wins = parseInt(row[gameHeader], 10);
-                    if (!isNaN(wins)) {
+                gameHeaders.forEach((gameHeader, index) => {
+                    const cumulativeWins = parseInt(row[gameHeader], 10);
+                    if (!isNaN(cumulativeWins)) {
                         const gameNumber = parseInt(gameHeader.replace('Game', ''), 10);
                         totalGames = gameNumber;
-                        totalWins = wins;
+                        totalWins = cumulativeWins;
 
                         // Calculate if this game was a win or loss
-                        if (games.length === 0) {
-                            games.push(wins > 0 ? 'W' : 'L');
+                        let result;
+                        if (index === 0) {
+                            result = cumulativeWins > 0 ? 'W' : 'L';
                         } else {
-                            const previousWins = parseInt(row[gameHeaders[games.length - 1]], 10);
-                            games.push(wins > previousWins ? 'W' : 'L');
+                            const previousWins = parseInt(row[gameHeaders[index - 1]], 10);
+                            result = cumulativeWins > previousWins ? 'W' : 'L';
                         }
+
+                        // Track streaks
+                        if (currentStreak.type === result) {
+                            currentStreak.count++;
+                        } else {
+                            currentStreak = { type: result, count: 1 };
+                        }
+
+                        // Get matchup information for this player's Nth game
+                        const playerGames = scheduleData[name];
+                        const matchup = playerGames && playerGames[gameNumber - 1];
+
+                        // Get pick information - use week number from matchup
+                        const weekNum = matchup ? parseInt(matchup.week, 10) : null;
+                        const playerPick = weekNum ? picksData[name]?.[weekNum] : null;
+
+                        gameResults.push({
+                            game: gameNumber,
+                            result: result,
+                            cumulativeWins: cumulativeWins,
+                            cumulativeLosses: gameNumber - cumulativeWins,
+                            isStreak: currentStreak.count >= 3,
+                            matchup: matchup,
+                            pick: playerPick
+                        });
                     }
                 });
 
@@ -324,7 +475,7 @@
                 const winPct = totalGames > 0 ? (totalWins / totalGames) * 100 : 0;
 
                 // Get recent form (last 5 games)
-                const recentForm = games.slice(-5);
+                const recentForm = gameResults.slice(-5);
 
                 return {
                     name: name,
@@ -333,7 +484,7 @@
                     losses: totalLosses,
                     winPct: winPct,
                     recentForm: recentForm,
-                    allResults: games
+                    allResults: gameResults
                 };
             });
 
@@ -396,8 +547,9 @@
             const tbody = document.getElementById('leaderboardBody');
             tbody.innerHTML = '';
 
-            data.forEach(player => {
+            data.forEach((player, playerIndex) => {
                 const row = document.createElement('tr');
+                row.setAttribute('data-player-index', playerIndex);
 
                 // Rank with medal colors
                 let rankClass = 'rank';
@@ -411,9 +563,9 @@
                 else if (player.winPct >= 40) winPctClass += ' medium';
                 else winPctClass += ' low';
 
-                // Recent form indicators
-                const formHtml = player.recentForm.map(result =>
-                    `<span class="form-indicator ${result === 'W' ? 'win' : 'loss'}">${result}</span>`
+                // Recent form indicators with expand button
+                const recentFormHtml = player.recentForm.map(gameData =>
+                    renderGameCell(gameData, player)
                 ).join('');
 
                 row.innerHTML = `
@@ -423,12 +575,82 @@
                     <td class="center">${player.losses}</td>
                     <td class="center ${winPctClass}">${player.winPct.toFixed(1)}%</td>
                     <td class="center">
-                        <div class="recent-form">${formHtml}</div>
+                        <div style="display: flex; align-items: center; justify-content: center; gap: 5px;">
+                            <span class="expand-btn" data-player-index="${playerIndex}">▶</span>
+                            <div class="recent-form">${recentFormHtml}</div>
+                        </div>
+                        <div class="full-history" id="full-history-${playerIndex}">
+                            ${renderAllGames(player)}
+                        </div>
                     </td>
                 `;
 
                 tbody.appendChild(row);
             });
+
+            // Setup expand/collapse handlers
+            document.querySelectorAll('.expand-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const playerIndex = this.getAttribute('data-player-index');
+                    const fullHistory = document.getElementById(`full-history-${playerIndex}`);
+                    const isExpanded = fullHistory.classList.contains('show');
+
+                    if (isExpanded) {
+                        fullHistory.classList.remove('show');
+                        this.classList.remove('expanded');
+                    } else {
+                        fullHistory.classList.add('show');
+                        this.classList.add('expanded');
+                    }
+                });
+            });
+        }
+
+        // Render a single game cell
+        function renderGameCell(gameData, player) {
+            const cellClass = gameData.result === 'W' ? 'win' : 'loss';
+            const streakDot = gameData.isStreak ? '<div class="streak-indicator"></div>' : '';
+
+            return `<span class="form-indicator ${cellClass}"
+                data-player="${player.name}"
+                data-game="${gameData.game}"
+                onmouseenter="showTooltip(event, '${player.name.replace(/'/g, "\\'")}', ${JSON.stringify(gameData).replace(/"/g, '&quot;')})"
+                onmouseleave="hideTooltip()">${gameData.result}${streakDot}</span>`;
+        }
+
+        // Render all games for expanded view
+        function renderAllGames(player) {
+            return player.allResults.map(gameData =>
+                renderGameCell(gameData, player)
+            ).join('');
+        }
+
+        // Show tooltip
+        function showTooltip(event, playerName, gameData) {
+            const tooltip = document.getElementById('tooltip');
+
+            let tooltipHtml = `<strong>${playerName}</strong><br>`;
+            tooltipHtml += `Game ${gameData.game}: <strong>${gameData.result === 'W' ? 'Win ✓' : 'Loss ✗'}</strong><br>`;
+
+            if (gameData.matchup) {
+                tooltipHtml += `<strong>vs</strong> ${gameData.matchup.opponent}<br>`;
+            }
+
+            if (gameData.pick) {
+                tooltipHtml += `<strong>Picked:</strong> ${gameData.pick}<br>`;
+            }
+
+            tooltipHtml += `<strong>Record:</strong> ${gameData.cumulativeWins}-${gameData.cumulativeLosses}`;
+
+            tooltip.innerHTML = tooltipHtml;
+            tooltip.style.display = 'block';
+            tooltip.style.left = (event.pageX + 15) + 'px';
+            tooltip.style.top = (event.pageY - 10) + 'px';
+        }
+
+        // Hide tooltip
+        function hideTooltip() {
+            document.getElementById('tooltip').style.display = 'none';
         }
 
         // Sort data
@@ -495,8 +717,17 @@
         }
 
         // Load and display data
-        d3.csv(csvUrl).then(data => {
-            leaderboardData = processData(data);
+        Promise.all([
+            d3.csv(resultsUrl),
+            d3.csv(scheduleUrl),
+            d3.csv(picksUrl)
+        ]).then(([results, schedule, picks]) => {
+            // Parse schedule and picks data first
+            scheduleData = parseSchedule(schedule);
+            picksData = parsePicks(picks);
+
+            // Then process results with the additional data
+            leaderboardData = processData(results);
 
             // Hide loading, show table
             document.getElementById('loadingMessage').style.display = 'none';
