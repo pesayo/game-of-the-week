@@ -1,0 +1,31 @@
+Week,Date,Phase,Team1_Number,Team1_Skip,Team2_Number,Team2_Skip,Key_Matchup
+3,November 12,1,11,Allan Veler,14,Jim Neidhart,Yes
+4,November 19,1,5,Dave Peterson,11,Allan Veler,Yes
+5,November 26,1,8,Marcus Oldenburg,17,Steve Oakeson,Yes
+6,December 10,1,7,Timothy J Ebert,17,Steve Oakeson,Yes
+7,December 17,1,6,Matthew Hamilton,10,Ben McPhee,Yes
+8,January 7,2,3,Paul Ryan,9,Mike Krajewski,Yes
+8,January 7,2,12,Josh Koehler,16,Ken Neidhart,Yes
+9,January 14,2,1,Andrew Kozloski,4,Justin Ramm,No
+9,January 14,2,2,Charley Shilling,15,Aaren Christen,No
+10,January 28,2,7,Timothy J Ebert,12,Josh Koehler,Yes
+10,January 28,2,1,Andrew Kozloski,13,Garret Perry,No
+11,February 4,2,7,Timothy J Ebert,14,Jim Neidhart,Yes
+11,February 4,2,3,Paul Ryan,4,Justin Ramm,No
+12,February 11,2,8,Marcus Oldenburg,9,Mike Krajewski,Yes
+12,February 11,2,4,Justin Ramm,14,Jim Neidhart,No
+13,February 18,3,6,Matthew Hamilton,8,Marcus Oldenburg,Yes
+13,February 18,3,5,Dave Peterson,7,Timothy J Ebert,No
+13,February 18,3,2,Charley Shilling,17,Steve Oakeson,No
+14,February 25,3,13,Garret Perry,15,Aaren Christen,Yes
+14,February 25,3,1,Andrew Kozloski,8,Marcus Oldenburg,Yes
+14,February 25,3,5,Dave Peterson,12,Josh Koehler,Yes
+15,March 4,3,3,Paul Ryan,10,Ben McPhee,Yes
+15,March 4,3,14,Jim Neidhart,16,Ken Neidhart,Yes
+15,March 4,3,9,Mike Krajewski,11,Allan Veler,No
+16,March 11,3,2,Charley Shilling,5,Dave Peterson,Yes
+16,March 11,3,4,Justin Ramm,15,Aaren Christen,Yes
+16,March 11,3,1,Andrew Kozloski,17,Steve Oakeson,Yes
+17,March 18,3,2,Charley Shilling,10,Ben McPhee,No
+17,March 18,3,6,Matthew Hamilton,12,Josh Koehler,No
+17,March 18,3,13,Garret Perry,16,Ken Neidhart,No
