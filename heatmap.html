@@ -327,10 +327,58 @@
     </div>
 
     <script>
-        const csvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQzlWT-fLjZtuIgD_dkw5GGv-nswtEDuLqvhPsCXsZjFT-RyCtHVktApaeZCTT3uag9veMcIenXVpV3/pub?gid=927965067&single=true&output=csv";
+        const resultsUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQzlWT-fLjZtuIgD_dkw5GGv-nswtEDuLqvhPsCXsZjFT-RyCtHVktApaeZCTT3uag9veMcIenXVpV3/pub?gid=927965067&single=true&output=csv";
+        const picksUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQnmmhuQnwWZWLj4zxw-kxRFH-uiZ4AeGA2OmA4ngMJN5xuZgPmSNjH79V6ibSuLlsP7_sa7O-0psur/pub?output=csv";
+        const scheduleUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQzlWT-fLjZtuIgD_dkw5GGv-nswtEDuLqvhPsCXsZjFT-RyCtHVktApaeZCTT3uag9veMcIenXVpV3/pub?gid=0&single=true&output=csv";
 
         let heatmapData = [];
         let currentSort = 'rank';
+        let scheduleData = {};
+        let picksData = {};
+
+        // Parse schedule data
+        function parseSchedule(rawSchedule) {
+            const schedule = {};
+            rawSchedule.forEach(row => {
+                const gameNum = parseInt(row.Week || row.Game, 10);
+                if (!schedule[gameNum]) {
+                    schedule[gameNum] = [];
+                }
+                schedule[gameNum].push({
+                    team1: row.Team1_Skip,
+                    team2: row.Team2_Skip,
+                    date: row.Date,
+                    time: row.Time,
+                    sheet: row.Sheet
+                });
+            });
+            return schedule;
+        }
+
+        // Parse picks data
+        function parsePicks(rawPicks) {
+            const picks = {};
+            rawPicks.forEach(row => {
+                const headers = Object.keys(row);
+                // First column is typically timestamp or email, second is name
+                const nameHeader = headers.find(h => h.toLowerCase().includes('name') || h === headers[1]);
+                const playerName = row[nameHeader];
+
+                if (!playerName) return;
+
+                picks[playerName] = {};
+
+                // Process each game column
+                headers.forEach(header => {
+                    const gameMatch = header.match(/Week (\d+)/i);
+                    if (gameMatch) {
+                        const gameNum = parseInt(gameMatch[1], 10);
+                        picks[playerName][gameNum] = row[header];
+                    }
+                });
+            });
+            return picks;
+        }
 
         // Process CSV data into heatmap format
         function processData(rawData) {
@@ -380,12 +428,26 @@
                             maxLossStreak = currentStreak.count;
                         }
 
+                        // Get pick information
+                        const playerPick = picksData[name]?.[gameNumber];
+
+                        // Get matchup information
+                        const matchups = scheduleData[gameNumber];
+                        let matchup = null;
+                        if (matchups) {
+                            matchup = matchups.find(m =>
+                                m.team1 === name || m.team2 === name
+                            );
+                        }
+
                         gameResults.push({
                             game: gameNumber,
                             result: result,
                             cumulativeWins: cumulativeWins,
                             cumulativeLosses: gameNumber - cumulativeWins,
-                            isStreak: currentStreak.count >= 3
+                            isStreak: currentStreak.count >= 3,
+                            pick: playerPick,
+                            matchup: matchup
                         });
                     }
                 });
@@ -526,11 +588,25 @@
         // Show tooltip
         function showTooltip(event, player, gameData) {
             const tooltip = document.getElementById('tooltip');
-            tooltip.innerHTML = `
-                <strong>${player.name}</strong><br>
-                Game ${gameData.game}: <strong>${gameData.result === 'W' ? 'Win' : 'Loss'}</strong><br>
-                Record: ${gameData.cumulativeWins}-${gameData.cumulativeLosses}
-            `;
+
+            let tooltipHtml = `<strong>${player.name}</strong><br>`;
+            tooltipHtml += `Game ${gameData.game}: <strong>${gameData.result === 'W' ? 'Win ✓' : 'Loss ✗'}</strong><br>`;
+
+            // Show matchup if available
+            if (gameData.matchup) {
+                const opponent = gameData.matchup.team1 === player.name ?
+                    gameData.matchup.team2 : gameData.matchup.team1;
+                tooltipHtml += `<strong>vs</strong> ${opponent}<br>`;
+            }
+
+            // Show pick if available
+            if (gameData.pick) {
+                tooltipHtml += `<strong>Picked:</strong> ${gameData.pick}<br>`;
+            }
+
+            tooltipHtml += `<strong>Record:</strong> ${gameData.cumulativeWins}-${gameData.cumulativeLosses}`;
+
+            tooltip.innerHTML = tooltipHtml;
             tooltip.style.display = 'block';
             tooltip.style.left = (event.pageX + 15) + 'px';
             tooltip.style.top = (event.pageY - 10) + 'px';
@@ -582,8 +658,17 @@
         }
 
         // Load and display data
-        d3.csv(csvUrl).then(data => {
-            heatmapData = processData(data);
+        Promise.all([
+            d3.csv(resultsUrl),
+            d3.csv(scheduleUrl),
+            d3.csv(picksUrl)
+        ]).then(([results, schedule, picks]) => {
+            // Parse schedule and picks data first
+            scheduleData = parseSchedule(schedule);
+            picksData = parsePicks(picks);
+
+            // Then process results with the additional data
+            heatmapData = processData(results);
 
             // Hide loading, show heatmap
             document.getElementById('loadingMessage').style.display = 'none';
