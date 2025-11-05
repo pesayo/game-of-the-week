@@ -450,6 +450,143 @@
             max-width: 200px;
         }
 
+        /* What-If Analysis Styles */
+        .whatif-section {
+            grid-column: 1 / -1;
+            margin-top: 20px;
+        }
+
+        .whatif-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .whatif-btn {
+            padding: 8px 16px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #4CAF50;
+            color: white;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.2s;
+        }
+
+        .whatif-btn:hover {
+            background-color: #45a049;
+        }
+
+        .whatif-btn.secondary {
+            background-color: #f8f8f8;
+            color: #333;
+        }
+
+        .whatif-btn.secondary:hover {
+            background-color: #e8e8e8;
+        }
+
+        .upcoming-games {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .game-card {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            border: 2px solid #e0e0e0;
+        }
+
+        .game-card-header {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 10px;
+        }
+
+        .game-matchup {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .team-option {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            border: 2px solid transparent;
+        }
+
+        .team-option:hover {
+            background-color: #e8e8e8;
+        }
+
+        .team-option.selected {
+            background-color: #4CAF50;
+            color: white;
+            border-color: #45a049;
+        }
+
+        .team-option.chalk {
+            border-color: #FF6B35;
+        }
+
+        .team-option input[type="radio"] {
+            margin-right: 10px;
+        }
+
+        .team-name {
+            flex-grow: 1;
+        }
+
+        .pick-count {
+            font-size: 11px;
+            opacity: 0.8;
+        }
+
+        .whatif-results {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 1024px) {
+            .whatif-results {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .comparison-table {
+            width: 100%;
+        }
+
+        .comparison-table th {
+            background-color: #f8f9fa;
+        }
+
+        .rank-change {
+            font-size: 12px;
+            font-weight: bold;
+            margin-left: 8px;
+        }
+
+        .rank-change.up {
+            color: #4CAF50;
+        }
+
+        .rank-change.down {
+            color: #f44336;
+        }
+
+        .rank-change.same {
+            color: #999;
+        }
+
         .loading {
             text-align: center;
             padding: 40px;
@@ -544,6 +681,30 @@
                 <div class="race-legend" id="raceLegend"></div>
             </section>
 
+            <!-- What-If Analysis Section -->
+            <section class="section whatif-section" id="whatifSection" style="display: none;">
+                <h2 class="section-title">🔮 What-If Analysis</h2>
+                <p style="color: #666; margin-bottom: 20px;">Select winners for upcoming games to see how it would affect the standings.</p>
+
+                <div class="whatif-controls">
+                    <button class="whatif-btn secondary" id="resetWhatif">Reset All</button>
+                    <button class="whatif-btn secondary" id="pickAllChalk">Pick All Chalk</button>
+                </div>
+
+                <div class="upcoming-games" id="upcomingGames"></div>
+
+                <div class="whatif-results" id="whatifResults" style="display: none;">
+                    <div>
+                        <h3 style="margin-top: 0;">Current Standings</h3>
+                        <table class="comparison-table" id="currentStandingsTable"></table>
+                    </div>
+                    <div>
+                        <h3 style="margin-top: 0;">Projected Standings</h3>
+                        <table class="comparison-table" id="projectedStandingsTable"></table>
+                    </div>
+                </div>
+            </section>
+
         </div> <!-- end dashboard-grid -->
     </div> <!-- end dashboard-container -->
 
@@ -560,6 +721,8 @@
         let horseRaceData = [];
         let playerColors = {};
         let pickAnalysis = {}; // Stores majority picks and distribution
+        let whatifSelections = {}; // Stores what-if game winner selections
+        let rawPicksData = []; // Store raw picks for what-if calculations
 
         // Sanitize player name for use in CSS selectors
         function sanitizeName(name) {
@@ -1235,11 +1398,196 @@
             gameHistoryHeader.addEventListener('click', toggleHandler);
         }
 
+        // ===== WHAT-IF ANALYSIS FUNCTIONS =====
+
+        // Get upcoming (unplayed) games
+        function getUpcomingGames() {
+            return allGames.filter(game => !game.winner);
+        }
+
+        // Render what-if analysis panel
+        function renderWhatIfPanel() {
+            const upcomingGames = getUpcomingGames();
+
+            if (upcomingGames.length === 0) {
+                document.getElementById('whatifSection').style.display = 'none';
+                return;
+            }
+
+            document.getElementById('whatifSection').style.display = 'block';
+            const container = document.getElementById('upcomingGames');
+            container.innerHTML = '';
+
+            upcomingGames.forEach(game => {
+                const analysis = pickAnalysis[game.gameKey];
+                const card = document.createElement('div');
+                card.className = 'game-card';
+
+                const team1IsChalk = analysis && analysis.chalkPick === game.team1;
+                const team2IsChalk = analysis && analysis.chalkPick === game.team2;
+
+                card.innerHTML = `
+                    <div class="game-card-header">
+                        Week ${game.week} | ${game.date} | ${game.time} | Sheet ${game.sheet}
+                    </div>
+                    <div class="game-matchup">
+                        <div class="team-option ${team1IsChalk ? 'chalk' : ''} ${whatifSelections[game.gameKey] === game.team1 ? 'selected' : ''}"
+                             data-gamekey="${game.gameKey}" data-team="${game.team1}">
+                            <input type="radio" name="game-${game.gameKey}" value="${game.team1}"
+                                   ${whatifSelections[game.gameKey] === game.team1 ? 'checked' : ''}>
+                            <span class="team-name">${game.team1}</span>
+                            ${analysis ? `<span class="pick-count">${analysis.team1Picks} picks</span>` : ''}
+                        </div>
+                        <div class="team-option ${team2IsChalk ? 'chalk' : ''} ${whatifSelections[game.gameKey] === game.team2 ? 'selected' : ''}"
+                             data-gamekey="${game.gameKey}" data-team="${game.team2}">
+                            <input type="radio" name="game-${game.gameKey}" value="${game.team2}"
+                                   ${whatifSelections[game.gameKey] === game.team2 ? 'checked' : ''}>
+                            <span class="team-name">${game.team2}</span>
+                            ${analysis ? `<span class="pick-count">${analysis.team2Picks} picks</span>` : ''}
+                        </div>
+                    </div>
+                `;
+
+                container.appendChild(card);
+            });
+
+            // Add click handlers
+            document.querySelectorAll('.team-option').forEach(option => {
+                option.addEventListener('click', function() {
+                    const gameKey = this.dataset.gamekey;
+                    const team = this.dataset.team;
+                    selectWhatIfWinner(gameKey, team);
+                });
+            });
+        }
+
+        // Handle what-if winner selection
+        function selectWhatIfWinner(gameKey, team) {
+            whatifSelections[gameKey] = team;
+            renderWhatIfPanel(); // Re-render to update UI
+            updateProjectedStandings();
+        }
+
+        // Calculate projected standings based on what-if selections
+        function calculateProjectedStandings() {
+            // Create a copy of matchups data with what-if winners applied
+            const whatifGameMap = {};
+            Object.keys(matchupsData).forEach(key => {
+                whatifGameMap[key] = { ...matchupsData[key] };
+                if (whatifSelections[key]) {
+                    whatifGameMap[key].winner = whatifSelections[key];
+                }
+            });
+
+            // Recalculate standings with what-if results
+            return processData(rawPicksData, whatifGameMap, allGames);
+        }
+
+        // Update projected standings display
+        function updateProjectedStandings() {
+            const hasSelections = Object.keys(whatifSelections).length > 0;
+
+            if (!hasSelections) {
+                document.getElementById('whatifResults').style.display = 'none';
+                return;
+            }
+
+            document.getElementById('whatifResults').style.display = 'grid';
+
+            const projectedData = calculateProjectedStandings();
+
+            renderComparisonTable('currentStandingsTable', leaderboardData, null);
+            renderComparisonTable('projectedStandingsTable', projectedData, leaderboardData);
+        }
+
+        // Render comparison table
+        function renderComparisonTable(tableId, data, compareData) {
+            const table = document.getElementById(tableId);
+
+            let html = `
+                <thead>
+                    <tr>
+                        <th class="center">Rank</th>
+                        <th>Player</th>
+                        <th class="center">W</th>
+                        <th class="center">L</th>
+                        <th class="center">Win %</th>
+                    </tr>
+                </thead>
+                <tbody>
+            `;
+
+            data.forEach((player, index) => {
+                let rankClass = 'rank';
+                if (player.rank === 1) rankClass += ' gold';
+                else if (player.rank === 2) rankClass += ' silver';
+                else if (player.rank === 3) rankClass += ' bronze';
+
+                let winPctClass = 'win-percentage';
+                if (player.winPct >= 60) winPctClass += ' high';
+                else if (player.winPct >= 40) winPctClass += ' medium';
+                else winPctClass += ' low';
+
+                // Calculate rank change if comparing
+                let rankChange = '';
+                if (compareData) {
+                    const oldPlayer = compareData.find(p => p.name === player.name);
+                    if (oldPlayer) {
+                        const change = oldPlayer.rank - player.rank;
+                        if (change > 0) {
+                            rankChange = `<span class="rank-change up">▲${change}</span>`;
+                        } else if (change < 0) {
+                            rankChange = `<span class="rank-change down">▼${Math.abs(change)}</span>`;
+                        } else {
+                            rankChange = `<span class="rank-change same">―</span>`;
+                        }
+                    }
+                }
+
+                html += `
+                    <tr>
+                        <td class="center ${rankClass}">${player.rank}${rankChange}</td>
+                        <td class="player-name">${player.name}</td>
+                        <td class="center">${player.wins}</td>
+                        <td class="center">${player.losses}</td>
+                        <td class="center ${winPctClass}">${player.winPct.toFixed(1)}%</td>
+                    </tr>
+                `;
+            });
+
+            html += '</tbody>';
+            table.innerHTML = html;
+        }
+
+        // Setup what-if controls
+        function setupWhatIfControls() {
+            document.getElementById('resetWhatif').addEventListener('click', () => {
+                whatifSelections = {};
+                renderWhatIfPanel();
+                updateProjectedStandings();
+            });
+
+            document.getElementById('pickAllChalk').addEventListener('click', () => {
+                const upcomingGames = getUpcomingGames();
+                upcomingGames.forEach(game => {
+                    const analysis = pickAnalysis[game.gameKey];
+                    if (analysis && analysis.chalkPick) {
+                        whatifSelections[game.gameKey] = analysis.chalkPick;
+                    }
+                });
+                renderWhatIfPanel();
+                updateProjectedStandings();
+            });
+        }
+
         // Load and display data
         Promise.all([
             d3.csv(matchupsUrl),
             d3.csv(picksUrl)
         ]).then(([matchups, picks]) => {
+            // Store raw picks for what-if calculations
+            rawPicksData = picks;
+
             // Parse matchups CSV
             const { gameMap, gamesArray } = parseMatchups(matchups);
             matchupsData = gameMap;
@@ -1277,6 +1625,10 @@
             setupHeaderSort();
             setupExpandCollapse();
             setupRaceControls();
+
+            // Setup what-if analysis
+            renderWhatIfPanel();
+            setupWhatIfControls();
 
         }).catch(error => {
             console.error("Error fetching or parsing CSV:", error);
