@@ -511,8 +511,13 @@
 
         /* What-If Analysis Styles */
         .whatif-section {
-            grid-column: 1 / -1;
             margin-top: 20px;
+        }
+
+        @media (min-width: 1200px) {
+            .whatif-section {
+                grid-column: 2;
+            }
         }
 
         .whatif-controls {
@@ -1484,16 +1489,18 @@
 
         // Render statistics summary
         function renderStatsSummary(data) {
-            const totalGames = data.reduce((sum, p) => sum + p.games, 0) / 2; // Divide by 2 since each game counts twice
-            const avgWinPct = data.reduce((sum, p) => sum + p.winPct, 0) / data.length;
-            const topWins = data[0]?.wins || 0;
-            const totalPlayers = data.length;
+            // Count actual curling games that have been played (have a winner)
+            const gamesPlayed = allGames.filter(game => game.winner).length;
 
-            // Find most contrarian player
-            const mostContrarian = [...data].sort((a, b) => b.contrarianPct - a.contrarianPct)[0];
-            const bestContrarianWinRate = [...data]
-                .filter(p => p.contrarianTotal >= 2) // At least 2 contrarian picks
-                .sort((a, b) => b.contrarianWinRate - a.contrarianWinRate)[0];
+            // Calculate total wins and losses across all players
+            const totalWins = data.reduce((sum, p) => sum + p.wins, 0);
+            const totalLosses = data.reduce((sum, p) => sum + p.losses, 0);
+            const totalGames = totalWins + totalLosses;
+
+            // Calculate average win rate
+            const avgWinPct = totalGames > 0 ? (totalWins / totalGames * 100) : 0;
+
+            const totalPlayers = data.length;
 
             const html = `
                 <div class="stat-card">
@@ -1502,25 +1509,15 @@
                 </div>
                 <div class="stat-card">
                     <div class="stat-label">Games Played</div>
-                    <div class="stat-value">${Math.round(totalGames)}</div>
+                    <div class="stat-value">${gamesPlayed}</div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-label">Leader Wins</div>
-                    <div class="stat-value">${topWins}</div>
+                    <div class="stat-label">Total Record</div>
+                    <div class="stat-value" style="font-size: 20px;">${totalWins}-${totalLosses}</div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-label">Avg Win Rate</div>
                     <div class="stat-value">${avgWinPct.toFixed(1)}%</div>
-                </div>
-                <div class="stat-card" style="border-left: 4px solid #FF6B35;">
-                    <div class="stat-label">🔥 Most Contrarian</div>
-                    <div class="stat-value" style="font-size: 16px;">${mostContrarian?.name || 'N/A'}</div>
-                    <div style="font-size: 12px; color: #666;">${mostContrarian?.contrarianTotal || 0} picks (${mostContrarian?.contrarianPct.toFixed(0)}%)</div>
-                </div>
-                <div class="stat-card" style="border-left: 4px solid #FF6B35;">
-                    <div class="stat-label">🎯 Best Against Grain</div>
-                    <div class="stat-value" style="font-size: 16px;">${bestContrarianWinRate?.name || 'N/A'}</div>
-                    <div style="font-size: 12px; color: #666;">${bestContrarianWinRate?.contrarianWins || 0}-${bestContrarianWinRate?.contrarianLosses || 0} (${bestContrarianWinRate?.contrarianWinRate.toFixed(0)}%)</div>
                 </div>
             `;
 
