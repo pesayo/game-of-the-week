@@ -67,7 +67,7 @@ function createGameOfTheWeekForm() {
 
   // Add one question per game
   SCHEDULE.forEach((game, index) => {
-    const questionTitle = `Week ${game.week} | ${game.time} | Sheet ${game.sheet}`;
+    const questionTitle = `Week ${game.week} | ${game.date} | ${game.time} | Sheet ${game.sheet}`;
 
     form.addMultipleChoiceItem()
       .setTitle(questionTitle)

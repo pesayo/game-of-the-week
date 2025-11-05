@@ -6,7 +6,7 @@ This document explains how to use the Apps Script to create a Google Form for th
 
 The `game-of-the-week-form.gs` script creates a simple predictions form with:
 - 30 questions (one per Game of the Week matchup)
-- Question format: "Week # | Time | Sheet"
+- Question format: "Week # | Date | Time | Sheet"
 - Two options per question: Team 1 or Team 2
 - No extra fluff, just pick your winners!
 
@@ -53,13 +53,13 @@ The `game-of-the-week-form.gs` script creates a simple predictions form with:
 **What the form includes:**
 - Name field (text input)
 - 30 questions (one per Game of the Week matchup)
-- Each question title: "Week # | Time | Sheet"
+- Each question title: "Week # | Date | Time | Sheet"
 - Each question has two choices: Team 1 or Team 2
 - Limited to one response per person
 - Automatically collects email addresses
 
 **Example question:**
-- **Title:** Week 3 | 6:35 PM | Sheet 1
+- **Title:** Week 3 | 11/12/2025 | 6:35 PM | Sheet 1
 - **Help text:** Allan Veler vs Jim Neidhart
 - **Choices:** Allan Veler, Jim Neidhart
 
