@@ -511,8 +511,13 @@
 
         /* What-If Analysis Styles */
         .whatif-section {
-            grid-column: 1 / -1;
             margin-top: 20px;
+        }
+
+        @media (min-width: 1200px) {
+            .whatif-section {
+                grid-column: 2;
+            }
         }
 
         .whatif-controls {
