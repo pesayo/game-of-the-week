@@ -756,6 +756,9 @@
 
             rawMatchups.forEach((row, index) => {
                 const gameKey = createGameKey(row.Week, row.Date, row.Time, row.Sheet);
+                // Check if winner exists and is not just whitespace
+                const winner = row.Winner && row.Winner.trim() !== '' ? row.Winner.trim() : null;
+
                 const gameInfo = {
                     gameNumber: index + 1,
                     week: row.Week,
@@ -764,7 +767,7 @@
                     sheet: row.Sheet,
                     team1: row.Team1_Skip,
                     team2: row.Team2_Skip,
-                    winner: row.Winner || null,
+                    winner: winner,
                     gameKey: gameKey
                 };
                 gameMap[gameKey] = gameInfo;
