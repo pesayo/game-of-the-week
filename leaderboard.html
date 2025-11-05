@@ -523,6 +523,59 @@
             align-items: center;
         }
 
+        .whatif-summary {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .whatif-summary-text {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .whatif-summary-text strong {
+            color: #333;
+            font-size: 16px;
+        }
+
+        .whatif-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            align-items: start;
+        }
+
+        @media (max-width: 1200px) {
+            .whatif-content {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .whatif-column {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .whatif-column-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .upcoming-games-container {
+            margin-bottom: 20px;
+        }
+
         .whatif-player-picker {
             display: flex;
             gap: 10px;
@@ -568,10 +621,30 @@
         }
 
         .upcoming-games {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            display: flex;
+            flex-direction: column;
             gap: 15px;
-            margin-bottom: 20px;
+            max-height: 600px;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+
+        .upcoming-games::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .upcoming-games::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+
+        .upcoming-games::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 4px;
+        }
+
+        .upcoming-games::-webkit-scrollbar-thumb:hover {
+            background: #555;
         }
 
         .game-card {
@@ -631,15 +704,88 @@
         }
 
         .whatif-results {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
+            display: flex;
+            flex-direction: column;
         }
 
-        @media (max-width: 1024px) {
-            .whatif-results {
-                grid-template-columns: 1fr;
-            }
+        .whatif-results h3 {
+            margin-top: 0;
+            margin-bottom: 15px;
+            color: #333;
+            font-size: 20px;
+        }
+
+        .standings-toggle {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .standings-toggle-btn {
+            padding: 8px 16px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #f8f8f8;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+            flex: 1;
+        }
+
+        .standings-toggle-btn:hover {
+            background-color: #e8e8e8;
+        }
+
+        .standings-toggle-btn.active {
+            background-color: #4CAF50;
+            color: white;
+            border-color: #45a049;
+        }
+
+        .standings-view {
+            display: none;
+            max-height: 600px;
+            overflow-y: auto;
+        }
+
+        .standings-view.active {
+            display: block;
+        }
+
+        .standings-view::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .standings-view::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+
+        .standings-view::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 4px;
+        }
+
+        .standings-view::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+
+        .whatif-placeholder {
+            text-align: center;
+            padding: 40px 20px;
+            color: #999;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            border: 2px dashed #ddd;
+        }
+
+        .whatif-placeholder-icon {
+            font-size: 48px;
+            margin-bottom: 10px;
+        }
+
+        .whatif-placeholder-text {
+            font-size: 14px;
         }
 
         .comparison-table {
@@ -789,29 +935,60 @@
                 <h2 class="section-title">🔮 What-If Analysis</h2>
                 <p style="color: #666; margin-bottom: 20px;">Select winners for upcoming games to see how it would affect the standings. Click a selected team again to unset.</p>
 
-                <div class="whatif-controls">
-                    <button class="whatif-btn secondary" id="resetWhatif">Reset All</button>
-                    <button class="whatif-btn secondary" id="pickAllChalk">Pick All Chalk</button>
-
-                    <div class="whatif-player-picker">
-                        <label for="playerSelect">Copy picks from:</label>
-                        <select id="playerSelect">
-                            <option value="">-- Select Player --</option>
-                        </select>
-                        <button class="whatif-btn" id="copyPlayerPicks">Apply</button>
+                <!-- Summary -->
+                <div class="whatif-summary">
+                    <div class="whatif-summary-text">
+                        <strong id="selectionCount">0</strong> of <strong id="totalGamesCount">0</strong> games selected
                     </div>
                 </div>
 
-                <div class="upcoming-games" id="upcomingGames"></div>
+                <!-- Two Column Layout -->
+                <div class="whatif-content">
+                    <!-- Left Column: Game Selection -->
+                    <div class="whatif-column">
+                        <div class="whatif-column-title">Select Game Winners</div>
 
-                <div class="whatif-results" id="whatifResults" style="display: none;">
-                    <div>
-                        <h3 style="margin-top: 0;">Current Standings</h3>
-                        <table class="comparison-table" id="currentStandingsTable"></table>
+                        <div class="whatif-controls">
+                            <button class="whatif-btn secondary" id="resetWhatif">Reset All</button>
+                            <button class="whatif-btn secondary" id="pickAllChalk">Pick All Chalk</button>
+
+                            <div class="whatif-player-picker">
+                                <label for="playerSelect">Copy picks from:</label>
+                                <select id="playerSelect">
+                                    <option value="">-- Select Player --</option>
+                                </select>
+                                <button class="whatif-btn" id="copyPlayerPicks">Apply</button>
+                            </div>
+                        </div>
+
+                        <div class="upcoming-games" id="upcomingGames"></div>
                     </div>
-                    <div>
-                        <h3 style="margin-top: 0;">Projected Standings</h3>
-                        <table class="comparison-table" id="projectedStandingsTable"></table>
+
+                    <!-- Right Column: Projected Standings -->
+                    <div class="whatif-column">
+                        <div class="whatif-column-title">Standings Impact</div>
+
+                        <div class="whatif-results" id="whatifResults">
+                            <div class="whatif-placeholder">
+                                <div class="whatif-placeholder-icon">📊</div>
+                                <div class="whatif-placeholder-text">Select game winners to see projected standings</div>
+                            </div>
+                        </div>
+
+                        <div class="whatif-results" id="whatifResultsContent" style="display: none;">
+                            <div class="standings-toggle">
+                                <button class="standings-toggle-btn active" data-view="projected">Projected</button>
+                                <button class="standings-toggle-btn" data-view="current">Current</button>
+                            </div>
+
+                            <div class="standings-view active" id="projectedView">
+                                <table class="comparison-table" id="projectedStandingsTable"></table>
+                            </div>
+
+                            <div class="standings-view" id="currentView">
+                                <table class="comparison-table" id="currentStandingsTable"></table>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </section>
@@ -1679,6 +1856,12 @@
             }
 
             document.getElementById('whatifSection').style.display = 'block';
+
+            // Update summary
+            const selectionCount = Object.keys(whatifSelections).length;
+            document.getElementById('selectionCount').textContent = selectionCount;
+            document.getElementById('totalGamesCount').textContent = upcomingGames.length;
+
             const container = document.getElementById('upcomingGames');
             container.innerHTML = '';
 
@@ -1791,16 +1974,22 @@
             const hasSelections = Object.keys(whatifSelections).length > 0;
 
             if (!hasSelections) {
-                document.getElementById('whatifResults').style.display = 'none';
+                // Show placeholder, hide results
+                document.getElementById('whatifResults').style.display = 'flex';
+                document.getElementById('whatifResultsContent').style.display = 'none';
                 return;
             }
 
-            document.getElementById('whatifResults').style.display = 'grid';
+            // Hide placeholder, show results
+            document.getElementById('whatifResults').style.display = 'none';
+            document.getElementById('whatifResultsContent').style.display = 'flex';
 
             const projectedData = calculateProjectedStandings();
 
-            renderComparisonTable('currentStandingsTable', leaderboardData, null);
+            // Render projected standings first (with comparison to current)
             renderComparisonTable('projectedStandingsTable', projectedData, leaderboardData);
+            // Render current standings (without comparison)
+            renderComparisonTable('currentStandingsTable', leaderboardData, null);
         }
 
         // Render comparison table
@@ -1872,6 +2061,29 @@
                 option.value = player.name;
                 option.textContent = player.name;
                 playerSelect.appendChild(option);
+            });
+
+            // Toggle between projected and current standings
+            document.querySelectorAll('.standings-toggle-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const view = btn.dataset.view;
+
+                    // Update button states
+                    document.querySelectorAll('.standings-toggle-btn').forEach(b => {
+                        b.classList.remove('active');
+                    });
+                    btn.classList.add('active');
+
+                    // Update view visibility
+                    document.querySelectorAll('.standings-view').forEach(v => {
+                        v.classList.remove('active');
+                    });
+                    if (view === 'projected') {
+                        document.getElementById('projectedView').classList.add('active');
+                    } else {
+                        document.getElementById('currentView').classList.add('active');
+                    }
+                });
             });
 
             // Reset all selections
