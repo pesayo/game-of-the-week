@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Game of the Week 2025-2026 Season</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+
+        .header {
+            text-align: center;
+            background-color: #2c3e50;
+            color: white;
+            padding: 30px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            margin: 0 0 10px 0;
+        }
+
+        .subtitle {
+            font-size: 18px;
+            opacity: 0.9;
+        }
+
+        .schedule-container {
+            background-color: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .week-section {
+            margin-bottom: 30px;
+            border-left: 4px solid #3498db;
+            padding-left: 20px;
+        }
+
+        .week-header {
+            font-size: 20px;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        .week-date {
+            color: #7f8c8d;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+
+        .matchup {
+            background-color: #ecf0f1;
+            padding: 12px;
+            margin: 8px 0;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            transition: background-color 0.3s;
+        }
+
+        .matchup:hover {
+            background-color: #d5dbdb;
+        }
+
+        .matchup.key-matchup {
+            background-color: #fff3cd;
+            border-left: 3px solid #ffc107;
+        }
+
+        .matchup.key-matchup:hover {
+            background-color: #ffe69c;
+        }
+
+        .team {
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .vs {
+            margin: 0 10px;
+            color: #95a5a6;
+        }
+
+        .game-info {
+            margin-left: auto;
+            display: flex;
+            gap: 15px;
+            font-size: 14px;
+        }
+
+        .time-badge, .sheet-badge {
+            background-color: #3498db;
+            color: white;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+
+        .sheet-badge {
+            background-color: #9b59b6;
+        }
+
+        .key-badge {
+            background-color: #ffc107;
+            color: #000;
+            padding: 2px 8px;
+            border-radius: 3px;
+            font-size: 11px;
+            margin-left: 10px;
+            font-weight: bold;
+        }
+
+        .stats-section {
+            background-color: #e8f4f8;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+
+        .stats-title {
+            font-size: 20px;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 15px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .stat-item {
+            background-color: white;
+            padding: 15px;
+            border-radius: 5px;
+            text-align: center;
+        }
+
+        .stat-label {
+            color: #7f8c8d;
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .team-balance {
+            margin-top: 30px;
+        }
+
+        .team-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .team-item {
+            background-color: white;
+            padding: 10px;
+            border-radius: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .appearance-count {
+            background-color: #3498db;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .phase-indicator {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 5px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+
+        .phase-1 {
+            background-color: #90EE90;
+            color: #000;
+        }
+
+        .phase-2 {
+            background-color: #FFD700;
+            color: #000;
+        }
+
+        .phase-3 {
+            background-color: #FF6347;
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🥌 Game of the Week Schedule</h1>
+        <div class="subtitle">2025-2026 Season | Weeks 3-17</div>
+    </div>
+
+    <div class="stats-section">
+        <div class="stats-title">Schedule Overview</div>
+        <div class="stats-grid">
+            <div class="stat-item">
+                <div class="stat-label">Total Games</div>
+                <div class="stat-value">30</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-label">Key Matchups Preserved</div>
+                <div class="stat-value">21</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-label">Weeks Covered</div>
+                <div class="stat-value">15</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-label">Teams Participating</div>
+                <div class="stat-value">17</div>
+            </div>
+        </div>
+
+        <div class="team-balance">
+            <div class="stats-title">Team Appearances Balance</div>
+            <div class="team-list">
+                <div class="team-item">
+                    <span>1. Andrew Kozloski</span>
+                    <span class="appearance-count">4</span>
+                </div>
+                <div class="team-item">
+                    <span>2. Charley Shilling</span>
+                    <span class="appearance-count">4</span>
+                </div>
+                <div class="team-item">
+                    <span>3. Paul Ryan</span>
+                    <span class="appearance-count">3</span>
+                </div>
+                <div class="team-item">
+                    <span>4. Justin Ramm</span>
+                    <span class="appearance-count">4</span>
+                </div>
+                <div class="team-item">
+                    <span>5. Dave Peterson</span>
+                    <span class="appearance-count">4</span>
+                </div>
+                <div class="team-item">
+                    <span>6. Matthew Hamilton</span>
+                    <span class="appearance-count">3</span>
+                </div>
+                <div class="team-item">
+                    <span>7. Timothy J Ebert</span>
+                    <span class="appearance-count">4</span>
+                </div>
+                <div class="team-item">
+                    <span>8. Marcus Oldenburg</span>
+                    <span class="appearance-count">4</span>
+                </div>
+                <div class="team-item">
+                    <span>9. Mike Krajewski</span>
+                    <span class="appearance-count">3</span>
+                </div>
+                <div class="team-item">
+                    <span>10. Ben McPhee</span>
+                    <span class="appearance-count">3</span>
+                </div>
+                <div class="team-item">
+                    <span>11. Allan Veler</span>
+                    <span class="appearance-count">3</span>
+                </div>
+                <div class="team-item">
+                    <span>12. Josh Koehler</span>
+                    <span class="appearance-count">4</span>
+                </div>
+                <div class="team-item">
+                    <span>13. Garret Perry</span>
+                    <span class="appearance-count">3</span>
+                </div>
+                <div class="team-item">
+                    <span>14. Jim Neidhart</span>
+                    <span class="appearance-count">4</span>
+                </div>
+                <div class="team-item">
+                    <span>15. Aaren Christen</span>
+                    <span class="appearance-count">3</span>
+                </div>
+                <div class="team-item">
+                    <span>16. Ken Neidhart</span>
+                    <span class="appearance-count">3</span>
+                </div>
+                <div class="team-item">
+                    <span>17. Steve Oakeson</span>
+                    <span class="appearance-count">4</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="schedule-container">
+        <!-- PHASE 1: Weeks 3-7 (1 game per week) -->
+        <div class="week-section">
+            <div class="week-header">
+                Week 3
+                <span class="phase-indicator phase-1">Phase 1: Building Momentum</span>
+            </div>
+            <div class="week-date">November 12, 2025</div>
+            <div class="matchup key-matchup">
+                <span class="team">Allan Veler</span>
+                <span class="vs">vs</span>
+                <span class="team">Jim Neidhart</span>
+                <span class="key-badge">KEY MATCHUP</span>
+                <div class="game-info">
+                    <span class="time-badge">6:35 PM</span>
+                    <span class="sheet-badge">Sheet 1</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="week-section">
+            <div class="week-header">
+                Week 4
+                <span class="phase-indicator phase-1">Phase 1: Building Momentum</span>
+            </div>
+            <div class="week-date">November 19, 2025</div>
+            <div class="matchup key-matchup">
+                <span class="team">Dave Peterson</span>
+                <span class="vs">vs</span>
+                <span class="team">Allan Veler</span>
+                <span class="key-badge">KEY MATCHUP</span>
+                <div class="game-info">
+                    <span class="time-badge">8:45 PM</span>
+                    <span class="sheet-badge">Sheet 4</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="week-section">
+            <div class="week-header">
+                Week 5
+                <span class="phase-indicator phase-1">Phase 1: Building Momentum</span>
+            </div>
+            <div class="week-date">November 26, 2025</div>
+            <div class="matchup key-matchup">
+                <span class="team">Marcus Oldenburg</span>
+                <span class="vs">vs</span>
+                <span class="team">Steve Oakeson</span>
+                <span class="key-badge">KEY MATCHUP</span>
+                <div class="game-info">
+                    <span class="time-badge">6:35 PM</span>
+                    <span class="sheet-badge">Sheet 4</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="week-section">
+            <div class="week-header">
+                Week 6
+                <span class="phase-indicator phase-1">Phase 1: Building Momentum</span>
+            </div>
+            <div class="week-date">December 10, 2025</div>
+            <div class="matchup key-matchup">
+                <span class="team">Timothy J Ebert</span>
+                <span class="vs">vs</span>
+                <span class="team">Steve Oakeson</span>
+                <span class="key-badge">KEY MATCHUP</span>
+                <div class="game-info">
+                    <span class="time-badge">8:45 PM</span>
+                    <span class="sheet-badge">Sheet 2</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="week-section">
+            <div class="week-header">
+                Week 7
+                <span class="phase-indicator phase-1">Phase 1: Building Momentum</span>
+            </div>
+            <div class="week-date">December 17, 2025</div>
+            <div class="matchup key-matchup">
+                <span class="team">Matthew Hamilton</span>
+                <span class="vs">vs</span>
+                <span class="team">Ben McPhee</span>
+                <span class="key-badge">KEY MATCHUP</span>
+                <div class="game-info">
+                    <span class="time-badge">8:45 PM</span>
+                    <span class="sheet-badge">Sheet 2</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- PHASE 2: Weeks 8-12 (2 games per week) -->
+        <div class="week-section">
+            <div class="week-header">
+                Week 8
+                <span class="phase-indicator phase-2">Phase 2: Heating Up</span>
+            </div>
+            <div class="week-date">January 7, 2026</div>
+            <div class="matchup key-matchup">
+                <span class="team">Paul Ryan</span>
+                <span class="vs">vs</span>
+                <span class="team">Mike Krajewski</span>
+                <span class="key-badge">KEY MATCHUP</span>
+                <div class="game-info">
+                    <span class="time-badge">8:45 PM</span>
+                    <span class="sheet-badge">Sheet 2</span>
+                </div>
+            </div>
+            <div class="matchup key-matchup">
+                <span class="team">Josh Koehler</span>
+                <span class="vs">vs</span>
+                <span class="team">Ken Neidhart</span>
+                <span class="key-badge">KEY MATCHUP</span>
+                <div class="game-info">
+                    <span class="time-badge">8:45 PM</span>
+                    <span class="sheet-badge">Sheet 6</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="week-section">
+            <div class="week-header">
+                Week 9
+                <span class="phase-indicator phase-2">Phase 2: Heating Up</span>
+            </div>
+            <div class="week-date">January 14, 2026</div>
+            <div class="matchup">
+                <span class="team">Andrew Kozloski</span>
+                <span class="vs">vs</span>
+                <span class="team">Justin Ramm</span>
+                <div class="game-info">
+                    <span class="time-badge">6:35 PM</span>
+                    <span class="sheet-badge">Sheet 4</span>
+                </div>
+            </div>
+            <div class="matchup">
+                <span class="team">Charley Shilling</span>
+                <span class="vs">vs</span>
+                <span class="team">Aaren Christen</span>
+                <div class="game-info">
+                    <span class="time-badge">6:35 PM</span>
+                    <span class="sheet-badge">Sheet 3</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="week-section">
+            <div class="week-header">
+                Week 10
+                <span class="phase-indicator phase-2">Phase 2: Heating Up</span>
+            </div>
+            <div class="week-date">January 28, 2026</div>
+            <div class="matchup key-matchup">
+                <span class="team">Timothy J Ebert</span>
+                <span class="vs">vs</span>
+                <span class="team">Josh Koehler</span>
+                <span class="key-badge">KEY MATCHUP</span>
+                <div class="game-info">
+                    <span class="time-badge">8:45 PM</span>
+                    <span class="sheet-badge">Sheet 2</span>
+                </div>
+            </div>
+            <div class="matchup">
+                <span class="team">Andrew Kozloski</span>
+                <span class="vs">vs</span>
+                <span class="team">Garret Perry</span>
+                <div class="game-info">
+                    <span class="time-badge">8:45 PM</span>
+                    <span class="sheet-badge">Sheet 5</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="week-section">
+            <div class="week-header">
+                Week 11
+                <span class="phase-indicator phase-2">Phase 2: Heating Up</span>
+            </div>
+            <div class="week-date">February 4, 2026</div>
+            <div class="matchup key-matchup">
+                <span class="team">Timothy J Ebert</span>
+                <span class="vs">vs</span>
+                <span class="team">Jim Neidhart</span>
+                <span class="key-badge">KEY MATCHUP</span>
+                <div class="game-info">
+                    <span class="time-badge">6:35 PM</span>
+                    <span class="sheet-badge">Sheet 5</span>
+                </div>
+            </div>
+            <div class="matchup">
+                <span class="team">Paul Ryan</span>
+                <span class="vs">vs</span>
+                <span class="team">Justin Ramm</span>
+                <div class="game-info">
+                    <span class="time-badge">8:45 PM</span>
+                    <span class="sheet-badge">Sheet 4</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="week-section">
+            <div class="week-header">
+                Week 12
+                <span class="phase-indicator phase-2">Phase 2: Heating Up</span>
+            </div>
+            <div class="week-date">February 11, 2026</div>
+            <div class="matchup key-matchup">
+                <span class="team">Marcus Oldenburg</span>
+                <span class="vs">vs</span>
+                <span class="team">Mike Krajewski</span>
+                <span class="key-badge">KEY MATCHUP</span>
+                <div class="game-info">
+                    <span class="time-badge">8:45 PM</span>
+                    <span class="sheet-badge">Sheet 3</span>
+                </div>
+            </div>
+            <div class="matchup">
+                <span class="team">Justin Ramm</span>
+                <span class="vs">vs</span>
+                <span class="team">Jim Neidhart</span>
+                <div class="game-info">
+                    <span class="time-badge">8:45 PM</span>
+                    <span class="sheet-badge">Sheet 4</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- PHASE 3: Weeks 13-17 (3 games per week) -->
+        <div class="week-section">
+            <div class="week-header">
+                Week 13
+                <span class="phase-indicator phase-3">Phase 3: Championship Push</span>
+            </div>
+            <div class="week-date">February 18, 2026</div>
+            <div class="matchup key-matchup">
+                <span class="team">Matthew Hamilton</span>
+                <span class="vs">vs</span>
+                <span class="team">Marcus Oldenburg</span>
+                <span class="key-badge">KEY MATCHUP</span>
+                <div class="game-info">
+                    <span class="time-badge">6:35 PM</span>
+                    <span class="sheet-badge">Sheet 1</span>
+                </div>
+            </div>
+            <div class="matchup">
+                <span class="team">Dave Peterson</span>
+                <span class="vs">vs</span>
+                <span class="team">Timothy J Ebert</span>
+                <div class="game-info">
+                    <span class="time-badge">6:35 PM</span>
+                    <span class="sheet-badge">Sheet 6</span>
+                </div>
+            </div>
+            <div class="matchup">
+                <span class="team">Charley Shilling</span>
+                <span class="vs">vs</span>
+                <span class="team">Steve Oakeson</span>
+                <div class="game-info">
+                    <span class="time-badge">8:45 PM</span>
+                    <span class="sheet-badge">Sheet 1</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="week-section">
+            <div class="week-header">
+                Week 14
+                <span class="phase-indicator phase-3">Phase 3: Championship Push</span>
+            </div>
+            <div class="week-date">February 25, 2026</div>
+            <div class="matchup key-matchup">
+                <span class="team">Garret Perry</span>
+                <span class="vs">vs</span>
+                <span class="team">Aaren Christen</span>
+                <span class="key-badge">KEY MATCHUP</span>
+                <div class="game-info">
+                    <span class="time-badge">6:35 PM</span>
+                    <span class="sheet-badge">Sheet 3</span>
+                </div>
+            </div>
+            <div class="matchup key-matchup">
+                <span class="team">Andrew Kozloski</span>
+                <span class="vs">vs</span>
+                <span class="team">Marcus Oldenburg</span>
+                <span class="key-badge">KEY MATCHUP</span>
+                <div class="game-info">
+                    <span class="time-badge">6:35 PM</span>
+                    <span class="sheet-badge">Sheet 4</span>
+                </div>
+            </div>
+            <div class="matchup key-matchup">
+                <span class="team">Dave Peterson</span>
+                <span class="vs">vs</span>
+                <span class="team">Josh Koehler</span>
+                <span class="key-badge">KEY MATCHUP</span>
+                <div class="game-info">
+                    <span class="time-badge">8:45 PM</span>
+                    <span class="sheet-badge">Sheet 5</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="week-section">
+            <div class="week-header">
+                Week 15
+                <span class="phase-indicator phase-3">Phase 3: Championship Push</span>
+            </div>
+            <div class="week-date">March 4, 2026</div>
+            <div class="matchup key-matchup">
+                <span class="team">Paul Ryan</span>
+                <span class="vs">vs</span>
+                <span class="team">Ben McPhee</span>
+                <span class="key-badge">KEY MATCHUP</span>
+                <div class="game-info">
+                    <span class="time-badge">6:35 PM</span>
+                    <span class="sheet-badge">Sheet 6</span>
+                </div>
+            </div>
+            <div class="matchup key-matchup">
+                <span class="team">Jim Neidhart</span>
+                <span class="vs">vs</span>
+                <span class="team">Ken Neidhart</span>
+                <span class="key-badge">KEY MATCHUP</span>
+                <div class="game-info">
+                    <span class="time-badge">8:45 PM</span>
+                    <span class="sheet-badge">Sheet 5</span>
+                </div>
+            </div>
+            <div class="matchup">
+                <span class="team">Mike Krajewski</span>
+                <span class="vs">vs</span>
+                <span class="team">Allan Veler</span>
+                <div class="game-info">
+                    <span class="time-badge">8:45 PM</span>
+                    <span class="sheet-badge">Sheet 6</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="week-section">
+            <div class="week-header">
+                Week 16
+                <span class="phase-indicator phase-3">Phase 3: Championship Push</span>
+            </div>
+            <div class="week-date">March 11, 2026</div>
+            <div class="matchup key-matchup">
+                <span class="team">Charley Shilling</span>
+                <span class="vs">vs</span>
+                <span class="team">Dave Peterson</span>
+                <span class="key-badge">KEY MATCHUP</span>
+                <div class="game-info">
+                    <span class="time-badge">8:45 PM</span>
+                    <span class="sheet-badge">Sheet 3</span>
+                </div>
+            </div>
+            <div class="matchup key-matchup">
+                <span class="team">Justin Ramm</span>
+                <span class="vs">vs</span>
+                <span class="team">Aaren Christen</span>
+                <span class="key-badge">KEY MATCHUP</span>
+                <div class="game-info">
+                    <span class="time-badge">8:45 PM</span>
+                    <span class="sheet-badge">Sheet 4</span>
+                </div>
+            </div>
+            <div class="matchup key-matchup">
+                <span class="team">Andrew Kozloski</span>
+                <span class="vs">vs</span>
+                <span class="team">Steve Oakeson</span>
+                <span class="key-badge">KEY MATCHUP</span>
+                <div class="game-info">
+                    <span class="time-badge">8:45 PM</span>
+                    <span class="sheet-badge">Sheet 5</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="week-section">
+            <div class="week-header">
+                Week 17
+                <span class="phase-indicator phase-3">Phase 3: Championship Push</span>
+            </div>
+            <div class="week-date">March 18, 2026</div>
+            <div class="matchup">
+                <span class="team">Charley Shilling</span>
+                <span class="vs">vs</span>
+                <span class="team">Ben McPhee</span>
+                <div class="game-info">
+                    <span class="time-badge">6:35 PM</span>
+                    <span class="sheet-badge">Sheet 3</span>
+                </div>
+            </div>
+            <div class="matchup">
+                <span class="team">Matthew Hamilton</span>
+                <span class="vs">vs</span>
+                <span class="team">Josh Koehler</span>
+                <div class="game-info">
+                    <span class="time-badge">6:35 PM</span>
+                    <span class="sheet-badge">Sheet 5</span>
+                </div>
+            </div>
+            <div class="matchup">
+                <span class="team">Allan Veler</span>
+                <span class="vs">vs</span>
+                <span class="team">Garret Perry</span>
+                <div class="game-info">
+                    <span class="time-badge">6:35 PM</span>
+                    <span class="sheet-badge">Sheet 6</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="stats-section" style="margin-top: 30px;">
+        <div class="stats-title">Schedule Notes</div>
+        <ul style="line-height: 1.8;">
+            <li><strong>Phase 1 (Weeks 3-7):</strong> Building momentum with 1 Game of the Week to establish early storylines</li>
+            <li><strong>Phase 2 (Weeks 8-12):</strong> Heating up with 2 Games of the Week as competition intensifies</li>
+            <li><strong>Phase 3 (Weeks 13-17):</strong> Championship push with 3 Games of the Week for maximum excitement</li>
+            <li><strong>Balance:</strong> Each team appears 3-4 times across the season (perfectly balanced at 60 total appearances)</li>
+            <li><strong>Key Matchups:</strong> 21 of 30 games preserve exciting rivalries from the previous season</li>
+        </ul>
+    </div>
+</body>
+</html>
