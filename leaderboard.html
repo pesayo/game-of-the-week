@@ -1009,7 +1009,7 @@
             const gameHeaders = headers.filter(h => h.includes('Week'));
 
             const players = rawPicks.map(row => {
-                const name = row[nameHeader];
+                const name = row[nameHeader] ? row[nameHeader].trim() : '';
                 if (!name) return null;
 
                 const gameResults = [];
@@ -1554,7 +1554,7 @@
 
         // Apply filters to leaderboard data
         function applyFilters(data) {
-            return data.filter(player => {
+            const filtered = data.filter(player => {
                 const playerInfo = playerInfoMap[player.name];
 
                 // If no player info, show them by default (unless filters are active)
@@ -1586,6 +1586,20 @@
 
                 return true;
             });
+
+            // Log filtering results for debugging
+            if (activeFilters.team || activeFilters.position || activeFilters.funkEngChallengers) {
+                console.log('Filter applied:', activeFilters);
+                console.log('Players with picks:', data.map(p => p.name));
+                console.log('Players with team/position info:', Object.keys(playerInfoMap));
+                console.log('Filtered results:', filtered.map(p => ({
+                    name: p.name,
+                    team: playerInfoMap[p.name]?.team,
+                    position: playerInfoMap[p.name]?.position
+                })));
+            }
+
+            return filtered;
         }
 
         // Populate filter dropdowns
@@ -1728,7 +1742,8 @@
             const playerRow = rawPicksData.find(row => {
                 const headers = Object.keys(row);
                 const nameHeader = headers.find(h => h.toLowerCase().includes('name'));
-                return row[nameHeader] === playerName;
+                const rowName = row[nameHeader] ? row[nameHeader].trim() : '';
+                return rowName === playerName;
             });
 
             if (!playerRow) return {};
