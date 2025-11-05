@@ -49,13 +49,15 @@
             gap: 20px;
         }
 
-        @media (min-width: 1400px) {
+        @media (min-width: 1200px) {
             .dashboard-grid {
-                grid-template-columns: 2fr 1fr;
+                grid-template-columns: 1fr 1fr;
             }
+        }
 
-            .horse-race-section {
-                grid-column: 1 / -1;
+        @media (min-width: 1600px) {
+            .dashboard-grid {
+                grid-template-columns: 3fr 2fr;
             }
         }
 
@@ -82,8 +84,14 @@
         /* Horse Race Styles */
         #horseRaceChart {
             width: 100%;
-            height: 500px;
+            height: 450px;
             display: block;
+        }
+
+        @media (max-width: 1199px) {
+            #horseRaceChart {
+                height: 400px;
+            }
         }
 
         .horse-race-line {
@@ -195,9 +203,21 @@
 
         .stats-summary {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            grid-template-columns: repeat(2, 1fr);
             gap: 15px;
             margin-bottom: 30px;
+        }
+
+        @media (min-width: 768px) {
+            .stats-summary {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+
+        @media (min-width: 1200px) {
+            .stats-summary {
+                grid-template-columns: repeat(2, 1fr);
+            }
         }
 
         .stat-card {
@@ -707,11 +727,12 @@
             const margin = { top: 20, right: 30, bottom: 60, left: 60 };
             const containerWidth = container.node().getBoundingClientRect().width;
             const width = containerWidth - margin.left - margin.right;
-            const height = 500 - margin.top - margin.bottom;
+            const chartHeight = window.innerWidth >= 1200 ? 450 : 400;
+            const height = chartHeight - margin.top - margin.bottom;
 
             const svg = container
                 .attr('width', containerWidth)
-                .attr('height', 500)
+                .attr('height', chartHeight)
                 .append('g')
                 .attr('transform', `translate(${margin.left},${margin.top})`);
 
