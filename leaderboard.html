@@ -1009,7 +1009,7 @@
             const gameHeaders = headers.filter(h => h.includes('Week'));
 
             const players = rawPicks.map(row => {
-                const name = row[nameHeader];
+                const name = row[nameHeader] ? row[nameHeader].trim() : '';
                 if (!name) return null;
 
                 const gameResults = [];
@@ -1742,7 +1742,8 @@
             const playerRow = rawPicksData.find(row => {
                 const headers = Object.keys(row);
                 const nameHeader = headers.find(h => h.toLowerCase().includes('name'));
-                return row[nameHeader] === playerName;
+                const rowName = row[nameHeader] ? row[nameHeader].trim() : '';
+                return rowName === playerName;
             });
 
             if (!playerRow) return {};
