@@ -34,13 +34,6 @@
         .dashboard-header .subtitle {
             font-size: 18px;
             color: #666;
-            margin-bottom: 5px;
-        }
-
-        .dashboard-header .last-updated {
-            font-size: 14px;
-            color: #999;
-            font-style: italic;
         }
 
         .dashboard-grid {
@@ -867,7 +860,6 @@
         <div class="dashboard-header">
             <h1>🏆 Game of the Week Dashboard</h1>
             <div class="subtitle">2025-2026 Season</div>
-            <div class="last-updated" id="lastUpdated">Loading...</div>
         </div>
 
         <div id="loadingMessage" class="loading">Loading dashboard data...</div>
@@ -2153,17 +2145,6 @@
             // Hide loading, show dashboard
             document.getElementById('loadingMessage').style.display = 'none';
             document.getElementById('dashboardGrid').style.display = 'grid';
-
-            // Update last updated time
-            const now = new Date();
-            document.getElementById('lastUpdated').textContent =
-                `Last updated: ${now.toLocaleString('en-US', {
-                    month: 'long',
-                    day: 'numeric',
-                    year: 'numeric',
-                    hour: 'numeric',
-                    minute: '2-digit'
-                })}`;
 
             // Populate and setup filters
             populateFilters(teams, positions);
