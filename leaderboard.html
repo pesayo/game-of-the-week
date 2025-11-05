@@ -343,9 +343,20 @@
                 return b.winPct - a.winPct;
             });
 
-            // Add rank
+            // Add rank with tie handling
+            let currentRank = 1;
             players.forEach((player, index) => {
-                player.rank = index + 1;
+                if (index > 0) {
+                    const prevPlayer = players[index - 1];
+                    // Check if tied with previous player (same wins and win percentage)
+                    if (player.wins === prevPlayer.wins && player.winPct === prevPlayer.winPct) {
+                        player.rank = prevPlayer.rank;
+                    } else {
+                        player.rank = index + 1;
+                    }
+                } else {
+                    player.rank = 1;
+                }
             });
 
             return players;
