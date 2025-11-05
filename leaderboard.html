@@ -1,0 +1,1743 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Game of the Week Dashboard</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .dashboard-container {
+            max-width: 1600px;
+            margin: auto;
+        }
+
+        .dashboard-header {
+            text-align: center;
+            margin-bottom: 30px;
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .dashboard-header h1 {
+            font-size: 36px;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .dashboard-header .subtitle {
+            font-size: 18px;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .dashboard-header .last-updated {
+            font-size: 14px;
+            color: #999;
+            font-style: italic;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+
+        @media (min-width: 1200px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        @media (min-width: 1600px) {
+            .dashboard-grid {
+                grid-template-columns: 2fr 3fr;
+            }
+        }
+
+        .section {
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .section-title {
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 20px;
+            border-bottom: 3px solid #4CAF50;
+            padding-bottom: 10px;
+        }
+
+        .leaderboard-container {
+            /* Grid item - no need for max-width now */
+        }
+
+        /* Horse Race Styles */
+        #horseRaceChart {
+            width: 100%;
+            height: 450px;
+            display: block;
+        }
+
+        @media (max-width: 1199px) {
+            #horseRaceChart {
+                height: 400px;
+            }
+        }
+
+        .horse-race-line {
+            fill: none;
+            stroke-width: 2.5px;
+            transition: stroke-width 0.2s;
+        }
+
+        .horse-race-line.highlighted {
+            stroke-width: 5px !important;
+            stroke: #000 !important;
+        }
+
+        .horse-race-dot {
+            fill: white;
+            stroke-width: 2px;
+        }
+
+        .race-legend {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .race-legend-item {
+            display: flex;
+            align-items: center;
+            padding: 8px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .race-legend-item:hover {
+            background-color: #f0f0f0;
+        }
+
+        .race-legend-item.hidden {
+            opacity: 0.4;
+        }
+
+        .race-legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 3px;
+            margin-right: 10px;
+            flex-shrink: 0;
+        }
+
+        .race-legend-name {
+            font-size: 13px;
+            color: #333;
+            flex-grow: 1;
+        }
+
+        .race-legend-record {
+            font-size: 11px;
+            color: #666;
+            margin-left: 5px;
+        }
+
+        .race-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .race-btn {
+            padding: 8px 16px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #f8f8f8;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.2s;
+        }
+
+        .race-btn:hover {
+            background-color: #e8e8e8;
+        }
+
+        th.sortable {
+            cursor: pointer;
+            user-select: none;
+            position: relative;
+            transition: background-color 0.2s;
+        }
+
+        th.sortable:hover {
+            background-color: #e8e8e8;
+        }
+
+        th.sortable::after {
+            content: '';
+            margin-left: 6px;
+            opacity: 0.3;
+        }
+
+        th.sortable.sorted-asc::after {
+            content: '▲';
+            opacity: 1;
+        }
+
+        th.sortable.sorted-desc::after {
+            content: '▼';
+            opacity: 1;
+        }
+
+        .stats-summary {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        @media (min-width: 768px) {
+            .stats-summary {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+
+        @media (min-width: 1200px) {
+            .stats-summary {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        .stat-card {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #4CAF50;
+        }
+
+        .stat-card .stat-label {
+            font-size: 12px;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 5px;
+        }
+
+        .stat-card .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        thead {
+            background-color: #f8f9fa;
+            position: sticky;
+            top: 0;
+        }
+
+        th {
+            padding: 15px 10px;
+            text-align: left;
+            font-weight: 600;
+            color: #555;
+            border-bottom: 2px solid #ddd;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        th.center, td.center {
+            text-align: center;
+        }
+
+        th.right, td.right {
+            text-align: right;
+        }
+
+        tbody tr {
+            border-bottom: 1px solid #eee;
+            transition: background-color 0.2s;
+        }
+
+        tbody tr:hover {
+            background-color: #f8f9fa;
+        }
+
+        td {
+            padding: 15px 10px;
+            color: #333;
+            font-size: 14px;
+        }
+
+        .rank {
+            font-weight: bold;
+            color: #666;
+            font-size: 16px;
+        }
+
+        .rank.gold {
+            color: #FFD700;
+        }
+
+        .rank.silver {
+            color: #C0C0C0;
+        }
+
+        .rank.bronze {
+            color: #CD7F32;
+        }
+
+        .player-name {
+            font-weight: 600;
+            color: #333;
+            font-size: 15px;
+        }
+
+        .win-percentage {
+            font-weight: 600;
+        }
+
+        .win-percentage.high {
+            color: #4CAF50;
+        }
+
+        .win-percentage.medium {
+            color: #FF9800;
+        }
+
+        .win-percentage.low {
+            color: #f44336;
+        }
+
+        .recent-form {
+            display: flex;
+            gap: 3px;
+            justify-content: center;
+        }
+
+        .form-indicator {
+            width: 20px;
+            height: 20px;
+            border-radius: 3px;
+            display: inline-block;
+            font-size: 11px;
+            font-weight: bold;
+            color: white;
+            text-align: center;
+            line-height: 20px;
+            cursor: pointer;
+            transition: opacity 0.2s, transform 0.2s;
+        }
+
+        .form-indicator:hover {
+            opacity: 0.8;
+            transform: scale(1.1);
+        }
+
+        .form-indicator.win {
+            background-color: #4CAF50;
+        }
+
+        .form-indicator.loss {
+            background-color: #f44336;
+        }
+
+        .form-indicator.no-game {
+            background-color: #e0e0e0;
+        }
+
+        .expand-header-btn {
+            cursor: pointer;
+            color: #4CAF50;
+            font-weight: bold;
+            font-size: 18px;
+            margin-left: 8px;
+            user-select: none;
+            transition: transform 0.3s;
+            display: inline-block;
+        }
+
+        .expand-header-btn:hover {
+            color: #45a049;
+        }
+
+        .expand-header-btn.expanded {
+            transform: rotate(90deg);
+        }
+
+        th.game-history-header {
+            cursor: pointer;
+            min-width: 150px;
+        }
+
+        .game-history-cell {
+            transition: all 0.3s ease;
+        }
+
+        .game-history-cell.collapsed .recent-form {
+            display: flex;
+            gap: 3px;
+            justify-content: center;
+            flex-wrap: nowrap;
+        }
+
+        .game-history-cell.expanded .recent-form {
+            display: flex;
+            gap: 3px;
+            justify-content: flex-start;
+            flex-wrap: wrap;
+            max-width: 800px;
+            padding: 5px;
+        }
+
+        tbody tr:hover .game-history-cell {
+            background-color: #f8f9fa;
+        }
+
+        .streak-indicator {
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background-color: gold;
+        }
+
+        .contrarian-indicator {
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 0;
+            height: 0;
+            border-left: 5px solid transparent;
+            border-right: 5px solid transparent;
+            border-bottom: 8px solid #FF6B35;
+        }
+
+        .form-indicator.contrarian {
+            box-shadow: 0 0 0 2px #FF6B35;
+        }
+
+        .tooltip, #raceTooltip {
+            position: absolute;
+            padding: 10px;
+            background-color: rgba(0, 0, 0, 0.9);
+            color: white;
+            border-radius: 5px;
+            font-size: 13px;
+            pointer-events: none;
+            display: none;
+            z-index: 1000;
+            max-width: 200px;
+        }
+
+        /* What-If Analysis Styles */
+        .whatif-section {
+            grid-column: 1 / -1;
+            margin-top: 20px;
+        }
+
+        .whatif-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .whatif-player-picker {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .whatif-player-picker label {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .whatif-player-picker select {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            background-color: white;
+            cursor: pointer;
+        }
+
+        .whatif-btn {
+            padding: 8px 16px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #4CAF50;
+            color: white;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.2s;
+        }
+
+        .whatif-btn:hover {
+            background-color: #45a049;
+        }
+
+        .whatif-btn.secondary {
+            background-color: #f8f8f8;
+            color: #333;
+        }
+
+        .whatif-btn.secondary:hover {
+            background-color: #e8e8e8;
+        }
+
+        .upcoming-games {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .game-card {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            border: 2px solid #e0e0e0;
+        }
+
+        .game-card-header {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 10px;
+        }
+
+        .game-matchup {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .team-option {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            border: 2px solid transparent;
+        }
+
+        .team-option:hover {
+            background-color: #e8e8e8;
+        }
+
+        .team-option.selected {
+            background-color: #4CAF50;
+            color: white;
+            border-color: #45a049;
+        }
+
+        .team-option.chalk {
+            border-color: #FF6B35;
+        }
+
+        .team-option input[type="radio"] {
+            margin-right: 10px;
+        }
+
+        .team-name {
+            flex-grow: 1;
+        }
+
+        .pick-count {
+            font-size: 11px;
+            opacity: 0.8;
+        }
+
+        .whatif-results {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 1024px) {
+            .whatif-results {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .comparison-table {
+            width: 100%;
+        }
+
+        .comparison-table th {
+            background-color: #f8f9fa;
+        }
+
+        .rank-change {
+            font-size: 12px;
+            font-weight: bold;
+            margin-left: 8px;
+        }
+
+        .rank-change.up {
+            color: #4CAF50;
+        }
+
+        .rank-change.down {
+            color: #f44336;
+        }
+
+        .rank-change.same {
+            color: #999;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            font-size: 16px;
+            color: #666;
+        }
+
+        .error {
+            background-color: #ffebee;
+            color: #c62828;
+            padding: 20px;
+            border-radius: 5px;
+            margin: 20px 0;
+            border-left: 4px solid #c62828;
+        }
+
+        @media (max-width: 768px) {
+            .leaderboard-container {
+                padding: 15px;
+            }
+
+            table {
+                font-size: 12px;
+            }
+
+            th, td {
+                padding: 10px 5px;
+            }
+
+            .header h1 {
+                font-size: 24px;
+            }
+
+            .form-indicator {
+                width: 16px;
+                height: 16px;
+                line-height: 16px;
+                font-size: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Main Header -->
+        <div class="dashboard-header">
+            <h1>🏆 Game of the Week Dashboard</h1>
+            <div class="subtitle">2025-2026 Season</div>
+            <div class="last-updated" id="lastUpdated">Loading...</div>
+        </div>
+
+        <div id="loadingMessage" class="loading">Loading dashboard data...</div>
+        <div id="errorMessage" class="error" style="display: none;"></div>
+
+        <!-- Dashboard Grid -->
+        <div class="dashboard-grid" id="dashboardGrid" style="display: none;">
+
+            <!-- Leaderboard Section -->
+            <section class="section leaderboard-section">
+                <h2 class="section-title">🥇 Current Standings</h2>
+                <div class="stats-summary" id="statsSummary"></div>
+
+                <table id="leaderboardTable">
+            <thead>
+                <tr>
+                    <th class="center sortable sorted-asc" data-sort="rank">Rank</th>
+                    <th class="sortable" data-sort="name">Player</th>
+                    <th class="center sortable" data-sort="wins">Wins</th>
+                    <th class="center sortable" data-sort="losses">Losses</th>
+                    <th class="center sortable" data-sort="winPct">Win %</th>
+                    <th class="center game-history-header" id="gameHistoryHeader">
+                        <span id="gameHistoryLabel">Recent Form</span>
+                        <span class="expand-header-btn" id="expandHeaderBtn" title="Expand to show all games">▶</span>
+                    </th>
+                </tr>
+            </thead>
+            <tbody id="leaderboardBody">
+                    </tbody>
+                </table>
+                <div class="tooltip" id="tooltip"></div>
+            </section>
+
+            <!-- Horse Race Section -->
+            <section class="section horse-race-section">
+                <h2 class="section-title">📈 Win Progression</h2>
+                <div class="race-controls">
+                    <button class="race-btn" id="showAllRace">Show All</button>
+                    <button class="race-btn" id="hideAllRace">Hide All</button>
+                </div>
+                <svg id="horseRaceChart"></svg>
+                <div class="tooltip" id="raceTooltip"></div>
+                <div class="race-legend" id="raceLegend"></div>
+            </section>
+
+            <!-- What-If Analysis Section -->
+            <section class="section whatif-section" id="whatifSection" style="display: none;">
+                <h2 class="section-title">🔮 What-If Analysis</h2>
+                <p style="color: #666; margin-bottom: 20px;">Select winners for upcoming games to see how it would affect the standings. Click a selected team again to unset.</p>
+
+                <div class="whatif-controls">
+                    <button class="whatif-btn secondary" id="resetWhatif">Reset All</button>
+                    <button class="whatif-btn secondary" id="pickAllChalk">Pick All Chalk</button>
+
+                    <div class="whatif-player-picker">
+                        <label for="playerSelect">Copy picks from:</label>
+                        <select id="playerSelect">
+                            <option value="">-- Select Player --</option>
+                        </select>
+                        <button class="whatif-btn" id="copyPlayerPicks">Apply</button>
+                    </div>
+                </div>
+
+                <div class="upcoming-games" id="upcomingGames"></div>
+
+                <div class="whatif-results" id="whatifResults" style="display: none;">
+                    <div>
+                        <h3 style="margin-top: 0;">Current Standings</h3>
+                        <table class="comparison-table" id="currentStandingsTable"></table>
+                    </div>
+                    <div>
+                        <h3 style="margin-top: 0;">Projected Standings</h3>
+                        <table class="comparison-table" id="projectedStandingsTable"></table>
+                    </div>
+                </div>
+            </section>
+
+        </div> <!-- end dashboard-grid -->
+    </div> <!-- end dashboard-container -->
+
+    <script>
+        const matchupsUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQi6KQIneboHgXLY48j6eRSCPD66Sbf4-WzSvmB7gAZv4duklJ0nluIUZZT3S68FTLp1DGcfZVHqq6n/pub?gid=1301060622&single=true&output=csv";
+        const picksUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQi6KQIneboHgXLY48j6eRSCPD66Sbf4-WzSvmB7gAZv4duklJ0nluIUZZT3S68FTLp1DGcfZVHqq6n/pub?gid=881893402&single=true&output=csv";
+
+        let leaderboardData = [];
+        let currentSort = 'rank';
+        let currentDirection = 'asc';
+        let matchupsData = {}; // Map of gameKey -> game info
+        let allGames = []; // Array of all games in order
+        let isExpanded = false;
+        let horseRaceData = [];
+        let playerColors = {};
+        let pickAnalysis = {}; // Stores majority picks and distribution
+        let whatifSelections = {}; // Stores what-if game winner selections
+        let rawPicksData = []; // Store raw picks for what-if calculations
+
+        // Sanitize player name for use in CSS selectors
+        function sanitizeName(name) {
+            return name.replace(/[^a-zA-Z0-9-_]/g, '-');
+        }
+
+        // Create a unique key for a game based on Week, Date, Time, Sheet
+        function createGameKey(week, date, time, sheet) {
+            return `${week}_${date}_${time}_${sheet}`;
+        }
+
+        // Parse game column header to extract Week, Date, Time, Sheet
+        function parseGameColumn(header) {
+            // Format: "Week 3 | 11/12/2025 | 6:35 PM | Sheet 1"
+            const match = header.match(/Week\s+(\d+)\s*\|\s*([^|]+)\s*\|\s*([^|]+)\s*\|\s*Sheet\s+(\d+)/i);
+            if (match) {
+                return {
+                    week: match[1].trim(),
+                    date: match[2].trim(),
+                    time: match[3].trim(),
+                    sheet: match[4].trim()
+                };
+            }
+            return null;
+        }
+
+        // Parse matchups CSV and create game map
+        function parseMatchups(rawMatchups) {
+            const gameMap = {};
+            const gamesArray = [];
+
+            rawMatchups.forEach((row, index) => {
+                const gameKey = createGameKey(row.Week, row.Date, row.Time, row.Sheet);
+                // Check if winner exists and is not just whitespace
+                const winner = row.Winner && row.Winner.trim() !== '' ? row.Winner.trim() : null;
+
+                const gameInfo = {
+                    gameNumber: index + 1,
+                    week: row.Week,
+                    date: row.Date,
+                    time: row.Time,
+                    sheet: row.Sheet,
+                    team1: row.Team1_Skip,
+                    team2: row.Team2_Skip,
+                    winner: winner,
+                    gameKey: gameKey
+                };
+                gameMap[gameKey] = gameInfo;
+                gamesArray.push(gameInfo);
+            });
+
+            return { gameMap, gamesArray };
+        }
+
+        // Analyze pick distribution for each game
+        function analyzePickDistribution(rawPicks, gameMap) {
+            const analysis = {};
+
+            // Get all game column headers from picks CSV
+            const headers = Object.keys(rawPicks[0] || {});
+            const gameHeaders = headers.filter(h => h.includes('Week'));
+
+            // For each game column, count picks
+            gameHeaders.forEach(header => {
+                const gameInfo = parseGameColumn(header);
+                if (!gameInfo) return;
+
+                const gameKey = createGameKey(gameInfo.week, gameInfo.date, gameInfo.time, gameInfo.sheet);
+                const game = gameMap[gameKey];
+                if (!game) return;
+
+                const pickCounts = {};
+                pickCounts[game.team1] = 0;
+                pickCounts[game.team2] = 0;
+                let totalPicks = 0;
+
+                // Count picks for this game
+                rawPicks.forEach(row => {
+                    const pick = row[header];
+                    if (pick === game.team1) {
+                        pickCounts[game.team1]++;
+                        totalPicks++;
+                    } else if (pick === game.team2) {
+                        pickCounts[game.team2]++;
+                        totalPicks++;
+                    }
+                });
+
+                // Determine chalk (majority pick)
+                let chalkPick = null;
+                let chalkPercentage = 50;
+
+                if (totalPicks > 0) {
+                    if (pickCounts[game.team1] > pickCounts[game.team2]) {
+                        chalkPick = game.team1;
+                        chalkPercentage = (pickCounts[game.team1] / totalPicks * 100).toFixed(0);
+                    } else if (pickCounts[game.team2] > pickCounts[game.team1]) {
+                        chalkPick = game.team2;
+                        chalkPercentage = (pickCounts[game.team2] / totalPicks * 100).toFixed(0);
+                    }
+                }
+
+                analysis[gameKey] = {
+                    team1: game.team1,
+                    team2: game.team2,
+                    team1Picks: pickCounts[game.team1],
+                    team2Picks: pickCounts[game.team2],
+                    totalPicks: totalPicks,
+                    chalkPick: chalkPick,
+                    chalkPercentage: chalkPercentage
+                };
+            });
+
+            return analysis;
+        }
+
+        // Generate consistent colors for players using a color scale
+        function generatePlayerColors(playerNames) {
+            const colorScale = d3.scaleOrdinal(d3.schemeTableau10.concat(d3.schemePastel1));
+            const colors = {};
+            playerNames.forEach((name, i) => {
+                colors[name] = colorScale(i);
+            });
+            return colors;
+        }
+
+        // Process picks data into leaderboard format
+        function processData(rawPicks, gameMap, gamesArray) {
+            if (!rawPicks || rawPicks.length === 0) return [];
+
+            const headers = Object.keys(rawPicks[0]);
+            const nameHeader = headers.find(h => h.toLowerCase().includes('name'));
+            const gameHeaders = headers.filter(h => h.includes('Week'));
+
+            const players = rawPicks.map(row => {
+                const name = row[nameHeader];
+                if (!name) return null;
+
+                const gameResults = [];
+                let totalWins = 0;
+                let currentStreak = { type: null, count: 0 };
+
+                // Process each game column
+                gameHeaders.forEach((gameHeader, headerIndex) => {
+                    const gameInfo = parseGameColumn(gameHeader);
+                    if (!gameInfo) return;
+
+                    const gameKey = createGameKey(gameInfo.week, gameInfo.date, gameInfo.time, gameInfo.sheet);
+                    const game = gameMap[gameKey];
+                    if (!game) return;
+
+                    const playerPick = row[gameHeader];
+                    if (!playerPick) return; // Player didn't make a pick
+
+                    // Determine result
+                    let result = null;
+                    if (game.winner) {
+                        // Game has been played
+                        result = (playerPick === game.winner) ? 'W' : 'L';
+                        if (result === 'W') totalWins++;
+
+                        // Track streaks
+                        if (currentStreak.type === result) {
+                            currentStreak.count++;
+                        } else {
+                            currentStreak = { type: result, count: 1 };
+                        }
+                    }
+                    // If no winner yet, result stays null (game not played)
+
+                    // Determine opponent
+                    const opponent = (playerPick === game.team1) ? game.team2 : game.team1;
+
+                    // Check if this was a contrarian pick
+                    const gameAnalysis = pickAnalysis[gameKey];
+                    const isContrarian = gameAnalysis && gameAnalysis.chalkPick &&
+                        playerPick !== gameAnalysis.chalkPick;
+
+                    gameResults.push({
+                        game: game.gameNumber,
+                        result: result,
+                        cumulativeWins: totalWins,
+                        cumulativeLosses: gameResults.filter(g => g.result === 'L').length,
+                        isStreak: currentStreak.count >= 3 && result !== null,
+                        matchup: {
+                            opponent: opponent,
+                            week: game.week,
+                            date: game.date,
+                            time: game.time,
+                            sheet: game.sheet
+                        },
+                        pick: playerPick,
+                        isContrarian: isContrarian,
+                        pickAnalysis: gameAnalysis
+                    });
+                });
+
+                // Filter only completed games for stats
+                const completedGames = gameResults.filter(g => g.result !== null);
+                const totalGames = completedGames.length;
+                const totalLosses = completedGames.filter(g => g.result === 'L').length;
+                const winPct = totalGames > 0 ? (totalWins / totalGames) * 100 : 0;
+
+                // Calculate contrarian stats
+                const contrarianPicks = completedGames.filter(g => g.isContrarian);
+                const contrarianWins = contrarianPicks.filter(g => g.result === 'W').length;
+                const contrarianTotal = contrarianPicks.length;
+                const contrarianPct = totalGames > 0 ? (contrarianTotal / totalGames * 100) : 0;
+                const contrarianWinRate = contrarianTotal > 0 ? (contrarianWins / contrarianTotal * 100) : 0;
+
+                // Get recent form (last 5 completed games)
+                const recentForm = completedGames.slice(-5);
+
+                return {
+                    name: name,
+                    games: totalGames,
+                    wins: totalWins,
+                    losses: totalLosses,
+                    winPct: winPct,
+                    recentForm: recentForm,
+                    allResults: completedGames, // Only show completed games
+                    contrarianTotal: contrarianTotal,
+                    contrarianWins: contrarianWins,
+                    contrarianLosses: contrarianTotal - contrarianWins,
+                    contrarianPct: contrarianPct,
+                    contrarianWinRate: contrarianWinRate
+                };
+            }).filter(p => p !== null);
+
+            // Sort by wins (descending), then by win percentage
+            players.sort((a, b) => {
+                if (b.wins !== a.wins) return b.wins - a.wins;
+                return b.winPct - a.winPct;
+            });
+
+            // Add rank with tie handling
+            let currentRank = 1;
+            players.forEach((player, index) => {
+                if (index > 0) {
+                    const prevPlayer = players[index - 1];
+                    // Check if tied with previous player (same wins and win percentage)
+                    if (player.wins === prevPlayer.wins && player.winPct === prevPlayer.winPct) {
+                        player.rank = prevPlayer.rank;
+                    } else {
+                        player.rank = index + 1;
+                    }
+                } else {
+                    player.rank = 1;
+                }
+            });
+
+            return players;
+        }
+
+        // Render Horse Race Chart
+        function renderHorseRace(data) {
+            const container = d3.select('#horseRaceChart');
+            const tooltip = d3.select('#raceTooltip');
+            const legendContainer = d3.select('#raceLegend');
+
+            container.selectAll("*").remove();
+            legendContainer.selectAll("*").remove();
+
+            const margin = { top: 20, right: 30, bottom: 60, left: 60 };
+            const containerWidth = container.node().getBoundingClientRect().width;
+            const width = containerWidth - margin.left - margin.right;
+            const chartHeight = window.innerWidth >= 1200 ? 450 : 400;
+            const height = chartHeight - margin.top - margin.bottom;
+
+            const svg = container
+                .attr('width', containerWidth)
+                .attr('height', chartHeight)
+                .append('g')
+                .attr('transform', `translate(${margin.left},${margin.top})`);
+
+            // Find max games across all players
+            const maxGames = d3.max(data, d => d.allResults.length);
+
+            // Create x scale with game numbers
+            const x = d3.scaleLinear()
+                .domain([1, maxGames])
+                .range([0, width]);
+
+            // Create y scale with wins
+            const maxWins = d3.max(data, d => d.wins);
+            const y = d3.scaleLinear()
+                .domain([0, maxWins])
+                .range([height, 0]);
+
+            // Add X axis
+            svg.append('g')
+                .attr('transform', `translate(0,${height})`)
+                .call(d3.axisBottom(x).ticks(maxGames).tickFormat(d => `G${d}`))
+                .selectAll("text")
+                .style("font-size", "11px");
+
+            // Add Y axis
+            svg.append('g')
+                .call(d3.axisLeft(y).ticks(maxWins));
+
+            // Add Y axis label
+            svg.append('text')
+                .attr('transform', 'rotate(-90)')
+                .attr('y', -margin.left + 15)
+                .attr('x', -height / 2)
+                .style('text-anchor', 'middle')
+                .style('font-size', '14px')
+                .style('font-weight', 'bold')
+                .text('Wins');
+
+            // Add X axis label
+            svg.append('text')
+                .attr('x', width / 2)
+                .attr('y', height + margin.bottom - 10)
+                .style('text-anchor', 'middle')
+                .style('font-size', '14px')
+                .style('font-weight', 'bold')
+                .text('Game Number');
+
+            // Create line generator
+            const line = d3.line()
+                .x((d, i) => x(i + 1))
+                .y(d => y(d.cumulativeWins));
+
+            // Draw lines for each player
+            data.forEach(player => {
+                const lineData = player.allResults;
+                const safeName = sanitizeName(player.name);
+
+                svg.append('path')
+                    .datum(lineData)
+                    .attr('class', 'horse-race-line')
+                    .attr('d', line)
+                    .attr('stroke', playerColors[player.name])
+                    .attr('data-player', safeName)
+                    .attr('data-player-name', player.name)
+                    .style('opacity', player.visible !== false ? 1 : 0.1);
+
+                // Add dots
+                svg.selectAll(`.dot-${safeName}`)
+                    .data(lineData)
+                    .enter()
+                    .append('circle')
+                    .attr('class', `horse-race-dot dot-${safeName}`)
+                    .attr('cx', (d, i) => x(i + 1))
+                    .attr('cy', d => y(d.cumulativeWins))
+                    .attr('r', 4)
+                    .attr('fill', 'white')
+                    .attr('stroke', playerColors[player.name])
+                    .attr('data-player', safeName)
+                    .attr('data-player-name', player.name)
+                    .style('opacity', player.visible !== false ? 1 : 0.1)
+                    .on('mouseover', function(event, d) {
+                        // Highlight line
+                        d3.selectAll('.horse-race-line').classed('highlighted', false);
+                        d3.select(`.horse-race-line[data-player="${safeName}"]`).classed('highlighted', true);
+
+                        // Show tooltip
+                        tooltip.html(`
+                            <strong>${player.name}</strong><br>
+                            Game ${d.game}: ${d.result === 'W' ? 'Win ✓' : 'Loss ✗'}<br>
+                            Record: ${d.cumulativeWins}-${d.cumulativeLosses}
+                        `)
+                        .style('display', 'block')
+                        .style('left', (event.pageX + 15) + 'px')
+                        .style('top', (event.pageY - 10) + 'px');
+                    })
+                    .on('mouseout', function() {
+                        d3.selectAll('.horse-race-line').classed('highlighted', false);
+                        tooltip.style('display', 'none');
+                    });
+            });
+
+            // Render legend
+            renderRaceLegend(data);
+        }
+
+        // Render race legend
+        function renderRaceLegend(data) {
+            const legendContainer = d3.select('#raceLegend');
+            legendContainer.selectAll("*").remove();
+
+            // Sort by rank
+            const sortedData = [...data].sort((a, b) => a.rank - b.rank);
+
+            sortedData.forEach(player => {
+                const safeName = sanitizeName(player.name);
+
+                const item = legendContainer.append('div')
+                    .attr('class', `race-legend-item ${player.visible === false ? 'hidden' : ''}`)
+                    .attr('data-player', safeName)
+                    .attr('data-player-name', player.name)
+                    .on('click', function() {
+                        player.visible = player.visible === false ? true : false;
+                        renderHorseRace(horseRaceData);
+                    })
+                    .on('mouseover', function() {
+                        d3.selectAll('.horse-race-line').classed('highlighted', false);
+                        d3.select(`.horse-race-line[data-player="${safeName}"]`).classed('highlighted', true);
+                    })
+                    .on('mouseout', function() {
+                        d3.selectAll('.horse-race-line').classed('highlighted', false);
+                    });
+
+                item.append('div')
+                    .attr('class', 'race-legend-color')
+                    .style('background-color', playerColors[player.name]);
+
+                item.append('span')
+                    .attr('class', 'race-legend-name')
+                    .text(player.name);
+
+                item.append('span')
+                    .attr('class', 'race-legend-record')
+                    .text(`${player.wins}-${player.losses}`);
+            });
+        }
+
+        // Setup race control buttons
+        function setupRaceControls() {
+            d3.select('#showAllRace').on('click', () => {
+                horseRaceData.forEach(p => p.visible = true);
+                renderHorseRace(horseRaceData);
+            });
+
+            d3.select('#hideAllRace').on('click', () => {
+                horseRaceData.forEach(p => p.visible = false);
+                renderHorseRace(horseRaceData);
+            });
+        }
+
+        // Render statistics summary
+        function renderStatsSummary(data) {
+            const totalGames = data.reduce((sum, p) => sum + p.games, 0) / 2; // Divide by 2 since each game counts twice
+            const avgWinPct = data.reduce((sum, p) => sum + p.winPct, 0) / data.length;
+            const topWins = data[0]?.wins || 0;
+            const totalPlayers = data.length;
+
+            // Find most contrarian player
+            const mostContrarian = [...data].sort((a, b) => b.contrarianPct - a.contrarianPct)[0];
+            const bestContrarianWinRate = [...data]
+                .filter(p => p.contrarianTotal >= 2) // At least 2 contrarian picks
+                .sort((a, b) => b.contrarianWinRate - a.contrarianWinRate)[0];
+
+            const html = `
+                <div class="stat-card">
+                    <div class="stat-label">Total Players</div>
+                    <div class="stat-value">${totalPlayers}</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Games Played</div>
+                    <div class="stat-value">${Math.round(totalGames)}</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Leader Wins</div>
+                    <div class="stat-value">${topWins}</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Avg Win Rate</div>
+                    <div class="stat-value">${avgWinPct.toFixed(1)}%</div>
+                </div>
+                <div class="stat-card" style="border-left: 4px solid #FF6B35;">
+                    <div class="stat-label">🔥 Most Contrarian</div>
+                    <div class="stat-value" style="font-size: 16px;">${mostContrarian?.name || 'N/A'}</div>
+                    <div style="font-size: 12px; color: #666;">${mostContrarian?.contrarianTotal || 0} picks (${mostContrarian?.contrarianPct.toFixed(0)}%)</div>
+                </div>
+                <div class="stat-card" style="border-left: 4px solid #FF6B35;">
+                    <div class="stat-label">🎯 Best Against Grain</div>
+                    <div class="stat-value" style="font-size: 16px;">${bestContrarianWinRate?.name || 'N/A'}</div>
+                    <div style="font-size: 12px; color: #666;">${bestContrarianWinRate?.contrarianWins || 0}-${bestContrarianWinRate?.contrarianLosses || 0} (${bestContrarianWinRate?.contrarianWinRate.toFixed(0)}%)</div>
+                </div>
+            `;
+
+            document.getElementById('statsSummary').innerHTML = html;
+        }
+
+        // Render leaderboard table
+        function renderLeaderboard(data) {
+            const tbody = document.getElementById('leaderboardBody');
+            tbody.innerHTML = '';
+
+            data.forEach((player, playerIndex) => {
+                const row = document.createElement('tr');
+
+                // Rank with medal colors
+                let rankClass = 'rank';
+                if (player.rank === 1) rankClass += ' gold';
+                else if (player.rank === 2) rankClass += ' silver';
+                else if (player.rank === 3) rankClass += ' bronze';
+
+                // Win percentage color
+                let winPctClass = 'win-percentage';
+                if (player.winPct >= 60) winPctClass += ' high';
+                else if (player.winPct >= 40) winPctClass += ' medium';
+                else winPctClass += ' low';
+
+                // Show either recent form or all games based on expanded state
+                const gamesToShow = isExpanded ? player.allResults : player.recentForm;
+                const gameHistoryHtml = gamesToShow.map(gameData =>
+                    renderGameCell(gameData, player)
+                ).join('');
+
+                row.innerHTML = `
+                    <td class="center ${rankClass}">${player.rank}</td>
+                    <td class="player-name">${player.name}</td>
+                    <td class="center">${player.wins}</td>
+                    <td class="center">${player.losses}</td>
+                    <td class="center ${winPctClass}">${player.winPct.toFixed(1)}%</td>
+                    <td class="center game-history-cell ${isExpanded ? 'expanded' : 'collapsed'}">
+                        <div class="recent-form">${gameHistoryHtml}</div>
+                    </td>
+                `;
+
+                tbody.appendChild(row);
+            });
+        }
+
+        // Render a single game cell
+        function renderGameCell(gameData, player) {
+            const cellClass = gameData.result === 'W' ? 'win' : 'loss';
+            const contrarianClass = gameData.isContrarian ? ' contrarian' : '';
+            const streakDot = gameData.isStreak ? '<div class="streak-indicator"></div>' : '';
+            const contrarianTriangle = gameData.isContrarian ? '<div class="contrarian-indicator" title="Against the grain pick"></div>' : '';
+
+            return `<span class="form-indicator ${cellClass}${contrarianClass}"
+                data-player="${player.name}"
+                data-game="${gameData.game}"
+                onmouseenter="showTooltip(event, '${player.name.replace(/'/g, "\\'")}', ${JSON.stringify(gameData).replace(/"/g, '&quot;')})"
+                onmouseleave="hideTooltip()">${gameData.result}${contrarianTriangle}${streakDot}</span>`;
+        }
+
+        // Toggle expand/collapse for all players
+        function toggleExpandCollapse() {
+            isExpanded = !isExpanded;
+
+            const expandBtn = document.getElementById('expandHeaderBtn');
+            const label = document.getElementById('gameHistoryLabel');
+
+            if (isExpanded) {
+                expandBtn.classList.add('expanded');
+                expandBtn.title = 'Collapse to show recent form';
+                label.textContent = 'Game History';
+            } else {
+                expandBtn.classList.remove('expanded');
+                expandBtn.title = 'Expand to show all games';
+                label.textContent = 'Recent Form';
+            }
+
+            // Re-render the leaderboard with the new state
+            const sortedData = sortData(leaderboardData, currentSort, currentDirection);
+            renderLeaderboard(sortedData);
+        }
+
+        // Show tooltip
+        function showTooltip(event, playerName, gameData) {
+            const tooltip = document.getElementById('tooltip');
+
+            let tooltipHtml = `<strong>${playerName}</strong><br>`;
+            tooltipHtml += `Game ${gameData.game}: <strong>${gameData.result === 'W' ? 'Win ✓' : 'Loss ✗'}</strong><br>`;
+
+            if (gameData.matchup) {
+                tooltipHtml += `<strong>vs</strong> ${gameData.matchup.opponent}<br>`;
+            }
+
+            if (gameData.pick) {
+                tooltipHtml += `<strong>Picked:</strong> ${gameData.pick}`;
+
+                // Show contrarian indicator
+                if (gameData.isContrarian) {
+                    tooltipHtml += ` <span style="color: #FF6B35;">🔥 Against the grain!</span>`;
+                }
+                tooltipHtml += '<br>';
+            }
+
+            // Show pick distribution if available
+            if (gameData.pickAnalysis && gameData.pickAnalysis.totalPicks > 0) {
+                const analysis = gameData.pickAnalysis;
+                tooltipHtml += `<strong>Pick Distribution:</strong><br>`;
+                tooltipHtml += `${analysis.team1}: ${analysis.team1Picks} (${(analysis.team1Picks / analysis.totalPicks * 100).toFixed(0)}%)<br>`;
+                tooltipHtml += `${analysis.team2}: ${analysis.team2Picks} (${(analysis.team2Picks / analysis.totalPicks * 100).toFixed(0)}%)<br>`;
+
+                if (analysis.chalkPick) {
+                    tooltipHtml += `<strong>Chalk:</strong> ${analysis.chalkPick} (${analysis.chalkPercentage}%)<br>`;
+                }
+            }
+
+            tooltipHtml += `<strong>Record:</strong> ${gameData.cumulativeWins}-${gameData.cumulativeLosses}`;
+
+            tooltip.innerHTML = tooltipHtml;
+            tooltip.style.display = 'block';
+            tooltip.style.left = (event.pageX + 15) + 'px';
+            tooltip.style.top = (event.pageY - 10) + 'px';
+        }
+
+        // Hide tooltip
+        function hideTooltip() {
+            document.getElementById('tooltip').style.display = 'none';
+        }
+
+        // Sort data
+        function sortData(data, sortBy, direction) {
+            const sorted = [...data];
+            const dir = direction === 'asc' ? 1 : -1;
+
+            switch(sortBy) {
+                case 'name':
+                    sorted.sort((a, b) => dir * a.name.localeCompare(b.name));
+                    break;
+                case 'wins':
+                    sorted.sort((a, b) => {
+                        if (a.wins !== b.wins) return dir * (b.wins - a.wins);
+                        return b.winPct - a.winPct;
+                    });
+                    break;
+                case 'losses':
+                    sorted.sort((a, b) => {
+                        if (a.losses !== b.losses) return dir * (b.losses - a.losses);
+                        return b.wins - a.wins;
+                    });
+                    break;
+                case 'winPct':
+                    sorted.sort((a, b) => {
+                        if (a.winPct !== b.winPct) return dir * (b.winPct - a.winPct);
+                        return b.wins - a.wins;
+                    });
+                    break;
+                default: // rank
+                    sorted.sort((a, b) => dir * (a.rank - b.rank));
+            }
+
+            return sorted;
+        }
+
+        // Setup sortable table headers
+        function setupHeaderSort() {
+            const headers = document.querySelectorAll('th.sortable');
+            headers.forEach(header => {
+                header.addEventListener('click', () => {
+                    const sortBy = header.dataset.sort;
+
+                    // Toggle direction if clicking the same header
+                    if (sortBy === currentSort) {
+                        currentDirection = currentDirection === 'asc' ? 'desc' : 'asc';
+                    } else {
+                        // Default direction based on column type
+                        currentDirection = sortBy === 'name' ? 'asc' : 'desc';
+                        currentSort = sortBy;
+                    }
+
+                    // Update header classes
+                    headers.forEach(h => {
+                        h.classList.remove('sorted-asc', 'sorted-desc');
+                    });
+                    header.classList.add(`sorted-${currentDirection}`);
+
+                    // Re-render with new sort
+                    const sortedData = sortData(leaderboardData, sortBy, currentDirection);
+                    renderLeaderboard(sortedData);
+                });
+            });
+        }
+
+        // Setup expand/collapse button
+        function setupExpandCollapse() {
+            const expandBtn = document.getElementById('expandHeaderBtn');
+            const gameHistoryHeader = document.getElementById('gameHistoryHeader');
+
+            // Click on either the button or the header to toggle
+            const toggleHandler = (e) => {
+                // Prevent sorting if clicking on the game history header
+                e.stopPropagation();
+                toggleExpandCollapse();
+            };
+
+            expandBtn.addEventListener('click', toggleHandler);
+            gameHistoryHeader.addEventListener('click', toggleHandler);
+        }
+
+        // ===== WHAT-IF ANALYSIS FUNCTIONS =====
+
+        // Get upcoming (unplayed) games
+        function getUpcomingGames() {
+            return allGames.filter(game => !game.winner);
+        }
+
+        // Render what-if analysis panel
+        function renderWhatIfPanel() {
+            const upcomingGames = getUpcomingGames();
+
+            if (upcomingGames.length === 0) {
+                document.getElementById('whatifSection').style.display = 'none';
+                return;
+            }
+
+            document.getElementById('whatifSection').style.display = 'block';
+            const container = document.getElementById('upcomingGames');
+            container.innerHTML = '';
+
+            upcomingGames.forEach(game => {
+                const analysis = pickAnalysis[game.gameKey];
+                const card = document.createElement('div');
+                card.className = 'game-card';
+
+                const team1IsChalk = analysis && analysis.chalkPick === game.team1;
+                const team2IsChalk = analysis && analysis.chalkPick === game.team2;
+
+                card.innerHTML = `
+                    <div class="game-card-header">
+                        Week ${game.week} | ${game.date} | ${game.time} | Sheet ${game.sheet}
+                    </div>
+                    <div class="game-matchup">
+                        <div class="team-option ${team1IsChalk ? 'chalk' : ''} ${whatifSelections[game.gameKey] === game.team1 ? 'selected' : ''}"
+                             data-gamekey="${game.gameKey}" data-team="${game.team1}">
+                            <input type="radio" name="game-${game.gameKey}" value="${game.team1}"
+                                   ${whatifSelections[game.gameKey] === game.team1 ? 'checked' : ''}>
+                            <span class="team-name">${game.team1}</span>
+                            ${analysis ? `<span class="pick-count">${analysis.team1Picks} picks</span>` : ''}
+                        </div>
+                        <div class="team-option ${team2IsChalk ? 'chalk' : ''} ${whatifSelections[game.gameKey] === game.team2 ? 'selected' : ''}"
+                             data-gamekey="${game.gameKey}" data-team="${game.team2}">
+                            <input type="radio" name="game-${game.gameKey}" value="${game.team2}"
+                                   ${whatifSelections[game.gameKey] === game.team2 ? 'checked' : ''}>
+                            <span class="team-name">${game.team2}</span>
+                            ${analysis ? `<span class="pick-count">${analysis.team2Picks} picks</span>` : ''}
+                        </div>
+                    </div>
+                `;
+
+                container.appendChild(card);
+            });
+
+            // Add click handlers
+            document.querySelectorAll('.team-option').forEach(option => {
+                option.addEventListener('click', function() {
+                    const gameKey = this.dataset.gamekey;
+                    const team = this.dataset.team;
+                    selectWhatIfWinner(gameKey, team);
+                });
+            });
+        }
+
+        // Handle what-if winner selection (toggle if same team clicked)
+        function selectWhatIfWinner(gameKey, team) {
+            // Toggle: if clicking the already selected team, unset it
+            if (whatifSelections[gameKey] === team) {
+                delete whatifSelections[gameKey];
+            } else {
+                whatifSelections[gameKey] = team;
+            }
+            renderWhatIfPanel(); // Re-render to update UI
+            updateProjectedStandings();
+        }
+
+        // Get player's picks for upcoming games
+        function getPlayerPicks(playerName) {
+            const playerRow = rawPicksData.find(row => {
+                const headers = Object.keys(row);
+                const nameHeader = headers.find(h => h.toLowerCase().includes('name'));
+                return row[nameHeader] === playerName;
+            });
+
+            if (!playerRow) return {};
+
+            const picks = {};
+            const upcomingGames = getUpcomingGames();
+            const headers = Object.keys(playerRow);
+
+            upcomingGames.forEach(game => {
+                // Find the matching header for this game
+                headers.forEach(header => {
+                    const gameInfo = parseGameColumn(header);
+                    if (gameInfo) {
+                        const gameKey = createGameKey(gameInfo.week, gameInfo.date, gameInfo.time, gameInfo.sheet);
+                        if (gameKey === game.gameKey) {
+                            const pick = playerRow[header];
+                            if (pick) {
+                                picks[gameKey] = pick;
+                            }
+                        }
+                    }
+                });
+            });
+
+            return picks;
+        }
+
+        // Calculate projected standings based on what-if selections
+        function calculateProjectedStandings() {
+            // Create a copy of matchups data with what-if winners applied
+            const whatifGameMap = {};
+            Object.keys(matchupsData).forEach(key => {
+                whatifGameMap[key] = { ...matchupsData[key] };
+                if (whatifSelections[key]) {
+                    whatifGameMap[key].winner = whatifSelections[key];
+                }
+            });
+
+            // Recalculate standings with what-if results
+            return processData(rawPicksData, whatifGameMap, allGames);
+        }
+
+        // Update projected standings display
+        function updateProjectedStandings() {
+            const hasSelections = Object.keys(whatifSelections).length > 0;
+
+            if (!hasSelections) {
+                document.getElementById('whatifResults').style.display = 'none';
+                return;
+            }
+
+            document.getElementById('whatifResults').style.display = 'grid';
+
+            const projectedData = calculateProjectedStandings();
+
+            renderComparisonTable('currentStandingsTable', leaderboardData, null);
+            renderComparisonTable('projectedStandingsTable', projectedData, leaderboardData);
+        }
+
+        // Render comparison table
+        function renderComparisonTable(tableId, data, compareData) {
+            const table = document.getElementById(tableId);
+
+            let html = `
+                <thead>
+                    <tr>
+                        <th class="center">Rank</th>
+                        <th>Player</th>
+                        <th class="center">W</th>
+                        <th class="center">L</th>
+                        <th class="center">Win %</th>
+                    </tr>
+                </thead>
+                <tbody>
+            `;
+
+            data.forEach((player, index) => {
+                let rankClass = 'rank';
+                if (player.rank === 1) rankClass += ' gold';
+                else if (player.rank === 2) rankClass += ' silver';
+                else if (player.rank === 3) rankClass += ' bronze';
+
+                let winPctClass = 'win-percentage';
+                if (player.winPct >= 60) winPctClass += ' high';
+                else if (player.winPct >= 40) winPctClass += ' medium';
+                else winPctClass += ' low';
+
+                // Calculate rank change if comparing
+                let rankChange = '';
+                if (compareData) {
+                    const oldPlayer = compareData.find(p => p.name === player.name);
+                    if (oldPlayer) {
+                        const change = oldPlayer.rank - player.rank;
+                        if (change > 0) {
+                            rankChange = `<span class="rank-change up">▲${change}</span>`;
+                        } else if (change < 0) {
+                            rankChange = `<span class="rank-change down">▼${Math.abs(change)}</span>`;
+                        } else {
+                            rankChange = `<span class="rank-change same">―</span>`;
+                        }
+                    }
+                }
+
+                html += `
+                    <tr>
+                        <td class="center ${rankClass}">${player.rank}${rankChange}</td>
+                        <td class="player-name">${player.name}</td>
+                        <td class="center">${player.wins}</td>
+                        <td class="center">${player.losses}</td>
+                        <td class="center ${winPctClass}">${player.winPct.toFixed(1)}%</td>
+                    </tr>
+                `;
+            });
+
+            html += '</tbody>';
+            table.innerHTML = html;
+        }
+
+        // Setup what-if controls
+        function setupWhatIfControls() {
+            // Populate player dropdown
+            const playerSelect = document.getElementById('playerSelect');
+            playerSelect.innerHTML = '<option value="">-- Select Player --</option>';
+            leaderboardData.forEach(player => {
+                const option = document.createElement('option');
+                option.value = player.name;
+                option.textContent = player.name;
+                playerSelect.appendChild(option);
+            });
+
+            // Reset all selections
+            document.getElementById('resetWhatif').addEventListener('click', () => {
+                whatifSelections = {};
+                renderWhatIfPanel();
+                updateProjectedStandings();
+            });
+
+            // Pick all chalk
+            document.getElementById('pickAllChalk').addEventListener('click', () => {
+                const upcomingGames = getUpcomingGames();
+                upcomingGames.forEach(game => {
+                    const analysis = pickAnalysis[game.gameKey];
+                    if (analysis && analysis.chalkPick) {
+                        whatifSelections[game.gameKey] = analysis.chalkPick;
+                    }
+                });
+                renderWhatIfPanel();
+                updateProjectedStandings();
+            });
+
+            // Copy player picks
+            document.getElementById('copyPlayerPicks').addEventListener('click', () => {
+                const selectedPlayer = playerSelect.value;
+                if (!selectedPlayer) {
+                    alert('Please select a player first');
+                    return;
+                }
+
+                const playerPicks = getPlayerPicks(selectedPlayer);
+                // Apply all of this player's picks to whatif selections
+                Object.keys(playerPicks).forEach(gameKey => {
+                    whatifSelections[gameKey] = playerPicks[gameKey];
+                });
+
+                renderWhatIfPanel();
+                updateProjectedStandings();
+            });
+        }
+
+        // Load and display data
+        Promise.all([
+            d3.csv(matchupsUrl),
+            d3.csv(picksUrl)
+        ]).then(([matchups, picks]) => {
+            // Store raw picks for what-if calculations
+            rawPicksData = picks;
+
+            // Parse matchups CSV
+            const { gameMap, gamesArray } = parseMatchups(matchups);
+            matchupsData = gameMap;
+            allGames = gamesArray;
+
+            // Analyze pick distribution to identify chalk/contrarian picks
+            pickAnalysis = analyzePickDistribution(picks, gameMap);
+
+            // Process picks data to create leaderboard
+            leaderboardData = processData(picks, gameMap, gamesArray);
+            horseRaceData = leaderboardData; // Same data for horse race
+
+            // Generate consistent colors for all players
+            playerColors = generatePlayerColors(leaderboardData.map(p => p.name));
+
+            // Hide loading, show dashboard
+            document.getElementById('loadingMessage').style.display = 'none';
+            document.getElementById('dashboardGrid').style.display = 'grid';
+
+            // Update last updated time
+            const now = new Date();
+            document.getElementById('lastUpdated').textContent =
+                `Last updated: ${now.toLocaleString('en-US', {
+                    month: 'long',
+                    day: 'numeric',
+                    year: 'numeric',
+                    hour: 'numeric',
+                    minute: '2-digit'
+                })}`;
+
+            // Render everything
+            renderHorseRace(horseRaceData);
+            renderStatsSummary(leaderboardData);
+            renderLeaderboard(leaderboardData);
+            setupHeaderSort();
+            setupExpandCollapse();
+            setupRaceControls();
+
+            // Setup what-if analysis
+            renderWhatIfPanel();
+            setupWhatIfControls();
+
+        }).catch(error => {
+            console.error("Error fetching or parsing CSV:", error);
+            document.getElementById('loadingMessage').style.display = 'none';
+            const errorDiv = document.getElementById('errorMessage');
+            errorDiv.textContent = `Error loading leaderboard data: ${error.message}`;
+            errorDiv.style.display = 'block';
+        });
+    </script>
+</body>
+</html>
