@@ -43,45 +43,31 @@
             font-style: italic;
         }
 
-        .controls {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-
-        .sort-label {
-            font-size: 14px;
-            color: #666;
-            margin-right: 10px;
-        }
-
-        .sort-buttons {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-
-        .sort-btn {
-            padding: 8px 16px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            background-color: #f8f8f8;
+        th.sortable {
             cursor: pointer;
-            font-size: 14px;
-            transition: all 0.3s;
+            user-select: none;
+            position: relative;
+            transition: background-color 0.2s;
         }
 
-        .sort-btn:hover {
+        th.sortable:hover {
             background-color: #e8e8e8;
         }
 
-        .sort-btn.active {
-            background-color: #4CAF50;
-            color: white;
-            border-color: #4CAF50;
+        th.sortable::after {
+            content: '';
+            margin-left: 6px;
+            opacity: 0.3;
+        }
+
+        th.sortable.sorted-asc::after {
+            content: '▲';
+            opacity: 1;
+        }
+
+        th.sortable.sorted-desc::after {
+            content: '▼';
+            opacity: 1;
         }
 
         .stats-summary {
@@ -276,31 +262,17 @@
 
         <div class="stats-summary" id="statsSummary"></div>
 
-        <div class="controls">
-            <div style="display: flex; align-items: center;">
-                <span class="sort-label">Sort by:</span>
-                <div class="sort-buttons">
-                    <button class="sort-btn active" data-sort="rank">Rank</button>
-                    <button class="sort-btn" data-sort="name">Name</button>
-                    <button class="sort-btn" data-sort="wins">Wins</button>
-                    <button class="sort-btn" data-sort="winPct">Win %</button>
-                    <button class="sort-btn" data-sort="games">Games</button>
-                </div>
-            </div>
-        </div>
-
         <div id="loadingMessage" class="loading">Loading leaderboard data...</div>
         <div id="errorMessage" class="error" style="display: none;"></div>
 
         <table id="leaderboardTable" style="display: none;">
             <thead>
                 <tr>
-                    <th class="center">Rank</th>
-                    <th>Player</th>
-                    <th class="center">Games</th>
-                    <th class="center">Wins</th>
-                    <th class="center">Losses</th>
-                    <th class="center">Win %</th>
+                    <th class="center sortable sorted-asc" data-sort="rank">Rank</th>
+                    <th class="sortable" data-sort="name">Player</th>
+                    <th class="center sortable" data-sort="wins">Wins</th>
+                    <th class="center sortable" data-sort="losses">Losses</th>
+                    <th class="center sortable" data-sort="winPct">Win %</th>
                     <th class="center">Recent Form</th>
                 </tr>
             </thead>
@@ -314,6 +286,7 @@
 
         let leaderboardData = [];
         let currentSort = 'rank';
+        let currentDirection = 'asc';
 
         // Process CSV data into leaderboard format
         function processData(rawData) {
@@ -435,7 +408,6 @@
                 row.innerHTML = `
                     <td class="center ${rankClass}">${player.rank}</td>
                     <td class="player-name">${player.name}</td>
-                    <td class="center">${player.games}</td>
                     <td class="center">${player.wins}</td>
                     <td class="center">${player.losses}</td>
                     <td class="center ${winPctClass}">${player.winPct.toFixed(1)}%</td>
@@ -449,52 +421,63 @@
         }
 
         // Sort data
-        function sortData(data, sortBy) {
+        function sortData(data, sortBy, direction) {
             const sorted = [...data];
+            const dir = direction === 'asc' ? 1 : -1;
 
             switch(sortBy) {
                 case 'name':
-                    sorted.sort((a, b) => a.name.localeCompare(b.name));
+                    sorted.sort((a, b) => dir * a.name.localeCompare(b.name));
                     break;
                 case 'wins':
                     sorted.sort((a, b) => {
-                        if (b.wins !== a.wins) return b.wins - a.wins;
+                        if (a.wins !== b.wins) return dir * (b.wins - a.wins);
                         return b.winPct - a.winPct;
+                    });
+                    break;
+                case 'losses':
+                    sorted.sort((a, b) => {
+                        if (a.losses !== b.losses) return dir * (b.losses - a.losses);
+                        return b.wins - a.wins;
                     });
                     break;
                 case 'winPct':
                     sorted.sort((a, b) => {
-                        if (b.winPct !== a.winPct) return b.winPct - a.winPct;
-                        return b.wins - a.wins;
-                    });
-                    break;
-                case 'games':
-                    sorted.sort((a, b) => {
-                        if (b.games !== a.games) return b.games - a.games;
+                        if (a.winPct !== b.winPct) return dir * (b.winPct - a.winPct);
                         return b.wins - a.wins;
                     });
                     break;
                 default: // rank
-                    sorted.sort((a, b) => a.rank - b.rank);
+                    sorted.sort((a, b) => dir * (a.rank - b.rank));
             }
 
             return sorted;
         }
 
-        // Setup sort buttons
-        function setupSortButtons() {
-            const buttons = document.querySelectorAll('.sort-btn');
-            buttons.forEach(button => {
-                button.addEventListener('click', () => {
-                    const sortBy = button.dataset.sort;
-                    currentSort = sortBy;
+        // Setup sortable table headers
+        function setupHeaderSort() {
+            const headers = document.querySelectorAll('th.sortable');
+            headers.forEach(header => {
+                header.addEventListener('click', () => {
+                    const sortBy = header.dataset.sort;
 
-                    // Update active button
-                    buttons.forEach(btn => btn.classList.remove('active'));
-                    button.classList.add('active');
+                    // Toggle direction if clicking the same header
+                    if (sortBy === currentSort) {
+                        currentDirection = currentDirection === 'asc' ? 'desc' : 'asc';
+                    } else {
+                        // Default direction based on column type
+                        currentDirection = sortBy === 'name' ? 'asc' : 'desc';
+                        currentSort = sortBy;
+                    }
+
+                    // Update header classes
+                    headers.forEach(h => {
+                        h.classList.remove('sorted-asc', 'sorted-desc');
+                    });
+                    header.classList.add(`sorted-${currentDirection}`);
 
                     // Re-render with new sort
-                    const sortedData = sortData(leaderboardData, sortBy);
+                    const sortedData = sortData(leaderboardData, sortBy, currentDirection);
                     renderLeaderboard(sortedData);
                 });
             });
@@ -522,7 +505,7 @@
             // Render everything
             renderStatsSummary(leaderboardData);
             renderLeaderboard(leaderboardData);
-            setupSortButtons();
+            setupHeaderSort();
 
         }).catch(error => {
             console.error("Error fetching or parsing CSV:", error);
