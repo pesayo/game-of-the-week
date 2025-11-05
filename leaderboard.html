@@ -526,6 +526,11 @@
         let horseRaceData = [];
         let playerColors = {};
 
+        // Sanitize player name for use in CSS selectors
+        function sanitizeName(name) {
+            return name.replace(/[^a-zA-Z0-9-_]/g, '-');
+        }
+
         // Generate consistent colors for players using a color scale
         function generatePlayerColors(playerNames) {
             const colorScale = d3.scaleOrdinal(d3.schemeTableau10.concat(d3.schemePastel1));
@@ -762,32 +767,35 @@
             // Draw lines for each player
             data.forEach(player => {
                 const lineData = player.allResults;
+                const safeName = sanitizeName(player.name);
 
                 svg.append('path')
                     .datum(lineData)
                     .attr('class', 'horse-race-line')
                     .attr('d', line)
                     .attr('stroke', playerColors[player.name])
-                    .attr('data-player', player.name)
+                    .attr('data-player', safeName)
+                    .attr('data-player-name', player.name)
                     .style('opacity', player.visible !== false ? 1 : 0.1);
 
                 // Add dots
-                svg.selectAll(`.dot-${player.name.replace(/\s/g, '-')}`)
+                svg.selectAll(`.dot-${safeName}`)
                     .data(lineData)
                     .enter()
                     .append('circle')
-                    .attr('class', 'horse-race-dot')
+                    .attr('class', `horse-race-dot dot-${safeName}`)
                     .attr('cx', (d, i) => x(i + 1))
                     .attr('cy', d => y(d.cumulativeWins))
                     .attr('r', 4)
                     .attr('fill', 'white')
                     .attr('stroke', playerColors[player.name])
-                    .attr('data-player', player.name)
+                    .attr('data-player', safeName)
+                    .attr('data-player-name', player.name)
                     .style('opacity', player.visible !== false ? 1 : 0.1)
                     .on('mouseover', function(event, d) {
                         // Highlight line
                         d3.selectAll('.horse-race-line').classed('highlighted', false);
-                        d3.select(`.horse-race-line[data-player="${player.name}"]`).classed('highlighted', true);
+                        d3.select(`.horse-race-line[data-player="${safeName}"]`).classed('highlighted', true);
 
                         // Show tooltip
                         tooltip.html(`
@@ -818,16 +826,19 @@
             const sortedData = [...data].sort((a, b) => a.rank - b.rank);
 
             sortedData.forEach(player => {
+                const safeName = sanitizeName(player.name);
+
                 const item = legendContainer.append('div')
                     .attr('class', `race-legend-item ${player.visible === false ? 'hidden' : ''}`)
-                    .attr('data-player', player.name)
+                    .attr('data-player', safeName)
+                    .attr('data-player-name', player.name)
                     .on('click', function() {
                         player.visible = player.visible === false ? true : false;
                         renderHorseRace(horseRaceData);
                     })
                     .on('mouseover', function() {
                         d3.selectAll('.horse-race-line').classed('highlighted', false);
-                        d3.select(`.horse-race-line[data-player="${player.name}"]`).classed('highlighted', true);
+                        d3.select(`.horse-race-line[data-player="${safeName}"]`).classed('highlighted', true);
                     })
                     .on('mouseout', function() {
                         d3.selectAll('.horse-race-line').classed('highlighted', false);
