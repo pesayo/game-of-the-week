@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Game of the Week Leaderboard</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .leaderboard-container {
+            max-width: 1200px;
+            margin: auto;
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 32px;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .header .subtitle {
+            font-size: 16px;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .header .last-updated {
+            font-size: 14px;
+            color: #999;
+            font-style: italic;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .sort-label {
+            font-size: 14px;
+            color: #666;
+            margin-right: 10px;
+        }
+
+        .sort-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .sort-btn {
+            padding: 8px 16px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #f8f8f8;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .sort-btn:hover {
+            background-color: #e8e8e8;
+        }
+
+        .sort-btn.active {
+            background-color: #4CAF50;
+            color: white;
+            border-color: #4CAF50;
+        }
+
+        .stats-summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #4CAF50;
+        }
+
+        .stat-card .stat-label {
+            font-size: 12px;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 5px;
+        }
+
+        .stat-card .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        thead {
+            background-color: #f8f9fa;
+            position: sticky;
+            top: 0;
+        }
+
+        th {
+            padding: 15px 10px;
+            text-align: left;
+            font-weight: 600;
+            color: #555;
+            border-bottom: 2px solid #ddd;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        th.center, td.center {
+            text-align: center;
+        }
+
+        th.right, td.right {
+            text-align: right;
+        }
+
+        tbody tr {
+            border-bottom: 1px solid #eee;
+            transition: background-color 0.2s;
+        }
+
+        tbody tr:hover {
+            background-color: #f8f9fa;
+        }
+
+        td {
+            padding: 15px 10px;
+            color: #333;
+            font-size: 14px;
+        }
+
+        .rank {
+            font-weight: bold;
+            color: #666;
+            font-size: 16px;
+        }
+
+        .rank.gold {
+            color: #FFD700;
+        }
+
+        .rank.silver {
+            color: #C0C0C0;
+        }
+
+        .rank.bronze {
+            color: #CD7F32;
+        }
+
+        .player-name {
+            font-weight: 600;
+            color: #333;
+            font-size: 15px;
+        }
+
+        .win-percentage {
+            font-weight: 600;
+        }
+
+        .win-percentage.high {
+            color: #4CAF50;
+        }
+
+        .win-percentage.medium {
+            color: #FF9800;
+        }
+
+        .win-percentage.low {
+            color: #f44336;
+        }
+
+        .recent-form {
+            display: flex;
+            gap: 3px;
+            justify-content: center;
+        }
+
+        .form-indicator {
+            width: 20px;
+            height: 20px;
+            border-radius: 3px;
+            display: inline-block;
+            font-size: 11px;
+            font-weight: bold;
+            color: white;
+            text-align: center;
+            line-height: 20px;
+        }
+
+        .form-indicator.win {
+            background-color: #4CAF50;
+        }
+
+        .form-indicator.loss {
+            background-color: #f44336;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            font-size: 16px;
+            color: #666;
+        }
+
+        .error {
+            background-color: #ffebee;
+            color: #c62828;
+            padding: 20px;
+            border-radius: 5px;
+            margin: 20px 0;
+            border-left: 4px solid #c62828;
+        }
+
+        @media (max-width: 768px) {
+            .leaderboard-container {
+                padding: 15px;
+            }
+
+            table {
+                font-size: 12px;
+            }
+
+            th, td {
+                padding: 10px 5px;
+            }
+
+            .header h1 {
+                font-size: 24px;
+            }
+
+            .form-indicator {
+                width: 16px;
+                height: 16px;
+                line-height: 16px;
+                font-size: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="leaderboard-container">
+        <div class="header">
+            <h1>🏆 Game of the Week Leaderboard</h1>
+            <div class="subtitle">2025-2026 Season | Weeks 3-17</div>
+            <div class="last-updated" id="lastUpdated">Loading...</div>
+        </div>
+
+        <div class="stats-summary" id="statsSummary"></div>
+
+        <div class="controls">
+            <div style="display: flex; align-items: center;">
+                <span class="sort-label">Sort by:</span>
+                <div class="sort-buttons">
+                    <button class="sort-btn active" data-sort="rank">Rank</button>
+                    <button class="sort-btn" data-sort="name">Name</button>
+                    <button class="sort-btn" data-sort="wins">Wins</button>
+                    <button class="sort-btn" data-sort="winPct">Win %</button>
+                    <button class="sort-btn" data-sort="games">Games</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="loadingMessage" class="loading">Loading leaderboard data...</div>
+        <div id="errorMessage" class="error" style="display: none;"></div>
+
+        <table id="leaderboardTable" style="display: none;">
+            <thead>
+                <tr>
+                    <th class="center">Rank</th>
+                    <th>Player</th>
+                    <th class="center">Games</th>
+                    <th class="center">Wins</th>
+                    <th class="center">Losses</th>
+                    <th class="center">Win %</th>
+                    <th class="center">Recent Form</th>
+                </tr>
+            </thead>
+            <tbody id="leaderboardBody">
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        const csvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQzlWT-fLjZtuIgD_dkw5GGv-nswtEDuLqvhPsCXsZjFT-RyCtHVktApaeZCTT3uag9veMcIenXVpV3/pub?gid=927965067&single=true&output=csv";
+
+        let leaderboardData = [];
+        let currentSort = 'rank';
+
+        // Process CSV data into leaderboard format
+        function processData(rawData) {
+            if (!rawData || rawData.length === 0) return [];
+
+            const headers = Object.keys(rawData[0]);
+            const nameHeader = headers[0];
+            const gameHeaders = headers.slice(1);
+
+            const players = rawData.map(row => {
+                const name = row[nameHeader];
+                const games = [];
+                let totalGames = 0;
+                let totalWins = 0;
+
+                // Process each game
+                gameHeaders.forEach(gameHeader => {
+                    const wins = parseInt(row[gameHeader], 10);
+                    if (!isNaN(wins)) {
+                        const gameNumber = parseInt(gameHeader.replace('Game', ''), 10);
+                        totalGames = gameNumber;
+                        totalWins = wins;
+
+                        // Calculate if this game was a win or loss
+                        if (games.length === 0) {
+                            games.push(wins > 0 ? 'W' : 'L');
+                        } else {
+                            const previousWins = parseInt(row[gameHeaders[games.length - 1]], 10);
+                            games.push(wins > previousWins ? 'W' : 'L');
+                        }
+                    }
+                });
+
+                const totalLosses = totalGames - totalWins;
+                const winPct = totalGames > 0 ? (totalWins / totalGames) * 100 : 0;
+
+                // Get recent form (last 5 games)
+                const recentForm = games.slice(-5);
+
+                return {
+                    name: name,
+                    games: totalGames,
+                    wins: totalWins,
+                    losses: totalLosses,
+                    winPct: winPct,
+                    recentForm: recentForm,
+                    allResults: games
+                };
+            });
+
+            // Sort by wins (descending), then by win percentage
+            players.sort((a, b) => {
+                if (b.wins !== a.wins) return b.wins - a.wins;
+                return b.winPct - a.winPct;
+            });
+
+            // Add rank
+            players.forEach((player, index) => {
+                player.rank = index + 1;
+            });
+
+            return players;
+        }
+
+        // Render statistics summary
+        function renderStatsSummary(data) {
+            const totalGames = data.reduce((sum, p) => sum + p.games, 0) / 2; // Divide by 2 since each game counts twice
+            const avgWinPct = data.reduce((sum, p) => sum + p.winPct, 0) / data.length;
+            const topWins = data[0]?.wins || 0;
+            const totalPlayers = data.length;
+
+            const html = `
+                <div class="stat-card">
+                    <div class="stat-label">Total Players</div>
+                    <div class="stat-value">${totalPlayers}</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Games Played</div>
+                    <div class="stat-value">${Math.round(totalGames)}</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Leader Wins</div>
+                    <div class="stat-value">${topWins}</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Avg Win Rate</div>
+                    <div class="stat-value">${avgWinPct.toFixed(1)}%</div>
+                </div>
+            `;
+
+            document.getElementById('statsSummary').innerHTML = html;
+        }
+
+        // Render leaderboard table
+        function renderLeaderboard(data) {
+            const tbody = document.getElementById('leaderboardBody');
+            tbody.innerHTML = '';
+
+            data.forEach(player => {
+                const row = document.createElement('tr');
+
+                // Rank with medal colors
+                let rankClass = 'rank';
+                if (player.rank === 1) rankClass += ' gold';
+                else if (player.rank === 2) rankClass += ' silver';
+                else if (player.rank === 3) rankClass += ' bronze';
+
+                // Win percentage color
+                let winPctClass = 'win-percentage';
+                if (player.winPct >= 60) winPctClass += ' high';
+                else if (player.winPct >= 40) winPctClass += ' medium';
+                else winPctClass += ' low';
+
+                // Recent form indicators
+                const formHtml = player.recentForm.map(result =>
+                    `<span class="form-indicator ${result === 'W' ? 'win' : 'loss'}">${result}</span>`
+                ).join('');
+
+                row.innerHTML = `
+                    <td class="center ${rankClass}">${player.rank}</td>
+                    <td class="player-name">${player.name}</td>
+                    <td class="center">${player.games}</td>
+                    <td class="center">${player.wins}</td>
+                    <td class="center">${player.losses}</td>
+                    <td class="center ${winPctClass}">${player.winPct.toFixed(1)}%</td>
+                    <td class="center">
+                        <div class="recent-form">${formHtml}</div>
+                    </td>
+                `;
+
+                tbody.appendChild(row);
+            });
+        }
+
+        // Sort data
+        function sortData(data, sortBy) {
+            const sorted = [...data];
+
+            switch(sortBy) {
+                case 'name':
+                    sorted.sort((a, b) => a.name.localeCompare(b.name));
+                    break;
+                case 'wins':
+                    sorted.sort((a, b) => {
+                        if (b.wins !== a.wins) return b.wins - a.wins;
+                        return b.winPct - a.winPct;
+                    });
+                    break;
+                case 'winPct':
+                    sorted.sort((a, b) => {
+                        if (b.winPct !== a.winPct) return b.winPct - a.winPct;
+                        return b.wins - a.wins;
+                    });
+                    break;
+                case 'games':
+                    sorted.sort((a, b) => {
+                        if (b.games !== a.games) return b.games - a.games;
+                        return b.wins - a.wins;
+                    });
+                    break;
+                default: // rank
+                    sorted.sort((a, b) => a.rank - b.rank);
+            }
+
+            return sorted;
+        }
+
+        // Setup sort buttons
+        function setupSortButtons() {
+            const buttons = document.querySelectorAll('.sort-btn');
+            buttons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const sortBy = button.dataset.sort;
+                    currentSort = sortBy;
+
+                    // Update active button
+                    buttons.forEach(btn => btn.classList.remove('active'));
+                    button.classList.add('active');
+
+                    // Re-render with new sort
+                    const sortedData = sortData(leaderboardData, sortBy);
+                    renderLeaderboard(sortedData);
+                });
+            });
+        }
+
+        // Load and display data
+        d3.csv(csvUrl).then(data => {
+            leaderboardData = processData(data);
+
+            // Hide loading, show table
+            document.getElementById('loadingMessage').style.display = 'none';
+            document.getElementById('leaderboardTable').style.display = 'table';
+
+            // Update last updated time
+            const now = new Date();
+            document.getElementById('lastUpdated').textContent =
+                `Last updated: ${now.toLocaleString('en-US', {
+                    month: 'long',
+                    day: 'numeric',
+                    year: 'numeric',
+                    hour: 'numeric',
+                    minute: '2-digit'
+                })}`;
+
+            // Render everything
+            renderStatsSummary(leaderboardData);
+            renderLeaderboard(leaderboardData);
+            setupSortButtons();
+
+        }).catch(error => {
+            console.error("Error fetching or parsing CSV:", error);
+            document.getElementById('loadingMessage').style.display = 'none';
+            const errorDiv = document.getElementById('errorMessage');
+            errorDiv.textContent = `Error loading leaderboard data: ${error.message}`;
+            errorDiv.style.display = 'block';
+        });
+    </script>
+</body>
+</html>
