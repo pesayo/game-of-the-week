@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Game of the Week Leaderboard</title>
+    <title>Game of the Week Dashboard</title>
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <style>
         body {
@@ -11,36 +11,159 @@
             padding: 20px;
         }
 
-        .leaderboard-container {
-            max-width: 1200px;
+        .dashboard-container {
+            max-width: 1600px;
             margin: auto;
+        }
+
+        .dashboard-header {
+            text-align: center;
+            margin-bottom: 30px;
             background-color: white;
             padding: 30px;
             border-radius: 10px;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
         }
 
-        .header {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-
-        .header h1 {
-            font-size: 32px;
+        .dashboard-header h1 {
+            font-size: 36px;
             color: #333;
             margin-bottom: 10px;
         }
 
-        .header .subtitle {
-            font-size: 16px;
+        .dashboard-header .subtitle {
+            font-size: 18px;
             color: #666;
             margin-bottom: 5px;
         }
 
-        .header .last-updated {
+        .dashboard-header .last-updated {
             font-size: 14px;
             color: #999;
             font-style: italic;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+
+        @media (min-width: 1400px) {
+            .dashboard-grid {
+                grid-template-columns: 2fr 1fr;
+            }
+
+            .horse-race-section {
+                grid-column: 1 / -1;
+            }
+        }
+
+        .section {
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .section-title {
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 20px;
+            border-bottom: 3px solid #4CAF50;
+            padding-bottom: 10px;
+        }
+
+        .leaderboard-container {
+            /* Grid item - no need for max-width now */
+        }
+
+        /* Horse Race Styles */
+        #horseRaceChart {
+            width: 100%;
+            height: 500px;
+            display: block;
+        }
+
+        .horse-race-line {
+            fill: none;
+            stroke-width: 2.5px;
+            transition: stroke-width 0.2s;
+        }
+
+        .horse-race-line.highlighted {
+            stroke-width: 5px !important;
+            stroke: #000 !important;
+        }
+
+        .horse-race-dot {
+            fill: white;
+            stroke-width: 2px;
+        }
+
+        .race-legend {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .race-legend-item {
+            display: flex;
+            align-items: center;
+            padding: 8px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .race-legend-item:hover {
+            background-color: #f0f0f0;
+        }
+
+        .race-legend-item.hidden {
+            opacity: 0.4;
+        }
+
+        .race-legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 3px;
+            margin-right: 10px;
+            flex-shrink: 0;
+        }
+
+        .race-legend-name {
+            font-size: 13px;
+            color: #333;
+            flex-grow: 1;
+        }
+
+        .race-legend-record {
+            font-size: 11px;
+            color: #666;
+            margin-left: 5px;
+        }
+
+        .race-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .race-btn {
+            padding: 8px 16px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #f8f8f8;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.2s;
+        }
+
+        .race-btn:hover {
+            background-color: #e8e8e8;
         }
 
         th.sortable {
@@ -279,7 +402,7 @@
             background-color: gold;
         }
 
-        .tooltip {
+        .tooltip, #raceTooltip {
             position: absolute;
             padding: 10px;
             background-color: rgba(0, 0, 0, 0.9);
@@ -335,19 +458,38 @@
     </style>
 </head>
 <body>
-    <div class="leaderboard-container">
-        <div class="header">
-            <h1>🏆 Game of the Week Leaderboard</h1>
+    <div class="dashboard-container">
+        <!-- Main Header -->
+        <div class="dashboard-header">
+            <h1>🏆 Game of the Week Dashboard</h1>
             <div class="subtitle">2025-2026 Season | Weeks 3-17</div>
             <div class="last-updated" id="lastUpdated">Loading...</div>
         </div>
 
-        <div class="stats-summary" id="statsSummary"></div>
-
-        <div id="loadingMessage" class="loading">Loading leaderboard data...</div>
+        <div id="loadingMessage" class="loading">Loading dashboard data...</div>
         <div id="errorMessage" class="error" style="display: none;"></div>
 
-        <table id="leaderboardTable" style="display: none;">
+        <!-- Dashboard Grid -->
+        <div class="dashboard-grid" id="dashboardGrid" style="display: none;">
+
+            <!-- Horse Race Section (Full Width) -->
+            <section class="section horse-race-section">
+                <h2 class="section-title">📈 Win Progression</h2>
+                <div class="race-controls">
+                    <button class="race-btn" id="showAllRace">Show All</button>
+                    <button class="race-btn" id="hideAllRace">Hide All</button>
+                </div>
+                <svg id="horseRaceChart"></svg>
+                <div class="tooltip" id="raceTooltip"></div>
+                <div class="race-legend" id="raceLegend"></div>
+            </section>
+
+            <!-- Leaderboard Section -->
+            <section class="section leaderboard-section">
+                <h2 class="section-title">🥇 Current Standings</h2>
+                <div class="stats-summary" id="statsSummary"></div>
+
+                <table id="leaderboardTable">
             <thead>
                 <tr>
                     <th class="center sortable sorted-asc" data-sort="rank">Rank</th>
@@ -362,11 +504,13 @@
                 </tr>
             </thead>
             <tbody id="leaderboardBody">
-            </tbody>
-        </table>
+                    </tbody>
+                </table>
+                <div class="tooltip" id="tooltip"></div>
+            </section>
 
-        <div class="tooltip" id="tooltip"></div>
-    </div>
+        </div> <!-- end dashboard-grid -->
+    </div> <!-- end dashboard-container -->
 
     <script>
         const resultsUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQzlWT-fLjZtuIgD_dkw5GGv-nswtEDuLqvhPsCXsZjFT-RyCtHVktApaeZCTT3uag9veMcIenXVpV3/pub?gid=927965067&single=true&output=csv";
@@ -379,6 +523,18 @@
         let scheduleData = {};
         let picksData = {};
         let isExpanded = false;
+        let horseRaceData = [];
+        let playerColors = {};
+
+        // Generate consistent colors for players using a color scale
+        function generatePlayerColors(playerNames) {
+            const colorScale = d3.scaleOrdinal(d3.schemeTableau10.concat(d3.schemePastel1));
+            const colors = {};
+            playerNames.forEach((name, i) => {
+                colors[name] = colorScale(i);
+            });
+            return colors;
+        }
 
         // Parse schedule data and create player game mappings
         function parseSchedule(rawSchedule) {
@@ -532,6 +688,176 @@
             });
 
             return players;
+        }
+
+        // Render Horse Race Chart
+        function renderHorseRace(data) {
+            const container = d3.select('#horseRaceChart');
+            const tooltip = d3.select('#raceTooltip');
+            const legendContainer = d3.select('#raceLegend');
+
+            container.selectAll("*").remove();
+            legendContainer.selectAll("*").remove();
+
+            const margin = { top: 20, right: 30, bottom: 60, left: 60 };
+            const containerWidth = container.node().getBoundingClientRect().width;
+            const width = containerWidth - margin.left - margin.right;
+            const height = 500 - margin.top - margin.bottom;
+
+            const svg = container
+                .attr('width', containerWidth)
+                .attr('height', 500)
+                .append('g')
+                .attr('transform', `translate(${margin.left},${margin.top})`);
+
+            // Find max games across all players
+            const maxGames = d3.max(data, d => d.allResults.length);
+
+            // Create x scale with game numbers
+            const x = d3.scaleLinear()
+                .domain([1, maxGames])
+                .range([0, width]);
+
+            // Create y scale with wins
+            const maxWins = d3.max(data, d => d.wins);
+            const y = d3.scaleLinear()
+                .domain([0, maxWins])
+                .range([height, 0]);
+
+            // Add X axis
+            svg.append('g')
+                .attr('transform', `translate(0,${height})`)
+                .call(d3.axisBottom(x).ticks(maxGames).tickFormat(d => `G${d}`))
+                .selectAll("text")
+                .style("font-size", "11px");
+
+            // Add Y axis
+            svg.append('g')
+                .call(d3.axisLeft(y).ticks(maxWins));
+
+            // Add Y axis label
+            svg.append('text')
+                .attr('transform', 'rotate(-90)')
+                .attr('y', -margin.left + 15)
+                .attr('x', -height / 2)
+                .style('text-anchor', 'middle')
+                .style('font-size', '14px')
+                .style('font-weight', 'bold')
+                .text('Wins');
+
+            // Add X axis label
+            svg.append('text')
+                .attr('x', width / 2)
+                .attr('y', height + margin.bottom - 10)
+                .style('text-anchor', 'middle')
+                .style('font-size', '14px')
+                .style('font-weight', 'bold')
+                .text('Game Number');
+
+            // Create line generator
+            const line = d3.line()
+                .x((d, i) => x(i + 1))
+                .y(d => y(d.cumulativeWins));
+
+            // Draw lines for each player
+            data.forEach(player => {
+                const lineData = player.allResults;
+
+                svg.append('path')
+                    .datum(lineData)
+                    .attr('class', 'horse-race-line')
+                    .attr('d', line)
+                    .attr('stroke', playerColors[player.name])
+                    .attr('data-player', player.name)
+                    .style('opacity', player.visible !== false ? 1 : 0.1);
+
+                // Add dots
+                svg.selectAll(`.dot-${player.name.replace(/\s/g, '-')}`)
+                    .data(lineData)
+                    .enter()
+                    .append('circle')
+                    .attr('class', 'horse-race-dot')
+                    .attr('cx', (d, i) => x(i + 1))
+                    .attr('cy', d => y(d.cumulativeWins))
+                    .attr('r', 4)
+                    .attr('fill', 'white')
+                    .attr('stroke', playerColors[player.name])
+                    .attr('data-player', player.name)
+                    .style('opacity', player.visible !== false ? 1 : 0.1)
+                    .on('mouseover', function(event, d) {
+                        // Highlight line
+                        d3.selectAll('.horse-race-line').classed('highlighted', false);
+                        d3.select(`.horse-race-line[data-player="${player.name}"]`).classed('highlighted', true);
+
+                        // Show tooltip
+                        tooltip.html(`
+                            <strong>${player.name}</strong><br>
+                            Game ${d.game}: ${d.result === 'W' ? 'Win ✓' : 'Loss ✗'}<br>
+                            Record: ${d.cumulativeWins}-${d.cumulativeLosses}
+                        `)
+                        .style('display', 'block')
+                        .style('left', (event.pageX + 15) + 'px')
+                        .style('top', (event.pageY - 10) + 'px');
+                    })
+                    .on('mouseout', function() {
+                        d3.selectAll('.horse-race-line').classed('highlighted', false);
+                        tooltip.style('display', 'none');
+                    });
+            });
+
+            // Render legend
+            renderRaceLegend(data);
+        }
+
+        // Render race legend
+        function renderRaceLegend(data) {
+            const legendContainer = d3.select('#raceLegend');
+            legendContainer.selectAll("*").remove();
+
+            // Sort by rank
+            const sortedData = [...data].sort((a, b) => a.rank - b.rank);
+
+            sortedData.forEach(player => {
+                const item = legendContainer.append('div')
+                    .attr('class', `race-legend-item ${player.visible === false ? 'hidden' : ''}`)
+                    .attr('data-player', player.name)
+                    .on('click', function() {
+                        player.visible = player.visible === false ? true : false;
+                        renderHorseRace(horseRaceData);
+                    })
+                    .on('mouseover', function() {
+                        d3.selectAll('.horse-race-line').classed('highlighted', false);
+                        d3.select(`.horse-race-line[data-player="${player.name}"]`).classed('highlighted', true);
+                    })
+                    .on('mouseout', function() {
+                        d3.selectAll('.horse-race-line').classed('highlighted', false);
+                    });
+
+                item.append('div')
+                    .attr('class', 'race-legend-color')
+                    .style('background-color', playerColors[player.name]);
+
+                item.append('span')
+                    .attr('class', 'race-legend-name')
+                    .text(player.name);
+
+                item.append('span')
+                    .attr('class', 'race-legend-record')
+                    .text(`${player.wins}-${player.losses}`);
+            });
+        }
+
+        // Setup race control buttons
+        function setupRaceControls() {
+            d3.select('#showAllRace').on('click', () => {
+                horseRaceData.forEach(p => p.visible = true);
+                renderHorseRace(horseRaceData);
+            });
+
+            d3.select('#hideAllRace').on('click', () => {
+                horseRaceData.forEach(p => p.visible = false);
+                renderHorseRace(horseRaceData);
+            });
         }
 
         // Render statistics summary
@@ -757,10 +1083,14 @@
 
             // Then process results with the additional data
             leaderboardData = processData(results);
+            horseRaceData = leaderboardData; // Same data for horse race
 
-            // Hide loading, show table
+            // Generate consistent colors for all players
+            playerColors = generatePlayerColors(leaderboardData.map(p => p.name));
+
+            // Hide loading, show dashboard
             document.getElementById('loadingMessage').style.display = 'none';
-            document.getElementById('leaderboardTable').style.display = 'table';
+            document.getElementById('dashboardGrid').style.display = 'grid';
 
             // Update last updated time
             const now = new Date();
@@ -774,10 +1104,12 @@
                 })}`;
 
             // Render everything
+            renderHorseRace(horseRaceData);
             renderStatsSummary(leaderboardData);
             renderLeaderboard(leaderboardData);
             setupHeaderSort();
             setupExpandCollapse();
+            setupRaceControls();
 
         }).catch(error => {
             console.error("Error fetching or parsing CSV:", error);
