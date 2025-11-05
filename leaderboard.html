@@ -422,6 +422,21 @@
             background-color: gold;
         }
 
+        .contrarian-indicator {
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 0;
+            height: 0;
+            border-left: 5px solid transparent;
+            border-right: 5px solid transparent;
+            border-bottom: 8px solid #FF6B35;
+        }
+
+        .form-indicator.contrarian {
+            box-shadow: 0 0 0 2px #FF6B35;
+        }
+
         .tooltip, #raceTooltip {
             position: absolute;
             padding: 10px;
@@ -545,10 +560,68 @@
         let isExpanded = false;
         let horseRaceData = [];
         let playerColors = {};
+        let pickAnalysis = {}; // Stores majority picks and distribution
 
         // Sanitize player name for use in CSS selectors
         function sanitizeName(name) {
             return name.replace(/[^a-zA-Z0-9-_]/g, '-');
+        }
+
+        // Analyze pick distribution for each game
+        function analyzePickDistribution(rawPicks, schedule) {
+            const analysis = {};
+
+            // For each week/game, count picks
+            schedule.forEach((gameRow, gameIndex) => {
+                const weekNum = parseInt(gameRow.Week, 10);
+                const team1 = gameRow.Team1_Skip;
+                const team2 = gameRow.Team2_Skip;
+
+                if (!analysis[weekNum]) {
+                    analysis[weekNum] = {
+                        team1: team1,
+                        team2: team2,
+                        team1Picks: 0,
+                        team2Picks: 0,
+                        totalPicks: 0,
+                        chalkPick: null,
+                        chalkPercentage: 0
+                    };
+                }
+
+                // Count picks for this game
+                rawPicks.forEach(row => {
+                    const headers = Object.keys(row);
+                    headers.forEach(header => {
+                        const gameMatch = header.match(/Week (\d+)/i);
+                        if (gameMatch && parseInt(gameMatch[1], 10) === weekNum) {
+                            const pick = row[header];
+                            if (pick === team1) {
+                                analysis[weekNum].team1Picks++;
+                                analysis[weekNum].totalPicks++;
+                            } else if (pick === team2) {
+                                analysis[weekNum].team2Picks++;
+                                analysis[weekNum].totalPicks++;
+                            }
+                        }
+                    });
+                });
+
+                // Determine chalk (majority pick)
+                const weekData = analysis[weekNum];
+                if (weekData.team1Picks > weekData.team2Picks) {
+                    weekData.chalkPick = team1;
+                    weekData.chalkPercentage = (weekData.team1Picks / weekData.totalPicks * 100).toFixed(0);
+                } else if (weekData.team2Picks > weekData.team1Picks) {
+                    weekData.chalkPick = team2;
+                    weekData.chalkPercentage = (weekData.team2Picks / weekData.totalPicks * 100).toFixed(0);
+                } else {
+                    weekData.chalkPick = null; // Tie
+                    weekData.chalkPercentage = 50;
+                }
+            });
+
+            return analysis;
         }
 
         // Generate consistent colors for players using a color scale
@@ -661,6 +734,12 @@
                         const weekNum = matchup ? parseInt(matchup.week, 10) : null;
                         const playerPick = weekNum ? picksData[name]?.[weekNum] : null;
 
+                        // Check if this was a contrarian pick
+                        const gameAnalysis = weekNum ? pickAnalysis[weekNum] : null;
+                        const isContrarian = gameAnalysis && playerPick &&
+                            playerPick !== gameAnalysis.chalkPick &&
+                            gameAnalysis.chalkPick !== null;
+
                         gameResults.push({
                             game: gameNumber,
                             result: result,
@@ -668,13 +747,22 @@
                             cumulativeLosses: gameNumber - cumulativeWins,
                             isStreak: currentStreak.count >= 3,
                             matchup: matchup,
-                            pick: playerPick
+                            pick: playerPick,
+                            isContrarian: isContrarian,
+                            pickAnalysis: gameAnalysis
                         });
                     }
                 });
 
                 const totalLosses = totalGames - totalWins;
                 const winPct = totalGames > 0 ? (totalWins / totalGames) * 100 : 0;
+
+                // Calculate contrarian stats
+                const contrarianPicks = gameResults.filter(g => g.isContrarian);
+                const contrarianWins = contrarianPicks.filter(g => g.result === 'W').length;
+                const contrarianTotal = contrarianPicks.length;
+                const contrarianPct = contrarianTotal > 0 ? (contrarianTotal / totalGames * 100) : 0;
+                const contrarianWinRate = contrarianTotal > 0 ? (contrarianWins / contrarianTotal * 100) : 0;
 
                 // Get recent form (last 5 games)
                 const recentForm = gameResults.slice(-5);
@@ -686,7 +774,12 @@
                     losses: totalLosses,
                     winPct: winPct,
                     recentForm: recentForm,
-                    allResults: gameResults
+                    allResults: gameResults,
+                    contrarianTotal: contrarianTotal,
+                    contrarianWins: contrarianWins,
+                    contrarianLosses: contrarianTotal - contrarianWins,
+                    contrarianPct: contrarianPct,
+                    contrarianWinRate: contrarianWinRate
                 };
             });
 
@@ -899,6 +992,12 @@
             const topWins = data[0]?.wins || 0;
             const totalPlayers = data.length;
 
+            // Find most contrarian player
+            const mostContrarian = [...data].sort((a, b) => b.contrarianPct - a.contrarianPct)[0];
+            const bestContrarianWinRate = [...data]
+                .filter(p => p.contrarianTotal >= 2) // At least 2 contrarian picks
+                .sort((a, b) => b.contrarianWinRate - a.contrarianWinRate)[0];
+
             const html = `
                 <div class="stat-card">
                     <div class="stat-label">Total Players</div>
@@ -915,6 +1014,16 @@
                 <div class="stat-card">
                     <div class="stat-label">Avg Win Rate</div>
                     <div class="stat-value">${avgWinPct.toFixed(1)}%</div>
+                </div>
+                <div class="stat-card" style="border-left: 4px solid #FF6B35;">
+                    <div class="stat-label">🔥 Most Contrarian</div>
+                    <div class="stat-value" style="font-size: 16px;">${mostContrarian?.name || 'N/A'}</div>
+                    <div style="font-size: 12px; color: #666;">${mostContrarian?.contrarianTotal || 0} picks (${mostContrarian?.contrarianPct.toFixed(0)}%)</div>
+                </div>
+                <div class="stat-card" style="border-left: 4px solid #FF6B35;">
+                    <div class="stat-label">🎯 Best Against Grain</div>
+                    <div class="stat-value" style="font-size: 16px;">${bestContrarianWinRate?.name || 'N/A'}</div>
+                    <div style="font-size: 12px; color: #666;">${bestContrarianWinRate?.contrarianWins || 0}-${bestContrarianWinRate?.contrarianLosses || 0} (${bestContrarianWinRate?.contrarianWinRate.toFixed(0)}%)</div>
                 </div>
             `;
 
@@ -965,13 +1074,15 @@
         // Render a single game cell
         function renderGameCell(gameData, player) {
             const cellClass = gameData.result === 'W' ? 'win' : 'loss';
+            const contrarianClass = gameData.isContrarian ? ' contrarian' : '';
             const streakDot = gameData.isStreak ? '<div class="streak-indicator"></div>' : '';
+            const contrarianTriangle = gameData.isContrarian ? '<div class="contrarian-indicator" title="Against the grain pick"></div>' : '';
 
-            return `<span class="form-indicator ${cellClass}"
+            return `<span class="form-indicator ${cellClass}${contrarianClass}"
                 data-player="${player.name}"
                 data-game="${gameData.game}"
                 onmouseenter="showTooltip(event, '${player.name.replace(/'/g, "\\'")}', ${JSON.stringify(gameData).replace(/"/g, '&quot;')})"
-                onmouseleave="hideTooltip()">${gameData.result}${streakDot}</span>`;
+                onmouseleave="hideTooltip()">${gameData.result}${contrarianTriangle}${streakDot}</span>`;
         }
 
         // Toggle expand/collapse for all players
@@ -1008,7 +1119,25 @@
             }
 
             if (gameData.pick) {
-                tooltipHtml += `<strong>Picked:</strong> ${gameData.pick}<br>`;
+                tooltipHtml += `<strong>Picked:</strong> ${gameData.pick}`;
+
+                // Show contrarian indicator
+                if (gameData.isContrarian) {
+                    tooltipHtml += ` <span style="color: #FF6B35;">🔥 Against the grain!</span>`;
+                }
+                tooltipHtml += '<br>';
+            }
+
+            // Show pick distribution if available
+            if (gameData.pickAnalysis && gameData.pickAnalysis.totalPicks > 0) {
+                const analysis = gameData.pickAnalysis;
+                tooltipHtml += `<strong>Pick Distribution:</strong><br>`;
+                tooltipHtml += `${analysis.team1}: ${analysis.team1Picks} (${(analysis.team1Picks / analysis.totalPicks * 100).toFixed(0)}%)<br>`;
+                tooltipHtml += `${analysis.team2}: ${analysis.team2Picks} (${(analysis.team2Picks / analysis.totalPicks * 100).toFixed(0)}%)<br>`;
+
+                if (analysis.chalkPick) {
+                    tooltipHtml += `<strong>Chalk:</strong> ${analysis.chalkPick} (${analysis.chalkPercentage}%)<br>`;
+                }
             }
 
             tooltipHtml += `<strong>Record:</strong> ${gameData.cumulativeWins}-${gameData.cumulativeLosses}`;
@@ -1112,6 +1241,9 @@
             // Parse schedule and picks data first
             scheduleData = parseSchedule(schedule);
             picksData = parsePicks(picks);
+
+            // Analyze pick distribution to identify chalk/contrarian picks
+            pickAnalysis = analyzePickDistribution(picks, schedule);
 
             // Then process results with the additional data
             leaderboardData = processData(results);
