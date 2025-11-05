@@ -1409,11 +1409,17 @@
         function renderWhatIfPanel() {
             const upcomingGames = getUpcomingGames();
 
+            console.log('Total games:', allGames.length);
+            console.log('Upcoming games:', upcomingGames.length);
+            console.log('Sample game:', allGames[0]);
+
             if (upcomingGames.length === 0) {
+                console.log('No upcoming games - hiding panel');
                 document.getElementById('whatifSection').style.display = 'none';
                 return;
             }
 
+            console.log('Showing what-if panel with', upcomingGames.length, 'games');
             document.getElementById('whatifSection').style.display = 'block';
             const container = document.getElementById('upcomingGames');
             container.innerHTML = '';
