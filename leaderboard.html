@@ -241,6 +241,65 @@
             color: #333;
         }
 
+        .filter-controls {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .filter-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .filter-group.checkbox-group {
+            gap: 6px;
+        }
+
+        .filter-group label {
+            font-size: 14px;
+            color: #555;
+            font-weight: 500;
+        }
+
+        .filter-group select {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            background-color: white;
+            cursor: pointer;
+            min-width: 150px;
+        }
+
+        .filter-group input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        .filter-btn {
+            padding: 8px 16px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #f44336;
+            color: white;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.2s;
+            margin-left: auto;
+        }
+
+        .filter-btn:hover {
+            background-color: #d32f2f;
+        }
+
         table {
             width: 100%;
             border-collapse: collapse;
@@ -669,6 +728,28 @@
             <!-- Leaderboard Section -->
             <section class="section leaderboard-section">
                 <h2 class="section-title">🥇 Current Standings</h2>
+
+                <!-- Filter Controls -->
+                <div class="filter-controls">
+                    <div class="filter-group">
+                        <label for="teamFilter">Team:</label>
+                        <select id="teamFilter">
+                            <option value="">All Teams</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label for="positionFilter">Position:</label>
+                        <select id="positionFilter">
+                            <option value="">All Positions</option>
+                        </select>
+                    </div>
+                    <div class="filter-group checkbox-group">
+                        <input type="checkbox" id="funkEngFilter">
+                        <label for="funkEngFilter">Funk-Eng Challengers Only (Lead/Second)</label>
+                    </div>
+                    <button class="filter-btn" id="resetFilters">Reset Filters</button>
+                </div>
+
                 <div class="stats-summary" id="statsSummary"></div>
 
                 <table id="leaderboardTable">
@@ -741,8 +822,15 @@
     <script>
         const matchupsUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQi6KQIneboHgXLY48j6eRSCPD66Sbf4-WzSvmB7gAZv4duklJ0nluIUZZT3S68FTLp1DGcfZVHqq6n/pub?gid=1301060622&single=true&output=csv";
         const picksUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQi6KQIneboHgXLY48j6eRSCPD66Sbf4-WzSvmB7gAZv4duklJ0nluIUZZT3S68FTLp1DGcfZVHqq6n/pub?gid=881893402&single=true&output=csv";
+        const playerInfoUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQi6KQIneboHgXLY48j6eRSCPD66Sbf4-WzSvmB7gAZv4duklJ0nluIUZZT3S68FTLp1DGcfZVHqq6n/pub?gid=1863176371&single=true&output=csv";
 
         let leaderboardData = [];
+        let playerInfoMap = {}; // Map of player name -> {team, position}
+        let activeFilters = {
+            team: '',
+            position: '',
+            funkEngChallengers: false
+        };
         let currentSort = 'rank';
         let currentDirection = 'asc';
         let matchupsData = {}; // Map of gameKey -> game info
@@ -777,6 +865,39 @@
                 };
             }
             return null;
+        }
+
+        // Parse player info CSV and create map
+        function parsePlayerInfo(rawPlayerInfo) {
+            const playerMap = {};
+            const teams = new Set();
+            const positions = new Set();
+
+            rawPlayerInfo.forEach(row => {
+                const name = row.Name ? row.Name.trim() : '';
+                const team = row.Team ? row.Team.trim() : '';
+                const position = row.Position ? row.Position.trim() : '';
+
+                if (name && name !== '') {
+                    playerMap[name] = {
+                        team: team,
+                        position: position
+                    };
+
+                    if (team && team !== '') {
+                        teams.add(team);
+                    }
+                    if (position && position !== '') {
+                        positions.add(position);
+                    }
+                }
+            });
+
+            return {
+                playerMap,
+                teams: Array.from(teams).sort(),
+                positions: Array.from(positions).sort()
+            };
         }
 
         // Parse matchups CSV and create game map
@@ -1431,6 +1552,102 @@
             gameHistoryHeader.addEventListener('click', toggleHandler);
         }
 
+        // Apply filters to leaderboard data
+        function applyFilters(data) {
+            return data.filter(player => {
+                const playerInfo = playerInfoMap[player.name];
+
+                // If no player info, show them by default (unless filters are active)
+                if (!playerInfo) {
+                    // If any filter is active, exclude players without info
+                    if (activeFilters.team || activeFilters.position || activeFilters.funkEngChallengers) {
+                        return false;
+                    }
+                    return true;
+                }
+
+                // Apply team filter
+                if (activeFilters.team && playerInfo.team !== activeFilters.team) {
+                    return false;
+                }
+
+                // Apply position filter
+                if (activeFilters.position && playerInfo.position !== activeFilters.position) {
+                    return false;
+                }
+
+                // Apply Funk-Eng Challengers filter (Lead or Second)
+                if (activeFilters.funkEngChallengers) {
+                    const isFunkEng = playerInfo.position === 'Lead' || playerInfo.position === 'Second';
+                    if (!isFunkEng) {
+                        return false;
+                    }
+                }
+
+                return true;
+            });
+        }
+
+        // Populate filter dropdowns
+        function populateFilters(teams, positions) {
+            const teamFilter = document.getElementById('teamFilter');
+            const positionFilter = document.getElementById('positionFilter');
+
+            // Populate team filter
+            teamFilter.innerHTML = '<option value="">All Teams</option>';
+            teams.forEach(team => {
+                const option = document.createElement('option');
+                option.value = team;
+                option.textContent = team;
+                teamFilter.appendChild(option);
+            });
+
+            // Populate position filter
+            positionFilter.innerHTML = '<option value="">All Positions</option>';
+            positions.forEach(position => {
+                const option = document.createElement('option');
+                option.value = position;
+                option.textContent = position;
+                positionFilter.appendChild(option);
+            });
+        }
+
+        // Setup filter controls
+        function setupFilterControls() {
+            const teamFilter = document.getElementById('teamFilter');
+            const positionFilter = document.getElementById('positionFilter');
+            const funkEngFilter = document.getElementById('funkEngFilter');
+            const resetFilters = document.getElementById('resetFilters');
+
+            const applyCurrentFilters = () => {
+                activeFilters.team = teamFilter.value;
+                activeFilters.position = positionFilter.value;
+                activeFilters.funkEngChallengers = funkEngFilter.checked;
+
+                const filteredData = applyFilters(leaderboardData);
+                const sortedData = sortData(filteredData, currentSort, currentDirection);
+                renderLeaderboard(sortedData);
+                renderStatsSummary(sortedData);
+            };
+
+            teamFilter.addEventListener('change', applyCurrentFilters);
+            positionFilter.addEventListener('change', applyCurrentFilters);
+            funkEngFilter.addEventListener('change', applyCurrentFilters);
+
+            resetFilters.addEventListener('click', () => {
+                teamFilter.value = '';
+                positionFilter.value = '';
+                funkEngFilter.checked = false;
+                activeFilters.team = '';
+                activeFilters.position = '';
+                activeFilters.funkEngChallengers = false;
+
+                const sortedData = sortData(leaderboardData, currentSort, currentDirection);
+                renderLeaderboard(sortedData);
+                renderStatsSummary(leaderboardData);
+            });
+        }
+
         // ===== WHAT-IF ANALYSIS FUNCTIONS =====
 
         // Get upcoming (unplayed) games
@@ -1684,10 +1901,15 @@
         // Load and display data
         Promise.all([
             d3.csv(matchupsUrl),
-            d3.csv(picksUrl)
-        ]).then(([matchups, picks]) => {
+            d3.csv(picksUrl),
+            d3.csv(playerInfoUrl)
+        ]).then(([matchups, picks, playerInfo]) => {
             // Store raw picks for what-if calculations
             rawPicksData = picks;
+
+            // Parse player info CSV
+            const { playerMap, teams, positions } = parsePlayerInfo(playerInfo);
+            playerInfoMap = playerMap;
 
             // Parse matchups CSV
             const { gameMap, gamesArray } = parseMatchups(matchups);
@@ -1718,6 +1940,10 @@
                     hour: 'numeric',
                     minute: '2-digit'
                 })}`;
+
+            // Populate and setup filters
+            populateFilters(teams, positions);
+            setupFilterControls();
 
             // Render everything
             renderHorseRace(horseRaceData);
