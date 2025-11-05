@@ -460,6 +460,28 @@
             display: flex;
             gap: 10px;
             margin-bottom: 20px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .whatif-player-picker {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .whatif-player-picker label {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .whatif-player-picker select {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            background-color: white;
+            cursor: pointer;
         }
 
         .whatif-btn {
@@ -684,11 +706,19 @@
             <!-- What-If Analysis Section -->
             <section class="section whatif-section" id="whatifSection" style="display: none;">
                 <h2 class="section-title">🔮 What-If Analysis</h2>
-                <p style="color: #666; margin-bottom: 20px;">Select winners for upcoming games to see how it would affect the standings.</p>
+                <p style="color: #666; margin-bottom: 20px;">Select winners for upcoming games to see how it would affect the standings. Click a selected team again to unset.</p>
 
                 <div class="whatif-controls">
                     <button class="whatif-btn secondary" id="resetWhatif">Reset All</button>
                     <button class="whatif-btn secondary" id="pickAllChalk">Pick All Chalk</button>
+
+                    <div class="whatif-player-picker">
+                        <label for="playerSelect">Copy picks from:</label>
+                        <select id="playerSelect">
+                            <option value="">-- Select Player --</option>
+                        </select>
+                        <button class="whatif-btn" id="copyPlayerPicks">Apply</button>
+                    </div>
                 </div>
 
                 <div class="upcoming-games" id="upcomingGames"></div>
@@ -1412,17 +1442,11 @@
         function renderWhatIfPanel() {
             const upcomingGames = getUpcomingGames();
 
-            console.log('Total games:', allGames.length);
-            console.log('Upcoming games:', upcomingGames.length);
-            console.log('Sample game:', allGames[0]);
-
             if (upcomingGames.length === 0) {
-                console.log('No upcoming games - hiding panel');
                 document.getElementById('whatifSection').style.display = 'none';
                 return;
             }
 
-            console.log('Showing what-if panel with', upcomingGames.length, 'games');
             document.getElementById('whatifSection').style.display = 'block';
             const container = document.getElementById('upcomingGames');
             container.innerHTML = '';
@@ -1470,11 +1494,49 @@
             });
         }
 
-        // Handle what-if winner selection
+        // Handle what-if winner selection (toggle if same team clicked)
         function selectWhatIfWinner(gameKey, team) {
-            whatifSelections[gameKey] = team;
+            // Toggle: if clicking the already selected team, unset it
+            if (whatifSelections[gameKey] === team) {
+                delete whatifSelections[gameKey];
+            } else {
+                whatifSelections[gameKey] = team;
+            }
             renderWhatIfPanel(); // Re-render to update UI
             updateProjectedStandings();
+        }
+
+        // Get player's picks for upcoming games
+        function getPlayerPicks(playerName) {
+            const playerRow = rawPicksData.find(row => {
+                const headers = Object.keys(row);
+                const nameHeader = headers.find(h => h.toLowerCase().includes('name'));
+                return row[nameHeader] === playerName;
+            });
+
+            if (!playerRow) return {};
+
+            const picks = {};
+            const upcomingGames = getUpcomingGames();
+            const headers = Object.keys(playerRow);
+
+            upcomingGames.forEach(game => {
+                // Find the matching header for this game
+                headers.forEach(header => {
+                    const gameInfo = parseGameColumn(header);
+                    if (gameInfo) {
+                        const gameKey = createGameKey(gameInfo.week, gameInfo.date, gameInfo.time, gameInfo.sheet);
+                        if (gameKey === game.gameKey) {
+                            const pick = playerRow[header];
+                            if (pick) {
+                                picks[gameKey] = pick;
+                            }
+                        }
+                    }
+                });
+            });
+
+            return picks;
         }
 
         // Calculate projected standings based on what-if selections
@@ -1570,12 +1632,24 @@
 
         // Setup what-if controls
         function setupWhatIfControls() {
+            // Populate player dropdown
+            const playerSelect = document.getElementById('playerSelect');
+            playerSelect.innerHTML = '<option value="">-- Select Player --</option>';
+            leaderboardData.forEach(player => {
+                const option = document.createElement('option');
+                option.value = player.name;
+                option.textContent = player.name;
+                playerSelect.appendChild(option);
+            });
+
+            // Reset all selections
             document.getElementById('resetWhatif').addEventListener('click', () => {
                 whatifSelections = {};
                 renderWhatIfPanel();
                 updateProjectedStandings();
             });
 
+            // Pick all chalk
             document.getElementById('pickAllChalk').addEventListener('click', () => {
                 const upcomingGames = getUpcomingGames();
                 upcomingGames.forEach(game => {
@@ -1584,6 +1658,24 @@
                         whatifSelections[game.gameKey] = analysis.chalkPick;
                     }
                 });
+                renderWhatIfPanel();
+                updateProjectedStandings();
+            });
+
+            // Copy player picks
+            document.getElementById('copyPlayerPicks').addEventListener('click', () => {
+                const selectedPlayer = playerSelect.value;
+                if (!selectedPlayer) {
+                    alert('Please select a player first');
+                    return;
+                }
+
+                const playerPicks = getPlayerPicks(selectedPlayer);
+                // Apply all of this player's picks to whatif selections
+                Object.keys(playerPicks).forEach(gameKey => {
+                    whatifSelections[gameKey] = playerPicks[gameKey];
+                });
+
                 renderWhatIfPanel();
                 updateProjectedStandings();
             });
