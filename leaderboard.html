@@ -2423,27 +2423,24 @@
             const today = new Date();
             today.setHours(0, 0, 0, 0);
 
-            // Get all unplayed games
-            const unplayedGames = allGames.filter(game => !game.winner);
-            if (unplayedGames.length === 0) {
-                return [];
-            }
-
-            // Parse dates and sort by date
-            const gamesWithDates = unplayedGames.map(game => ({
+            // Parse dates for all games and filter to only future/today games
+            const gamesWithDates = allGames.map(game => ({
                 ...game,
                 parsedDate: parseGameDate(game.date)
-            })).filter(game => game.parsedDate !== null)
-              .sort((a, b) => a.parsedDate - b.parsedDate);
+            })).filter(game =>
+                game.parsedDate !== null &&
+                game.parsedDate >= today &&
+                !game.winner  // Only unplayed games
+            ).sort((a, b) => a.parsedDate - b.parsedDate);
 
             if (gamesWithDates.length === 0) {
                 return [];
             }
 
-            // Find the next game date
+            // Find the next game date (first date in sorted list)
             const nextGameDate = gamesWithDates[0].parsedDate;
 
-            // Return all games on that date
+            // Return all games on that specific date
             return gamesWithDates.filter(game =>
                 game.parsedDate.getTime() === nextGameDate.getTime()
             );
