@@ -502,6 +502,475 @@
             max-width: 200px;
         }
 
+        /* Upcoming Matchups Styles */
+        .upcoming-section {
+            grid-column: 1 / -1;
+            background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
+            border: 2px solid #667eea;
+        }
+
+        .expand-schedule-container {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .expand-schedule-btn {
+            padding: 10px 24px;
+            border: 2px solid #667eea;
+            border-radius: 8px;
+            background-color: white;
+            color: #667eea;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: 600;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .expand-schedule-btn:hover {
+            background-color: #667eea;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        #expandScheduleIcon {
+            transition: transform 0.3s;
+            font-size: 12px;
+        }
+
+        .expand-schedule-btn.expanded #expandScheduleIcon {
+            transform: rotate(180deg);
+        }
+
+        /* Upcoming Matchup Card Styles */
+        .upcoming-matchup-card {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 3px 15px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .upcoming-matchup-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            text-align: center;
+        }
+
+        .upcoming-matchup-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .upcoming-matchup-info {
+            font-size: 13px;
+            opacity: 0.95;
+        }
+
+        .upcoming-matchup-body {
+            padding: 20px;
+        }
+
+        .upcoming-team-section {
+            margin-bottom: 20px;
+        }
+
+        .upcoming-team-section:last-of-type {
+            margin-bottom: 0;
+        }
+
+        .upcoming-team-name {
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 12px;
+            color: #333;
+            text-align: center;
+        }
+
+        .upcoming-members-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .upcoming-vs-divider {
+            text-align: center;
+            color: #999;
+            font-size: 16px;
+            font-weight: bold;
+            margin: 15px 0;
+        }
+
+        /* Schedule Styles */
+        .schedule-section {
+            grid-column: 1 / -1;
+        }
+
+        .schedule-filters {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .schedule-filter-btn {
+            padding: 8px 16px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #f8f8f8;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .schedule-filter-btn:hover {
+            background-color: #e8e8e8;
+        }
+
+        .schedule-filter-btn.active {
+            background-color: #4CAF50;
+            color: white;
+            border-color: #45a049;
+        }
+
+        .matchups-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 15px;
+        }
+
+        .matchup-card {
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .matchup-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.12);
+            border-color: #4CAF50;
+        }
+
+        .matchup-card.completed {
+            border-color: #4CAF50;
+            background-color: #f0f9f0;
+        }
+
+        .matchup-compact-header {
+            font-size: 11px;
+            color: #666;
+            margin-bottom: 8px;
+            text-align: center;
+        }
+
+        .matchup-compact-teams {
+            font-size: 14px;
+            text-align: center;
+            color: #333;
+        }
+
+        .compact-vs {
+            color: #999;
+            font-weight: normal;
+            margin: 0 8px;
+        }
+
+        .matchup-teams {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .matchup-team {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 10px;
+            background-color: white;
+            border-radius: 5px;
+            transition: background-color 0.2s;
+        }
+
+        .matchup-team.winner {
+            background-color: #4CAF50;
+            color: white;
+            font-weight: bold;
+        }
+
+        .matchup-team-name {
+            flex-grow: 1;
+        }
+
+        .matchup-vs {
+            text-align: center;
+            font-size: 12px;
+            color: #999;
+            margin: 3px 0;
+        }
+
+        .winner-badge {
+            background-color: white;
+            color: #4CAF50;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 11px;
+            font-weight: bold;
+        }
+
+        /* Matchup Tooltip with Team Lineups */
+        #matchupTooltip {
+            position: absolute;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 25px rgba(0, 0, 0, 0.3);
+            pointer-events: none;
+            display: none;
+            z-index: 2000;
+            min-width: 400px;
+            max-width: 500px;
+        }
+
+        .matchup-tooltip-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            border-radius: 10px 10px 0 0;
+            text-align: center;
+        }
+
+        .matchup-tooltip-title {
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .matchup-tooltip-info {
+            font-size: 12px;
+            opacity: 0.9;
+        }
+
+        .matchup-tooltip-body {
+            padding: 15px;
+        }
+
+        .tooltip-team-section {
+            margin-bottom: 20px;
+        }
+
+        .tooltip-team-section:last-child {
+            margin-bottom: 0;
+        }
+
+        .tooltip-team-name {
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #333;
+            text-align: center;
+        }
+
+        .tooltip-team-name.winner {
+            color: #4CAF50;
+        }
+
+        .tooltip-members-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .tooltip-member {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .tooltip-avatar-wrapper {
+            position: relative;
+        }
+
+        .tooltip-avatar {
+            border-radius: 50%;
+            object-fit: cover;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+            border-style: solid;
+        }
+
+        .tooltip-member:not(.skip-member) .tooltip-avatar {
+            width: 45px;
+            height: 45px;
+            border-width: 2px;
+        }
+
+        .tooltip-member.skip-member .tooltip-avatar {
+            width: 55px;
+            height: 55px;
+            border-width: 3px;
+        }
+
+        .tooltip-avatar-sprite {
+            border-radius: 50%;
+            background-image: url('mcc_integration/generic_avatar_sprite.png');
+            background-size: 500%;
+            background-repeat: no-repeat;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+            border-style: solid;
+        }
+
+        .tooltip-member:not(.skip-member) .tooltip-avatar-sprite {
+            width: 45px;
+            height: 45px;
+            border-width: 2px;
+        }
+
+        .tooltip-member.skip-member .tooltip-avatar-sprite {
+            width: 55px;
+            height: 55px;
+            border-width: 3px;
+        }
+
+        .tooltip-avatar-placeholder {
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+            border-style: solid;
+        }
+
+        .tooltip-member:not(.skip-member) .tooltip-avatar-placeholder {
+            width: 45px;
+            height: 45px;
+            font-size: 16px;
+            border-width: 2px;
+        }
+
+        .tooltip-member.skip-member .tooltip-avatar-placeholder {
+            width: 55px;
+            height: 55px;
+            font-size: 20px;
+            border-width: 3px;
+        }
+
+        /* Position-specific avatar colors for tooltip */
+        .tooltip-avatar.position-skip,
+        .tooltip-avatar-sprite.position-skip {
+            border-color: #ffd700;
+        }
+
+        .tooltip-avatar-placeholder.position-skip {
+            border-color: #ffd700;
+            background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+            color: #333;
+        }
+
+        .tooltip-avatar.position-vice,
+        .tooltip-avatar-sprite.position-vice {
+            border-color: #c0c0c0;
+        }
+
+        .tooltip-avatar-placeholder.position-vice {
+            border-color: #c0c0c0;
+            background: linear-gradient(135deg, #c0c0c0 0%, #e0e0e0 100%);
+            color: #333;
+        }
+
+        .tooltip-avatar.position-second,
+        .tooltip-avatar-sprite.position-second {
+            border-color: #cd7f32;
+        }
+
+        .tooltip-avatar-placeholder.position-second {
+            border-color: #cd7f32;
+            background: linear-gradient(135deg, #cd7f32 0%, #e8a864 100%);
+            color: #fff;
+        }
+
+        .tooltip-avatar.position-lead,
+        .tooltip-avatar-sprite.position-lead {
+            border-color: #3498db;
+        }
+
+        .tooltip-avatar-placeholder.position-lead {
+            border-color: #3498db;
+            background: linear-gradient(135deg, #3498db 0%, #5dade2 100%);
+            color: #fff;
+        }
+
+        .tooltip-avatar.position-fifth,
+        .tooltip-avatar-sprite.position-fifth {
+            border-color: #95a5a6;
+        }
+
+        .tooltip-avatar-placeholder.position-fifth {
+            border-color: #95a5a6;
+            background: linear-gradient(135deg, #95a5a6 0%, #bdc3c7 100%);
+            color: #fff;
+        }
+
+        .tooltip-member-name {
+            font-size: 10px;
+            color: #666;
+            text-align: center;
+        }
+
+        .tooltip-position-badge {
+            display: inline-block;
+            padding: 2px 6px;
+            border-radius: 8px;
+            font-size: 9px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .tooltip-position-badge.position-skip {
+            background-color: #ffd700;
+            color: #000;
+        }
+
+        .tooltip-position-badge.position-vice {
+            background-color: #c0c0c0;
+            color: #000;
+        }
+
+        .tooltip-position-badge.position-second {
+            background-color: #cd7f32;
+            color: #fff;
+        }
+
+        .tooltip-position-badge.position-lead {
+            background-color: #3498db;
+            color: #fff;
+        }
+
+        .tooltip-position-badge.position-fifth {
+            background-color: #95a5a6;
+            color: #fff;
+        }
+
+        .tooltip-vs-divider {
+            text-align: center;
+            color: #999;
+            font-size: 14px;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+
         /* What-If Analysis Styles */
         .whatif-section {
             margin-top: 20px;
@@ -868,6 +1337,31 @@
         <!-- Dashboard Grid -->
         <div class="dashboard-grid" id="dashboardGrid" style="display: none;">
 
+            <!-- Upcoming Matchups Section -->
+            <section class="section upcoming-section">
+                <h2 class="section-title">🔥 Upcoming Matchup(s)</h2>
+                <div class="matchups-grid" id="upcomingMatchupsGrid"></div>
+                <div class="expand-schedule-container">
+                    <button class="expand-schedule-btn" id="expandScheduleBtn">
+                        <span id="expandScheduleText">Show Full Schedule</span>
+                        <span id="expandScheduleIcon">▼</span>
+                    </button>
+                </div>
+            </section>
+
+            <!-- Full Schedule Section (Initially Hidden) -->
+            <section class="section schedule-section" id="fullScheduleSection" style="display: none;">
+                <h2 class="section-title">📅 Full Game Schedule</h2>
+
+                <div class="schedule-filters">
+                    <button class="schedule-filter-btn active" data-filter="all">All Games</button>
+                    <button class="schedule-filter-btn" data-filter="completed">Completed</button>
+                    <button class="schedule-filter-btn" data-filter="upcoming">Upcoming</button>
+                </div>
+
+                <div class="matchups-grid" id="matchupsGrid"></div>
+            </section>
+
             <!-- Leaderboard Section -->
             <section class="section leaderboard-section">
                 <h2 class="section-title">🥇 Current Standings</h2>
@@ -993,6 +1487,9 @@
         </div> <!-- end dashboard-grid -->
     </div> <!-- end dashboard-container -->
 
+    <!-- Matchup Tooltip -->
+    <div id="matchupTooltip"></div>
+
     <script>
         const matchupsUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQi6KQIneboHgXLY48j6eRSCPD66Sbf4-WzSvmB7gAZv4duklJ0nluIUZZT3S68FTLp1DGcfZVHqq6n/pub?gid=1301060622&single=true&output=csv";
         const picksUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQi6KQIneboHgXLY48j6eRSCPD66Sbf4-WzSvmB7gAZv4duklJ0nluIUZZT3S68FTLp1DGcfZVHqq6n/pub?gid=881893402&single=true&output=csv";
@@ -1015,6 +1512,8 @@
         let pickAnalysis = {}; // Stores majority picks and distribution
         let whatifSelections = {}; // Stores what-if game winner selections
         let rawPicksData = []; // Store raw picks for what-if calculations
+        let teamLineups = {}; // Map of team name (skip last name) to team members
+        let scheduleFilter = 'all'; // Current schedule filter
 
         // Sanitize player name for use in CSS selectors
         function sanitizeName(name) {
@@ -1828,6 +2327,376 @@
             });
         }
 
+        // ===== SCHEDULE AND MATCHUP FUNCTIONS =====
+
+        // Load team lineups from team_cards.json
+        async function loadTeamLineups() {
+            try {
+                const response = await fetch('mcc_integration/team_cards.json');
+                const data = await response.json();
+
+                // Map teams by skip's full name to handle cases where skips share last names
+                data.teams.forEach(team => {
+                    const skipMember = team.members.find(m => m.position === 'Skip');
+
+                    // Map by skip's full name (e.g., "Allan Veler")
+                    if (skipMember && skipMember.full_name) {
+                        teamLineups[skipMember.full_name] = team.members;
+                    }
+
+                    // Also map by team_name if it exists
+                    if (team.team_name && team.team_name.trim() !== '') {
+                        teamLineups[team.team_name] = team.members;
+                    }
+                });
+
+            } catch (error) {
+                console.error('Error loading team lineups:', error);
+            }
+        }
+
+        // Get sprite position for member avatar
+        function getSpritePosition(memberId) {
+            const spriteIndex = memberId % 25;
+            const row = Math.floor(spriteIndex / 5);
+            const col = spriteIndex % 5;
+            const x = col * 25;
+            const y = row * 25;
+            return `${x}% ${y}%`;
+        }
+
+        // Create member element for tooltip
+        function createTooltipMemberElement(member) {
+            const div = document.createElement('div');
+            div.className = 'tooltip-member';
+
+            if (member.position === 'Skip') {
+                div.classList.add('skip-member');
+            }
+
+            const positionClass = `position-${member.position.toLowerCase()}`;
+
+            let avatarHtml = '';
+            if (member.avatar) {
+                avatarHtml = `
+                    <div class="tooltip-avatar-wrapper">
+                        <img src="${member.avatar}" alt="${member.full_name}" class="tooltip-avatar ${positionClass}">
+                    </div>
+                `;
+            } else {
+                const spritePosition = getSpritePosition(member.member_id);
+                avatarHtml = `
+                    <div class="tooltip-avatar-wrapper">
+                        <div class="tooltip-avatar-sprite ${positionClass}"
+                             style="background-position: ${spritePosition}"
+                             title="${member.full_name}"></div>
+                    </div>
+                `;
+            }
+
+            div.innerHTML = `
+                ${avatarHtml}
+                <div class="tooltip-member-name">${member.first_name} ${member.last_name}</div>
+                <span class="tooltip-position-badge ${positionClass}">${member.position}</span>
+            `;
+
+            return div;
+        }
+
+        // Show matchup tooltip with team lineups
+        function showMatchupTooltip(event, game) {
+            const tooltip = document.getElementById('matchupTooltip');
+            // Match by full team name (e.g., "Allan Veler")
+            const team1Lineup = teamLineups[game.team1] || [];
+            const team2Lineup = teamLineups[game.team2] || [];
+
+            let tooltipContent = `
+                <div class="matchup-tooltip-header">
+                    <div class="matchup-tooltip-title">Team ${game.team1} vs Team ${game.team2}</div>
+                    <div class="matchup-tooltip-info">Week ${game.week} | ${game.date} | ${game.time} | Sheet ${game.sheet}</div>
+                </div>
+                <div class="matchup-tooltip-body">
+            `;
+
+            // Team 1
+            tooltipContent += `
+                <div class="tooltip-team-section">
+                    <div class="tooltip-team-name ${game.winner === game.team1 ? 'winner' : ''}">
+                        Team ${game.team1}${game.winner === game.team1 ? ' 🏆' : ''}
+                    </div>
+                    <div class="tooltip-members-row" id="team1Members"></div>
+                </div>
+            `;
+
+            tooltipContent += '<div class="tooltip-vs-divider">VS</div>';
+
+            // Team 2
+            tooltipContent += `
+                <div class="tooltip-team-section">
+                    <div class="tooltip-team-name ${game.winner === game.team2 ? 'winner' : ''}">
+                        Team ${game.team2}${game.winner === game.team2 ? ' 🏆' : ''}
+                    </div>
+                    <div class="tooltip-members-row" id="team2Members"></div>
+                </div>
+            `;
+
+            tooltipContent += '</div>';
+            tooltip.innerHTML = tooltipContent;
+
+            // Add members after HTML is in DOM
+            const team1Container = tooltip.querySelector('#team1Members');
+            const team2Container = tooltip.querySelector('#team2Members');
+
+            if (team1Lineup.length > 0) {
+                team1Lineup.forEach(member => {
+                    team1Container.appendChild(createTooltipMemberElement(member));
+                });
+            } else {
+                team1Container.innerHTML = '<div style="color: #999; font-size: 12px;">No lineup data available</div>';
+            }
+
+            if (team2Lineup.length > 0) {
+                team2Lineup.forEach(member => {
+                    team2Container.appendChild(createTooltipMemberElement(member));
+                });
+            } else {
+                team2Container.innerHTML = '<div style="color: #999; font-size: 12px;">No lineup data available</div>';
+            }
+
+            // Position tooltip near cursor
+            tooltip.style.display = 'block';
+            const tooltipRect = tooltip.getBoundingClientRect();
+            const x = event.pageX + 15;
+            const y = event.pageY - tooltipRect.height / 2;
+
+            // Keep tooltip on screen
+            const maxX = window.innerWidth + window.scrollX - tooltipRect.width - 20;
+            const maxY = window.innerHeight + window.scrollY - tooltipRect.height - 20;
+
+            tooltip.style.left = Math.min(x, maxX) + 'px';
+            tooltip.style.top = Math.max(10, Math.min(y, maxY)) + 'px';
+        }
+
+        // Hide matchup tooltip
+        function hideMatchupTooltip() {
+            document.getElementById('matchupTooltip').style.display = 'none';
+        }
+
+        // Parse date from game (MM/DD/YYYY format) and normalize to midnight
+        function parseGameDate(dateString) {
+            try {
+                const [month, day, year] = dateString.split('/').map(s => parseInt(s));
+                const date = new Date(year, month - 1, day);
+                date.setHours(0, 0, 0, 0);
+                return date;
+            } catch (e) {
+                console.error('Error parsing date:', dateString, e);
+                return null;
+            }
+        }
+
+        // Get upcoming games (next game date or today's games if it's game day)
+        function getUpcomingGamesFiltered() {
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+
+            // Get all games with parsed dates
+            const allGamesWithDates = allGames.map(game => ({
+                ...game,
+                parsedDate: parseGameDate(game.date)
+            })).filter(game => game.parsedDate !== null);
+
+            // Filter to future/today unplayed games only
+            const futureUnplayedGames = allGamesWithDates.filter(game => {
+                const isFuture = game.parsedDate >= today;
+                const isUnplayed = !game.winner;
+                return isFuture && isUnplayed;
+            });
+
+            if (futureUnplayedGames.length === 0) {
+                return [];
+            }
+
+            // Sort by date
+            futureUnplayedGames.sort((a, b) => a.parsedDate - b.parsedDate);
+
+            // Get the first (next) game date
+            const nextGameDate = futureUnplayedGames[0].parsedDate;
+
+            // Filter to only games on that specific date
+            const upcomingGames = futureUnplayedGames.filter(game => {
+                const isSameDate = game.parsedDate.getTime() === nextGameDate.getTime();
+                return isSameDate;
+            });
+
+            return upcomingGames;
+        }
+
+        // Create a compact matchup card element for full schedule
+        function createMatchupCard(game) {
+            const card = document.createElement('div');
+            card.className = `matchup-card ${game.winner ? 'completed' : ''}`;
+
+            // Compact single-line format: "Marcus Oldenburg vs Steve Oakeson" with winner indicator
+            const team1Display = game.winner === game.team1 ? `<strong>${game.team1}</strong> 🏆` : game.team1;
+            const team2Display = game.winner === game.team2 ? `<strong>${game.team2}</strong> 🏆` : game.team2;
+
+            card.innerHTML = `
+                <div class="matchup-compact-header">
+                    Week ${game.week} | ${game.date} | ${game.time} | Sheet ${game.sheet}
+                </div>
+                <div class="matchup-compact-teams">
+                    ${team1Display} <span class="compact-vs">vs</span> ${team2Display}
+                </div>
+            `;
+
+            // Add hover events
+            card.addEventListener('mouseenter', (e) => showMatchupTooltip(e, game));
+            card.addEventListener('mouseleave', hideMatchupTooltip);
+            card.addEventListener('mousemove', (e) => {
+                const tooltip = document.getElementById('matchupTooltip');
+                if (tooltip.style.display === 'block') {
+                    const tooltipRect = tooltip.getBoundingClientRect();
+                    const x = e.pageX + 15;
+                    const y = e.pageY - tooltipRect.height / 2;
+                    const maxX = window.innerWidth + window.scrollX - tooltipRect.width - 20;
+                    const maxY = window.innerHeight + window.scrollY - tooltipRect.height - 20;
+                    tooltip.style.left = Math.min(x, maxX) + 'px';
+                    tooltip.style.top = Math.max(10, Math.min(y, maxY)) + 'px';
+                }
+            });
+
+            return card;
+        }
+
+        // Create an expanded upcoming matchup card with team lineups
+        function createUpcomingMatchupCard(game) {
+            const card = document.createElement('div');
+            card.className = 'upcoming-matchup-card';
+
+            const team1LastName = game.team1.split(' ').pop();
+            const team2LastName = game.team2.split(' ').pop();
+            const team1Lineup = teamLineups[game.team1] || [];
+            const team2Lineup = teamLineups[game.team2] || [];
+
+            card.innerHTML = `
+                <div class="upcoming-matchup-header">
+                    <div class="upcoming-matchup-title">${game.team1} vs ${game.team2}</div>
+                    <div class="upcoming-matchup-info">Week ${game.week} | ${game.date} | ${game.time} | Sheet ${game.sheet}</div>
+                </div>
+                <div class="upcoming-matchup-body">
+                    <div class="upcoming-team-section">
+                        <div class="upcoming-team-name">${game.team1}</div>
+                        <div class="upcoming-members-row" id="upcoming-team1-${game.week}-${game.sheet}"></div>
+                    </div>
+                    <div class="upcoming-vs-divider">VS</div>
+                    <div class="upcoming-team-section">
+                        <div class="upcoming-team-name">${game.team2}</div>
+                        <div class="upcoming-members-row" id="upcoming-team2-${game.week}-${game.sheet}"></div>
+                    </div>
+                </div>
+            `;
+
+            // Add team members after card is created
+            setTimeout(() => {
+                const team1Container = document.getElementById(`upcoming-team1-${game.week}-${game.sheet}`);
+                const team2Container = document.getElementById(`upcoming-team2-${game.week}-${game.sheet}`);
+
+                if (team1Container && team1Lineup.length > 0) {
+                    team1Lineup.forEach(member => {
+                        team1Container.appendChild(createTooltipMemberElement(member));
+                    });
+                } else if (team1Container) {
+                    team1Container.innerHTML = '<div style="color: #999; font-size: 12px;">No lineup data</div>';
+                }
+
+                if (team2Container && team2Lineup.length > 0) {
+                    team2Lineup.forEach(member => {
+                        team2Container.appendChild(createTooltipMemberElement(member));
+                    });
+                } else if (team2Container) {
+                    team2Container.innerHTML = '<div style="color: #999; font-size: 12px;">No lineup data</div>';
+                }
+            }, 0);
+
+            return card;
+        }
+
+        // Render upcoming matchups with expanded team lineup view
+        function renderUpcomingMatchups() {
+            const container = document.getElementById('upcomingMatchupsGrid');
+            container.innerHTML = '';
+
+            const upcomingGames = getUpcomingGamesFiltered();
+
+            if (upcomingGames.length === 0) {
+                container.innerHTML = '<div style="text-align: center; color: #666; padding: 20px;">No upcoming games scheduled</div>';
+                return;
+            }
+
+            upcomingGames.forEach(game => {
+                container.appendChild(createUpcomingMatchupCard(game));
+            });
+        }
+
+        // Render schedule matchups
+        function renderSchedule() {
+            const container = document.getElementById('matchupsGrid');
+            container.innerHTML = '';
+
+            // Filter games based on current filter
+            let filteredGames = allGames;
+            if (scheduleFilter === 'completed') {
+                filteredGames = allGames.filter(game => game.winner);
+            } else if (scheduleFilter === 'upcoming') {
+                filteredGames = allGames.filter(game => !game.winner);
+            }
+
+            filteredGames.forEach(game => {
+                container.appendChild(createMatchupCard(game));
+            });
+        }
+
+        // Setup expand/collapse button for schedule
+        function setupExpandSchedule() {
+            const expandBtn = document.getElementById('expandScheduleBtn');
+            const fullScheduleSection = document.getElementById('fullScheduleSection');
+            const expandText = document.getElementById('expandScheduleText');
+            const expandIcon = document.getElementById('expandScheduleIcon');
+
+            expandBtn.addEventListener('click', () => {
+                const isExpanded = fullScheduleSection.style.display !== 'none';
+
+                if (isExpanded) {
+                    // Collapse
+                    fullScheduleSection.style.display = 'none';
+                    expandText.textContent = 'Show Full Schedule';
+                    expandBtn.classList.remove('expanded');
+                } else {
+                    // Expand
+                    fullScheduleSection.style.display = 'block';
+                    expandText.textContent = 'Hide Full Schedule';
+                    expandBtn.classList.add('expanded');
+                }
+            });
+        }
+
+        // Setup schedule filter buttons
+        function setupScheduleFilters() {
+            const filterButtons = document.querySelectorAll('.schedule-filter-btn');
+            filterButtons.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    // Update active button
+                    filterButtons.forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+
+                    // Update filter and re-render
+                    scheduleFilter = btn.dataset.filter;
+                    renderSchedule();
+                });
+            });
+        }
+
         // ===== WHAT-IF ANALYSIS FUNCTIONS =====
 
         // Get upcoming (unplayed) games
@@ -2161,6 +3030,16 @@
             // Setup what-if analysis
             renderWhatIfPanel();
             setupWhatIfControls();
+
+            // Load team lineups and setup schedule
+            loadTeamLineups().then(() => {
+                renderUpcomingMatchups();
+                renderSchedule();
+                setupScheduleFilters();
+                setupExpandSchedule();
+            }).catch(err => {
+                console.error('Error in loadTeamLineups:', err);
+            });
 
         }).catch(error => {
             console.error("Error fetching or parsing CSV:", error);
