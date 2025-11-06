@@ -502,6 +502,49 @@
             max-width: 200px;
         }
 
+        /* Upcoming Matchups Styles */
+        .upcoming-section {
+            grid-column: 1 / -1;
+            background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
+            border: 2px solid #667eea;
+        }
+
+        .expand-schedule-container {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .expand-schedule-btn {
+            padding: 10px 24px;
+            border: 2px solid #667eea;
+            border-radius: 8px;
+            background-color: white;
+            color: #667eea;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: 600;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .expand-schedule-btn:hover {
+            background-color: #667eea;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        #expandScheduleIcon {
+            transition: transform 0.3s;
+            font-size: 12px;
+        }
+
+        .expand-schedule-btn.expanded #expandScheduleIcon {
+            transform: rotate(180deg);
+        }
+
         /* Schedule Styles */
         .schedule-section {
             grid-column: 1 / -1;
@@ -1219,6 +1262,31 @@
         <!-- Dashboard Grid -->
         <div class="dashboard-grid" id="dashboardGrid" style="display: none;">
 
+            <!-- Upcoming Matchups Section -->
+            <section class="section upcoming-section">
+                <h2 class="section-title">🔥 Upcoming Matchup(s)</h2>
+                <div class="matchups-grid" id="upcomingMatchupsGrid"></div>
+                <div class="expand-schedule-container">
+                    <button class="expand-schedule-btn" id="expandScheduleBtn">
+                        <span id="expandScheduleText">Show Full Schedule</span>
+                        <span id="expandScheduleIcon">▼</span>
+                    </button>
+                </div>
+            </section>
+
+            <!-- Full Schedule Section (Initially Hidden) -->
+            <section class="section schedule-section" id="fullScheduleSection" style="display: none;">
+                <h2 class="section-title">📅 Full Game Schedule</h2>
+
+                <div class="schedule-filters">
+                    <button class="schedule-filter-btn active" data-filter="all">All Games</button>
+                    <button class="schedule-filter-btn" data-filter="completed">Completed</button>
+                    <button class="schedule-filter-btn" data-filter="upcoming">Upcoming</button>
+                </div>
+
+                <div class="matchups-grid" id="matchupsGrid"></div>
+            </section>
+
             <!-- Leaderboard Section -->
             <section class="section leaderboard-section">
                 <h2 class="section-title">🥇 Current Standings</h2>
@@ -1339,19 +1407,6 @@
                         </div>
                     </div>
                 </div>
-            </section>
-
-            <!-- Schedule Section -->
-            <section class="section schedule-section">
-                <h2 class="section-title">📅 Game Schedule</h2>
-
-                <div class="schedule-filters">
-                    <button class="schedule-filter-btn active" data-filter="all">All Games</button>
-                    <button class="schedule-filter-btn" data-filter="completed">Completed</button>
-                    <button class="schedule-filter-btn" data-filter="upcoming">Upcoming</button>
-                </div>
-
-                <div class="matchups-grid" id="matchupsGrid"></div>
             </section>
 
         </div> <!-- end dashboard-grid -->
@@ -2352,6 +2407,106 @@
             document.getElementById('matchupTooltip').style.display = 'none';
         }
 
+        // Parse date from game (MM/DD/YYYY format)
+        function parseGameDate(dateString) {
+            try {
+                const [month, day, year] = dateString.split('/').map(s => parseInt(s));
+                return new Date(year, month - 1, day);
+            } catch (e) {
+                console.error('Error parsing date:', dateString, e);
+                return null;
+            }
+        }
+
+        // Get upcoming games (next game date or today's games if it's game day)
+        function getUpcomingGames() {
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+
+            // Get all unplayed games
+            const unplayedGames = allGames.filter(game => !game.winner);
+            if (unplayedGames.length === 0) {
+                return [];
+            }
+
+            // Parse dates and sort by date
+            const gamesWithDates = unplayedGames.map(game => ({
+                ...game,
+                parsedDate: parseGameDate(game.date)
+            })).filter(game => game.parsedDate !== null)
+              .sort((a, b) => a.parsedDate - b.parsedDate);
+
+            if (gamesWithDates.length === 0) {
+                return [];
+            }
+
+            // Find the next game date
+            const nextGameDate = gamesWithDates[0].parsedDate;
+
+            // Return all games on that date
+            return gamesWithDates.filter(game =>
+                game.parsedDate.getTime() === nextGameDate.getTime()
+            );
+        }
+
+        // Create a matchup card element
+        function createMatchupCard(game) {
+            const card = document.createElement('div');
+            card.className = `matchup-card ${game.winner ? 'completed' : ''}`;
+
+            card.innerHTML = `
+                <div class="matchup-header">
+                    Week ${game.week} | ${game.date} | ${game.time} | Sheet ${game.sheet}
+                </div>
+                <div class="matchup-teams">
+                    <div class="matchup-team ${game.winner === game.team1 ? 'winner' : ''}">
+                        <span class="matchup-team-name">Team ${game.team1}</span>
+                        ${game.winner === game.team1 ? '<span class="winner-badge">Winner</span>' : ''}
+                    </div>
+                    <div class="matchup-vs">vs</div>
+                    <div class="matchup-team ${game.winner === game.team2 ? 'winner' : ''}">
+                        <span class="matchup-team-name">Team ${game.team2}</span>
+                        ${game.winner === game.team2 ? '<span class="winner-badge">Winner</span>' : ''}
+                    </div>
+                </div>
+            `;
+
+            // Add hover events
+            card.addEventListener('mouseenter', (e) => showMatchupTooltip(e, game));
+            card.addEventListener('mouseleave', hideMatchupTooltip);
+            card.addEventListener('mousemove', (e) => {
+                const tooltip = document.getElementById('matchupTooltip');
+                if (tooltip.style.display === 'block') {
+                    const tooltipRect = tooltip.getBoundingClientRect();
+                    const x = e.pageX + 15;
+                    const y = e.pageY - tooltipRect.height / 2;
+                    const maxX = window.innerWidth + window.scrollX - tooltipRect.width - 20;
+                    const maxY = window.innerHeight + window.scrollY - tooltipRect.height - 20;
+                    tooltip.style.left = Math.min(x, maxX) + 'px';
+                    tooltip.style.top = Math.max(10, Math.min(y, maxY)) + 'px';
+                }
+            });
+
+            return card;
+        }
+
+        // Render upcoming matchups
+        function renderUpcomingMatchups() {
+            const container = document.getElementById('upcomingMatchupsGrid');
+            container.innerHTML = '';
+
+            const upcomingGames = getUpcomingGames();
+
+            if (upcomingGames.length === 0) {
+                container.innerHTML = '<div style="text-align: center; color: #666; padding: 20px;">No upcoming games scheduled</div>';
+                return;
+            }
+
+            upcomingGames.forEach(game => {
+                container.appendChild(createMatchupCard(game));
+            });
+        }
+
         // Render schedule matchups
         function renderSchedule() {
             const container = document.getElementById('matchupsGrid');
@@ -2366,44 +2521,31 @@
             }
 
             filteredGames.forEach(game => {
-                const card = document.createElement('div');
-                card.className = `matchup-card ${game.winner ? 'completed' : ''}`;
+                container.appendChild(createMatchupCard(game));
+            });
+        }
 
-                card.innerHTML = `
-                    <div class="matchup-header">
-                        Week ${game.week} | ${game.date} | ${game.time} | Sheet ${game.sheet}
-                    </div>
-                    <div class="matchup-teams">
-                        <div class="matchup-team ${game.winner === game.team1 ? 'winner' : ''}">
-                            <span class="matchup-team-name">Team ${game.team1}</span>
-                            ${game.winner === game.team1 ? '<span class="winner-badge">Winner</span>' : ''}
-                        </div>
-                        <div class="matchup-vs">vs</div>
-                        <div class="matchup-team ${game.winner === game.team2 ? 'winner' : ''}">
-                            <span class="matchup-team-name">Team ${game.team2}</span>
-                            ${game.winner === game.team2 ? '<span class="winner-badge">Winner</span>' : ''}
-                        </div>
-                    </div>
-                `;
+        // Setup expand/collapse button for schedule
+        function setupExpandSchedule() {
+            const expandBtn = document.getElementById('expandScheduleBtn');
+            const fullScheduleSection = document.getElementById('fullScheduleSection');
+            const expandText = document.getElementById('expandScheduleText');
+            const expandIcon = document.getElementById('expandScheduleIcon');
 
-                // Add hover events
-                card.addEventListener('mouseenter', (e) => showMatchupTooltip(e, game));
-                card.addEventListener('mouseleave', hideMatchupTooltip);
-                card.addEventListener('mousemove', (e) => {
-                    // Update tooltip position as mouse moves
-                    const tooltip = document.getElementById('matchupTooltip');
-                    if (tooltip.style.display === 'block') {
-                        const tooltipRect = tooltip.getBoundingClientRect();
-                        const x = e.pageX + 15;
-                        const y = e.pageY - tooltipRect.height / 2;
-                        const maxX = window.innerWidth + window.scrollX - tooltipRect.width - 20;
-                        const maxY = window.innerHeight + window.scrollY - tooltipRect.height - 20;
-                        tooltip.style.left = Math.min(x, maxX) + 'px';
-                        tooltip.style.top = Math.max(10, Math.min(y, maxY)) + 'px';
-                    }
-                });
+            expandBtn.addEventListener('click', () => {
+                const isExpanded = fullScheduleSection.style.display !== 'none';
 
-                container.appendChild(card);
+                if (isExpanded) {
+                    // Collapse
+                    fullScheduleSection.style.display = 'none';
+                    expandText.textContent = 'Show Full Schedule';
+                    expandBtn.classList.remove('expanded');
+                } else {
+                    // Expand
+                    fullScheduleSection.style.display = 'block';
+                    expandText.textContent = 'Hide Full Schedule';
+                    expandBtn.classList.add('expanded');
+                }
             });
         }
 
@@ -2759,8 +2901,10 @@
 
             // Load team lineups and setup schedule
             loadTeamLineups().then(() => {
+                renderUpcomingMatchups();
                 renderSchedule();
                 setupScheduleFilters();
+                setupExpandSchedule();
             });
 
         }).catch(error => {
