@@ -2433,17 +2433,27 @@
                 !game.winner  // Only unplayed games
             ).sort((a, b) => a.parsedDate - b.parsedDate);
 
+            console.log('Today:', today.toLocaleDateString());
+            console.log('Future games:', gamesWithDates.length);
+            console.log('All future game dates:', gamesWithDates.map(g => g.date));
+
             if (gamesWithDates.length === 0) {
                 return [];
             }
 
             // Find the next game date (first date in sorted list)
             const nextGameDate = gamesWithDates[0].parsedDate;
+            console.log('Next game date:', nextGameDate.toLocaleDateString());
 
             // Return all games on that specific date
-            return gamesWithDates.filter(game =>
+            const upcomingGames = gamesWithDates.filter(game =>
                 game.parsedDate.getTime() === nextGameDate.getTime()
             );
+
+            console.log('Upcoming games on that date:', upcomingGames.length);
+            console.log('Upcoming game dates:', upcomingGames.map(g => g.date));
+
+            return upcomingGames;
         }
 
         // Create a matchup card element
