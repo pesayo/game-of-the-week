@@ -1817,8 +1817,8 @@
         }
 
         .matrix-pick-cell.win {
-            background-color: #c8e6c9;
-            color: #2e7d32;
+            background-color: #d5e3e8;
+            color: #4d636f;
             font-weight: 600;
         }
 
@@ -1911,11 +1911,11 @@
         }
 
         .distribution-bar.team1 {
-            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+            background: linear-gradient(135deg, #57707d 0%, #4d636f 100%);
         }
 
         .distribution-bar.team2 {
-            background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
+            background: linear-gradient(135deg, #9eb1bb 0%, #7d97a5 100%);
         }
 
         .distribution-bar:hover {
@@ -1942,11 +1942,11 @@
         }
 
         .distribution-label-color.team1 {
-            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+            background: linear-gradient(135deg, #57707d 0%, #4d636f 100%);
         }
 
         .distribution-label-color.team2 {
-            background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
+            background: linear-gradient(135deg, #9eb1bb 0%, #7d97a5 100%);
         }
 
         .distribution-label-text {
@@ -4124,6 +4124,10 @@
             const cx = size / 2;
             const cy = size / 2;
 
+            // Brand colors for contrast
+            const team1Color = '#57707d'; // --w3-color-d1
+            const team2Color = '#9eb1bb'; // --w3-color-l2
+
             // Calculate the end angle for team1 (starting at top, going clockwise)
             const team1Angle = (team1Pct / 100) * 360;
 
@@ -4140,27 +4144,27 @@
 
             if (team1Pct === 0) {
                 // All team2
-                svg += `<circle cx="${cx}" cy="${cy}" r="${radius}" fill="#2196F3"/>`;
+                svg += `<circle cx="${cx}" cy="${cy}" r="${radius}" fill="${team2Color}"/>`;
             } else if (team2Pct === 0) {
                 // All team1
-                svg += `<circle cx="${cx}" cy="${cy}" r="${radius}" fill="#4CAF50"/>`;
+                svg += `<circle cx="${cx}" cy="${cy}" r="${radius}" fill="${team1Color}"/>`;
             } else if (team1Pct === 50) {
                 // Perfect split - show half and half
                 svg += `
-                    <path d="M ${cx},${cy} L ${cx},${cy - radius} A ${radius},${radius} 0 0 1 ${cx},${cy + radius} Z" fill="#4CAF50"/>
-                    <path d="M ${cx},${cy} L ${cx},${cy + radius} A ${radius},${radius} 0 0 1 ${cx},${cy - radius} Z" fill="#2196F3"/>
+                    <path d="M ${cx},${cy} L ${cx},${cy - radius} A ${radius},${radius} 0 0 1 ${cx},${cy + radius} Z" fill="${team1Color}"/>
+                    <path d="M ${cx},${cy} L ${cx},${cy + radius} A ${radius},${radius} 0 0 1 ${cx},${cy - radius} Z" fill="${team2Color}"/>
                 `;
             } else {
-                // Team1 slice (green)
+                // Team1 slice
                 svg += `
                     <path d="M ${cx},${cy} L ${cx},${cy - radius} A ${radius},${radius} 0 ${largeArc1} 1 ${team1X},${team1Y} Z"
-                          fill="#4CAF50"/>
+                          fill="${team1Color}"/>
                 `;
 
-                // Team2 slice (blue) - fills the rest
+                // Team2 slice - fills the rest
                 svg += `
                     <path d="M ${cx},${cy} L ${team1X},${team1Y} A ${radius},${radius} 0 ${largeArc2} 1 ${cx},${cy - radius} Z"
-                          fill="#2196F3"/>
+                          fill="${team2Color}"/>
                 `;
             }
 
@@ -4246,9 +4250,11 @@
                             <div style="font-weight: bold;">Week ${game.week}</div>
                             <div style="font-size: 10px; margin-top: 2px;">${game.date}</div>
                             <div style="font-size: 10px;">${game.time}</div>
-                            <div style="font-size: 10px; margin-top: 3px; font-weight: 600;">${game.team1} vs ${game.team2}</div>
-                            <div style="font-size: 10px; margin-top: 3px; color: #4CAF50;">${team1Count} (${team1Pct}%)</div>
-                            <div style="font-size: 10px; color: #2196F3;">${team2Count} (${team2Pct}%)</div>
+                            <div style="font-size: 10px; margin-top: 5px; font-weight: 600; line-height: 1.4;">
+                                <span style="color: #57707d;">${game.team1} (${team1Pct}%)</span>
+                                <span style="color: #666;"> vs </span>
+                                <span style="color: #9eb1bb;">${game.team2} (${team2Pct}%)</span>
+                            </div>
                         </div>
                     </div>
                 `;
