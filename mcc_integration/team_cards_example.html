@@ -139,51 +139,51 @@
         }
 
         /* Position-specific avatar colors */
-        .member.position-skip .avatar {
+        .avatar.position-skip {
             border-color: #ffd700;
         }
 
-        .member.position-skip .avatar-placeholder {
+        .avatar-placeholder.position-skip {
             border-color: #ffd700;
             background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
             color: #333;
         }
 
-        .member.position-vice .avatar {
+        .avatar.position-vice {
             border-color: #c0c0c0;
         }
 
-        .member.position-vice .avatar-placeholder {
+        .avatar-placeholder.position-vice {
             border-color: #c0c0c0;
             background: linear-gradient(135deg, #c0c0c0 0%, #e0e0e0 100%);
             color: #333;
         }
 
-        .member.position-second .avatar {
+        .avatar.position-second {
             border-color: #cd7f32;
         }
 
-        .member.position-second .avatar-placeholder {
+        .avatar-placeholder.position-second {
             border-color: #cd7f32;
             background: linear-gradient(135deg, #cd7f32 0%, #e8a864 100%);
             color: #fff;
         }
 
-        .member.position-lead .avatar {
+        .avatar.position-lead {
             border-color: #3498db;
         }
 
-        .member.position-lead .avatar-placeholder {
+        .avatar-placeholder.position-lead {
             border-color: #3498db;
             background: linear-gradient(135deg, #3498db 0%, #5dade2 100%);
             color: #fff;
         }
 
-        .member.position-fifth .avatar {
+        .avatar.position-fifth {
             border-color: #95a5a6;
         }
 
-        .member.position-fifth .avatar-placeholder {
+        .avatar-placeholder.position-fifth {
             border-color: #95a5a6;
             background: linear-gradient(135deg, #95a5a6 0%, #bdc3c7 100%);
             color: #fff;
@@ -364,33 +364,30 @@
             const div = document.createElement('div');
             div.className = 'member';
 
-            // Add position-specific class for colors
-            div.classList.add(`position-${member.position.toLowerCase()}`);
-
             // Add skip class for larger avatar
             if (member.position === 'Skip') {
                 div.classList.add('skip-member');
             }
+
+            // Position class for avatar and badge styling
+            const positionClass = `position-${member.position.toLowerCase()}`;
 
             // Avatar
             let avatarHtml = '';
             if (member.avatar) {
                 avatarHtml = `
                     <div class="avatar-wrapper">
-                        <img src="${member.avatar}" alt="${member.full_name}" class="avatar">
+                        <img src="${member.avatar}" alt="${member.full_name}" class="avatar ${positionClass}">
                     </div>
                 `;
             } else {
                 const initials = (member.first_name[0] || '') + (member.last_name[0] || '');
                 avatarHtml = `
                     <div class="avatar-wrapper">
-                        <div class="avatar-placeholder">${initials}</div>
+                        <div class="avatar-placeholder ${positionClass}">${initials}</div>
                     </div>
                 `;
             }
-
-            // Position badge class
-            const positionClass = `position-${member.position.toLowerCase()}`;
 
             div.innerHTML = `
                 ${avatarHtml}
