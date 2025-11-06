@@ -598,22 +598,22 @@
         .upcoming-team-section {
             flex: 1;
             display: flex;
+            flex-direction: column;
             align-items: center;
-            gap: 12px;
+            gap: 8px;
         }
 
         .upcoming-team-name {
             font-size: 15px;
             font-weight: bold;
             color: #333;
-            white-space: nowrap;
-            min-width: 120px;
+            text-align: center;
         }
 
         .upcoming-members-row {
             display: flex;
             align-items: center;
-            justify-content: flex-start;
+            justify-content: center;
             gap: 12px;
             flex-wrap: wrap;
         }
@@ -628,7 +628,7 @@
 
         /* Schedule Styles */
         .schedule-section {
-            grid-column: 1 / -1;
+            margin-top: 20px;
         }
 
         .schedule-filters {
@@ -1366,19 +1366,19 @@
                         <span id="expandScheduleIcon">▼</span>
                     </button>
                 </div>
-            </section>
 
-            <!-- Full Schedule Section (Initially Hidden) -->
-            <section class="section schedule-section" id="fullScheduleSection" style="display: none;">
-                <h2 class="section-title">📅 Full Game Schedule</h2>
+                <!-- Full Schedule Section (Initially Hidden) -->
+                <div class="schedule-section" id="fullScheduleSection" style="display: none;">
+                    <h2 class="section-title">📅 Full Game Schedule</h2>
 
-                <div class="schedule-filters">
-                    <button class="schedule-filter-btn active" data-filter="all">All Games</button>
-                    <button class="schedule-filter-btn" data-filter="completed">Completed</button>
-                    <button class="schedule-filter-btn" data-filter="upcoming">Upcoming</button>
+                    <div class="schedule-filters">
+                        <button class="schedule-filter-btn active" data-filter="all">All Games</button>
+                        <button class="schedule-filter-btn" data-filter="completed">Completed</button>
+                        <button class="schedule-filter-btn" data-filter="upcoming">Upcoming</button>
+                    </div>
+
+                    <div class="matchups-grid" id="matchupsGrid"></div>
                 </div>
-
-                <div class="matchups-grid" id="matchupsGrid"></div>
             </section>
 
             <!-- Leaderboard Section -->
