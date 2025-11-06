@@ -1434,43 +1434,6 @@
             font-size: 20px;
         }
 
-        .standings-toggle {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 15px;
-        }
-
-        .standings-toggle-btn {
-            padding: 8px 16px;
-            border: 1px solid var(--gray-300);
-            border-radius: 5px;
-            background-color: var(--gray-100);
-            cursor: pointer;
-            font-size: 14px;
-            transition: all 0.2s;
-            flex: 1;
-        }
-
-        .standings-toggle-btn:hover {
-            background-color: var(--gray-200);
-        }
-
-        .standings-toggle-btn.active {
-            background-color: var(--success);
-            color: white;
-            border-color: var(--success-hover);
-        }
-
-        .standings-view {
-            display: none;
-            max-height: 600px;
-            overflow-y: auto;
-        }
-
-        .standings-view.active {
-            display: block;
-        }
-
         .standings-view::-webkit-scrollbar {
             width: 8px;
         }
@@ -1531,6 +1494,13 @@
 
         .rank-change.same {
             color: var(--text-muted);
+        }
+
+        .record-change {
+            font-size: 11px;
+            font-weight: 600;
+            margin-left: 4px;
+            color: var(--success);
         }
 
         .loading {
@@ -2345,8 +2315,8 @@
                     <!-- Right Column: Projected Standings -->
                     <div class="whatif-column">
                         <div class="whatif-column-title">
-                            Standings Impact
-                            <span class="whatif-summary-inline">(<strong id="selectionCount">0</strong> of <strong id="totalGamesCount">0</strong> hypothetical choices)</span>
+                            Hypothetical Standings
+                            <span class="whatif-summary-inline">(<strong id="selectionCount">0</strong> of <strong id="totalGamesCount">0</strong> choices)</span>
                         </div>
 
                         <div class="whatif-results" id="whatifResults">
@@ -2357,18 +2327,7 @@
                         </div>
 
                         <div class="whatif-results" id="whatifResultsContent" style="display: none;">
-                            <div class="standings-toggle">
-                                <button class="standings-toggle-btn active" data-view="projected">Projected</button>
-                                <button class="standings-toggle-btn" data-view="current">Current</button>
-                            </div>
-
-                            <div class="standings-view active" id="projectedView">
-                                <table class="comparison-table" id="projectedStandingsTable"></table>
-                            </div>
-
-                            <div class="standings-view" id="currentView">
-                                <table class="comparison-table" id="currentStandingsTable"></table>
-                            </div>
+                            <table class="comparison-table" id="projectedStandingsTable"></table>
                         </div>
                     </div>
                 </div>
@@ -3886,10 +3845,8 @@
 
             const projectedData = calculateProjectedStandings();
 
-            // Render projected standings first (with comparison to current)
+            // Render projected standings (with comparison to current)
             renderComparisonTable('projectedStandingsTable', projectedData, leaderboardData);
-            // Render current standings (without comparison)
-            renderComparisonTable('currentStandingsTable', leaderboardData, null);
         }
 
         // Render comparison table
@@ -3922,6 +3879,9 @@
 
                 // Calculate rank change if comparing
                 let rankChange = '';
+                let winsDisplay = player.wins;
+                let lossesDisplay = player.losses;
+
                 if (compareData) {
                     const oldPlayer = compareData.find(p => p.name === player.name);
                     if (oldPlayer) {
@@ -3933,6 +3893,17 @@
                         } else {
                             rankChange = `<span class="rank-change same">―</span>`;
                         }
+
+                        // Calculate win/loss changes
+                        const winsChange = player.wins - oldPlayer.wins;
+                        const lossesChange = player.losses - oldPlayer.losses;
+
+                        if (winsChange > 0) {
+                            winsDisplay = `${player.wins}<span class="record-change">+${winsChange}</span>`;
+                        }
+                        if (lossesChange > 0) {
+                            lossesDisplay = `${player.losses}<span class="record-change">+${lossesChange}</span>`;
+                        }
                     }
                 }
 
@@ -3940,8 +3911,8 @@
                     <tr>
                         <td class="center ${rankClass}">${player.rank}${rankChange}</td>
                         <td class="player-name">${player.name}</td>
-                        <td class="center">${player.wins}</td>
-                        <td class="center">${player.losses}</td>
+                        <td class="center">${winsDisplay}</td>
+                        <td class="center">${lossesDisplay}</td>
                         <td class="center ${winPctClass}">${player.winPct.toFixed(1)}%</td>
                     </tr>
                 `;
@@ -3961,29 +3932,6 @@
                 option.value = player.name;
                 option.textContent = player.name;
                 playerSelect.appendChild(option);
-            });
-
-            // Toggle between projected and current standings
-            document.querySelectorAll('.standings-toggle-btn').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    const view = btn.dataset.view;
-
-                    // Update button states
-                    document.querySelectorAll('.standings-toggle-btn').forEach(b => {
-                        b.classList.remove('active');
-                    });
-                    btn.classList.add('active');
-
-                    // Update view visibility
-                    document.querySelectorAll('.standings-view').forEach(v => {
-                        v.classList.remove('active');
-                    });
-                    if (view === 'projected') {
-                        document.getElementById('projectedView').classList.add('active');
-                    } else {
-                        document.getElementById('currentView').classList.add('active');
-                    }
-                });
             });
 
             // Reset all selections
