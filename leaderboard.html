@@ -667,6 +667,34 @@
             gap: 15px;
         }
 
+        /* Week group styles */
+        .week-group {
+            grid-column: 1 / -1;
+            margin-top: 25px;
+        }
+
+        .week-group:first-child {
+            margin-top: 0;
+        }
+
+        .week-header {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+        }
+
+        .week-games {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 12px;
+        }
+
         .matchup-card {
             background-color: #f8f9fa;
             border-radius: 8px;
@@ -2684,8 +2712,37 @@
                 filteredGames = allGames.filter(game => !game.winner);
             }
 
+            // Group games by week
+            const gamesByWeek = {};
             filteredGames.forEach(game => {
-                container.appendChild(createMatchupCard(game));
+                if (!gamesByWeek[game.week]) {
+                    gamesByWeek[game.week] = [];
+                }
+                gamesByWeek[game.week].push(game);
+            });
+
+            // Sort weeks numerically
+            const weeks = Object.keys(gamesByWeek).map(Number).sort((a, b) => a - b);
+
+            // Render each week group
+            weeks.forEach(week => {
+                const weekGroup = document.createElement('div');
+                weekGroup.className = 'week-group';
+
+                const weekHeader = document.createElement('div');
+                weekHeader.className = 'week-header';
+                weekHeader.textContent = `Week ${week}`;
+                weekGroup.appendChild(weekHeader);
+
+                const weekGamesContainer = document.createElement('div');
+                weekGamesContainer.className = 'week-games';
+
+                gamesByWeek[week].forEach(game => {
+                    weekGamesContainer.appendChild(createMatchupCard(game));
+                });
+
+                weekGroup.appendChild(weekGamesContainer);
+                container.appendChild(weekGroup);
             });
         }
 
