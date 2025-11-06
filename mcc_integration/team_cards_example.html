@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Wednesday Night Mansfield Teams</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            background-color: #2c3e50;
+            color: white;
+            padding: 30px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+
+        .teams-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 20px;
+        }
+
+        .team-card {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .team-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .team-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .team-name {
+            font-size: 22px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .team-info {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .team-members {
+            padding: 20px;
+        }
+
+        .member {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            background-color: #f8f9fa;
+            transition: background-color 0.2s;
+        }
+
+        .member:hover {
+            background-color: #e9ecef;
+        }
+
+        .avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-right: 15px;
+            border: 3px solid #667eea;
+        }
+
+        .avatar-placeholder {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 20px;
+            margin-right: 15px;
+            border: 3px solid #667eea;
+        }
+
+        .member-info {
+            flex: 1;
+        }
+
+        .member-name {
+            font-weight: 600;
+            font-size: 16px;
+            color: #2c3e50;
+        }
+
+        .member-position {
+            font-size: 13px;
+            color: #7f8c8d;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .position-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .position-skip {
+            background-color: #ffd700;
+            color: #000;
+        }
+
+        .position-vice {
+            background-color: #c0c0c0;
+            color: #000;
+        }
+
+        .position-second {
+            background-color: #cd7f32;
+            color: #fff;
+        }
+
+        .position-lead {
+            background-color: #3498db;
+            color: #fff;
+        }
+
+        .position-fifth {
+            background-color: #95a5a6;
+            color: #fff;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 50px;
+            font-size: 18px;
+            color: #666;
+        }
+
+        .error {
+            background-color: #ffebee;
+            color: #c62828;
+            padding: 20px;
+            border-radius: 5px;
+            margin: 20px 0;
+            border-left: 4px solid #c62828;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🥌 Wednesday Night Mansfield Teams</h1>
+            <div id="seasonInfo"></div>
+        </div>
+
+        <div id="loading" class="loading">Loading team data...</div>
+        <div id="error" class="error" style="display: none;"></div>
+        <div id="teamsContainer" class="teams-grid" style="display: none;"></div>
+    </div>
+
+    <script>
+        // Load team cards data
+        fetch('team_cards.json')
+            .then(response => response.json())
+            .then(data => {
+                displayTeams(data);
+            })
+            .catch(error => {
+                document.getElementById('loading').style.display = 'none';
+                const errorDiv = document.getElementById('error');
+                errorDiv.textContent = `Error loading team data: ${error.message}`;
+                errorDiv.style.display = 'block';
+            });
+
+        function displayTeams(data) {
+            // Update header
+            const seasonInfo = document.getElementById('seasonInfo');
+            seasonInfo.innerHTML = `
+                <div>${data.season}-${data.season + 1} Season</div>
+                <div style="font-size: 14px; opacity: 0.8;">${data.teams.length} Teams</div>
+            `;
+
+            // Display teams
+            const container = document.getElementById('teamsContainer');
+            container.innerHTML = '';
+
+            data.teams.forEach(team => {
+                const teamCard = createTeamCard(team);
+                container.appendChild(teamCard);
+            });
+
+            // Hide loading, show teams
+            document.getElementById('loading').style.display = 'none';
+            container.style.display = 'grid';
+        }
+
+        function createTeamCard(team) {
+            const card = document.createElement('div');
+            card.className = 'team-card';
+
+            const header = document.createElement('div');
+            header.className = 'team-header';
+            header.innerHTML = `
+                <div class="team-name">Team ${team.team_name}</div>
+                <div class="team-info">${team.day} | ${team.time}</div>
+            `;
+
+            const membersContainer = document.createElement('div');
+            membersContainer.className = 'team-members';
+
+            team.members.forEach(member => {
+                const memberDiv = createMemberElement(member);
+                membersContainer.appendChild(memberDiv);
+            });
+
+            card.appendChild(header);
+            card.appendChild(membersContainer);
+
+            return card;
+        }
+
+        function createMemberElement(member) {
+            const div = document.createElement('div');
+            div.className = 'member';
+
+            // Avatar
+            let avatarHtml = '';
+            if (member.avatar) {
+                avatarHtml = `<img src="${member.avatar}" alt="${member.full_name}" class="avatar">`;
+            } else {
+                const initials = (member.first_name[0] || '') + (member.last_name[0] || '');
+                avatarHtml = `<div class="avatar-placeholder">${initials}</div>`;
+            }
+
+            // Position badge class
+            const positionClass = `position-${member.position.toLowerCase()}`;
+
+            div.innerHTML = `
+                ${avatarHtml}
+                <div class="member-info">
+                    <div class="member-name">${member.full_name}</div>
+                    <span class="position-badge ${positionClass}">${member.position}</span>
+                </div>
+            `;
+
+            return div;
+        }
+
+        // Optional: Add click handlers for team cards
+        document.addEventListener('click', (e) => {
+            const teamCard = e.target.closest('.team-card');
+            if (teamCard) {
+                // You could open a modal with more team details here
+                console.log('Clicked team card:', teamCard);
+            }
+        });
+    </script>
+</body>
+</html>
