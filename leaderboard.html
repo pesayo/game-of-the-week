@@ -806,6 +806,12 @@
                         1px 1px 0 #fff,
                         0 0 3px #fff,
                         0 0 5px rgba(255, 255, 255, 0.8);
+            transition: transform 0.3s ease, color 0.3s ease;
+        }
+
+        .upcoming-matchup-card:hover .upcoming-vs-divider {
+            transform: rotate(-5deg) scale(1.05);
+            color: var(--mcc-blue-gray);
         }
 
         .upcoming-vs-divider::before {
@@ -820,6 +826,11 @@
             background-position: center;
             background-repeat: no-repeat;
             opacity: 0.07;
+            transition: opacity 0.3s ease;
+        }
+
+        .upcoming-matchup-card:hover .upcoming-vs-divider::before {
+            opacity: 0.15;
         }
 
         /* Schedule Styles */
