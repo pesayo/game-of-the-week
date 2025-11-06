@@ -189,6 +189,51 @@
             color: #fff;
         }
 
+        /* Sprite-based avatar */
+        .avatar-sprite {
+            border-radius: 50%;
+            background-image: url('generic_avatar_sprite.png');
+            background-size: 500%; /* 5x5 grid = 500% */
+            background-repeat: no-repeat;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+            border-style: solid;
+        }
+
+        /* Regular positions */
+        .member:not(.skip-member) .avatar-sprite {
+            width: 60px;
+            height: 60px;
+            border-width: 3px;
+        }
+
+        /* Skip gets larger sprite */
+        .member.skip-member .avatar-sprite {
+            width: 80px;
+            height: 80px;
+            border-width: 4px;
+        }
+
+        /* Position-specific sprite borders */
+        .avatar-sprite.position-skip {
+            border-color: #ffd700;
+        }
+
+        .avatar-sprite.position-vice {
+            border-color: #c0c0c0;
+        }
+
+        .avatar-sprite.position-second {
+            border-color: #cd7f32;
+        }
+
+        .avatar-sprite.position-lead {
+            border-color: #3498db;
+        }
+
+        .avatar-sprite.position-fifth {
+            border-color: #95a5a6;
+        }
+
         .member-name {
             font-weight: 600;
             font-size: 13px;
@@ -258,14 +303,16 @@
             }
 
             .member:not(.skip-member) .avatar,
-            .member:not(.skip-member) .avatar-placeholder {
+            .member:not(.skip-member) .avatar-placeholder,
+            .member:not(.skip-member) .avatar-sprite {
                 width: 50px;
                 height: 50px;
                 font-size: 18px;
             }
 
             .member.skip-member .avatar,
-            .member.skip-member .avatar-placeholder {
+            .member.skip-member .avatar-placeholder,
+            .member.skip-member .avatar-sprite {
                 width: 65px;
                 height: 65px;
                 font-size: 24px;
@@ -360,6 +407,20 @@
             return card;
         }
 
+        // Get random sprite position based on member ID
+        function getSpritePosition(memberId) {
+            // Use member ID to consistently pick same sprite for same person
+            const spriteIndex = memberId % 25; // 25 sprites in 5x5 grid
+            const row = Math.floor(spriteIndex / 5);
+            const col = spriteIndex % 5;
+
+            // Calculate percentage positions (0%, 25%, 50%, 75%, 100%)
+            const x = col * 25;
+            const y = row * 25;
+
+            return `${x}% ${y}%`;
+        }
+
         function createMemberElement(member) {
             const div = document.createElement('div');
             div.className = 'member';
@@ -381,10 +442,13 @@
                     </div>
                 `;
             } else {
-                const initials = (member.first_name[0] || '') + (member.last_name[0] || '');
+                // Use sprite-based generic avatar
+                const spritePosition = getSpritePosition(member.member_id);
                 avatarHtml = `
                     <div class="avatar-wrapper">
-                        <div class="avatar-placeholder ${positionClass}">${initials}</div>
+                        <div class="avatar-sprite ${positionClass}"
+                             style="background-position: ${spritePosition}"
+                             title="${member.full_name}"></div>
                     </div>
                 `;
             }
