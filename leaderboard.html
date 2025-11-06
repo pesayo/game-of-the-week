@@ -2219,7 +2219,6 @@
                     }
                 });
 
-                console.log('Loaded team lineups:', Object.keys(teamLineups));
             } catch (error) {
                 console.error('Error loading team lineups:', error);
             }
@@ -2273,11 +2272,20 @@
             return div;
         }
 
+        // Extract last name from full name (e.g., "Allan Veler" -> "Veler")
+        function getLastName(fullName) {
+            const parts = fullName.trim().split(' ');
+            return parts[parts.length - 1];
+        }
+
         // Show matchup tooltip with team lineups
         function showMatchupTooltip(event, game) {
             const tooltip = document.getElementById('matchupTooltip');
-            const team1Lineup = teamLineups[game.team1] || [];
-            const team2Lineup = teamLineups[game.team2] || [];
+            // Extract last names to match the teamLineups keys
+            const team1LastName = getLastName(game.team1);
+            const team2LastName = getLastName(game.team2);
+            const team1Lineup = teamLineups[team1LastName] || [];
+            const team2Lineup = teamLineups[team2LastName] || [];
 
             let tooltipContent = `
                 <div class="matchup-tooltip-header">
@@ -2758,7 +2766,6 @@
 
             // Load team lineups and setup schedule
             loadTeamLineups().then(() => {
-                console.log('After loadTeamLineups - Sample game team names:', allGames.slice(0, 3).map(g => ({ team1: g.team1, team2: g.team2 })));
                 renderSchedule();
                 setupScheduleFilters();
             });
