@@ -2323,14 +2323,7 @@
                             <span class="whatif-summary-inline">(<strong id="selectionCount">0</strong> of <strong id="totalGamesCount">0</strong> choices)</span>
                         </div>
 
-                        <div class="whatif-results" id="whatifResults">
-                            <div class="whatif-placeholder">
-                                <div class="whatif-placeholder-icon">📊</div>
-                                <div class="whatif-placeholder-text">Select game winners to see projected standings</div>
-                            </div>
-                        </div>
-
-                        <div class="whatif-results" id="whatifResultsContent" style="display: none;">
+                        <div class="whatif-results" id="whatifResultsContent">
                             <table class="comparison-table" id="projectedStandingsTable"></table>
                         </div>
                     </div>
@@ -3837,20 +3830,13 @@
             const hasSelections = Object.keys(whatifSelections).length > 0;
 
             if (!hasSelections) {
-                // Show placeholder, hide results
-                document.getElementById('whatifResults').style.display = 'flex';
-                document.getElementById('whatifResultsContent').style.display = 'none';
-                return;
+                // Show current standings without comparison
+                renderComparisonTable('projectedStandingsTable', leaderboardData, null);
+            } else {
+                // Show projected standings with comparison to current
+                const projectedData = calculateProjectedStandings();
+                renderComparisonTable('projectedStandingsTable', projectedData, leaderboardData);
             }
-
-            // Hide placeholder, show results
-            document.getElementById('whatifResults').style.display = 'none';
-            document.getElementById('whatifResultsContent').style.display = 'flex';
-
-            const projectedData = calculateProjectedStandings();
-
-            // Render projected standings (with comparison to current)
-            renderComparisonTable('projectedStandingsTable', projectedData, leaderboardData);
         }
 
         // Render comparison table
