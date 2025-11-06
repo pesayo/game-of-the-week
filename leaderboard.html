@@ -3926,12 +3926,18 @@
             // Reset all selections
             document.getElementById('resetWhatif').addEventListener('click', () => {
                 whatifSelections = {};
+                playerSelect.value = '';
                 renderWhatIfPanel();
                 updateProjectedStandings();
             });
 
             // Pick all chalk
             document.getElementById('pickAllChalk').addEventListener('click', () => {
+                // Reset all selections first
+                whatifSelections = {};
+                playerSelect.value = '';
+
+                // Then apply chalk picks
                 const upcomingGames = getUpcomingGames();
                 upcomingGames.forEach(game => {
                     const analysis = pickAnalysis[game.gameKey];
