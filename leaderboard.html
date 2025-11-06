@@ -599,12 +599,6 @@
             transform: rotate(180deg);
         }
 
-        /* Less prominent header for upcoming section */
-        .upcoming-section .section-title {
-            font-size: 14px;
-            font-weight: 500;
-            color: #666;
-        }
 
         /* Centered single-column layout for upcoming matchups */
         .upcoming-section .matchups-grid {
@@ -2776,7 +2770,7 @@
 
             card.innerHTML = `
                 <div class="upcoming-matchup-header">
-                    <div class="upcoming-matchup-info">Week ${game.week} | ${game.date} | ${game.time} | Sheet ${game.sheet}</div>
+                    <div class="upcoming-matchup-info">${game.time} | Sheet ${game.sheet}</div>
                 </div>
                 <div class="upcoming-matchup-body">
                     <div class="upcoming-team-section">
@@ -2824,15 +2818,21 @@
 
             const upcomingGames = getUpcomingGamesFiltered();
 
-            // Update header text based on number of matchups
+            // Update header text based on number of matchups, and include week/date
             const headerElement = document.querySelector('.upcoming-section .section-title');
             if (headerElement) {
-                if (upcomingGames.length === 1) {
-                    headerElement.innerHTML = '<i class="fas fa-fire"></i> Upcoming Matchup';
-                } else if (upcomingGames.length > 1) {
+                if (upcomingGames.length === 0) {
                     headerElement.innerHTML = '<i class="fas fa-fire"></i> Upcoming Matchups';
                 } else {
-                    headerElement.innerHTML = '<i class="fas fa-fire"></i> Upcoming Matchups';
+                    // Get week and date from first game (all upcoming games are from the same week)
+                    const weekNum = upcomingGames[0].week;
+                    const weekDate = upcomingGames[0].date;
+
+                    if (upcomingGames.length === 1) {
+                        headerElement.innerHTML = `<i class="fas fa-fire"></i> Upcoming Matchup - Week ${weekNum} (${weekDate})`;
+                    } else {
+                        headerElement.innerHTML = `<i class="fas fa-fire"></i> Upcoming Matchups - Week ${weekNum} (${weekDate})`;
+                    }
                 }
             }
 
