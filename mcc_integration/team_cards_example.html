@@ -92,7 +92,6 @@
         .avatar {
             border-radius: 50%;
             object-fit: cover;
-            border: 3px solid #667eea;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
         }
 
@@ -100,6 +99,8 @@
         .member:not(.skip-member) .avatar {
             width: 60px;
             height: 60px;
+            border-width: 3px;
+            border-style: solid;
         }
 
         /* Skip gets larger avatar */
@@ -107,18 +108,15 @@
             width: 80px;
             height: 80px;
             border-width: 4px;
-            border-color: #ffd700;
+            border-style: solid;
         }
 
         .avatar-placeholder {
             border-radius: 50%;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             display: flex;
             align-items: center;
             justify-content: center;
-            color: white;
             font-weight: bold;
-            border: 3px solid #667eea;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
         }
 
@@ -127,6 +125,8 @@
             width: 60px;
             height: 60px;
             font-size: 20px;
+            border-width: 3px;
+            border-style: solid;
         }
 
         /* Skip gets larger placeholder */
@@ -135,9 +135,58 @@
             height: 80px;
             font-size: 28px;
             border-width: 4px;
+            border-style: solid;
+        }
+
+        /* Position-specific avatar colors */
+        .member.position-skip .avatar {
+            border-color: #ffd700;
+        }
+
+        .member.position-skip .avatar-placeholder {
             border-color: #ffd700;
             background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
             color: #333;
+        }
+
+        .member.position-vice .avatar {
+            border-color: #c0c0c0;
+        }
+
+        .member.position-vice .avatar-placeholder {
+            border-color: #c0c0c0;
+            background: linear-gradient(135deg, #c0c0c0 0%, #e0e0e0 100%);
+            color: #333;
+        }
+
+        .member.position-second .avatar {
+            border-color: #cd7f32;
+        }
+
+        .member.position-second .avatar-placeholder {
+            border-color: #cd7f32;
+            background: linear-gradient(135deg, #cd7f32 0%, #e8a864 100%);
+            color: #fff;
+        }
+
+        .member.position-lead .avatar {
+            border-color: #3498db;
+        }
+
+        .member.position-lead .avatar-placeholder {
+            border-color: #3498db;
+            background: linear-gradient(135deg, #3498db 0%, #5dade2 100%);
+            color: #fff;
+        }
+
+        .member.position-fifth .avatar {
+            border-color: #95a5a6;
+        }
+
+        .member.position-fifth .avatar-placeholder {
+            border-color: #95a5a6;
+            background: linear-gradient(135deg, #95a5a6 0%, #bdc3c7 100%);
+            color: #fff;
         }
 
         .member-name {
@@ -314,6 +363,9 @@
         function createMemberElement(member) {
             const div = document.createElement('div');
             div.className = 'member';
+
+            // Add position-specific class for colors
+            div.classList.add(`position-${member.position.toLowerCase()}`);
 
             // Add skip class for larger avatar
             if (member.position === 'Skip') {
