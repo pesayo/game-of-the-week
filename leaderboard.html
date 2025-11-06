@@ -823,26 +823,31 @@
             gap: 10px;
             margin-bottom: 20px;
             flex-wrap: wrap;
+            background-color: var(--gray-50);
+            padding: 5px;
+            border-radius: 8px;
         }
 
         .schedule-filter-btn {
             padding: 8px 16px;
-            border: 1px solid var(--gray-300);
+            border: none;
             border-radius: 5px;
-            background-color: var(--gray-100);
+            background-color: transparent;
+            color: var(--text-secondary);
             cursor: pointer;
             font-size: 14px;
+            font-weight: 500;
             transition: all 0.2s;
         }
 
         .schedule-filter-btn:hover {
             background-color: var(--gray-200);
+            color: var(--text-primary);
         }
 
         .schedule-filter-btn.active {
-            background-color: var(--success);
+            background-color: var(--mcc-blue-gray);
             color: white;
-            border-color: var(--success-hover);
         }
 
         .matchups-grid {
