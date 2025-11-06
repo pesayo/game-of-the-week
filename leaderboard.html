@@ -111,13 +111,13 @@
 
         @media (min-width: 1200px) {
             .dashboard-grid {
-                grid-template-columns: 1fr 1fr;
+                grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
             }
         }
 
         @media (min-width: 1600px) {
             .dashboard-grid {
-                grid-template-columns: 45fr 55fr;
+                grid-template-columns: minmax(0, 45fr) minmax(0, 55fr);
             }
         }
 
@@ -125,6 +125,8 @@
             display: flex;
             flex-direction: column;
             gap: 20px;
+            min-width: 0; /* Allow flex items to shrink below content size */
+            max-width: 100%; /* Prevent expansion beyond grid column */
         }
 
         .right-column-container {
@@ -1671,6 +1673,8 @@
         /* Combined Picks View */
         .picks-view-section {
             margin-top: 20px;
+            min-width: 0; /* Allow section to shrink */
+            overflow: hidden; /* Prevent content from expanding section */
         }
 
         .picks-view-header {
@@ -1722,7 +1726,8 @@
         }
 
         .picks-view-content {
-            /* Content containers */
+            min-width: 0; /* Allow content to shrink */
+            max-width: 100%; /* Prevent expansion */
         }
 
         .matrix-filters {
@@ -1762,6 +1767,8 @@
             background: white;
             border-radius: 8px;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            max-width: 100%;
+            width: 100%;
         }
 
         .picks-matrix-table {
