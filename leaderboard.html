@@ -2029,6 +2029,26 @@
             border-radius: 6px;
             overflow: hidden;
             box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+
+        .distribution-trophy {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #FFD700;
+            font-size: 18px;
+            z-index: 10;
+            text-shadow: 0 0 3px rgba(0, 0, 0, 0.5);
+            pointer-events: none;
+        }
+
+        .distribution-trophy.left {
+            left: 8px;
+        }
+
+        .distribution-trophy.right {
+            right: 8px;
         }
 
         .distribution-bar {
@@ -2091,17 +2111,6 @@
             font-size: 12px;
         }
 
-        .distribution-winner-badge {
-            background-color: var(--gold);
-            color: var(--text-primary);
-            padding: 3px 10px;
-            border-radius: 12px;
-            font-size: 11px;
-            font-weight: bold;
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-        }
     </style>
 </head>
 <body>
@@ -4169,12 +4178,11 @@
                 const team2Count = analysis.team2Picks || 0;
                 const totalPicks = team1Count + team2Count;
 
-                // Determine winner badge
-                let winnerBadge = '';
+                // Determine trophy position based on winner
+                let trophyIcon = '';
                 if (game.winner) {
-                    winnerBadge = `<span class="distribution-winner-badge">
-                        <i class="fas fa-trophy"></i> Winner: ${game.winner}
-                    </span>`;
+                    const trophyPosition = game.winner === game.team1 ? 'left' : 'right';
+                    trophyIcon = `<i class="fas fa-trophy distribution-trophy ${trophyPosition}"></i>`;
                 }
 
                 item.innerHTML = `
@@ -4182,10 +4190,10 @@
                         <div class="distribution-game-info">
                             Week ${game.week} • ${game.date} • ${game.time} • Sheet ${game.sheet}
                         </div>
-                        ${winnerBadge}
                     </div>
                     <div class="distribution-matchup">${game.team1} vs ${game.team2}</div>
                     <div class="distribution-bar-container">
+                        ${trophyIcon}
                         <div class="distribution-bar team1" style="width: ${team1Pct}%" title="${game.team1}: ${team1Count} picks (${team1Pct}%)">
                             ${team1Pct >= 15 ? team1Pct + '%' : ''}
                         </div>
