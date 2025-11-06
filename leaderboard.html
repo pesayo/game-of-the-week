@@ -3718,11 +3718,6 @@
                     result = (playerPick === game.winner) ? 'W' : 'L';
                 }
 
-                // Check if contrarian
-                const gameAnalysis = pickAnalysis[gameKey];
-                const isContrarian = gameAnalysis && gameAnalysis.chalkPick &&
-                    playerPick !== gameAnalysis.chalkPick;
-
                 allPicks.push({
                     gameNumber: game.gameNumber,
                     week: game.week,
@@ -3733,10 +3728,7 @@
                     team2: game.team2,
                     pick: playerPick,
                     winner: game.winner,
-                    result: result,
-                    isContrarian: isContrarian,
-                    chalkPick: gameAnalysis ? gameAnalysis.chalkPick : null,
-                    chalkPercentage: gameAnalysis ? gameAnalysis.chalkPercentage : null
+                    result: result
                 });
             });
 
@@ -3768,9 +3760,6 @@
                     resultBadge = '<span class="pick-result-badge pending">TBD</span>';
                 }
 
-                const contrarianBadge = pick.isContrarian ?
-                    `<span class="pick-contrarian" title="Contrarian pick (${pick.chalkPercentage}% picked ${pick.chalkPick})">Contrarian</span>` : '';
-
                 pickItem.innerHTML = `
                     <div class="pick-game-number">Game ${pick.gameNumber}</div>
                     <div class="pick-details">
@@ -3783,7 +3772,6 @@
                         <div class="pick-choice">
                             <span class="pick-choice-label">Picked:</span>
                             <span class="pick-choice-team">${pick.pick}</span>
-                            ${contrarianBadge}
                         </div>
                         ${pick.winner ? `<div class="pick-info">Winner: <strong>${pick.winner}</strong></div>` : ''}
                     </div>
@@ -3928,15 +3916,6 @@
                             resultClass = (pick === game.winner) ? 'win' : 'loss';
                         }
                         pickDiv.classList.add(resultClass);
-
-                        // Check if contrarian
-                        const gameAnalysis = pickAnalysis[game.gameKey];
-                        const isContrarian = gameAnalysis && gameAnalysis.chalkPick &&
-                            pick !== gameAnalysis.chalkPick;
-                        if (isContrarian) {
-                            pickDiv.classList.add('contrarian');
-                            pickDiv.title = `Contrarian pick (${gameAnalysis.chalkPercentage}% picked ${gameAnalysis.chalkPick})`;
-                        }
 
                         pickDiv.textContent = pick;
                         pickCell.appendChild(pickDiv);
