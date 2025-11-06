@@ -207,13 +207,21 @@ def get_current_season_year() -> int:
     return today.year if today.month >= 8 else today.year - 1
 
 
-def get_mansfield_teams(year: Optional[int] = None) -> List[Dict]:
+def get_mansfield_teams(year: Optional[int] = None, filter_times: Optional[List[str]] = None) -> List[Dict]:
     """
     Get all Mansfield teams for a given year.
     Returns a list of team dictionaries with player information.
+
+    Args:
+        year: Season year (defaults to current season)
+        filter_times: List of times to filter (e.g., ["6:35 PM", "8:45 PM"]).
+                      If None, returns all times. Default is ["6:35 PM", "8:45 PM"].
     """
     if year is None:
         year = get_current_season_year()
+
+    if filter_times is None:
+        filter_times = ["6:35 PM", "8:45 PM"]
 
     api = MCCApi()
     season = Season(api, year)
@@ -307,13 +315,24 @@ def get_mansfield_teams(year: Optional[int] = None) -> List[Dict]:
                 "position": position
             })
 
-    # Filter for Wednesday night teams
+    # Filter for Wednesday night teams with specific times
     wednesday_teams = []
     for team_id, team in mansfield_teams.items():
-        if "Wednesday" in team.get("day", ""):
-            wednesday_teams.append(team)
+        day = team.get("day", "")
+        time = team.get("time", "")
 
-    logger.info(f"Found {len(wednesday_teams)} Wednesday night Mansfield teams")
+        # Must be Wednesday
+        if "Wednesday" not in day:
+            continue
+
+        # If filter_times is specified, check if time matches
+        if filter_times:
+            if time not in filter_times:
+                continue
+
+        wednesday_teams.append(team)
+
+    logger.info(f"Found {len(wednesday_teams)} Wednesday night Mansfield teams (times: {filter_times})")
 
     return wednesday_teams
 

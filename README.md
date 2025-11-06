@@ -48,10 +48,11 @@ The `mcc_integration/` directory contains tools to fetch team and player data fr
 
 ### Features
 
-- 🏒 Fetch Wednesday night Mansfield league teams
+- 🏒 Fetch Wednesday night Mansfield league teams (6:35 PM and 8:45 PM by default)
 - 👤 Download player avatars automatically
 - 📊 Generate JSON data for easy integration
 - 💾 Smart caching to minimize API calls
+- ⏰ Configurable time filtering
 
 ### Quick Setup
 

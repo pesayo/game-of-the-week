@@ -36,7 +36,7 @@ def avatar_to_base64(avatar_path: str) -> str:
         return None
 
 
-def generate_team_cards_json(year=None, output_file="team_cards.json", embed_avatars=True):
+def generate_team_cards_json(year=None, output_file="team_cards.json", embed_avatars=True, filter_times=None):
     """
     Generate JSON file with team card data for use in static HTML app.
 
@@ -44,18 +44,23 @@ def generate_team_cards_json(year=None, output_file="team_cards.json", embed_ava
         year: Season year (defaults to current season)
         output_file: Output JSON file path
         embed_avatars: If True, embed avatar images as base64 data URIs
+        filter_times: List of times to filter (defaults to ["6:35 PM", "8:45 PM"])
     """
     if year is None:
         year = get_current_season_year()
 
+    if filter_times is None:
+        filter_times = ["6:35 PM", "8:45 PM"]
+
     logger.info(f"Fetching Wednesday night Mansfield teams for {year} season...")
+    logger.info(f"Filtering for times: {filter_times}")
 
     try:
         # Get API instance
         api = MCCApi()
 
         # Get teams
-        teams = get_mansfield_teams(year)
+        teams = get_mansfield_teams(year, filter_times=filter_times)
 
         if not teams:
             logger.warning("No Wednesday night Mansfield teams found!")
@@ -167,13 +172,29 @@ def main():
         action='store_true',
         help='Do not embed avatars as base64 (use file paths instead)'
     )
+    parser.add_argument(
+        '--times',
+        type=str,
+        nargs='+',
+        default=None,
+        help='Filter for specific times (default: "6:35 PM" "8:45 PM"). Example: --times "6:35 PM" "8:45 PM"'
+    )
+    parser.add_argument(
+        '--all-times',
+        action='store_true',
+        help='Include all Wednesday teams regardless of time (overrides --times)'
+    )
 
     args = parser.parse_args()
+
+    # Handle all-times flag
+    filter_times = [] if args.all_times else args.times
 
     generate_team_cards_json(
         year=args.year,
         output_file=args.output,
-        embed_avatars=not args.no_embed
+        embed_avatars=not args.no_embed,
+        filter_times=filter_times
     )
 
 

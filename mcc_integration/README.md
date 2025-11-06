@@ -4,11 +4,12 @@ This directory contains Python scripts to fetch team and player data from the Ma
 
 ## Features
 
-- 🏒 Fetch Wednesday night Mansfield league teams
+- 🏒 Fetch Wednesday night Mansfield league teams (6:35 PM and 8:45 PM by default)
 - 👤 Download player avatars automatically
 - 📊 Generate JSON data for easy integration with static HTML
 - 💾 Smart caching to avoid unnecessary API calls
 - 🎨 Base64 embedding option for fully portable HTML
+- ⏰ Configurable time filtering
 
 ## Quick Start
 
@@ -42,7 +43,7 @@ python export_team_cards.py
 
 This will:
 - Authenticate with the Madison Curling Club API
-- Fetch all Wednesday night Mansfield teams for the current season
+- Fetch Wednesday night Mansfield teams for the current season (6:35 PM and 8:45 PM only)
 - Download player avatars
 - Generate `team_cards.json` with all team data
 
@@ -71,6 +72,15 @@ python export_team_cards.py --output ../team_data.json
 
 # Use file paths instead of embedding avatars as base64
 python export_team_cards.py --no-embed
+
+# Filter for specific times (default is 6:35 PM and 8:45 PM)
+python export_team_cards.py --times "6:35 PM" "8:45 PM"
+
+# Filter for only one time
+python export_team_cards.py --times "6:35 PM"
+
+# Get all Wednesday teams regardless of time
+python export_team_cards.py --all-times
 ```
 
 ### Help
@@ -157,12 +167,13 @@ To force a refresh, delete the relevant cache directory and run the export scrip
 
 ## API Reference
 
-### `get_mansfield_teams(year=None)`
+### `get_mansfield_teams(year=None, filter_times=None)`
 
-Fetches all Mansfield teams for a given season.
+Fetches Wednesday night Mansfield teams for a given season.
 
 **Parameters:**
 - `year` (int, optional): Season year. Defaults to current season.
+- `filter_times` (List[str], optional): List of times to filter (e.g., `["6:35 PM", "8:45 PM"]`). Defaults to `["6:35 PM", "8:45 PM"]`.
 
 **Returns:**
 - List of team dictionaries with player information
@@ -171,11 +182,17 @@ Fetches all Mansfield teams for a given season.
 ```python
 from mcc_api import get_mansfield_teams, get_current_season_year
 
-# Get current season teams
+# Get current season teams (6:35 PM and 8:45 PM only)
 teams = get_mansfield_teams()
 
 # Get specific season
 teams = get_mansfield_teams(2024)
+
+# Get only 6:35 PM teams
+teams = get_mansfield_teams(filter_times=["6:35 PM"])
+
+# Get all Wednesday teams (pass empty list)
+teams = get_mansfield_teams(filter_times=[])
 ```
 
 ### `download_team_avatars(teams, api=None)`
