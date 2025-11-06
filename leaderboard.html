@@ -437,6 +437,19 @@
             text-decoration: underline;
         }
 
+        .player-name .picks-icon {
+            font-size: 12px;
+            color: #999;
+            margin-left: 6px;
+            opacity: 0.6;
+            transition: opacity 0.2s;
+        }
+
+        .player-name:hover .picks-icon {
+            opacity: 1;
+            color: #4CAF50;
+        }
+
         .win-percentage {
             font-weight: 600;
         }
@@ -2604,7 +2617,10 @@
 
                 row.innerHTML = `
                     <td class="center ${rankClass}">${player.rank}</td>
-                    <td class="player-name" onclick="showPlayerDetails('${player.name.replace(/'/g, "\\'")}')">${player.name}</td>
+                    <td class="player-name" onclick="showPlayerDetails('${player.name.replace(/'/g, "\\'")}')" title="Click to view all picks">
+                        ${player.name}
+                        <i class="fas fa-list-ul picks-icon"></i>
+                    </td>
                     <td class="center">${player.wins}</td>
                     <td class="center">${player.losses}</td>
                     <td class="center ${winPctClass}">${player.winPct.toFixed(1)}%</td>
