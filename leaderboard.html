@@ -2407,11 +2407,13 @@
             document.getElementById('matchupTooltip').style.display = 'none';
         }
 
-        // Parse date from game (MM/DD/YYYY format)
+        // Parse date from game (MM/DD/YYYY format) and normalize to midnight
         function parseGameDate(dateString) {
             try {
                 const [month, day, year] = dateString.split('/').map(s => parseInt(s));
-                return new Date(year, month - 1, day);
+                const date = new Date(year, month - 1, day);
+                date.setHours(0, 0, 0, 0);
+                return date;
             } catch (e) {
                 console.error('Error parsing date:', dateString, e);
                 return null;
@@ -2420,38 +2422,46 @@
 
         // Get upcoming games (next game date or today's games if it's game day)
         function getUpcomingGames() {
+            alert('getUpcomingGames called - check console');
             const today = new Date();
             today.setHours(0, 0, 0, 0);
 
-            // Parse dates for all games and filter to only future/today games
-            const gamesWithDates = allGames.map(game => ({
+            // Get all games with parsed dates
+            const allGamesWithDates = allGames.map(game => ({
                 ...game,
                 parsedDate: parseGameDate(game.date)
-            })).filter(game =>
-                game.parsedDate !== null &&
-                game.parsedDate >= today &&
-                !game.winner  // Only unplayed games
-            ).sort((a, b) => a.parsedDate - b.parsedDate);
+            })).filter(game => game.parsedDate !== null);
 
-            console.log('Today:', today.toLocaleDateString());
-            console.log('Future games:', gamesWithDates.length);
-            console.log('All future game dates:', gamesWithDates.map(g => g.date));
+            alert(`Total games with valid dates: ${allGamesWithDates.length}`);
 
-            if (gamesWithDates.length === 0) {
+            // Filter to future/today unplayed games only
+            const futureUnplayedGames = allGamesWithDates.filter(game => {
+                const isFuture = game.parsedDate >= today;
+                const isUnplayed = !game.winner;
+                return isFuture && isUnplayed;
+            });
+
+            alert(`Future unplayed games: ${futureUnplayedGames.length}`);
+
+            if (futureUnplayedGames.length === 0) {
                 return [];
             }
 
-            // Find the next game date (first date in sorted list)
-            const nextGameDate = gamesWithDates[0].parsedDate;
-            console.log('Next game date:', nextGameDate.toLocaleDateString());
+            // Sort by date
+            futureUnplayedGames.sort((a, b) => a.parsedDate - b.parsedDate);
 
-            // Return all games on that specific date
-            const upcomingGames = gamesWithDates.filter(game =>
-                game.parsedDate.getTime() === nextGameDate.getTime()
-            );
+            // Get the first (next) game date
+            const nextGameDate = futureUnplayedGames[0].parsedDate;
+            const nextGameDateStr = nextGameDate.toLocaleDateString();
+            alert(`Next game date: ${nextGameDateStr}`);
 
-            console.log('Upcoming games on that date:', upcomingGames.length);
-            console.log('Upcoming game dates:', upcomingGames.map(g => g.date));
+            // Filter to only games on that specific date
+            const upcomingGames = futureUnplayedGames.filter(game => {
+                const isSameDate = game.parsedDate.getTime() === nextGameDate.getTime();
+                return isSameDate;
+            });
+
+            alert(`Games on ${nextGameDateStr}: ${upcomingGames.length}`);
 
             return upcomingGames;
         }
