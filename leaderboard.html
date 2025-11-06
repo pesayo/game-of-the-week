@@ -121,6 +121,18 @@
             }
         }
 
+        .left-column-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .right-column-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
         .section {
             background-color: white;
             padding: 30px;
@@ -1121,12 +1133,6 @@
         }
 
         /* Right Column Container */
-        .right-column-container {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-
         /* What-If Analysis Styles */
         .whatif-section {
             margin-top: 0;
@@ -2059,55 +2065,57 @@
                 </div>
             </section>
 
-            <!-- Leaderboard Section -->
-            <section class="section leaderboard-section">
-                <h2 class="section-title"><i class="fas fa-medal"></i> Current Standings</h2>
+            <!-- Left Column Container -->
+            <div class="left-column-container">
+                <!-- Leaderboard Section -->
+                <section class="section leaderboard-section">
+                    <h2 class="section-title"><i class="fas fa-medal"></i> Current Standings</h2>
 
-                <div class="stats-summary" id="statsSummary"></div>
+                    <div class="stats-summary" id="statsSummary"></div>
 
-                <!-- Filter Controls -->
-                <div class="filter-controls">
-                    <div class="filter-group">
-                        <label for="teamFilter">Team:</label>
-                        <select id="teamFilter">
-                            <option value="">All Teams</option>
-                        </select>
+                    <!-- Filter Controls -->
+                    <div class="filter-controls">
+                        <div class="filter-group">
+                            <label for="teamFilter">Team:</label>
+                            <select id="teamFilter">
+                                <option value="">All Teams</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label for="positionFilter">Position:</label>
+                            <select id="positionFilter">
+                                <option value="">All Positions</option>
+                            </select>
+                        </div>
+                        <div class="filter-group checkbox-group">
+                            <input type="checkbox" id="funkEngFilter">
+                            <label for="funkEngFilter">Funk-Eng Challengers Only (Lead/Second)</label>
+                        </div>
+                        <button class="filter-btn" id="resetFilters">Reset Filters</button>
                     </div>
-                    <div class="filter-group">
-                        <label for="positionFilter">Position:</label>
-                        <select id="positionFilter">
-                            <option value="">All Positions</option>
-                        </select>
-                    </div>
-                    <div class="filter-group checkbox-group">
-                        <input type="checkbox" id="funkEngFilter">
-                        <label for="funkEngFilter">Funk-Eng Challengers Only (Lead/Second)</label>
-                    </div>
-                    <button class="filter-btn" id="resetFilters">Reset Filters</button>
-                </div>
 
-                <table id="leaderboardTable">
-            <thead>
-                <tr>
-                    <th class="center sortable sorted-asc" data-sort="rank">Rank</th>
-                    <th class="sortable" data-sort="name">Player</th>
-                    <th class="center sortable" data-sort="wins">Wins</th>
-                    <th class="center sortable" data-sort="losses">Losses</th>
-                    <th class="center sortable" data-sort="winPct">Win %</th>
-                    <th class="center game-history-header" id="gameHistoryHeader">
-                        <span id="gameHistoryLabel">Recent Form</span>
-                        <span class="expand-header-btn" id="expandHeaderBtn" title="Expand to show all games">▶</span>
-                    </th>
-                </tr>
-            </thead>
-            <tbody id="leaderboardBody">
-                    </tbody>
-                </table>
-                <div class="tooltip" id="tooltip"></div>
-            </section>
+                    <table id="leaderboardTable">
+                <thead>
+                    <tr>
+                        <th class="center sortable sorted-asc" data-sort="rank">Rank</th>
+                        <th class="sortable" data-sort="name">Player</th>
+                        <th class="center sortable" data-sort="wins">Wins</th>
+                        <th class="center sortable" data-sort="losses">Losses</th>
+                        <th class="center sortable" data-sort="winPct">Win %</th>
+                        <th class="center game-history-header" id="gameHistoryHeader">
+                            <span id="gameHistoryLabel">Recent Form</span>
+                            <span class="expand-header-btn" id="expandHeaderBtn" title="Expand to show all games">▶</span>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody id="leaderboardBody">
+                        </tbody>
+                    </table>
+                    <div class="tooltip" id="tooltip"></div>
+                </section>
 
-            <!-- Combined Picks View Section -->
-            <section class="section picks-view-section">
+                <!-- Combined Picks View Section -->
+                <section class="section picks-view-section">
                 <div class="picks-view-header">
                     <h2 class="section-title"><i class="fas fa-th"></i> <span id="picksViewTitle">All Player Picks</span></h2>
                     <div class="picks-view-toggle">
@@ -2169,6 +2177,7 @@
                     <div class="distribution-list" id="distributionList"></div>
                 </div>
             </section>
+            </div> <!-- end left-column-container -->
 
             <!-- Right Column Container -->
             <div class="right-column-container">
