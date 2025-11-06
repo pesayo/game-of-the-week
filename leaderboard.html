@@ -607,16 +607,11 @@
             font-size: 18px;
             margin-left: 8px;
             user-select: none;
-            transition: transform 0.3s;
             display: inline-block;
         }
 
         .expand-header-btn:hover {
             color: var(--accent-dark);
-        }
-
-        .expand-header-btn.expanded {
-            transform: rotate(90deg);
         }
 
         th.game-history-header {
@@ -2198,7 +2193,7 @@
                         <th class="center sortable" data-sort="winPct">Win %</th>
                         <th class="center game-history-header" id="gameHistoryHeader">
                             <span id="gameHistoryLabel">Recent Form</span>
-                            <span class="expand-header-btn" id="expandHeaderBtn" title="Expand to show all games">▶</span>
+                            <span class="expand-header-btn" id="expandHeaderBtn" title="Expand to show all games">+</span>
                         </th>
                     </tr>
                 </thead>
@@ -2962,11 +2957,11 @@
             const label = document.getElementById('gameHistoryLabel');
 
             if (isExpanded) {
-                expandBtn.classList.add('expanded');
+                expandBtn.textContent = '−';
                 expandBtn.title = 'Collapse to show recent form';
                 label.textContent = 'Game History';
             } else {
-                expandBtn.classList.remove('expanded');
+                expandBtn.textContent = '+';
                 expandBtn.title = 'Expand to show all games';
                 label.textContent = 'Recent Form';
             }
