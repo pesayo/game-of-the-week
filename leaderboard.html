@@ -2193,36 +2193,21 @@
             const team2Lineup = teamLineups[game.team2] || [];
 
             // Build tooltip with matchup structure
+            const headerColor = gameData.result === 'W' ? '#4CAF50' : '#f44336';
+            const headerGradient = gameData.result === 'W'
+                ? 'linear-gradient(135deg, #4CAF50 0%, #45a049 100%)'
+                : 'linear-gradient(135deg, #f44336 0%, #e53935 100%)';
+
             let tooltipContent = `
-                <div class="matchup-tooltip-header">
+                <div class="matchup-tooltip-header" style="background: ${headerGradient};">
                     <div class="matchup-tooltip-title">
                         <strong>${playerName}</strong>: ${gameData.result === 'W' ? 'Win ✓' : 'Loss ✗'}
                     </div>
                     <div class="matchup-tooltip-info">
                         Week ${game.week} | ${game.date} | ${game.time} | Sheet ${game.sheet}
                     </div>
-            `;
-
-            // Add pick information in header if available
-            if (gameData.pick) {
-                tooltipContent += `<div class="matchup-tooltip-info">
-                    Picked: ${gameData.pick}`;
-                if (gameData.isContrarian) {
-                    tooltipContent += ` <i class="fas fa-fire"></i> Against the grain!`;
-                }
-                tooltipContent += `</div>`;
-            }
-
-            // Add pick distribution in header if available
-            if (gameData.pickAnalysis && gameData.pickAnalysis.totalPicks > 0) {
-                const analysis = gameData.pickAnalysis;
-                tooltipContent += `<div class="matchup-tooltip-info" style="font-size: 11px; opacity: 0.9;">
-                    Picks: ${analysis.team1} ${analysis.team1Picks} (${(analysis.team1Picks / analysis.totalPicks * 100).toFixed(0)}%) |
-                    ${analysis.team2} ${analysis.team2Picks} (${(analysis.team2Picks / analysis.totalPicks * 100).toFixed(0)}%)
-                </div>`;
-            }
-
-            tooltipContent += `</div><div class="matchup-tooltip-body">`;
+                </div>
+                <div class="matchup-tooltip-body">`;
 
             // Team 1
             tooltipContent += `
