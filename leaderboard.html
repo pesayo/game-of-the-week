@@ -1840,8 +1840,8 @@
         }
 
         .matrix-pick-cell.win {
-            background-color: #d5e3e8;
-            color: #4d636f;
+            background-color: #c8e6c9;
+            color: #2e7d32;
             font-weight: 600;
         }
 
@@ -1938,7 +1938,7 @@
         }
 
         .distribution-bar.team2 {
-            background: linear-gradient(135deg, #9eb1bb 0%, #7d97a5 100%);
+            background: linear-gradient(135deg, #ab9000 0%, #8a7500 100%);
         }
 
         .distribution-bar:hover {
@@ -1969,7 +1969,7 @@
         }
 
         .distribution-label-color.team2 {
-            background: linear-gradient(135deg, #9eb1bb 0%, #7d97a5 100%);
+            background: linear-gradient(135deg, #ab9000 0%, #8a7500 100%);
         }
 
         .distribution-label-text {
@@ -4149,7 +4149,7 @@
 
             // Brand colors for contrast
             const team1Color = '#57707d'; // --w3-color-d1
-            const team2Color = '#9eb1bb'; // --w3-color-l2
+            const team2Color = '#ab9000'; // Gold/yellow
 
             // Calculate the end angle for team1 (starting at top, going clockwise)
             const team1Angle = (team1Pct / 100) * 360;
@@ -4272,7 +4272,7 @@
                             ${pieChartSVG}
                             <div class="pie-tooltip" id="pieTooltip-${game.gameNumber}">
                                 <div style="color: #becbd2; font-weight: 600;">${game.team1}: ${team1Pct}%</div>
-                                <div style="color: #dfe5e8; font-weight: 600;">${game.team2}: ${team2Pct}%</div>
+                                <div style="color: #f4d03f; font-weight: 600;">${game.team2}: ${team2Pct}%</div>
                             </div>
                         </div>
                         <div class="matrix-header-info">
@@ -4281,7 +4281,7 @@
                             <div style="font-size: 10px;">${game.time}</div>
                             <div style="font-size: 10px; margin-top: 5px; font-weight: 600; line-height: 1.5;">
                                 <div style="color: #57707d;">${game.team1} (${team1Pct}%)</div>
-                                <div style="color: #9eb1bb;">${game.team2} (${team2Pct}%)</div>
+                                <div style="color: #ab9000;">${game.team2} (${team2Pct}%)</div>
                             </div>
                         </div>
                     </div>
