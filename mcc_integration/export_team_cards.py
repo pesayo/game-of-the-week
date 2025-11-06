@@ -50,7 +50,7 @@ def generate_team_cards_json(year=None, output_file="team_cards.json", embed_ava
         year = get_current_season_year()
 
     if filter_times is None:
-        filter_times = ["6:35 PM", "8:45 PM"]
+        filter_times = ["6:35/8:45PM"]
 
     logger.info(f"Fetching Wednesday night Mansfield teams for {year} season...")
     logger.info(f"Filtering for times: {filter_times}")
