@@ -2309,7 +2309,7 @@
                                 <select id="playerSelect">
                                     <option value="">-- Select Player --</option>
                                 </select>
-                                <button class="whatif-btn" id="copyPlayerPicks">Apply</button>
+                                <button class="whatif-btn" id="copyPlayerPicks" disabled>Apply</button>
                             </div>
                         </div>
 
@@ -3915,6 +3915,8 @@
         function setupWhatIfControls() {
             // Populate player dropdown
             const playerSelect = document.getElementById('playerSelect');
+            const copyPlayerPicksBtn = document.getElementById('copyPlayerPicks');
+
             playerSelect.innerHTML = '<option value="">-- Select Player --</option>';
             leaderboardData.forEach(player => {
                 const option = document.createElement('option');
@@ -3923,10 +3925,16 @@
                 playerSelect.appendChild(option);
             });
 
+            // Enable/disable Apply button based on player selection
+            playerSelect.addEventListener('change', () => {
+                copyPlayerPicksBtn.disabled = !playerSelect.value;
+            });
+
             // Reset all selections
             document.getElementById('resetWhatif').addEventListener('click', () => {
                 whatifSelections = {};
                 playerSelect.value = '';
+                copyPlayerPicksBtn.disabled = true;
                 renderWhatIfPanel();
                 updateProjectedStandings();
             });
@@ -3936,6 +3944,7 @@
                 // Reset all selections first
                 whatifSelections = {};
                 playerSelect.value = '';
+                copyPlayerPicksBtn.disabled = true;
 
                 // Then apply chalk picks
                 const upcomingGames = getUpcomingGames();
@@ -3950,10 +3959,9 @@
             });
 
             // Copy player picks
-            document.getElementById('copyPlayerPicks').addEventListener('click', () => {
+            copyPlayerPicksBtn.addEventListener('click', () => {
                 const selectedPlayer = playerSelect.value;
                 if (!selectedPlayer) {
-                    alert('Please select a player first');
                     return;
                 }
 
