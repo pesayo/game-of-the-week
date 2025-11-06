@@ -2235,6 +2235,12 @@
                                 <option value="upcoming">Upcoming Only</option>
                             </select>
                         </div>
+                        <div class="matrix-filter-group">
+                            <label for="matrixTeamFilter">Team:</label>
+                            <select id="matrixTeamFilter">
+                                <option value="all">All Teams</option>
+                            </select>
+                        </div>
                     </div>
 
                     <div class="picks-matrix-container">
@@ -2260,6 +2266,12 @@
                                 <option value="all">All Games</option>
                                 <option value="completed">Completed Only</option>
                                 <option value="upcoming">Upcoming Only</option>
+                            </select>
+                        </div>
+                        <div class="matrix-filter-group">
+                            <label for="distributionTeamFilter">Team:</label>
+                            <select id="distributionTeamFilter">
+                                <option value="all">All Teams</option>
                             </select>
                         </div>
                     </div>
@@ -4116,10 +4128,11 @@
 
         document.getElementById('closeModal').addEventListener('click', closePlayerModal);
 
-        // ===== PICK DISTRIBUTION VIEW =====
-        let distributionFilters = {
+        // ===== SHARED FILTERS FOR BOTH VIEWS =====
+        let sharedPicksFilters = {
             week: 'all',
-            gameStatus: 'all'
+            gameStatus: 'all',
+            team: 'all'
         };
 
         function renderPickDistribution() {
@@ -4130,13 +4143,16 @@
             let filteredGames = [...allGames];
 
             // Apply filters
-            if (distributionFilters.week !== 'all') {
-                filteredGames = filteredGames.filter(g => g.week == distributionFilters.week);
+            if (sharedPicksFilters.week !== 'all') {
+                filteredGames = filteredGames.filter(g => g.week == sharedPicksFilters.week);
             }
-            if (distributionFilters.gameStatus === 'completed') {
+            if (sharedPicksFilters.gameStatus === 'completed') {
                 filteredGames = filteredGames.filter(g => g.winner !== null);
-            } else if (distributionFilters.gameStatus === 'upcoming') {
+            } else if (sharedPicksFilters.gameStatus === 'upcoming') {
                 filteredGames = filteredGames.filter(g => g.winner === null);
+            }
+            if (sharedPicksFilters.team !== 'all') {
+                filteredGames = filteredGames.filter(g => g.team1 === sharedPicksFilters.team || g.team2 === sharedPicksFilters.team);
             }
 
             // Render each game's distribution
@@ -4233,43 +4249,95 @@
                 });
             });
 
-            // Setup matrix filters
+            // Function to update both views
+            const updateBothViews = () => {
+                renderPicksMatrix();
+                renderPickDistribution();
+            };
+
+            // Function to sync filter dropdowns
+            const syncFilterDropdowns = (sourceId, targetId, value) => {
+                document.getElementById(targetId).value = value;
+            };
+
+            // Setup shared filters
             const matrixWeekFilter = document.getElementById('matrixWeekFilter');
-            const weeks = [...new Set(allGames.map(g => g.week))].sort((a, b) => a - b);
-            weeks.forEach(week => {
-                const option = document.createElement('option');
-                option.value = week;
-                option.textContent = `Week ${week}`;
-                matrixWeekFilter.appendChild(option);
-            });
-
-            matrixWeekFilter.addEventListener('change', (e) => {
-                matrixFilters.week = e.target.value;
-                renderPicksMatrix();
-            });
-
-            document.getElementById('matrixGameFilter').addEventListener('change', (e) => {
-                matrixFilters.gameStatus = e.target.value;
-                renderPicksMatrix();
-            });
-
-            // Setup distribution filters
             const distributionWeekFilter = document.getElementById('distributionWeekFilter');
+            const weeks = [...new Set(allGames.map(g => g.week))].sort((a, b) => a - b);
+
+            // Populate week dropdowns
             weeks.forEach(week => {
-                const option = document.createElement('option');
-                option.value = week;
-                option.textContent = `Week ${week}`;
-                distributionWeekFilter.appendChild(option);
+                const matrixOption = document.createElement('option');
+                matrixOption.value = week;
+                matrixOption.textContent = `Week ${week}`;
+                matrixWeekFilter.appendChild(matrixOption);
+
+                const distOption = document.createElement('option');
+                distOption.value = week;
+                distOption.textContent = `Week ${week}`;
+                distributionWeekFilter.appendChild(distOption);
+            });
+
+            // Setup team filters
+            const matrixTeamFilter = document.getElementById('matrixTeamFilter');
+            const distributionTeamFilter = document.getElementById('distributionTeamFilter');
+            const teams = new Set();
+            allGames.forEach(game => {
+                teams.add(game.team1);
+                teams.add(game.team2);
+            });
+            const sortedTeams = [...teams].sort();
+
+            // Populate team dropdowns
+            sortedTeams.forEach(team => {
+                const matrixOption = document.createElement('option');
+                matrixOption.value = team;
+                matrixOption.textContent = team;
+                matrixTeamFilter.appendChild(matrixOption);
+
+                const distOption = document.createElement('option');
+                distOption.value = team;
+                distOption.textContent = team;
+                distributionTeamFilter.appendChild(distOption);
+            });
+
+            // Week filter event handlers
+            matrixWeekFilter.addEventListener('change', (e) => {
+                sharedPicksFilters.week = e.target.value;
+                syncFilterDropdowns('matrixWeekFilter', 'distributionWeekFilter', e.target.value);
+                updateBothViews();
             });
 
             distributionWeekFilter.addEventListener('change', (e) => {
-                distributionFilters.week = e.target.value;
-                renderPickDistribution();
+                sharedPicksFilters.week = e.target.value;
+                syncFilterDropdowns('distributionWeekFilter', 'matrixWeekFilter', e.target.value);
+                updateBothViews();
+            });
+
+            // Game status filter event handlers
+            document.getElementById('matrixGameFilter').addEventListener('change', (e) => {
+                sharedPicksFilters.gameStatus = e.target.value;
+                document.getElementById('distributionGameFilter').value = e.target.value;
+                updateBothViews();
             });
 
             document.getElementById('distributionGameFilter').addEventListener('change', (e) => {
-                distributionFilters.gameStatus = e.target.value;
-                renderPickDistribution();
+                sharedPicksFilters.gameStatus = e.target.value;
+                document.getElementById('matrixGameFilter').value = e.target.value;
+                updateBothViews();
+            });
+
+            // Team filter event handlers
+            matrixTeamFilter.addEventListener('change', (e) => {
+                sharedPicksFilters.team = e.target.value;
+                syncFilterDropdowns('matrixTeamFilter', 'distributionTeamFilter', e.target.value);
+                updateBothViews();
+            });
+
+            distributionTeamFilter.addEventListener('change', (e) => {
+                sharedPicksFilters.team = e.target.value;
+                syncFilterDropdowns('distributionTeamFilter', 'matrixTeamFilter', e.target.value);
+                updateBothViews();
             });
 
             // Render initial matrix view
@@ -4277,10 +4345,6 @@
         }
 
         // ===== PICKS MATRIX VIEW =====
-        let matrixFilters = {
-            week: 'all',
-            gameStatus: 'all'
-        };
 
         function createPieChart(team1Pct, team2Pct) {
             const size = 50;
@@ -4366,13 +4430,16 @@
 
             // Apply filters
             let filteredGames = games;
-            if (matrixFilters.week !== 'all') {
-                filteredGames = filteredGames.filter(g => g.week == matrixFilters.week);
+            if (sharedPicksFilters.week !== 'all') {
+                filteredGames = filteredGames.filter(g => g.week == sharedPicksFilters.week);
             }
-            if (matrixFilters.gameStatus === 'completed') {
+            if (sharedPicksFilters.gameStatus === 'completed') {
                 filteredGames = filteredGames.filter(g => g.winner !== null);
-            } else if (matrixFilters.gameStatus === 'upcoming') {
+            } else if (sharedPicksFilters.gameStatus === 'upcoming') {
                 filteredGames = filteredGames.filter(g => g.winner === null);
+            }
+            if (sharedPicksFilters.team !== 'all') {
+                filteredGames = filteredGames.filter(g => g.team1 === sharedPicksFilters.team || g.team2 === sharedPicksFilters.team);
             }
 
             // Build header row
