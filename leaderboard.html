@@ -2205,17 +2205,18 @@
                 const response = await fetch('mcc_integration/team_cards.json');
                 const data = await response.json();
 
-                // Map teams by skip's last name
+                // Map teams by skip's full name to handle cases where skips share last names
                 data.teams.forEach(team => {
                     const skipMember = team.members.find(m => m.position === 'Skip');
-                    const teamName = team.team_name || (skipMember ? skipMember.last_name : null);
-                    if (teamName) {
-                        teamLineups[teamName] = team.members;
+
+                    // Map by skip's full name (e.g., "Allan Veler")
+                    if (skipMember && skipMember.full_name) {
+                        teamLineups[skipMember.full_name] = team.members;
                     }
 
-                    // Also map by skip last name directly
-                    if (skipMember && skipMember.last_name) {
-                        teamLineups[skipMember.last_name] = team.members;
+                    // Also map by team_name if it exists
+                    if (team.team_name && team.team_name.trim() !== '') {
+                        teamLineups[team.team_name] = team.members;
                     }
                 });
 
@@ -2272,20 +2273,12 @@
             return div;
         }
 
-        // Extract last name from full name (e.g., "Allan Veler" -> "Veler")
-        function getLastName(fullName) {
-            const parts = fullName.trim().split(' ');
-            return parts[parts.length - 1];
-        }
-
         // Show matchup tooltip with team lineups
         function showMatchupTooltip(event, game) {
             const tooltip = document.getElementById('matchupTooltip');
-            // Extract last names to match the teamLineups keys
-            const team1LastName = getLastName(game.team1);
-            const team2LastName = getLastName(game.team2);
-            const team1Lineup = teamLineups[team1LastName] || [];
-            const team2Lineup = teamLineups[team2LastName] || [];
+            // Match by full team name (e.g., "Allan Veler")
+            const team1Lineup = teamLineups[game.team1] || [];
+            const team2Lineup = teamLineups[game.team2] || [];
 
             let tooltipContent = `
                 <div class="matchup-tooltip-header">
