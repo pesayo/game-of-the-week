@@ -1507,6 +1507,10 @@
             color: var(--error);
         }
 
+        .record-change.neutral {
+            color: var(--text-muted);
+        }
+
         .loading {
             text-align: center;
             padding: 40px;
@@ -3869,8 +3873,8 @@
 
                 // Calculate rank change if comparing
                 let rankChange = '';
-                let winsDisplay = player.wins;
-                let lossesDisplay = player.losses;
+                let winsChange = 0;
+                let lossesChange = 0;
 
                 if (compareData) {
                     const oldPlayer = compareData.find(p => p.name === player.name);
@@ -3885,17 +3889,16 @@
                         }
 
                         // Calculate win/loss changes
-                        const winsChange = player.wins - oldPlayer.wins;
-                        const lossesChange = player.losses - oldPlayer.losses;
-
-                        if (winsChange > 0) {
-                            winsDisplay = `${player.wins}<span class="record-change">+${winsChange}</span>`;
-                        }
-                        if (lossesChange > 0) {
-                            lossesDisplay = `${player.losses}<span class="record-change losses">+${lossesChange}</span>`;
-                        }
+                        winsChange = player.wins - oldPlayer.wins;
+                        lossesChange = player.losses - oldPlayer.losses;
                     }
                 }
+
+                // Always show win/loss indicators
+                const winsClass = winsChange > 0 ? '' : 'neutral';
+                const lossesClass = lossesChange > 0 ? 'losses' : 'neutral';
+                const winsDisplay = `${player.wins}<span class="record-change ${winsClass}">+${winsChange}</span>`;
+                const lossesDisplay = `${player.losses}<span class="record-change ${lossesClass}">+${lossesChange}</span>`;
 
                 html += `
                     <tr>
