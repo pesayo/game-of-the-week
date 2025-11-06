@@ -2212,6 +2212,11 @@
                     if (teamName) {
                         teamLineups[teamName] = team.members;
                     }
+
+                    // Also map by skip last name directly
+                    if (skipMember && skipMember.last_name) {
+                        teamLineups[skipMember.last_name] = team.members;
+                    }
                 });
 
                 console.log('Loaded team lineups:', Object.keys(teamLineups));
@@ -2753,6 +2758,7 @@
 
             // Load team lineups and setup schedule
             loadTeamLineups().then(() => {
+                console.log('After loadTeamLineups - Sample game team names:', allGames.slice(0, 3).map(g => ({ team1: g.team1, team2: g.team2 })));
                 renderSchedule();
                 setupScheduleFilters();
             });
