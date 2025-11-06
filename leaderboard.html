@@ -2630,7 +2630,8 @@
                 }
 
                 if (team2Container && team2Lineup.length > 0) {
-                    team2Lineup.forEach(member => {
+                    // Reverse order for right team to create mirror effect (Lead, Second, Vice, Skip from left to right)
+                    team2Lineup.slice().reverse().forEach(member => {
                         team2Container.appendChild(createTooltipMemberElement(member));
                     });
                 } else if (team2Container) {
