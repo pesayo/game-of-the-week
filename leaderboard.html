@@ -73,20 +73,30 @@
         }
 
         .league-link {
-            text-align: center;
-            margin-top: 15px;
-            font-size: 13px;
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            font-size: 14px;
+            z-index: 1000;
         }
 
         .league-link a {
             color: #607d8b;
             text-decoration: none;
-            transition: color 0.2s;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 14px;
+            background-color: rgba(255, 255, 255, 0.95);
+            border-radius: 6px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         }
 
         .league-link a:hover {
             color: #4d636f;
-            text-decoration: underline;
+            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.15);
+            background-color: rgba(255, 255, 255, 1);
         }
 
         .dashboard-grid {
@@ -1417,6 +1427,13 @@
     </style>
 </head>
 <body>
+    <!-- MCC Member Page Link (Upper Right) -->
+    <div class="league-link">
+        <a href="https://curlingmembers.com/Members/LeagueDetail.aspx?id=604" target="_blank" rel="noopener noreferrer">
+            MCC Member Page <i class="fas fa-external-link-alt"></i>
+        </a>
+    </div>
+
     <div class="dashboard-container">
         <!-- Main Header -->
         <div class="dashboard-header">
@@ -1426,11 +1443,6 @@
                     <h1>Game of the Week</h1>
                     <div class="subtitle">2025-2026 Season</div>
                 </div>
-            </div>
-            <div class="league-link">
-                <a href="https://curlingmembers.com/Members/LeagueDetail.aspx?id=604" target="_blank" rel="noopener noreferrer">
-                    Mansfield League Information
-                </a>
             </div>
         </div>
 
