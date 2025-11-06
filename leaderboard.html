@@ -477,21 +477,6 @@
             background-color: gold;
         }
 
-        .contrarian-indicator {
-            position: absolute;
-            top: 2px;
-            left: 2px;
-            width: 0;
-            height: 0;
-            border-left: 5px solid transparent;
-            border-right: 5px solid transparent;
-            border-bottom: 8px solid #FF6B35;
-        }
-
-        .form-indicator.contrarian {
-            box-shadow: 0 0 0 2px #FF6B35;
-        }
-
         .tooltip {
             position: absolute;
             background: white;
@@ -2127,15 +2112,13 @@
         // Render a single game cell
         function renderGameCell(gameData, player) {
             const cellClass = gameData.result === 'W' ? 'win' : 'loss';
-            const contrarianClass = gameData.isContrarian ? ' contrarian' : '';
             const streakDot = gameData.isStreak ? '<div class="streak-indicator"></div>' : '';
-            const contrarianTriangle = gameData.isContrarian ? '<div class="contrarian-indicator" title="Against the grain pick"></div>' : '';
 
-            return `<span class="form-indicator ${cellClass}${contrarianClass}"
+            return `<span class="form-indicator ${cellClass}"
                 data-player="${player.name}"
                 data-game="${gameData.game}"
                 onmouseenter="showTooltip(event, '${player.name.replace(/'/g, "\\'")}', ${JSON.stringify(gameData).replace(/"/g, '&quot;')})"
-                onmouseleave="hideTooltip()">${gameData.result}${contrarianTriangle}${streakDot}</span>`;
+                onmouseleave="hideTooltip()">${gameData.result}${streakDot}</span>`;
         }
 
         // Toggle expand/collapse for all players
