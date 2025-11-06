@@ -1,8 +1,11 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Game of the Week Dashboard</title>
     <script src="https://d3js.org/d3.v7.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -19,27 +22,92 @@
         .dashboard-header {
             text-align: center;
             margin-bottom: 30px;
-            background-color: white;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 20px 20px 20px;
         }
 
-        .dashboard-header h1 {
-            font-size: 36px;
+        .header-content {
+            position: relative;
+            display: inline-block;
+            margin: 0 auto;
+        }
+
+        .header-goblet {
+            width: 160px;
+            height: 160px;
+            display: block;
+            margin: 0 auto;
+        }
+
+        .header-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            white-space: nowrap;
+        }
+
+        .header-text h1 {
+            font-size: 42px;
             color: #333;
-            margin-bottom: 10px;
+            margin: 0;
+            font-weight: 700;
+            text-shadow:
+                -2px -2px 0 #fff,
+                2px -2px 0 #fff,
+                -2px 2px 0 #fff,
+                2px 2px 0 #fff,
+                0 0 8px rgba(255, 255, 255, 0.8);
         }
 
-        .dashboard-header .subtitle {
-            font-size: 18px;
-            color: #666;
+        .header-text .subtitle {
+            font-size: 14px;
+            color: #607d8b;
+            margin-top: 3px;
+            font-weight: 600;
+            text-shadow:
+                -1px -1px 0 #fff,
+                1px -1px 0 #fff,
+                -1px 1px 0 #fff,
+                1px 1px 0 #fff,
+                0 0 4px rgba(255, 255, 255, 0.9);
+        }
+
+        .league-link {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 14px;
+            z-index: 1000;
+        }
+
+        body {
+            position: relative;
+        }
+
+        .league-link a {
+            color: #607d8b;
+            text-decoration: none;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 14px;
+            background-color: rgba(255, 255, 255, 0.95);
+            border-radius: 6px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .league-link a:hover {
+            color: #4d636f;
+            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.15);
+            background-color: rgba(255, 255, 255, 1);
         }
 
         .dashboard-grid {
             display: grid;
             grid-template-columns: 1fr;
             gap: 20px;
+            align-items: start;
         }
 
         @media (min-width: 1200px) {
@@ -464,32 +532,19 @@
             background-color: #f8f9fa;
         }
 
-        .streak-indicator {
+        .tooltip {
             position: absolute;
-            top: 2px;
-            right: 2px;
-            width: 6px;
-            height: 6px;
-            border-radius: 50%;
-            background-color: gold;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 25px rgba(0, 0, 0, 0.3);
+            pointer-events: none;
+            display: none;
+            z-index: 2000;
+            min-width: 400px;
+            max-width: 500px;
         }
 
-        .contrarian-indicator {
-            position: absolute;
-            top: 2px;
-            left: 2px;
-            width: 0;
-            height: 0;
-            border-left: 5px solid transparent;
-            border-right: 5px solid transparent;
-            border-bottom: 8px solid #FF6B35;
-        }
-
-        .form-indicator.contrarian {
-            box-shadow: 0 0 0 2px #FF6B35;
-        }
-
-        .tooltip, #raceTooltip {
+        #raceTooltip {
             position: absolute;
             padding: 10px;
             background-color: rgba(0, 0, 0, 0.9);
@@ -505,8 +560,8 @@
         /* Upcoming Matchups Styles */
         .upcoming-section {
             grid-column: 1 / -1;
-            background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
-            border: 2px solid #667eea;
+            background: linear-gradient(135deg, #dfe5e815 0%, #becbd215 100%);
+            border: 2px solid #607d8b;
         }
 
         .expand-schedule-container {
@@ -515,25 +570,24 @@
         }
 
         .expand-schedule-btn {
-            padding: 10px 24px;
-            border: 2px solid #667eea;
-            border-radius: 8px;
+            padding: 6px 16px;
+            border: 1px solid #c0c0c0;
+            border-radius: 6px;
             background-color: white;
-            color: #667eea;
+            color: #888;
             cursor: pointer;
-            font-size: 15px;
-            font-weight: 600;
+            font-size: 12px;
+            font-weight: 500;
             transition: all 0.3s;
             display: inline-flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
         }
 
         .expand-schedule-btn:hover {
-            background-color: #667eea;
-            color: white;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+            background-color: #f5f5f5;
+            color: #607d8b;
+            border-color: #607d8b;
         }
 
         #expandScheduleIcon {
@@ -545,48 +599,68 @@
             transform: rotate(180deg);
         }
 
+        /* Less prominent header for upcoming section */
+        .upcoming-section .section-title {
+            font-size: 14px;
+            font-weight: 500;
+            color: #666;
+        }
+
+        /* Centered single-column layout for upcoming matchups */
+        .upcoming-section .matchups-grid {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+
         /* Upcoming Matchup Card Styles */
         .upcoming-matchup-card {
             background: white;
             border-radius: 10px;
             box-shadow: 0 3px 15px rgba(0, 0, 0, 0.1);
             overflow: hidden;
+            width: 100%;
+            max-width: 1000px;
         }
 
         .upcoming-matchup-header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #57707d 0%, #4d636f 100%);
             color: white;
-            padding: 15px;
+            padding: 10px 15px;
             text-align: center;
         }
 
         .upcoming-matchup-title {
-            font-size: 18px;
+            font-size: 16px;
             font-weight: bold;
-            margin-bottom: 5px;
+            margin-bottom: 3px;
         }
 
         .upcoming-matchup-info {
-            font-size: 13px;
+            font-size: 12px;
             opacity: 0.95;
         }
 
         .upcoming-matchup-body {
-            padding: 20px;
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
         }
 
         .upcoming-team-section {
-            margin-bottom: 20px;
-        }
-
-        .upcoming-team-section:last-of-type {
-            margin-bottom: 0;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
         }
 
         .upcoming-team-name {
-            font-size: 16px;
+            font-size: 15px;
             font-weight: bold;
-            margin-bottom: 12px;
             color: #333;
             text-align: center;
         }
@@ -595,21 +669,21 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 15px;
+            gap: 12px;
             flex-wrap: wrap;
         }
 
         .upcoming-vs-divider {
             text-align: center;
             color: #999;
-            font-size: 16px;
+            font-size: 14px;
             font-weight: bold;
-            margin: 15px 0;
+            flex-shrink: 0;
         }
 
         /* Schedule Styles */
         .schedule-section {
-            grid-column: 1 / -1;
+            margin-top: 20px;
         }
 
         .schedule-filters {
@@ -643,6 +717,40 @@
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
             gap: 15px;
+        }
+
+        /* Week group styles */
+        .week-group {
+            margin-top: 30px;
+            padding-top: 25px;
+            width: 100%;
+            border-top: 1px solid #dfe5e8;
+        }
+
+        .week-group:first-child {
+            margin-top: 0;
+            padding-top: 0;
+            border-top: none;
+        }
+
+        .week-header {
+            color: #607d8b;
+            font-size: 13px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 15px;
+        }
+
+        .week-games {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 12px;
+        }
+
+        /* Override grid for full schedule container to allow week grouping */
+        #matchupsGrid {
+            display: block;
         }
 
         .matchup-card {
@@ -741,7 +849,7 @@
         }
 
         .matchup-tooltip-header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #57707d 0%, #4d636f 100%);
             color: white;
             padding: 15px;
             border-radius: 10px 10px 0 0;
@@ -971,15 +1079,16 @@
             margin: 10px 0;
         }
 
-        /* What-If Analysis Styles */
-        .whatif-section {
-            margin-top: 20px;
+        /* Right Column Container */
+        .right-column-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
         }
 
-        @media (min-width: 1200px) {
-            .whatif-section {
-                grid-column: 2;
-            }
+        /* What-If Analysis Styles */
+        .whatif-section {
+            margin-top: 0;
         }
 
         .whatif-controls {
@@ -1324,11 +1433,23 @@
     </style>
 </head>
 <body>
+    <!-- MCC Member Page Link (Upper Right) -->
+    <div class="league-link">
+        <a href="https://curlingmembers.com/Members/LeagueDetail.aspx?id=604" target="_blank" rel="noopener noreferrer">
+            MCC Member Page <i class="fas fa-external-link-alt"></i>
+        </a>
+    </div>
+
     <div class="dashboard-container">
         <!-- Main Header -->
         <div class="dashboard-header">
-            <h1>🏆 Game of the Week Dashboard</h1>
-            <div class="subtitle">2025-2026 Season</div>
+            <div class="header-content">
+                <img src="Goblet.png" alt="Trophy" class="header-goblet">
+                <div class="header-text">
+                    <h1>Game of the Week</h1>
+                    <div class="subtitle">2025-2026 Season</div>
+                </div>
+            </div>
         </div>
 
         <div id="loadingMessage" class="loading">Loading dashboard data...</div>
@@ -1339,7 +1460,7 @@
 
             <!-- Upcoming Matchups Section -->
             <section class="section upcoming-section">
-                <h2 class="section-title">🔥 Upcoming Matchup(s)</h2>
+                <h2 class="section-title"><i class="fas fa-fire"></i> Upcoming Matchup(s)</h2>
                 <div class="matchups-grid" id="upcomingMatchupsGrid"></div>
                 <div class="expand-schedule-container">
                     <button class="expand-schedule-btn" id="expandScheduleBtn">
@@ -1347,24 +1468,24 @@
                         <span id="expandScheduleIcon">▼</span>
                     </button>
                 </div>
-            </section>
 
-            <!-- Full Schedule Section (Initially Hidden) -->
-            <section class="section schedule-section" id="fullScheduleSection" style="display: none;">
-                <h2 class="section-title">📅 Full Game Schedule</h2>
+                <!-- Full Schedule Section (Initially Hidden) -->
+                <div class="schedule-section" id="fullScheduleSection" style="display: none;">
+                    <h2 class="section-title"><i class="fas fa-calendar"></i> Full Game Schedule</h2>
 
-                <div class="schedule-filters">
-                    <button class="schedule-filter-btn active" data-filter="all">All Games</button>
-                    <button class="schedule-filter-btn" data-filter="completed">Completed</button>
-                    <button class="schedule-filter-btn" data-filter="upcoming">Upcoming</button>
+                    <div class="schedule-filters">
+                        <button class="schedule-filter-btn active" data-filter="all">All Games</button>
+                        <button class="schedule-filter-btn" data-filter="completed">Completed</button>
+                        <button class="schedule-filter-btn" data-filter="upcoming">Upcoming</button>
+                    </div>
+
+                    <div class="matchups-grid" id="matchupsGrid"></div>
                 </div>
-
-                <div class="matchups-grid" id="matchupsGrid"></div>
             </section>
 
             <!-- Leaderboard Section -->
             <section class="section leaderboard-section">
-                <h2 class="section-title">🥇 Current Standings</h2>
+                <h2 class="section-title"><i class="fas fa-medal"></i> Current Standings</h2>
 
                 <div class="stats-summary" id="statsSummary"></div>
 
@@ -1409,21 +1530,23 @@
                 <div class="tooltip" id="tooltip"></div>
             </section>
 
-            <!-- Horse Race Section -->
-            <section class="section horse-race-section">
-                <h2 class="section-title">📈 Win Progression</h2>
-                <div class="race-controls">
-                    <button class="race-btn" id="showAllRace">Show All</button>
-                    <button class="race-btn" id="hideAllRace">Hide All</button>
-                </div>
-                <svg id="horseRaceChart"></svg>
-                <div class="tooltip" id="raceTooltip"></div>
-                <div class="race-legend" id="raceLegend"></div>
-            </section>
+            <!-- Right Column Container -->
+            <div class="right-column-container">
+                <!-- Horse Race Section -->
+                <section class="section horse-race-section">
+                    <h2 class="section-title"><i class="fas fa-chart-line"></i> Win Progression</h2>
+                    <div class="race-controls">
+                        <button class="race-btn" id="showAllRace">Show All</button>
+                        <button class="race-btn" id="hideAllRace">Hide All</button>
+                    </div>
+                    <svg id="horseRaceChart"></svg>
+                    <div class="tooltip" id="raceTooltip"></div>
+                    <div class="race-legend" id="raceLegend"></div>
+                </section>
 
-            <!-- What-If Analysis Section -->
-            <section class="section whatif-section" id="whatifSection" style="display: none;">
-                <h2 class="section-title">🔮 What-If Analysis</h2>
+                <!-- What-If Analysis Section -->
+                <section class="section whatif-section" id="whatifSection" style="display: none;">
+                <h2 class="section-title"><i class="fas fa-wand-magic-sparkles"></i> What-If Analysis</h2>
                 <p style="color: #666; margin-bottom: 20px;">Select winners for upcoming games to see how it would affect the standings. Click a selected team again to unset.</p>
 
                 <!-- Summary -->
@@ -1483,6 +1606,7 @@
                     </div>
                 </div>
             </section>
+            </div> <!-- end right-column-container -->
 
         </div> <!-- end dashboard-grid -->
     </div> <!-- end dashboard-container -->
@@ -2059,15 +2183,12 @@
         // Render a single game cell
         function renderGameCell(gameData, player) {
             const cellClass = gameData.result === 'W' ? 'win' : 'loss';
-            const contrarianClass = gameData.isContrarian ? ' contrarian' : '';
-            const streakDot = gameData.isStreak ? '<div class="streak-indicator"></div>' : '';
-            const contrarianTriangle = gameData.isContrarian ? '<div class="contrarian-indicator" title="Against the grain pick"></div>' : '';
 
-            return `<span class="form-indicator ${cellClass}${contrarianClass}"
+            return `<span class="form-indicator ${cellClass}"
                 data-player="${player.name}"
                 data-game="${gameData.game}"
                 onmouseenter="showTooltip(event, '${player.name.replace(/'/g, "\\'")}', ${JSON.stringify(gameData).replace(/"/g, '&quot;')})"
-                onmouseleave="hideTooltip()">${gameData.result}${contrarianTriangle}${streakDot}</span>`;
+                onmouseleave="hideTooltip()">${gameData.result}</span>`;
         }
 
         // Toggle expand/collapse for all players
@@ -2096,41 +2217,117 @@
         function showTooltip(event, playerName, gameData) {
             const tooltip = document.getElementById('tooltip');
 
-            let tooltipHtml = `<strong>${playerName}</strong><br>`;
-            tooltipHtml += `Game ${gameData.game}: <strong>${gameData.result === 'W' ? 'Win ✓' : 'Loss ✗'}</strong><br>`;
-
+            // Find the game from allGames using matchup info
+            let game = null;
             if (gameData.matchup) {
-                tooltipHtml += `<strong>vs</strong> ${gameData.matchup.opponent}<br>`;
+                game = allGames.find(g =>
+                    g.week === gameData.matchup.week &&
+                    g.date === gameData.matchup.date &&
+                    g.time === gameData.matchup.time &&
+                    g.sheet === gameData.matchup.sheet
+                );
             }
+
+            if (!game) {
+                // Fallback to simple tooltip if game not found
+                tooltip.innerHTML = `<div style="padding: 10px; color: #333;">
+                    <strong>${playerName}</strong><br>
+                    Game ${gameData.game}: <strong>${gameData.result === 'W' ? 'Win ✓' : 'Loss ✗'}</strong><br>
+                    Record: ${gameData.cumulativeWins}-${gameData.cumulativeLosses}
+                </div>`;
+                tooltip.style.display = 'block';
+                tooltip.style.left = (event.pageX + 15) + 'px';
+                tooltip.style.top = (event.pageY - 10) + 'px';
+                return;
+            }
+
+            // Get team lineups
+            const team1Lineup = teamLineups[game.team1] || [];
+            const team2Lineup = teamLineups[game.team2] || [];
+
+            // Build tooltip with matchup structure
+            const headerColor = gameData.result === 'W' ? '#4CAF50' : '#f44336';
+            const headerGradient = gameData.result === 'W'
+                ? 'linear-gradient(135deg, #4CAF50 0%, #45a049 100%)'
+                : 'linear-gradient(135deg, #f44336 0%, #e53935 100%)';
+
+            let tooltipContent = `
+                <div class="matchup-tooltip-header" style="background: ${headerGradient};">
+                    <div class="matchup-tooltip-title">
+                        <strong>${playerName}</strong>: ${gameData.result === 'W' ? 'Win ✓' : 'Loss ✗'}
+                    </div>
+                    <div class="matchup-tooltip-info">
+                        Week ${game.week} | ${game.date} | ${game.time} | Sheet ${game.sheet}
+                    </div>`;
 
             if (gameData.pick) {
-                tooltipHtml += `<strong>Picked:</strong> ${gameData.pick}`;
-
-                // Show contrarian indicator
-                if (gameData.isContrarian) {
-                    tooltipHtml += ` <span style="color: #FF6B35;">🔥 Against the grain!</span>`;
-                }
-                tooltipHtml += '<br>';
+                tooltipContent += `
+                    <div class="matchup-tooltip-info">
+                        Picked: ${gameData.pick}
+                    </div>`;
             }
 
-            // Show pick distribution if available
-            if (gameData.pickAnalysis && gameData.pickAnalysis.totalPicks > 0) {
-                const analysis = gameData.pickAnalysis;
-                tooltipHtml += `<strong>Pick Distribution:</strong><br>`;
-                tooltipHtml += `${analysis.team1}: ${analysis.team1Picks} (${(analysis.team1Picks / analysis.totalPicks * 100).toFixed(0)}%)<br>`;
-                tooltipHtml += `${analysis.team2}: ${analysis.team2Picks} (${(analysis.team2Picks / analysis.totalPicks * 100).toFixed(0)}%)<br>`;
+            tooltipContent += `
+                </div>
+                <div class="matchup-tooltip-body">`;
 
-                if (analysis.chalkPick) {
-                    tooltipHtml += `<strong>Chalk:</strong> ${analysis.chalkPick} (${analysis.chalkPercentage}%)<br>`;
-                }
+            // Team 1
+            tooltipContent += `
+                <div class="tooltip-team-section">
+                    <div class="tooltip-team-name ${game.winner === game.team1 ? 'winner' : ''}">
+                        Team ${game.team1}${game.winner === game.team1 ? ' <i class="fas fa-trophy"></i>' : ''}
+                    </div>
+                    <div class="tooltip-members-row" id="formTeam1Members"></div>
+                </div>
+            `;
+
+            tooltipContent += '<div class="tooltip-vs-divider">VS</div>';
+
+            // Team 2
+            tooltipContent += `
+                <div class="tooltip-team-section">
+                    <div class="tooltip-team-name ${game.winner === game.team2 ? 'winner' : ''}">
+                        Team ${game.team2}${game.winner === game.team2 ? ' <i class="fas fa-trophy"></i>' : ''}
+                    </div>
+                    <div class="tooltip-members-row" id="formTeam2Members"></div>
+                </div>
+            `;
+
+            tooltipContent += '</div>';
+            tooltip.innerHTML = tooltipContent;
+
+            // Add members after HTML is in DOM
+            const team1Container = tooltip.querySelector('#formTeam1Members');
+            const team2Container = tooltip.querySelector('#formTeam2Members');
+
+            if (team1Lineup.length > 0) {
+                team1Lineup.forEach(member => {
+                    team1Container.appendChild(createTooltipMemberElement(member));
+                });
+            } else {
+                team1Container.innerHTML = '<div style="color: #999; font-size: 12px;">No lineup data</div>';
             }
 
-            tooltipHtml += `<strong>Record:</strong> ${gameData.cumulativeWins}-${gameData.cumulativeLosses}`;
+            if (team2Lineup.length > 0) {
+                team2Lineup.forEach(member => {
+                    team2Container.appendChild(createTooltipMemberElement(member));
+                });
+            } else {
+                team2Container.innerHTML = '<div style="color: #999; font-size: 12px;">No lineup data</div>';
+            }
 
-            tooltip.innerHTML = tooltipHtml;
+            // Position tooltip near cursor
             tooltip.style.display = 'block';
-            tooltip.style.left = (event.pageX + 15) + 'px';
-            tooltip.style.top = (event.pageY - 10) + 'px';
+            const tooltipRect = tooltip.getBoundingClientRect();
+            const x = event.pageX + 15;
+            const y = event.pageY - tooltipRect.height / 2;
+
+            // Keep tooltip on screen
+            const maxX = window.innerWidth + window.scrollX - tooltipRect.width - 20;
+            const maxY = window.innerHeight + window.scrollY - tooltipRect.height - 20;
+
+            tooltip.style.left = Math.min(x, maxX) + 'px';
+            tooltip.style.top = Math.max(10, Math.min(y, maxY)) + 'px';
         }
 
         // Hide tooltip
@@ -2422,7 +2619,7 @@
             tooltipContent += `
                 <div class="tooltip-team-section">
                     <div class="tooltip-team-name ${game.winner === game.team1 ? 'winner' : ''}">
-                        Team ${game.team1}${game.winner === game.team1 ? ' 🏆' : ''}
+                        Team ${game.team1}${game.winner === game.team1 ? ' <i class="fas fa-trophy"></i>' : ''}
                     </div>
                     <div class="tooltip-members-row" id="team1Members"></div>
                 </div>
@@ -2434,7 +2631,7 @@
             tooltipContent += `
                 <div class="tooltip-team-section">
                     <div class="tooltip-team-name ${game.winner === game.team2 ? 'winner' : ''}">
-                        Team ${game.team2}${game.winner === game.team2 ? ' 🏆' : ''}
+                        Team ${game.team2}${game.winner === game.team2 ? ' <i class="fas fa-trophy"></i>' : ''}
                     </div>
                     <div class="tooltip-members-row" id="team2Members"></div>
                 </div>
@@ -2538,8 +2735,8 @@
             card.className = `matchup-card ${game.winner ? 'completed' : ''}`;
 
             // Compact single-line format: "Marcus Oldenburg vs Steve Oakeson" with winner indicator
-            const team1Display = game.winner === game.team1 ? `<strong>${game.team1}</strong> 🏆` : game.team1;
-            const team2Display = game.winner === game.team2 ? `<strong>${game.team2}</strong> 🏆` : game.team2;
+            const team1Display = game.winner === game.team1 ? `<strong>${game.team1}</strong> <i class="fas fa-trophy"></i>` : game.team1;
+            const team2Display = game.winner === game.team2 ? `<strong>${game.team2}</strong> <i class="fas fa-trophy"></i>` : game.team2;
 
             card.innerHTML = `
                 <div class="matchup-compact-header">
@@ -2574,14 +2771,11 @@
             const card = document.createElement('div');
             card.className = 'upcoming-matchup-card';
 
-            const team1LastName = game.team1.split(' ').pop();
-            const team2LastName = game.team2.split(' ').pop();
             const team1Lineup = teamLineups[game.team1] || [];
             const team2Lineup = teamLineups[game.team2] || [];
 
             card.innerHTML = `
                 <div class="upcoming-matchup-header">
-                    <div class="upcoming-matchup-title">${game.team1} vs ${game.team2}</div>
                     <div class="upcoming-matchup-info">Week ${game.week} | ${game.date} | ${game.time} | Sheet ${game.sheet}</div>
                 </div>
                 <div class="upcoming-matchup-body">
@@ -2611,7 +2805,8 @@
                 }
 
                 if (team2Container && team2Lineup.length > 0) {
-                    team2Lineup.forEach(member => {
+                    // Reverse order for right team to create mirror effect (Lead, Second, Vice, Skip from left to right)
+                    team2Lineup.slice().reverse().forEach(member => {
                         team2Container.appendChild(createTooltipMemberElement(member));
                     });
                 } else if (team2Container) {
@@ -2628,6 +2823,18 @@
             container.innerHTML = '';
 
             const upcomingGames = getUpcomingGamesFiltered();
+
+            // Update header text based on number of matchups
+            const headerElement = document.querySelector('.upcoming-section .section-title');
+            if (headerElement) {
+                if (upcomingGames.length === 1) {
+                    headerElement.innerHTML = '<i class="fas fa-fire"></i> Upcoming Matchup';
+                } else if (upcomingGames.length > 1) {
+                    headerElement.innerHTML = '<i class="fas fa-fire"></i> Upcoming Matchups';
+                } else {
+                    headerElement.innerHTML = '<i class="fas fa-fire"></i> Upcoming Matchups';
+                }
+            }
 
             if (upcomingGames.length === 0) {
                 container.innerHTML = '<div style="text-align: center; color: #666; padding: 20px;">No upcoming games scheduled</div>';
@@ -2652,8 +2859,37 @@
                 filteredGames = allGames.filter(game => !game.winner);
             }
 
+            // Group games by week
+            const gamesByWeek = {};
             filteredGames.forEach(game => {
-                container.appendChild(createMatchupCard(game));
+                if (!gamesByWeek[game.week]) {
+                    gamesByWeek[game.week] = [];
+                }
+                gamesByWeek[game.week].push(game);
+            });
+
+            // Sort weeks numerically
+            const weeks = Object.keys(gamesByWeek).map(Number).sort((a, b) => a - b);
+
+            // Render each week group
+            weeks.forEach(week => {
+                const weekGroup = document.createElement('div');
+                weekGroup.className = 'week-group';
+
+                const weekHeader = document.createElement('div');
+                weekHeader.className = 'week-header';
+                weekHeader.textContent = `Week ${week}`;
+                weekGroup.appendChild(weekHeader);
+
+                const weekGamesContainer = document.createElement('div');
+                weekGamesContainer.className = 'week-games';
+
+                gamesByWeek[week].forEach(game => {
+                    weekGamesContainer.appendChild(createMatchupCard(game));
+                });
+
+                weekGroup.appendChild(weekGamesContainer);
+                container.appendChild(weekGroup);
             });
         }
 
