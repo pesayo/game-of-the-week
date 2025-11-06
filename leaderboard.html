@@ -22,33 +22,54 @@
         .dashboard-header {
             text-align: center;
             margin-bottom: 30px;
-            padding: 30px 20px 20px;
+            padding: 20px 20px 20px;
         }
 
         .header-content {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 20px;
-            flex-wrap: wrap;
+            position: relative;
+            display: inline-block;
+            margin: 0 auto;
         }
 
         .header-goblet {
-            width: 80px;
-            height: 80px;
+            width: 160px;
+            height: 160px;
+            display: block;
+            margin: 0 auto;
+        }
+
+        .header-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            white-space: nowrap;
         }
 
         .header-text h1 {
-            font-size: 36px;
+            font-size: 42px;
             color: #333;
             margin: 0;
-            font-weight: 600;
+            font-weight: 700;
+            text-shadow:
+                -2px -2px 0 #fff,
+                2px -2px 0 #fff,
+                -2px 2px 0 #fff,
+                2px 2px 0 #fff,
+                0 0 8px rgba(255, 255, 255, 0.8);
         }
 
         .header-text .subtitle {
-            font-size: 16px;
+            font-size: 14px;
             color: #607d8b;
-            margin-top: 5px;
+            margin-top: 3px;
+            font-weight: 600;
+            text-shadow:
+                -1px -1px 0 #fff,
+                1px -1px 0 #fff,
+                -1px 1px 0 #fff,
+                1px 1px 0 #fff,
+                0 0 4px rgba(255, 255, 255, 0.9);
         }
 
         .league-link {
@@ -494,16 +515,6 @@
 
         tbody tr:hover .game-history-cell {
             background-color: #f8f9fa;
-        }
-
-        .streak-indicator {
-            position: absolute;
-            top: 2px;
-            right: 2px;
-            width: 6px;
-            height: 6px;
-            border-radius: 50%;
-            background-color: gold;
         }
 
         .tooltip {
@@ -2151,13 +2162,12 @@
         // Render a single game cell
         function renderGameCell(gameData, player) {
             const cellClass = gameData.result === 'W' ? 'win' : 'loss';
-            const streakDot = gameData.isStreak ? '<div class="streak-indicator"></div>' : '';
 
             return `<span class="form-indicator ${cellClass}"
                 data-player="${player.name}"
                 data-game="${gameData.game}"
                 onmouseenter="showTooltip(event, '${player.name.replace(/'/g, "\\'")}', ${JSON.stringify(gameData).replace(/"/g, '&quot;')})"
-                onmouseleave="hideTooltip()">${gameData.result}${streakDot}</span>`;
+                onmouseleave="hideTooltip()">${gameData.result}</span>`;
         }
 
         // Toggle expand/collapse for all players
