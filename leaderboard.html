@@ -1826,6 +1826,133 @@
             font-weight: bold;
             font-size: 12px;
         }
+
+        /* Pick Distribution Chart */
+        .pick-distribution-section {
+            display: none;
+            margin-top: 20px;
+        }
+
+        .pick-distribution-section.active {
+            display: block;
+        }
+
+        .distribution-list {
+            display: grid;
+            gap: 15px;
+        }
+
+        .distribution-item {
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .distribution-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+        }
+
+        .distribution-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .distribution-game-info {
+            font-size: 13px;
+            color: #666;
+        }
+
+        .distribution-matchup {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .distribution-bar-container {
+            display: flex;
+            height: 40px;
+            border-radius: 6px;
+            overflow: hidden;
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .distribution-bar {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 14px;
+            color: white;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .distribution-bar.team1 {
+            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+        }
+
+        .distribution-bar.team2 {
+            background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
+        }
+
+        .distribution-bar:hover {
+            filter: brightness(1.1);
+        }
+
+        .distribution-labels {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 8px;
+            font-size: 13px;
+        }
+
+        .distribution-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .distribution-label-color {
+            width: 16px;
+            height: 16px;
+            border-radius: 3px;
+        }
+
+        .distribution-label-color.team1 {
+            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+        }
+
+        .distribution-label-color.team2 {
+            background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
+        }
+
+        .distribution-label-text {
+            color: #333;
+            font-weight: 500;
+        }
+
+        .distribution-label-count {
+            color: #666;
+            font-size: 12px;
+        }
+
+        .distribution-winner-badge {
+            background-color: #FFD700;
+            color: #333;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: bold;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
     </style>
 </head>
 <body>
@@ -2012,6 +2139,10 @@
                 <i class="fas fa-table"></i>
                 <span id="matrixBtnText">View All Picks Matrix</span>
             </button>
+            <button class="picks-matrix-btn" id="togglePickDistribution" style="margin-left: 15px;">
+                <i class="fas fa-chart-bar"></i>
+                <span id="distributionBtnText">View Pick Distribution</span>
+            </button>
         </div>
 
         <!-- Picks Matrix Section -->
@@ -2041,6 +2172,30 @@
                     <tbody id="matrixTableBody"></tbody>
                 </table>
             </div>
+        </section>
+
+        <!-- Pick Distribution Section -->
+        <section class="section pick-distribution-section" id="pickDistributionSection">
+            <h2 class="section-title"><i class="fas fa-chart-bar"></i> Pick Distribution by Game</h2>
+
+            <div class="matrix-filters">
+                <div class="matrix-filter-group">
+                    <label for="distributionWeekFilter">Week:</label>
+                    <select id="distributionWeekFilter">
+                        <option value="all">All Weeks</option>
+                    </select>
+                </div>
+                <div class="matrix-filter-group">
+                    <label for="distributionGameFilter">Games:</label>
+                    <select id="distributionGameFilter">
+                        <option value="all">All Games</option>
+                        <option value="completed">Completed Only</option>
+                        <option value="upcoming">Upcoming Only</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="distribution-list" id="distributionList"></div>
         </section>
 
     </div> <!-- end dashboard-container -->
@@ -3800,6 +3955,136 @@
 
         document.getElementById('closeModal').addEventListener('click', closePlayerModal);
 
+        // ===== PICK DISTRIBUTION VIEW =====
+        let distributionFilters = {
+            week: 'all',
+            gameStatus: 'all'
+        };
+
+        function renderPickDistribution() {
+            const container = document.getElementById('distributionList');
+            container.innerHTML = '';
+
+            // Get all games in order
+            let filteredGames = [...allGames];
+
+            // Apply filters
+            if (distributionFilters.week !== 'all') {
+                filteredGames = filteredGames.filter(g => g.week == distributionFilters.week);
+            }
+            if (distributionFilters.gameStatus === 'completed') {
+                filteredGames = filteredGames.filter(g => g.winner !== null);
+            } else if (distributionFilters.gameStatus === 'upcoming') {
+                filteredGames = filteredGames.filter(g => g.winner === null);
+            }
+
+            // Render each game's distribution
+            filteredGames.forEach(game => {
+                const analysis = pickAnalysis[game.gameKey];
+                if (!analysis) return;
+
+                const item = document.createElement('div');
+                item.className = 'distribution-item';
+
+                const team1Pct = analysis.team1Percentage || 0;
+                const team2Pct = analysis.team2Percentage || 0;
+                const team1Count = analysis.team1Picks || 0;
+                const team2Count = analysis.team2Picks || 0;
+                const totalPicks = team1Count + team2Count;
+
+                // Determine winner badge
+                let winnerBadge = '';
+                if (game.winner) {
+                    winnerBadge = `<span class="distribution-winner-badge">
+                        <i class="fas fa-trophy"></i> Winner: ${game.winner}
+                    </span>`;
+                }
+
+                item.innerHTML = `
+                    <div class="distribution-header">
+                        <div class="distribution-game-info">
+                            Week ${game.week} • ${game.date} • ${game.time} • Sheet ${game.sheet}
+                        </div>
+                        ${winnerBadge}
+                    </div>
+                    <div class="distribution-matchup">${game.team1} vs ${game.team2}</div>
+                    <div class="distribution-bar-container">
+                        <div class="distribution-bar team1" style="width: ${team1Pct}%" title="${game.team1}: ${team1Count} picks (${team1Pct}%)">
+                            ${team1Pct >= 15 ? team1Pct + '%' : ''}
+                        </div>
+                        <div class="distribution-bar team2" style="width: ${team2Pct}%" title="${game.team2}: ${team2Count} picks (${team2Pct}%)">
+                            ${team2Pct >= 15 ? team2Pct + '%' : ''}
+                        </div>
+                    </div>
+                    <div class="distribution-labels">
+                        <div class="distribution-label">
+                            <div class="distribution-label-color team1"></div>
+                            <span class="distribution-label-text">${game.team1}</span>
+                            <span class="distribution-label-count">${team1Count} picks (${team1Pct}%)</span>
+                        </div>
+                        <div class="distribution-label">
+                            <div class="distribution-label-color team2"></div>
+                            <span class="distribution-label-text">${game.team2}</span>
+                            <span class="distribution-label-count">${team2Count} picks (${team2Pct}%)</span>
+                        </div>
+                    </div>
+                `;
+
+                container.appendChild(item);
+            });
+
+            if (filteredGames.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: #999; padding: 40px;">No games match the selected filters.</p>';
+            }
+        }
+
+        function setupPickDistributionControls() {
+            const toggleBtn = document.getElementById('togglePickDistribution');
+            const distributionSection = document.getElementById('pickDistributionSection');
+            const btnText = document.getElementById('distributionBtnText');
+
+            let isDistributionVisible = false;
+
+            toggleBtn.addEventListener('click', () => {
+                isDistributionVisible = !isDistributionVisible;
+                distributionSection.classList.toggle('active', isDistributionVisible);
+                btnText.textContent = isDistributionVisible ? 'Hide Pick Distribution' : 'View Pick Distribution';
+
+                if (isDistributionVisible) {
+                    const container = document.getElementById('distributionList');
+                    if (container.innerHTML === '') {
+                        renderPickDistribution();
+                    }
+
+                    // Scroll to distribution if showing
+                    setTimeout(() => {
+                        distributionSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }, 100);
+                }
+            });
+
+            // Week filter
+            const weekFilter = document.getElementById('distributionWeekFilter');
+            const weeks = [...new Set(allGames.map(g => g.week))].sort((a, b) => a - b);
+            weeks.forEach(week => {
+                const option = document.createElement('option');
+                option.value = week;
+                option.textContent = `Week ${week}`;
+                weekFilter.appendChild(option);
+            });
+
+            weekFilter.addEventListener('change', (e) => {
+                distributionFilters.week = e.target.value;
+                renderPickDistribution();
+            });
+
+            // Game status filter
+            document.getElementById('distributionGameFilter').addEventListener('change', (e) => {
+                distributionFilters.gameStatus = e.target.value;
+                renderPickDistribution();
+            });
+        }
+
         // ===== PICKS MATRIX VIEW =====
         let matrixFilters = {
             week: 'all',
@@ -4033,6 +4318,9 @@
 
             // Setup picks matrix controls
             setupPicksMatrixControls();
+
+            // Setup pick distribution controls
+            setupPickDistributionControls();
 
             // Load team lineups and setup schedule
             loadTeamLineups().then(() => {
