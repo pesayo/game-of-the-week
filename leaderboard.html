@@ -3673,11 +3673,15 @@
             if (!player) return;
 
             // Get all picks for this player from rawPicksData
-            const playerRow = rawPicksData.find(row => row.Name && row.Name.trim() === playerName);
+            const headers = Object.keys(rawPicksData[0]);
+            const nameHeader = headers.find(h => h.toLowerCase().includes('name'));
+            const playerRow = rawPicksData.find(row => {
+                const rowName = row[nameHeader] ? row[nameHeader].trim() : '';
+                return rowName === playerName;
+            });
             if (!playerRow) return;
 
             // Get all game headers
-            const headers = Object.keys(rawPicksData[0]);
             const gameHeaders = headers.filter(h => h.includes('Week'));
 
             // Build picks data with full game information
@@ -3871,6 +3875,11 @@
 
             // Build body rows
             tbody.innerHTML = '';
+
+            // Get name header for finding player rows
+            const allHeaders = Object.keys(rawPicksData[0]);
+            const nameHeader = allHeaders.find(h => h.toLowerCase().includes('name'));
+
             leaderboardData.forEach(player => {
                 const row = document.createElement('tr');
 
@@ -3883,7 +3892,10 @@
                 row.appendChild(nameCell);
 
                 // Find player row in raw data
-                const playerRow = rawPicksData.find(r => r.Name && r.Name.trim() === player.name);
+                const playerRow = rawPicksData.find(r => {
+                    const rowName = r[nameHeader] ? r[nameHeader].trim() : '';
+                    return rowName === player.name;
+                });
 
                 // Add pick cells
                 filteredGames.forEach(game => {
