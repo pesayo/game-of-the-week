@@ -2499,10 +2499,13 @@
 
         // Render upcoming matchups
         function renderUpcomingMatchups() {
+            console.log('renderUpcomingMatchups called');
             const container = document.getElementById('upcomingMatchupsGrid');
             container.innerHTML = '';
 
+            console.log('About to call getUpcomingGames');
             const upcomingGames = getUpcomingGames();
+            console.log('getUpcomingGames returned:', upcomingGames.length, 'games');
 
             if (upcomingGames.length === 0) {
                 container.innerHTML = '<div style="text-align: center; color: #666; padding: 20px;">No upcoming games scheduled</div>';
@@ -2907,11 +2910,15 @@
             setupWhatIfControls();
 
             // Load team lineups and setup schedule
+            console.log('About to load team lineups');
             loadTeamLineups().then(() => {
+                console.log('Team lineups loaded, rendering schedule components');
                 renderUpcomingMatchups();
                 renderSchedule();
                 setupScheduleFilters();
                 setupExpandSchedule();
+            }).catch(err => {
+                console.error('Error in loadTeamLineups:', err);
             });
 
         }).catch(error => {
