@@ -668,15 +668,34 @@
 
         .upcoming-vs-divider {
             text-align: center;
-            color: #999;
+            color: #222;
             font-size: 14px;
             font-weight: bold;
             flex-shrink: 0;
+            padding: 20px;
+            position: relative;
+            text-shadow:
+                -1px -1px 0 #fff,
+                1px -1px 0 #fff,
+                -1px 1px 0 #fff,
+                1px 1px 0 #fff,
+                0 0 3px #fff,
+                0 0 5px rgba(255, 255, 255, 0.8);
+        }
+
+        .upcoming-vs-divider::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
             background-image: url('handshake.png');
             background-size: contain;
             background-position: center;
             background-repeat: no-repeat;
-            padding: 20px;
+            opacity: 0.15;
+            z-index: -1;
         }
 
         /* Schedule Styles */
