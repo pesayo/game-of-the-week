@@ -25,7 +25,7 @@
 
         .teams-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(450px, 1fr));
             gap: 20px;
         }
 
@@ -45,18 +45,18 @@
         .team-header {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
-            padding: 20px;
+            padding: 15px 20px;
             text-align: center;
         }
 
         .team-name {
-            font-size: 22px;
+            font-size: 20px;
             font-weight: bold;
-            margin-bottom: 5px;
+            margin-bottom: 3px;
         }
 
         .team-info {
-            font-size: 14px;
+            font-size: 13px;
             opacity: 0.9;
         }
 
@@ -64,32 +64,53 @@
             padding: 20px;
         }
 
-        .member {
+        /* Horizontal avatar layout */
+        .members-row {
             display: flex;
             align-items: center;
-            padding: 12px;
-            margin-bottom: 10px;
-            border-radius: 8px;
-            background-color: #f8f9fa;
-            transition: background-color 0.2s;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .member {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            transition: transform 0.2s;
         }
 
         .member:hover {
-            background-color: #e9ecef;
+            transform: translateY(-3px);
+        }
+
+        .avatar-wrapper {
+            position: relative;
         }
 
         .avatar {
-            width: 50px;
-            height: 50px;
             border-radius: 50%;
             object-fit: cover;
-            margin-right: 15px;
             border: 3px solid #667eea;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Regular positions */
+        .member:not(.skip-member) .avatar {
+            width: 60px;
+            height: 60px;
+        }
+
+        /* Skip gets larger avatar */
+        .member.skip-member .avatar {
+            width: 80px;
+            height: 80px;
+            border-width: 4px;
+            border-color: #ffd700;
         }
 
         .avatar-placeholder {
-            width: 50px;
-            height: 50px;
             border-radius: 50%;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             display: flex;
@@ -97,33 +118,41 @@
             justify-content: center;
             color: white;
             font-weight: bold;
-            font-size: 20px;
-            margin-right: 15px;
             border: 3px solid #667eea;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
         }
 
-        .member-info {
-            flex: 1;
+        /* Regular positions */
+        .member:not(.skip-member) .avatar-placeholder {
+            width: 60px;
+            height: 60px;
+            font-size: 20px;
+        }
+
+        /* Skip gets larger placeholder */
+        .member.skip-member .avatar-placeholder {
+            width: 80px;
+            height: 80px;
+            font-size: 28px;
+            border-width: 4px;
+            border-color: #ffd700;
+            background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+            color: #333;
         }
 
         .member-name {
             font-weight: 600;
-            font-size: 16px;
-            color: #2c3e50;
-        }
-
-        .member-position {
             font-size: 13px;
-            color: #7f8c8d;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
+            color: #2c3e50;
+            text-align: center;
+            line-height: 1.2;
         }
 
         .position-badge {
             display: inline-block;
-            padding: 4px 10px;
-            border-radius: 12px;
-            font-size: 11px;
+            padding: 3px 8px;
+            border-radius: 10px;
+            font-size: 10px;
             font-weight: 600;
             text-transform: uppercase;
             letter-spacing: 0.5px;
@@ -168,6 +197,34 @@
             border-radius: 5px;
             margin: 20px 0;
             border-left: 4px solid #c62828;
+        }
+
+        @media (max-width: 768px) {
+            .teams-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .members-row {
+                gap: 10px;
+            }
+
+            .member:not(.skip-member) .avatar,
+            .member:not(.skip-member) .avatar-placeholder {
+                width: 50px;
+                height: 50px;
+                font-size: 18px;
+            }
+
+            .member.skip-member .avatar,
+            .member.skip-member .avatar-placeholder {
+                width: 65px;
+                height: 65px;
+                font-size: 24px;
+            }
+
+            .member-name {
+                font-size: 11px;
+            }
         }
     </style>
 </head>
@@ -223,20 +280,30 @@
             const card = document.createElement('div');
             card.className = 'team-card';
 
+            // Get skip name
+            const skipMember = team.members.find(m => m.position === 'Skip');
+            const teamName = team.team_name || (skipMember ? skipMember.last_name : 'Unknown');
+
             const header = document.createElement('div');
             header.className = 'team-header';
             header.innerHTML = `
-                <div class="team-name">Team ${team.team_name}</div>
+                <div class="team-name">Team ${teamName}</div>
                 <div class="team-info">${team.day} | ${team.time}</div>
             `;
 
             const membersContainer = document.createElement('div');
             membersContainer.className = 'team-members';
 
+            // Create horizontal row of avatars
+            const membersRow = document.createElement('div');
+            membersRow.className = 'members-row';
+
             team.members.forEach(member => {
                 const memberDiv = createMemberElement(member);
-                membersContainer.appendChild(memberDiv);
+                membersRow.appendChild(memberDiv);
             });
+
+            membersContainer.appendChild(membersRow);
 
             card.appendChild(header);
             card.appendChild(membersContainer);
@@ -248,13 +315,26 @@
             const div = document.createElement('div');
             div.className = 'member';
 
+            // Add skip class for larger avatar
+            if (member.position === 'Skip') {
+                div.classList.add('skip-member');
+            }
+
             // Avatar
             let avatarHtml = '';
             if (member.avatar) {
-                avatarHtml = `<img src="${member.avatar}" alt="${member.full_name}" class="avatar">`;
+                avatarHtml = `
+                    <div class="avatar-wrapper">
+                        <img src="${member.avatar}" alt="${member.full_name}" class="avatar">
+                    </div>
+                `;
             } else {
                 const initials = (member.first_name[0] || '') + (member.last_name[0] || '');
-                avatarHtml = `<div class="avatar-placeholder">${initials}</div>`;
+                avatarHtml = `
+                    <div class="avatar-wrapper">
+                        <div class="avatar-placeholder">${initials}</div>
+                    </div>
+                `;
             }
 
             // Position badge class
@@ -262,10 +342,8 @@
 
             div.innerHTML = `
                 ${avatarHtml}
-                <div class="member-info">
-                    <div class="member-name">${member.full_name}</div>
-                    <span class="position-badge ${positionClass}">${member.position}</span>
-                </div>
+                <div class="member-name">${member.first_name}<br>${member.last_name}</div>
+                <span class="position-badge ${positionClass}">${member.position}</span>
             `;
 
             return div;
