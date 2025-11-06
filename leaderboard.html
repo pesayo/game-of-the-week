@@ -2192,7 +2192,7 @@
                         <th class="center sortable" data-sort="losses">Losses</th>
                         <th class="center sortable" data-sort="winPct">Win %</th>
                         <th class="center game-history-header" id="gameHistoryHeader">
-                            <span id="gameHistoryLabel">Recent Form</span>
+                            <span id="gameHistoryLabel">Recent Games</span>
                             <span class="expand-header-btn" id="expandHeaderBtn" title="Expand to show all games">+</span>
                         </th>
                     </tr>
@@ -2958,12 +2958,12 @@
 
             if (isExpanded) {
                 expandBtn.textContent = '−';
-                expandBtn.title = 'Collapse to show recent form';
-                label.textContent = 'Game History';
+                expandBtn.title = 'Collapse to show recent games';
+                label.textContent = 'All Games';
             } else {
                 expandBtn.textContent = '+';
                 expandBtn.title = 'Expand to show all games';
-                label.textContent = 'Recent Form';
+                label.textContent = 'Recent Games';
             }
 
             // Re-render the leaderboard with the new state
