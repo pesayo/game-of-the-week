@@ -1756,7 +1756,24 @@
             color: #555;
             border: 1px solid #ddd;
             font-size: 11px;
-            min-width: 120px;
+            min-width: 140px;
+        }
+
+        .matrix-header-pie {
+            width: 50px;
+            height: 50px;
+            margin: 8px auto;
+        }
+
+        .matrix-header-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .matrix-header-info {
+            text-align: center;
         }
 
         .picks-matrix-table th.player-col {
@@ -4091,6 +4108,56 @@
             gameStatus: 'all'
         };
 
+        function createPieChart(team1Pct, team2Pct) {
+            const size = 50;
+            const radius = 20;
+            const cx = size / 2;
+            const cy = size / 2;
+
+            // Calculate the end angle for team1 (starting at top, going clockwise)
+            const team1Angle = (team1Pct / 100) * 360;
+
+            // Convert to radians and calculate end point
+            const team1Radians = ((team1Angle - 90) * Math.PI) / 180;
+            const team1X = cx + radius * Math.cos(team1Radians);
+            const team1Y = cy + radius * Math.sin(team1Radians);
+
+            // Determine if we need the large arc flag
+            const largeArc1 = team1Pct > 50 ? 1 : 0;
+            const largeArc2 = team2Pct > 50 ? 1 : 0;
+
+            let svg = `<svg class="matrix-header-pie" viewBox="0 0 ${size} ${size}">`;
+
+            if (team1Pct === 0) {
+                // All team2
+                svg += `<circle cx="${cx}" cy="${cy}" r="${radius}" fill="#2196F3"/>`;
+            } else if (team2Pct === 0) {
+                // All team1
+                svg += `<circle cx="${cx}" cy="${cy}" r="${radius}" fill="#4CAF50"/>`;
+            } else if (team1Pct === 50) {
+                // Perfect split - show half and half
+                svg += `
+                    <path d="M ${cx},${cy} L ${cx},${cy - radius} A ${radius},${radius} 0 0 1 ${cx},${cy + radius} Z" fill="#4CAF50"/>
+                    <path d="M ${cx},${cy} L ${cx},${cy + radius} A ${radius},${radius} 0 0 1 ${cx},${cy - radius} Z" fill="#2196F3"/>
+                `;
+            } else {
+                // Team1 slice (green)
+                svg += `
+                    <path d="M ${cx},${cy} L ${cx},${cy - radius} A ${radius},${radius} 0 ${largeArc1} 1 ${team1X},${team1Y} Z"
+                          fill="#4CAF50"/>
+                `;
+
+                // Team2 slice (blue) - fills the rest
+                svg += `
+                    <path d="M ${cx},${cy} L ${team1X},${team1Y} A ${radius},${radius} 0 ${largeArc2} 1 ${cx},${cy - radius} Z"
+                          fill="#2196F3"/>
+                `;
+            }
+
+            svg += '</svg>';
+            return svg;
+        }
+
         function renderPicksMatrix() {
             const thead = document.getElementById('matrixTableHead');
             const tbody = document.getElementById('matrixTableBody');
@@ -4151,11 +4218,29 @@
             // Add game columns
             filteredGames.forEach(game => {
                 const gameHeader = document.createElement('th');
+
+                // Get pick analysis for this game
+                const analysis = pickAnalysis[game.gameKey];
+                const team1Pct = analysis ? (analysis.team1Percentage || 0) : 50;
+                const team2Pct = analysis ? (analysis.team2Percentage || 0) : 50;
+                const team1Count = analysis ? (analysis.team1Picks || 0) : 0;
+                const team2Count = analysis ? (analysis.team2Picks || 0) : 0;
+
+                // Create pie chart
+                const pieChartSVG = createPieChart(team1Pct, team2Pct);
+
                 gameHeader.innerHTML = `
-                    <div style="font-weight: bold;">Week ${game.week}</div>
-                    <div style="font-size: 10px; margin-top: 2px;">${game.date}</div>
-                    <div style="font-size: 10px;">${game.time}</div>
-                    <div style="font-size: 10px; margin-top: 3px; font-weight: 600;">${game.team1} vs ${game.team2}</div>
+                    <div class="matrix-header-content">
+                        ${pieChartSVG}
+                        <div class="matrix-header-info">
+                            <div style="font-weight: bold;">Week ${game.week}</div>
+                            <div style="font-size: 10px; margin-top: 2px;">${game.date}</div>
+                            <div style="font-size: 10px;">${game.time}</div>
+                            <div style="font-size: 10px; margin-top: 3px; font-weight: 600;">${game.team1} vs ${game.team2}</div>
+                            <div style="font-size: 10px; margin-top: 3px; color: #4CAF50;">${team1Count} (${team1Pct}%)</div>
+                            <div style="font-size: 10px; color: #2196F3;">${team2Count} (${team2Pct}%)</div>
+                        </div>
+                    </div>
                 `;
                 headerRow.appendChild(gameHeader);
             });
