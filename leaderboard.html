@@ -2795,6 +2795,9 @@
             const team1Lineup = teamLineups[game.team1] || [];
             const team2Lineup = teamLineups[game.team2] || [];
 
+            // Sanitize time to create a valid HTML ID
+            const sanitizedTime = game.time.replace(/[^\w]/g, '');
+
             card.innerHTML = `
                 <div class="upcoming-matchup-header">
                     <div class="upcoming-matchup-info">${game.time} | Sheet ${game.sheet}</div>
@@ -2802,20 +2805,20 @@
                 <div class="upcoming-matchup-body">
                     <div class="upcoming-team-section">
                         <div class="upcoming-team-name">${game.team1}</div>
-                        <div class="upcoming-members-row" id="upcoming-team1-${game.week}-${game.sheet}"></div>
+                        <div class="upcoming-members-row" id="upcoming-team1-${game.week}-${game.sheet}-${sanitizedTime}"></div>
                     </div>
                     <div class="upcoming-vs-divider">VS</div>
                     <div class="upcoming-team-section">
                         <div class="upcoming-team-name">${game.team2}</div>
-                        <div class="upcoming-members-row" id="upcoming-team2-${game.week}-${game.sheet}"></div>
+                        <div class="upcoming-members-row" id="upcoming-team2-${game.week}-${game.sheet}-${sanitizedTime}"></div>
                     </div>
                 </div>
             `;
 
             // Add team members after card is created
             setTimeout(() => {
-                const team1Container = document.getElementById(`upcoming-team1-${game.week}-${game.sheet}`);
-                const team2Container = document.getElementById(`upcoming-team2-${game.week}-${game.sheet}`);
+                const team1Container = document.getElementById(`upcoming-team1-${game.week}-${game.sheet}-${sanitizedTime}`);
+                const team2Container = document.getElementById(`upcoming-team2-${game.week}-${game.sheet}-${sanitizedTime}`);
 
                 if (team1Container && team1Lineup.length > 0) {
                     team1Lineup.forEach(member => {
