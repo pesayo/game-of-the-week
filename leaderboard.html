@@ -57,6 +57,7 @@
             /* Semantic colors */
             --success: #4CAF50;
             --success-hover: #45a049;
+            --success-dark: #2e7d32;
             --success-light: #c8e6c9;
             --success-bg: #f0f9f0;
             --error: #f44336;
@@ -129,7 +130,7 @@
 
         .header-text h1 {
             font-size: 42px;
-            color: #333;
+            color: var(--text-primary);
             margin: 0;
             font-weight: 700;
             text-shadow:
@@ -179,7 +180,7 @@
         }
 
         .league-link a:hover {
-            color: #4d636f;
+            color: var(--mcc-dark-2);
             box-shadow: 0 3px 12px rgba(0, 0, 0, 0.15);
             background-color: rgba(255, 255, 255, 1);
         }
@@ -227,9 +228,9 @@
         .section-title {
             font-size: 24px;
             font-weight: bold;
-            color: #333;
+            color: var(--text-primary);
             margin-bottom: 20px;
-            border-bottom: 3px solid #4CAF50;
+            border-bottom: 3px solid var(--success);
             padding-bottom: 10px;
         }
 
@@ -283,7 +284,7 @@
         }
 
         .race-legend-item:hover {
-            background-color: #f0f0f0;
+            background-color: var(--gray-100);
         }
 
         .race-legend-item.hidden {
@@ -300,13 +301,13 @@
 
         .race-legend-name {
             font-size: 13px;
-            color: #333;
+            color: var(--text-primary);
             flex-grow: 1;
         }
 
         .race-legend-record {
             font-size: 11px;
-            color: #666;
+            color: var(--text-secondary);
             margin-left: 5px;
         }
 
@@ -318,16 +319,16 @@
 
         .race-btn {
             padding: 8px 16px;
-            border: 1px solid #ddd;
+            border: 1px solid var(--gray-300);
             border-radius: 5px;
-            background-color: #f8f8f8;
+            background-color: var(--gray-100);
             cursor: pointer;
             font-size: 14px;
             transition: background-color 0.2s;
         }
 
         .race-btn:hover {
-            background-color: #e8e8e8;
+            background-color: var(--gray-200);
         }
 
         th.sortable {
@@ -338,7 +339,7 @@
         }
 
         th.sortable:hover {
-            background-color: #e8e8e8;
+            background-color: var(--gray-200);
         }
 
         th.sortable::after {
@@ -377,15 +378,15 @@
         }
 
         .stat-card {
-            background-color: #f8f9fa;
+            background-color: var(--gray-50);
             padding: 15px;
             border-radius: 8px;
-            border-left: 4px solid #4CAF50;
+            border-left: 4px solid var(--success);
         }
 
         .stat-card .stat-label {
             font-size: 12px;
-            color: #666;
+            color: var(--text-secondary);
             text-transform: uppercase;
             letter-spacing: 0.5px;
             margin-bottom: 5px;
@@ -394,7 +395,7 @@
         .stat-card .stat-value {
             font-size: 24px;
             font-weight: bold;
-            color: #333;
+            color: var(--text-primary);
         }
 
         .filter-controls {
@@ -402,7 +403,7 @@
             gap: 15px;
             margin-bottom: 20px;
             padding: 15px;
-            background-color: #f8f9fa;
+            background-color: var(--gray-50);
             border-radius: 8px;
             flex-wrap: wrap;
             align-items: center;
@@ -420,13 +421,13 @@
 
         .filter-group label {
             font-size: 14px;
-            color: #555;
+            color: var(--gray-600);
             font-weight: 500;
         }
 
         .filter-group select {
             padding: 8px 12px;
-            border: 1px solid #ddd;
+            border: 1px solid var(--gray-300);
             border-radius: 5px;
             font-size: 14px;
             background-color: white;
@@ -442,9 +443,9 @@
 
         .filter-btn {
             padding: 8px 16px;
-            border: 1px solid #ddd;
+            border: 1px solid var(--gray-300);
             border-radius: 5px;
-            background-color: #f44336;
+            background-color: var(--error);
             color: white;
             cursor: pointer;
             font-size: 14px;
@@ -453,7 +454,7 @@
         }
 
         .filter-btn:hover {
-            background-color: #d32f2f;
+            background-color: var(--error-dark);
         }
 
         table {
@@ -463,7 +464,7 @@
         }
 
         thead {
-            background-color: #f8f9fa;
+            background-color: var(--gray-50);
             position: sticky;
             top: 0;
         }
@@ -472,8 +473,8 @@
             padding: 15px 10px;
             text-align: left;
             font-weight: 600;
-            color: #555;
-            border-bottom: 2px solid #ddd;
+            color: var(--gray-600);
+            border-bottom: 2px solid var(--gray-300);
             font-size: 14px;
             text-transform: uppercase;
             letter-spacing: 0.5px;
@@ -493,49 +494,49 @@
         }
 
         tbody tr:hover {
-            background-color: #f8f9fa;
+            background-color: var(--gray-50);
         }
 
         td {
             padding: 15px 10px;
-            color: #333;
+            color: var(--text-primary);
             font-size: 14px;
         }
 
         .rank {
             font-weight: bold;
-            color: #666;
+            color: var(--text-secondary);
             font-size: 16px;
         }
 
         .rank.gold {
-            color: #FFD700;
+            color: var(--gold);
         }
 
         .rank.silver {
-            color: #C0C0C0;
+            color: var(--silver);
         }
 
         .rank.bronze {
-            color: #CD7F32;
+            color: var(--bronze);
         }
 
         .player-name {
             font-weight: 600;
-            color: #333;
+            color: var(--text-primary);
             font-size: 15px;
             cursor: pointer;
             transition: color 0.2s;
         }
 
         .player-name:hover {
-            color: #4CAF50;
+            color: var(--success);
             text-decoration: underline;
         }
 
         .player-name .picks-icon {
             font-size: 12px;
-            color: #999;
+            color: var(--text-muted);
             margin-left: 6px;
             opacity: 0.6;
             transition: opacity 0.2s;
@@ -543,7 +544,7 @@
 
         .player-name:hover .picks-icon {
             opacity: 1;
-            color: #4CAF50;
+            color: var(--success);
         }
 
         .win-percentage {
@@ -551,15 +552,15 @@
         }
 
         .win-percentage.high {
-            color: #4CAF50;
+            color: var(--success);
         }
 
         .win-percentage.medium {
-            color: #FF9800;
+            color: var(--warning);
         }
 
         .win-percentage.low {
-            color: #f44336;
+            color: var(--error);
         }
 
         .recent-form {
@@ -588,20 +589,20 @@
         }
 
         .form-indicator.win {
-            background-color: #4CAF50;
+            background-color: var(--success);
         }
 
         .form-indicator.loss {
-            background-color: #f44336;
+            background-color: var(--error);
         }
 
         .form-indicator.no-game {
-            background-color: #e0e0e0;
+            background-color: var(--gray-200);
         }
 
         .expand-header-btn {
             cursor: pointer;
-            color: #4CAF50;
+            color: var(--success);
             font-weight: bold;
             font-size: 18px;
             margin-left: 8px;
@@ -611,7 +612,7 @@
         }
 
         .expand-header-btn:hover {
-            color: #45a049;
+            color: var(--success-hover);
         }
 
         .expand-header-btn.expanded {
@@ -644,7 +645,7 @@
         }
 
         tbody tr:hover .game-history-cell {
-            background-color: #f8f9fa;
+            background-color: var(--gray-50);
         }
 
         .tooltip {
@@ -686,10 +687,10 @@
 
         .expand-schedule-btn {
             padding: 6px 16px;
-            border: 1px solid #c0c0c0;
+            border: 1px solid var(--silver);
             border-radius: 6px;
             background-color: white;
-            color: #888;
+            color: var(--gray-400);
             cursor: pointer;
             font-size: 12px;
             font-weight: 500;
@@ -734,7 +735,7 @@
         }
 
         .upcoming-matchup-header {
-            background: linear-gradient(135deg, #57707d 0%, #4d636f 100%);
+            background: linear-gradient(135deg, var(--mcc-dark-1) 0%, var(--mcc-dark-2) 100%);
             color: white;
             padding: 10px 15px;
             text-align: center;
@@ -770,7 +771,7 @@
         .upcoming-team-name {
             font-size: 15px;
             font-weight: bold;
-            color: #333;
+            color: var(--text-primary);
             text-align: center;
         }
 
@@ -784,7 +785,7 @@
 
         .upcoming-vs-divider {
             text-align: center;
-            color: #57707d;
+            color: var(--mcc-dark-1);
             font-size: 24px;
             font-weight: bold;
             flex-shrink: 0;
@@ -832,22 +833,22 @@
 
         .schedule-filter-btn {
             padding: 8px 16px;
-            border: 1px solid #ddd;
+            border: 1px solid var(--gray-300);
             border-radius: 5px;
-            background-color: #f8f8f8;
+            background-color: var(--gray-100);
             cursor: pointer;
             font-size: 14px;
             transition: all 0.2s;
         }
 
         .schedule-filter-btn:hover {
-            background-color: #e8e8e8;
+            background-color: var(--gray-200);
         }
 
         .schedule-filter-btn.active {
-            background-color: #4CAF50;
+            background-color: var(--success);
             color: white;
-            border-color: #45a049;
+            border-color: var(--success-hover);
         }
 
         .matchups-grid {
@@ -891,10 +892,10 @@
         }
 
         .matchup-card {
-            background-color: #f8f9fa;
+            background-color: var(--gray-50);
             border-radius: 8px;
             padding: 12px 15px;
-            border: 2px solid #e0e0e0;
+            border: 2px solid var(--gray-200);
             cursor: pointer;
             transition: all 0.3s;
             position: relative;
@@ -903,17 +904,17 @@
         .matchup-card:hover {
             transform: translateY(-2px);
             box-shadow: 0 3px 12px rgba(0, 0, 0, 0.12);
-            border-color: #4CAF50;
+            border-color: var(--success);
         }
 
         .matchup-card.completed {
-            border-color: #4CAF50;
-            background-color: #f0f9f0;
+            border-color: var(--success);
+            background-color: var(--success-bg);
         }
 
         .matchup-compact-header {
             font-size: 11px;
-            color: #666;
+            color: var(--text-secondary);
             margin-bottom: 8px;
             text-align: center;
         }
@@ -921,11 +922,11 @@
         .matchup-compact-teams {
             font-size: 14px;
             text-align: center;
-            color: #333;
+            color: var(--text-primary);
         }
 
         .compact-vs {
-            color: #999;
+            color: var(--text-muted);
             font-weight: normal;
             margin: 0 8px;
         }
@@ -947,7 +948,7 @@
         }
 
         .matchup-team.winner {
-            background-color: #4CAF50;
+            background-color: var(--success);
             color: white;
             font-weight: bold;
         }
@@ -959,13 +960,13 @@
         .matchup-vs {
             text-align: center;
             font-size: 12px;
-            color: #999;
+            color: var(--text-muted);
             margin: 3px 0;
         }
 
         .winner-badge {
             background-color: white;
-            color: #4CAF50;
+            color: var(--success);
             padding: 2px 8px;
             border-radius: 10px;
             font-size: 11px;
@@ -986,7 +987,7 @@
         }
 
         .matchup-tooltip-header {
-            background: linear-gradient(135deg, #57707d 0%, #4d636f 100%);
+            background: linear-gradient(135deg, var(--mcc-dark-1) 0%, var(--mcc-dark-2) 100%);
             color: white;
             padding: 15px;
             border-radius: 10px 10px 0 0;
@@ -1020,12 +1021,12 @@
             font-size: 14px;
             font-weight: bold;
             margin-bottom: 10px;
-            color: #333;
+            color: var(--text-primary);
             text-align: center;
         }
 
         .tooltip-team-name.winner {
-            color: #4CAF50;
+            color: var(--success);
         }
 
         .tooltip-members-row {
@@ -1169,7 +1170,7 @@
 
         .tooltip-member-name {
             font-size: 10px;
-            color: #666;
+            color: var(--text-secondary);
             text-align: center;
         }
 
@@ -1184,33 +1185,33 @@
         }
 
         .tooltip-position-badge.position-skip {
-            background-color: #ffd700;
+            background-color: var(--gold);
             color: #000;
         }
 
         .tooltip-position-badge.position-vice {
-            background-color: #c0c0c0;
+            background-color: var(--silver);
             color: #000;
         }
 
         .tooltip-position-badge.position-second {
-            background-color: #cd7f32;
+            background-color: var(--bronze);
             color: #fff;
         }
 
         .tooltip-position-badge.position-lead {
-            background-color: #3498db;
+            background-color: var(--info);
             color: #fff;
         }
 
         .tooltip-position-badge.position-fifth {
-            background-color: #95a5a6;
+            background-color: var(--gray-neutral);
             color: #fff;
         }
 
         .tooltip-vs-divider {
             text-align: center;
-            color: #999;
+            color: var(--text-muted);
             font-size: 14px;
             font-weight: bold;
             margin: 10px 0;
@@ -1231,7 +1232,7 @@
         }
 
         .whatif-summary {
-            background-color: #f8f9fa;
+            background-color: var(--gray-50);
             padding: 15px;
             border-radius: 8px;
             margin-bottom: 20px;
@@ -1244,11 +1245,11 @@
 
         .whatif-summary-text {
             font-size: 14px;
-            color: #666;
+            color: var(--text-secondary);
         }
 
         .whatif-summary-text strong {
-            color: #333;
+            color: var(--text-primary);
             font-size: 16px;
         }
 
@@ -1273,10 +1274,10 @@
         .whatif-column-title {
             font-size: 18px;
             font-weight: 600;
-            color: #333;
+            color: var(--text-primary);
             margin-bottom: 15px;
             padding-bottom: 10px;
-            border-bottom: 2px solid #e0e0e0;
+            border-bottom: 2px solid var(--gray-200);
         }
 
         .upcoming-games-container {
@@ -1291,12 +1292,12 @@
 
         .whatif-player-picker label {
             font-size: 14px;
-            color: #666;
+            color: var(--text-secondary);
         }
 
         .whatif-player-picker select {
             padding: 8px 12px;
-            border: 1px solid #ddd;
+            border: 1px solid var(--gray-300);
             border-radius: 5px;
             font-size: 14px;
             background-color: white;
@@ -1305,9 +1306,9 @@
 
         .whatif-btn {
             padding: 8px 16px;
-            border: 1px solid #ddd;
+            border: 1px solid var(--gray-300);
             border-radius: 5px;
-            background-color: #4CAF50;
+            background-color: var(--success);
             color: white;
             cursor: pointer;
             font-size: 14px;
@@ -1315,16 +1316,16 @@
         }
 
         .whatif-btn:hover {
-            background-color: #45a049;
+            background-color: var(--success-hover);
         }
 
         .whatif-btn.secondary {
-            background-color: #f8f8f8;
-            color: #333;
+            background-color: var(--gray-100);
+            color: var(--text-primary);
         }
 
         .whatif-btn.secondary:hover {
-            background-color: #e8e8e8;
+            background-color: var(--gray-200);
         }
 
         .upcoming-games {
@@ -1341,29 +1342,29 @@
         }
 
         .upcoming-games::-webkit-scrollbar-track {
-            background: #f1f1f1;
+            background: var(--gray-100);
             border-radius: 4px;
         }
 
         .upcoming-games::-webkit-scrollbar-thumb {
-            background: #888;
+            background: var(--gray-400);
             border-radius: 4px;
         }
 
         .upcoming-games::-webkit-scrollbar-thumb:hover {
-            background: #555;
+            background: var(--gray-600);
         }
 
         .game-card {
-            background-color: #f8f9fa;
+            background-color: var(--gray-50);
             padding: 15px;
             border-radius: 8px;
-            border: 2px solid #e0e0e0;
+            border: 2px solid var(--gray-200);
         }
 
         .game-card-header {
             font-size: 12px;
-            color: #666;
+            color: var(--text-secondary);
             margin-bottom: 10px;
         }
 
@@ -1384,17 +1385,17 @@
         }
 
         .team-option:hover {
-            background-color: #e8e8e8;
+            background-color: var(--gray-200);
         }
 
         .team-option.selected {
-            background-color: #4CAF50;
+            background-color: var(--success);
             color: white;
-            border-color: #45a049;
+            border-color: var(--success-hover);
         }
 
         .team-option.chalk {
-            border-color: #FF6B35;
+            border-color: var(--warning);
         }
 
         .team-option input[type="radio"] {
@@ -1418,7 +1419,7 @@
         .whatif-results h3 {
             margin-top: 0;
             margin-bottom: 15px;
-            color: #333;
+            color: var(--text-primary);
             font-size: 20px;
         }
 
@@ -1430,9 +1431,9 @@
 
         .standings-toggle-btn {
             padding: 8px 16px;
-            border: 1px solid #ddd;
+            border: 1px solid var(--gray-300);
             border-radius: 5px;
-            background-color: #f8f8f8;
+            background-color: var(--gray-100);
             cursor: pointer;
             font-size: 14px;
             transition: all 0.2s;
@@ -1440,13 +1441,13 @@
         }
 
         .standings-toggle-btn:hover {
-            background-color: #e8e8e8;
+            background-color: var(--gray-200);
         }
 
         .standings-toggle-btn.active {
-            background-color: #4CAF50;
+            background-color: var(--success);
             color: white;
-            border-color: #45a049;
+            border-color: var(--success-hover);
         }
 
         .standings-view {
@@ -1464,26 +1465,26 @@
         }
 
         .standings-view::-webkit-scrollbar-track {
-            background: #f1f1f1;
+            background: var(--gray-100);
             border-radius: 4px;
         }
 
         .standings-view::-webkit-scrollbar-thumb {
-            background: #888;
+            background: var(--gray-400);
             border-radius: 4px;
         }
 
         .standings-view::-webkit-scrollbar-thumb:hover {
-            background: #555;
+            background: var(--gray-600);
         }
 
         .whatif-placeholder {
             text-align: center;
             padding: 40px 20px;
-            color: #999;
-            background-color: #f8f9fa;
+            color: var(--text-muted);
+            background-color: var(--gray-50);
             border-radius: 8px;
-            border: 2px dashed #ddd;
+            border: 2px dashed var(--gray-300);
         }
 
         .whatif-placeholder-icon {
@@ -1500,7 +1501,7 @@
         }
 
         .comparison-table th {
-            background-color: #f8f9fa;
+            background-color: var(--gray-50);
         }
 
         .rank-change {
@@ -1510,31 +1511,31 @@
         }
 
         .rank-change.up {
-            color: #4CAF50;
+            color: var(--success);
         }
 
         .rank-change.down {
-            color: #f44336;
+            color: var(--error);
         }
 
         .rank-change.same {
-            color: #999;
+            color: var(--text-muted);
         }
 
         .loading {
             text-align: center;
             padding: 40px;
             font-size: 16px;
-            color: #666;
+            color: var(--text-secondary);
         }
 
         .error {
-            background-color: #ffebee;
-            color: #c62828;
+            background-color: var(--error-bg);
+            color: var(--error-dark);
             padding: 20px;
             border-radius: 5px;
             margin: 20px 0;
-            border-left: 4px solid #c62828;
+            border-left: 4px solid var(--error-dark);
         }
 
         @media (max-width: 768px) {
@@ -1594,7 +1595,7 @@
         }
 
         .modal-header {
-            background: linear-gradient(135deg, #57707d 0%, #4d636f 100%);
+            background: linear-gradient(135deg, var(--mcc-dark-1) 0%, var(--mcc-dark-2) 100%);
             color: white;
             padding: 20px 25px;
             display: flex;
@@ -1645,38 +1646,38 @@
         }
 
         .pick-item {
-            background-color: #f8f9fa;
+            background-color: var(--gray-50);
             border-radius: 8px;
             padding: 15px;
             display: grid;
             grid-template-columns: 80px 1fr auto;
             gap: 15px;
             align-items: center;
-            border: 2px solid #e0e0e0;
+            border: 2px solid var(--gray-200);
             transition: all 0.2s;
         }
 
         .pick-item:hover {
-            border-color: #4CAF50;
-            background-color: #f0f9f0;
+            border-color: var(--success);
+            background-color: var(--success-bg);
         }
 
         .pick-item.pick-win {
-            border-left: 5px solid #4CAF50;
+            border-left: 5px solid var(--success);
         }
 
         .pick-item.pick-loss {
-            border-left: 5px solid #f44336;
+            border-left: 5px solid var(--error);
         }
 
         .pick-item.pick-pending {
-            border-left: 5px solid #999;
+            border-left: 5px solid var(--text-muted);
         }
 
         .pick-game-number {
             font-weight: bold;
             font-size: 16px;
-            color: #666;
+            color: var(--text-secondary);
             text-align: center;
         }
 
@@ -1688,17 +1689,17 @@
 
         .pick-matchup {
             font-size: 14px;
-            color: #333;
+            color: var(--text-primary);
         }
 
         .pick-matchup-teams {
             font-weight: 600;
-            color: #333;
+            color: var(--text-primary);
         }
 
         .pick-info {
             font-size: 12px;
-            color: #666;
+            color: var(--text-secondary);
         }
 
         .pick-choice {
@@ -1706,16 +1707,16 @@
         }
 
         .pick-choice-label {
-            color: #666;
+            color: var(--text-secondary);
         }
 
         .pick-choice-team {
             font-weight: 600;
-            color: #4CAF50;
+            color: var(--success);
         }
 
         .pick-contrarian {
-            background-color: #ff9800;
+            background-color: var(--warning);
             color: white;
             padding: 2px 8px;
             border-radius: 10px;
@@ -1738,18 +1739,18 @@
         }
 
         .pick-result-badge.win {
-            background-color: #4CAF50;
+            background-color: var(--success);
             color: white;
         }
 
         .pick-result-badge.loss {
-            background-color: #f44336;
+            background-color: var(--error);
             color: white;
         }
 
         .pick-result-badge.pending {
-            background-color: #e0e0e0;
-            color: #666;
+            background-color: var(--gray-200);
+            color: var(--text-secondary);
         }
 
         /* Combined Picks View */
@@ -1777,7 +1778,7 @@
         .picks-view-toggle {
             display: flex;
             gap: 10px;
-            background-color: #f8f9fa;
+            background-color: var(--gray-50);
             padding: 5px;
             border-radius: 8px;
         }
@@ -1787,7 +1788,7 @@
             border: none;
             border-radius: 5px;
             background-color: transparent;
-            color: #666;
+            color: var(--text-secondary);
             cursor: pointer;
             font-size: 14px;
             font-weight: 500;
@@ -1798,8 +1799,8 @@
         }
 
         .picks-toggle-btn:hover {
-            background-color: #e8e8e8;
-            color: #333;
+            background-color: var(--gray-200);
+            color: var(--text-primary);
         }
 
         .picks-toggle-btn.active {
@@ -1817,7 +1818,7 @@
             gap: 15px;
             margin-bottom: 20px;
             padding: 15px;
-            background-color: #f8f9fa;
+            background-color: var(--gray-50);
             border-radius: 8px;
             flex-wrap: wrap;
             align-items: center;
@@ -1831,13 +1832,13 @@
 
         .matrix-filter-group label {
             font-size: 14px;
-            color: #555;
+            color: var(--gray-600);
             font-weight: 500;
         }
 
         .matrix-filter-group select {
             padding: 8px 12px;
-            border: 1px solid #ddd;
+            border: 1px solid var(--gray-300);
             border-radius: 5px;
             font-size: 14px;
             background-color: white;
@@ -1860,7 +1861,7 @@
         }
 
         .picks-matrix-table thead {
-            background-color: #f8f9fa;
+            background-color: var(--gray-50);
             position: sticky;
             top: 0;
             z-index: 10;
@@ -1870,8 +1871,8 @@
             padding: 10px 8px;
             text-align: center;
             font-weight: 600;
-            color: #555;
-            border: 1px solid #ddd;
+            color: var(--gray-600);
+            border: 1px solid var(--gray-300);
             font-size: 11px;
             min-width: 140px;
         }
@@ -1919,7 +1920,7 @@
         .picks-matrix-table th.player-col {
             position: sticky;
             left: 0;
-            background-color: #f8f9fa;
+            background-color: var(--gray-50);
             z-index: 11;
             min-width: 150px;
             text-align: left;
@@ -1928,7 +1929,7 @@
         .picks-matrix-table td {
             padding: 8px;
             text-align: center;
-            border: 1px solid #ddd;
+            border: 1px solid var(--gray-300);
             font-size: 12px;
         }
 
@@ -1942,11 +1943,11 @@
         }
 
         .picks-matrix-table tbody tr:hover td {
-            background-color: #f8f9fa;
+            background-color: var(--gray-50);
         }
 
         .picks-matrix-table tbody tr:hover td.player-col {
-            background-color: #e8e8e8;
+            background-color: var(--gray-200);
         }
 
         .matrix-pick-cell {
@@ -1957,24 +1958,24 @@
         }
 
         .matrix-pick-cell.win {
-            background-color: #c8e6c9;
-            color: #2e7d32;
+            background-color: var(--success-light);
+            color: var(--success-dark);
             font-weight: 600;
         }
 
         .matrix-pick-cell.loss {
-            background-color: #ffcdd2;
-            color: #c62828;
+            background-color: var(--error-light);
+            color: var(--error-dark);
             font-weight: 600;
         }
 
         .matrix-pick-cell.pending {
-            background-color: #f0f0f0;
-            color: #666;
+            background-color: var(--gray-100);
+            color: var(--text-secondary);
         }
 
         .matrix-pick-cell.contrarian {
-            border: 2px solid #ff9800;
+            border: 2px solid var(--warning);
         }
 
         .week-header-cell {
@@ -2042,11 +2043,11 @@
         }
 
         .distribution-bar.team1 {
-            background: linear-gradient(135deg, #57707d 0%, #4d636f 100%);
+            background: linear-gradient(135deg, var(--mcc-dark-1) 0%, var(--mcc-dark-2) 100%);
         }
 
         .distribution-bar.team2 {
-            background: linear-gradient(135deg, #ab9000 0%, #8a7500 100%);
+            background: linear-gradient(135deg, var(--mcc-gold-1) 0%, var(--mcc-gold-2) 100%);
         }
 
         .distribution-bar:hover {
@@ -2073,26 +2074,26 @@
         }
 
         .distribution-label-color.team1 {
-            background: linear-gradient(135deg, #57707d 0%, #4d636f 100%);
+            background: linear-gradient(135deg, var(--mcc-dark-1) 0%, var(--mcc-dark-2) 100%);
         }
 
         .distribution-label-color.team2 {
-            background: linear-gradient(135deg, #ab9000 0%, #8a7500 100%);
+            background: linear-gradient(135deg, var(--mcc-gold-1) 0%, var(--mcc-gold-2) 100%);
         }
 
         .distribution-label-text {
-            color: #333;
+            color: var(--text-primary);
             font-weight: 500;
         }
 
         .distribution-label-count {
-            color: #666;
+            color: var(--text-secondary);
             font-size: 12px;
         }
 
         .distribution-winner-badge {
-            background-color: #FFD700;
-            color: #333;
+            background-color: var(--gold);
+            color: var(--text-primary);
             padding: 3px 10px;
             border-radius: 12px;
             font-size: 11px;
@@ -2285,7 +2286,7 @@
                 <!-- What-If Analysis Section -->
                 <section class="section whatif-section" id="whatifSection" style="display: none;">
                 <h2 class="section-title"><i class="fas fa-wand-magic-sparkles"></i> What-If Analysis</h2>
-                <p style="color: #666; margin-bottom: 20px;">Select winners for upcoming games to see how it would affect the standings. Click a selected team again to unset.</p>
+                <p style="color: var(--text-secondary); margin-bottom: 20px;">Select winners for upcoming games to see how it would affect the standings. Click a selected team again to unset.</p>
 
                 <!-- Summary -->
                 <div class="whatif-summary">
@@ -2998,7 +2999,7 @@
 
             if (!game) {
                 // Fallback to simple tooltip if game not found
-                tooltip.innerHTML = `<div style="padding: 10px; color: #333;">
+                tooltip.innerHTML = `<div style="padding: 10px; color: var(--text-primary);">
                     <strong>${playerName}</strong><br>
                     Game ${gameData.game}: <strong>${gameData.result === 'W' ? 'Win ✓' : 'Loss ✗'}</strong><br>
                     Record: ${gameData.cumulativeWins}-${gameData.cumulativeLosses}
@@ -3014,10 +3015,13 @@
             const team2Lineup = teamLineups[game.team2] || [];
 
             // Build tooltip with matchup structure
-            const headerColor = gameData.result === 'W' ? '#4CAF50' : '#f44336';
+            const rootStyles = getComputedStyle(document.documentElement);
+            const successColor = rootStyles.getPropertyValue('--success').trim();
+            const successHoverColor = rootStyles.getPropertyValue('--success-hover').trim();
+            const errorColor = rootStyles.getPropertyValue('--error').trim();
             const headerGradient = gameData.result === 'W'
-                ? 'linear-gradient(135deg, #4CAF50 0%, #45a049 100%)'
-                : 'linear-gradient(135deg, #f44336 0%, #e53935 100%)';
+                ? `linear-gradient(135deg, ${successColor} 0%, ${successHoverColor} 100%)`
+                : `linear-gradient(135deg, ${errorColor} 0%, #e53935 100%)`;
 
             let tooltipContent = `
                 <div class="matchup-tooltip-header" style="background: ${headerGradient};">
@@ -3073,7 +3077,7 @@
                     team1Container.appendChild(createTooltipMemberElement(member));
                 });
             } else {
-                team1Container.innerHTML = '<div style="color: #999; font-size: 12px;">No lineup data</div>';
+                team1Container.innerHTML = '<div style="color: var(--text-muted); font-size: 12px;">No lineup data</div>';
             }
 
             if (team2Lineup.length > 0) {
@@ -3081,7 +3085,7 @@
                     team2Container.appendChild(createTooltipMemberElement(member));
                 });
             } else {
-                team2Container.innerHTML = '<div style="color: #999; font-size: 12px;">No lineup data</div>';
+                team2Container.innerHTML = '<div style="color: var(--text-muted); font-size: 12px;">No lineup data</div>';
             }
 
             // Position tooltip near cursor
@@ -3417,7 +3421,7 @@
                     team1Container.appendChild(createTooltipMemberElement(member));
                 });
             } else {
-                team1Container.innerHTML = '<div style="color: #999; font-size: 12px;">No lineup data available</div>';
+                team1Container.innerHTML = '<div style="color: var(--text-muted); font-size: 12px;">No lineup data available</div>';
             }
 
             if (team2Lineup.length > 0) {
@@ -3425,7 +3429,7 @@
                     team2Container.appendChild(createTooltipMemberElement(member));
                 });
             } else {
-                team2Container.innerHTML = '<div style="color: #999; font-size: 12px;">No lineup data available</div>';
+                team2Container.innerHTML = '<div style="color: var(--text-muted); font-size: 12px;">No lineup data available</div>';
             }
 
             // Position tooltip near cursor
@@ -3614,7 +3618,7 @@
             }
 
             if (upcomingGames.length === 0) {
-                container.innerHTML = '<div style="text-align: center; color: #666; padding: 20px;">No upcoming games scheduled</div>';
+                container.innerHTML = '<div style="text-align: center; color: var(--text-secondary); padding: 20px;">No upcoming games scheduled</div>';
                 return;
             }
 
@@ -4194,7 +4198,7 @@
             });
 
             if (filteredGames.length === 0) {
-                container.innerHTML = '<p style="text-align: center; color: #999; padding: 40px;">No games match the selected filters.</p>';
+                container.innerHTML = '<p style="text-align: center; color: var(--text-muted); padding: 40px;">No games match the selected filters.</p>';
             }
         }
 
@@ -4288,8 +4292,9 @@
             const cy = size / 2;
 
             // Brand colors for contrast
-            const team1Color = '#57707d'; // --w3-color-d1
-            const team2Color = '#ab9000'; // Gold/yellow
+            const rootStyles = getComputedStyle(document.documentElement);
+            const team1Color = rootStyles.getPropertyValue('--mcc-dark-1').trim();
+            const team2Color = rootStyles.getPropertyValue('--mcc-gold-1').trim();
 
             // Calculate the end angle for team1 (starting at top, going clockwise)
             const team1Angle = (team1Pct / 100) * 360;
@@ -4411,8 +4416,8 @@
                         <div class="matrix-header-pie-wrapper" style="position: relative;">
                             ${pieChartSVG}
                             <div class="pie-tooltip" id="pieTooltip-${game.gameNumber}">
-                                <div style="color: #becbd2; font-weight: 600;">${game.team1}: ${team1Pct}%</div>
-                                <div style="color: #f4d03f; font-weight: 600;">${game.team2}: ${team2Pct}%</div>
+                                <div style="color: var(--mcc-light-2); font-weight: 600;">${game.team1}: ${team1Pct}%</div>
+                                <div style="color: var(--gold); font-weight: 600;">${game.team2}: ${team2Pct}%</div>
                             </div>
                         </div>
                         <div class="matrix-header-info">
@@ -4420,8 +4425,8 @@
                             <div style="font-size: 10px; margin-top: 2px;">${game.date}</div>
                             <div style="font-size: 10px;">${game.time}</div>
                             <div style="font-size: 10px; margin-top: 5px; font-weight: 600; line-height: 1.5;">
-                                <div style="color: #57707d;">${game.team1} (${team1Pct}%)</div>
-                                <div style="color: #ab9000;">${game.team2} (${team2Pct}%)</div>
+                                <div style="color: var(--mcc-dark-1);">${game.team1} (${team1Pct}%)</div>
+                                <div style="color: var(--mcc-gold-1);">${game.team2} (${team2Pct}%)</div>
                             </div>
                         </div>
                     </div>
@@ -4494,7 +4499,7 @@
                         pickCell.appendChild(pickDiv);
                     } else {
                         pickCell.textContent = '-';
-                        pickCell.style.color = '#ccc';
+                        pickCell.style.color = 'var(--text-disabled)';
                     }
 
                     row.appendChild(pickCell);
