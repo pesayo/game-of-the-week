@@ -35,6 +35,23 @@
             margin: 0 auto;
         }
 
+        .league-link {
+            text-align: center;
+            margin-top: 12px;
+            font-size: 13px;
+        }
+
+        .league-link a {
+            color: #607d8b;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .league-link a:hover {
+            color: #4d636f;
+            text-decoration: underline;
+        }
+
         .dashboard-grid {
             display: grid;
             grid-template-columns: 1fr;
@@ -1377,6 +1394,11 @@
         <!-- Main Header -->
         <div class="dashboard-header">
             <img src="gotw_banner.png" alt="Game of the Week - 2025-2026 Season">
+            <div class="league-link">
+                <a href="https://curlingmembers.com/Members/LeagueDetail.aspx?id=604" target="_blank" rel="noopener noreferrer">
+                    Mansfield League Information
+                </a>
+            </div>
         </div>
 
         <div id="loadingMessage" class="loading">Loading dashboard data...</div>
