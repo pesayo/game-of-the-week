@@ -2205,7 +2205,16 @@
                     </div>
                     <div class="matchup-tooltip-info">
                         Week ${game.week} | ${game.date} | ${game.time} | Sheet ${game.sheet}
-                    </div>
+                    </div>`;
+
+            if (gameData.pick) {
+                tooltipContent += `
+                    <div class="matchup-tooltip-info">
+                        Picked: ${gameData.pick}
+                    </div>`;
+            }
+
+            tooltipContent += `
                 </div>
                 <div class="matchup-tooltip-body">`;
 
