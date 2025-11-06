@@ -1,8 +1,11 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Game of the Week Dashboard</title>
     <script src="https://d3js.org/d3.v7.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -1346,7 +1349,7 @@
     <div class="dashboard-container">
         <!-- Main Header -->
         <div class="dashboard-header">
-            <h1>🏆 Game of the Week Dashboard</h1>
+            <h1><i class="fas fa-trophy"></i> Game of the Week Dashboard</h1>
             <div class="subtitle">2025-2026 Season</div>
         </div>
 
@@ -1358,7 +1361,7 @@
 
             <!-- Upcoming Matchups Section -->
             <section class="section upcoming-section">
-                <h2 class="section-title">🔥 Upcoming Matchup(s)</h2>
+                <h2 class="section-title"><i class="fas fa-fire"></i> Upcoming Matchup(s)</h2>
                 <div class="matchups-grid" id="upcomingMatchupsGrid"></div>
                 <div class="expand-schedule-container">
                     <button class="expand-schedule-btn" id="expandScheduleBtn">
@@ -1369,7 +1372,7 @@
 
                 <!-- Full Schedule Section (Initially Hidden) -->
                 <div class="schedule-section" id="fullScheduleSection" style="display: none;">
-                    <h2 class="section-title">📅 Full Game Schedule</h2>
+                    <h2 class="section-title"><i class="fas fa-calendar"></i> Full Game Schedule</h2>
 
                     <div class="schedule-filters">
                         <button class="schedule-filter-btn active" data-filter="all">All Games</button>
@@ -1383,7 +1386,7 @@
 
             <!-- Leaderboard Section -->
             <section class="section leaderboard-section">
-                <h2 class="section-title">🥇 Current Standings</h2>
+                <h2 class="section-title"><i class="fas fa-medal"></i> Current Standings</h2>
 
                 <div class="stats-summary" id="statsSummary"></div>
 
@@ -1430,7 +1433,7 @@
 
             <!-- Horse Race Section -->
             <section class="section horse-race-section">
-                <h2 class="section-title">📈 Win Progression</h2>
+                <h2 class="section-title"><i class="fas fa-chart-line"></i> Win Progression</h2>
                 <div class="race-controls">
                     <button class="race-btn" id="showAllRace">Show All</button>
                     <button class="race-btn" id="hideAllRace">Hide All</button>
@@ -1442,7 +1445,7 @@
 
             <!-- What-If Analysis Section -->
             <section class="section whatif-section" id="whatifSection" style="display: none;">
-                <h2 class="section-title">🔮 What-If Analysis</h2>
+                <h2 class="section-title"><i class="fas fa-wand-magic-sparkles"></i> What-If Analysis</h2>
                 <p style="color: #666; margin-bottom: 20px;">Select winners for upcoming games to see how it would affect the standings. Click a selected team again to unset.</p>
 
                 <!-- Summary -->
@@ -2127,7 +2130,7 @@
 
                 // Show contrarian indicator
                 if (gameData.isContrarian) {
-                    tooltipHtml += ` <span style="color: #FF6B35;">🔥 Against the grain!</span>`;
+                    tooltipHtml += ` <span style="color: #FF6B35;"><i class="fas fa-fire"></i> Against the grain!</span>`;
                 }
                 tooltipHtml += '<br>';
             }
@@ -2441,7 +2444,7 @@
             tooltipContent += `
                 <div class="tooltip-team-section">
                     <div class="tooltip-team-name ${game.winner === game.team1 ? 'winner' : ''}">
-                        Team ${game.team1}${game.winner === game.team1 ? ' 🏆' : ''}
+                        Team ${game.team1}${game.winner === game.team1 ? ' <i class="fas fa-trophy"></i>' : ''}
                     </div>
                     <div class="tooltip-members-row" id="team1Members"></div>
                 </div>
@@ -2453,7 +2456,7 @@
             tooltipContent += `
                 <div class="tooltip-team-section">
                     <div class="tooltip-team-name ${game.winner === game.team2 ? 'winner' : ''}">
-                        Team ${game.team2}${game.winner === game.team2 ? ' 🏆' : ''}
+                        Team ${game.team2}${game.winner === game.team2 ? ' <i class="fas fa-trophy"></i>' : ''}
                     </div>
                     <div class="tooltip-members-row" id="team2Members"></div>
                 </div>
@@ -2557,8 +2560,8 @@
             card.className = `matchup-card ${game.winner ? 'completed' : ''}`;
 
             // Compact single-line format: "Marcus Oldenburg vs Steve Oakeson" with winner indicator
-            const team1Display = game.winner === game.team1 ? `<strong>${game.team1}</strong> 🏆` : game.team1;
-            const team2Display = game.winner === game.team2 ? `<strong>${game.team2}</strong> 🏆` : game.team2;
+            const team1Display = game.winner === game.team1 ? `<strong>${game.team1}</strong> <i class="fas fa-trophy"></i>` : game.team1;
+            const team2Display = game.winner === game.team2 ? `<strong>${game.team2}</strong> <i class="fas fa-trophy"></i>` : game.team2;
 
             card.innerHTML = `
                 <div class="matchup-compact-header">
@@ -2649,11 +2652,11 @@
             const headerElement = document.querySelector('.upcoming-section .section-title');
             if (headerElement) {
                 if (upcomingGames.length === 1) {
-                    headerElement.textContent = '🔥 Upcoming Matchup';
+                    headerElement.innerHTML = '<i class="fas fa-fire"></i> Upcoming Matchup';
                 } else if (upcomingGames.length > 1) {
-                    headerElement.textContent = '🔥 Upcoming Matchups';
+                    headerElement.innerHTML = '<i class="fas fa-fire"></i> Upcoming Matchups';
                 } else {
-                    headerElement.textContent = '🔥 Upcoming Matchups';
+                    headerElement.innerHTML = '<i class="fas fa-fire"></i> Upcoming Matchups';
                 }
             }
 
