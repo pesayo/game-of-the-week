@@ -727,6 +727,13 @@
             overflow: hidden;
             width: 100%;
             max-width: 1000px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+        }
+
+        .upcoming-matchup-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
         }
 
         .upcoming-matchup-header {
@@ -1041,6 +1048,11 @@
             flex-direction: column;
             align-items: center;
             gap: 5px;
+            transition: transform 0.2s ease;
+        }
+
+        .tooltip-member:hover {
+            transform: scale(1.1);
         }
 
         .tooltip-avatar-wrapper {
@@ -1052,6 +1064,12 @@
             object-fit: cover;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
             border-style: solid;
+            transition: box-shadow 0.2s ease, transform 0.2s ease;
+        }
+
+        .tooltip-avatar:hover {
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+            transform: rotate(5deg);
         }
 
         .tooltip-member:not(.skip-member) .tooltip-avatar {
@@ -1073,6 +1091,12 @@
             background-repeat: no-repeat;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
             border-style: solid;
+            transition: box-shadow 0.2s ease, transform 0.2s ease;
+        }
+
+        .tooltip-avatar-sprite:hover {
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+            transform: rotate(5deg);
         }
 
         .tooltip-member:not(.skip-member) .tooltip-avatar-sprite {
