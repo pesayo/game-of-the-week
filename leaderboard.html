@@ -111,14 +111,28 @@
 
         @media (min-width: 1200px) {
             .dashboard-grid {
-                grid-template-columns: 1fr 1fr;
+                grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
             }
         }
 
         @media (min-width: 1600px) {
             .dashboard-grid {
-                grid-template-columns: 2fr 3fr;
+                grid-template-columns: minmax(0, 45fr) minmax(0, 55fr);
             }
+        }
+
+        .left-column-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            min-width: 0; /* Allow flex items to shrink below content size */
+            max-width: 100%; /* Prevent expansion beyond grid column */
+        }
+
+        .right-column-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
         }
 
         .section {
@@ -428,6 +442,26 @@
             font-weight: 600;
             color: #333;
             font-size: 15px;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .player-name:hover {
+            color: #4CAF50;
+            text-decoration: underline;
+        }
+
+        .player-name .picks-icon {
+            font-size: 12px;
+            color: #999;
+            margin-left: 6px;
+            opacity: 0.6;
+            transition: opacity 0.2s;
+        }
+
+        .player-name:hover .picks-icon {
+            opacity: 1;
+            color: #4CAF50;
         }
 
         .win-percentage {
@@ -1101,12 +1135,6 @@
         }
 
         /* Right Column Container */
-        .right-column-container {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-
         /* What-If Analysis Styles */
         .whatif-section {
             margin-top: 0;
@@ -1451,6 +1479,546 @@
                 font-size: 10px;
             }
         }
+
+        /* Player Details Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.6);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 3000;
+            padding: 20px;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            max-width: 900px;
+            width: 100%;
+            max-height: 90vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-header {
+            background: linear-gradient(135deg, #57707d 0%, #4d636f 100%);
+            color: white;
+            padding: 20px 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            font-size: 24px;
+            font-weight: bold;
+            margin: 0;
+        }
+
+        .modal-subtitle {
+            font-size: 14px;
+            opacity: 0.9;
+            margin-top: 5px;
+        }
+
+        .modal-close {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            font-size: 24px;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.2s;
+        }
+
+        .modal-close:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .modal-body {
+            padding: 25px;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .picks-list {
+            display: grid;
+            gap: 12px;
+        }
+
+        .pick-item {
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            padding: 15px;
+            display: grid;
+            grid-template-columns: 80px 1fr auto;
+            gap: 15px;
+            align-items: center;
+            border: 2px solid #e0e0e0;
+            transition: all 0.2s;
+        }
+
+        .pick-item:hover {
+            border-color: #4CAF50;
+            background-color: #f0f9f0;
+        }
+
+        .pick-item.pick-win {
+            border-left: 5px solid #4CAF50;
+        }
+
+        .pick-item.pick-loss {
+            border-left: 5px solid #f44336;
+        }
+
+        .pick-item.pick-pending {
+            border-left: 5px solid #999;
+        }
+
+        .pick-game-number {
+            font-weight: bold;
+            font-size: 16px;
+            color: #666;
+            text-align: center;
+        }
+
+        .pick-details {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .pick-matchup {
+            font-size: 14px;
+            color: #333;
+        }
+
+        .pick-matchup-teams {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .pick-info {
+            font-size: 12px;
+            color: #666;
+        }
+
+        .pick-choice {
+            font-size: 13px;
+        }
+
+        .pick-choice-label {
+            color: #666;
+        }
+
+        .pick-choice-team {
+            font-weight: 600;
+            color: #4CAF50;
+        }
+
+        .pick-contrarian {
+            background-color: #ff9800;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 11px;
+            font-weight: bold;
+            margin-left: 8px;
+        }
+
+        .pick-result {
+            text-align: center;
+            min-width: 60px;
+        }
+
+        .pick-result-badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .pick-result-badge.win {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .pick-result-badge.loss {
+            background-color: #f44336;
+            color: white;
+        }
+
+        .pick-result-badge.pending {
+            background-color: #e0e0e0;
+            color: #666;
+        }
+
+        /* Combined Picks View */
+        .picks-view-section {
+            margin-top: 20px;
+            min-width: 0; /* Allow section to shrink */
+            overflow: hidden; /* Prevent content from expanding section */
+        }
+
+        .picks-view-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .picks-view-header .section-title {
+            margin-bottom: 0;
+            padding-bottom: 0;
+            border-bottom: none;
+        }
+
+        .picks-view-toggle {
+            display: flex;
+            gap: 10px;
+            background-color: #f8f9fa;
+            padding: 5px;
+            border-radius: 8px;
+        }
+
+        .picks-toggle-btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 5px;
+            background-color: transparent;
+            color: #666;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .picks-toggle-btn:hover {
+            background-color: #e8e8e8;
+            color: #333;
+        }
+
+        .picks-toggle-btn.active {
+            background-color: #607d8b;
+            color: white;
+        }
+
+        .picks-view-content {
+            min-width: 0; /* Allow content to shrink */
+            max-width: 100%; /* Prevent expansion */
+        }
+
+        .matrix-filters {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .matrix-filter-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .matrix-filter-group label {
+            font-size: 14px;
+            color: #555;
+            font-weight: 500;
+        }
+
+        .matrix-filter-group select {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            background-color: white;
+            cursor: pointer;
+        }
+
+        .picks-matrix-container {
+            overflow-x: auto;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            max-width: 100%;
+            width: 100%;
+        }
+
+        .picks-matrix-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        .picks-matrix-table thead {
+            background-color: #f8f9fa;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .picks-matrix-table th {
+            padding: 10px 8px;
+            text-align: center;
+            font-weight: 600;
+            color: #555;
+            border: 1px solid #ddd;
+            font-size: 11px;
+            min-width: 140px;
+        }
+
+        .matrix-header-pie {
+            width: 50px;
+            height: 50px;
+            margin: 8px auto;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .matrix-header-pie:hover {
+            opacity: 0.8;
+        }
+
+        .matrix-header-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .matrix-header-info {
+            text-align: center;
+        }
+
+        .pie-tooltip {
+            position: absolute;
+            background: rgba(0, 0, 0, 0.85);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            pointer-events: none;
+            white-space: nowrap;
+            z-index: 1000;
+            display: none;
+        }
+
+        .pie-tooltip.active {
+            display: block;
+        }
+
+        .picks-matrix-table th.player-col {
+            position: sticky;
+            left: 0;
+            background-color: #f8f9fa;
+            z-index: 11;
+            min-width: 150px;
+            text-align: left;
+        }
+
+        .picks-matrix-table td {
+            padding: 8px;
+            text-align: center;
+            border: 1px solid #ddd;
+            font-size: 12px;
+        }
+
+        .picks-matrix-table td.player-col {
+            position: sticky;
+            left: 0;
+            background-color: white;
+            font-weight: 600;
+            text-align: left;
+            z-index: 5;
+        }
+
+        .picks-matrix-table tbody tr:hover td {
+            background-color: #f8f9fa;
+        }
+
+        .picks-matrix-table tbody tr:hover td.player-col {
+            background-color: #e8e8e8;
+        }
+
+        .matrix-pick-cell {
+            padding: 4px;
+            border-radius: 4px;
+            font-size: 11px;
+            line-height: 1.3;
+        }
+
+        .matrix-pick-cell.win {
+            background-color: #c8e6c9;
+            color: #2e7d32;
+            font-weight: 600;
+        }
+
+        .matrix-pick-cell.loss {
+            background-color: #ffcdd2;
+            color: #c62828;
+            font-weight: 600;
+        }
+
+        .matrix-pick-cell.pending {
+            background-color: #f0f0f0;
+            color: #666;
+        }
+
+        .matrix-pick-cell.contrarian {
+            border: 2px solid #ff9800;
+        }
+
+        .week-header-cell {
+            background-color: #607d8b !important;
+            color: white !important;
+            font-weight: bold;
+            font-size: 12px;
+        }
+
+        /* Pick Distribution Chart */
+        .distribution-list {
+            display: grid;
+            gap: 15px;
+        }
+
+        .distribution-item {
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .distribution-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+        }
+
+        .distribution-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .distribution-game-info {
+            font-size: 13px;
+            color: #666;
+        }
+
+        .distribution-matchup {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .distribution-bar-container {
+            display: flex;
+            height: 40px;
+            border-radius: 6px;
+            overflow: hidden;
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .distribution-bar {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 14px;
+            color: white;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .distribution-bar.team1 {
+            background: linear-gradient(135deg, #57707d 0%, #4d636f 100%);
+        }
+
+        .distribution-bar.team2 {
+            background: linear-gradient(135deg, #ab9000 0%, #8a7500 100%);
+        }
+
+        .distribution-bar:hover {
+            filter: brightness(1.1);
+        }
+
+        .distribution-labels {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 8px;
+            font-size: 13px;
+        }
+
+        .distribution-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .distribution-label-color {
+            width: 16px;
+            height: 16px;
+            border-radius: 3px;
+        }
+
+        .distribution-label-color.team1 {
+            background: linear-gradient(135deg, #57707d 0%, #4d636f 100%);
+        }
+
+        .distribution-label-color.team2 {
+            background: linear-gradient(135deg, #ab9000 0%, #8a7500 100%);
+        }
+
+        .distribution-label-text {
+            color: #333;
+            font-weight: 500;
+        }
+
+        .distribution-label-count {
+            color: #666;
+            font-size: 12px;
+        }
+
+        .distribution-winner-badge {
+            background-color: #FFD700;
+            color: #333;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: bold;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
     </style>
 </head>
 <body>
@@ -1504,52 +2072,119 @@
                 </div>
             </section>
 
-            <!-- Leaderboard Section -->
-            <section class="section leaderboard-section">
-                <h2 class="section-title"><i class="fas fa-medal"></i> Current Standings</h2>
+            <!-- Left Column Container -->
+            <div class="left-column-container">
+                <!-- Leaderboard Section -->
+                <section class="section leaderboard-section">
+                    <h2 class="section-title"><i class="fas fa-medal"></i> Current Standings</h2>
 
-                <div class="stats-summary" id="statsSummary"></div>
+                    <div class="stats-summary" id="statsSummary"></div>
 
-                <!-- Filter Controls -->
-                <div class="filter-controls">
-                    <div class="filter-group">
-                        <label for="teamFilter">Team:</label>
-                        <select id="teamFilter">
-                            <option value="">All Teams</option>
-                        </select>
+                    <!-- Filter Controls -->
+                    <div class="filter-controls">
+                        <div class="filter-group">
+                            <label for="teamFilter">Team:</label>
+                            <select id="teamFilter">
+                                <option value="">All Teams</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label for="positionFilter">Position:</label>
+                            <select id="positionFilter">
+                                <option value="">All Positions</option>
+                            </select>
+                        </div>
+                        <div class="filter-group checkbox-group">
+                            <input type="checkbox" id="funkEngFilter">
+                            <label for="funkEngFilter">Funk-Eng Challengers Only (Lead/Second)</label>
+                        </div>
+                        <button class="filter-btn" id="resetFilters">Reset Filters</button>
                     </div>
-                    <div class="filter-group">
-                        <label for="positionFilter">Position:</label>
-                        <select id="positionFilter">
-                            <option value="">All Positions</option>
-                        </select>
+
+                    <table id="leaderboardTable">
+                <thead>
+                    <tr>
+                        <th class="center sortable sorted-asc" data-sort="rank">Rank</th>
+                        <th class="sortable" data-sort="name">Player</th>
+                        <th class="center sortable" data-sort="wins">Wins</th>
+                        <th class="center sortable" data-sort="losses">Losses</th>
+                        <th class="center sortable" data-sort="winPct">Win %</th>
+                        <th class="center game-history-header" id="gameHistoryHeader">
+                            <span id="gameHistoryLabel">Recent Form</span>
+                            <span class="expand-header-btn" id="expandHeaderBtn" title="Expand to show all games">▶</span>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody id="leaderboardBody">
+                        </tbody>
+                    </table>
+                    <div class="tooltip" id="tooltip"></div>
+                </section>
+
+                <!-- Combined Picks View Section -->
+                <section class="section picks-view-section">
+                <div class="picks-view-header">
+                    <h2 class="section-title"><i class="fas fa-th"></i> <span id="picksViewTitle">All Player Picks</span></h2>
+                    <div class="picks-view-toggle">
+                        <button class="picks-toggle-btn active" data-view="matrix">
+                            <i class="fas fa-table"></i> Matrix
+                        </button>
+                        <button class="picks-toggle-btn" data-view="distribution">
+                            <i class="fas fa-chart-bar"></i> Distribution
+                        </button>
                     </div>
-                    <div class="filter-group checkbox-group">
-                        <input type="checkbox" id="funkEngFilter">
-                        <label for="funkEngFilter">Funk-Eng Challengers Only (Lead/Second)</label>
-                    </div>
-                    <button class="filter-btn" id="resetFilters">Reset Filters</button>
                 </div>
 
-                <table id="leaderboardTable">
-            <thead>
-                <tr>
-                    <th class="center sortable sorted-asc" data-sort="rank">Rank</th>
-                    <th class="sortable" data-sort="name">Player</th>
-                    <th class="center sortable" data-sort="wins">Wins</th>
-                    <th class="center sortable" data-sort="losses">Losses</th>
-                    <th class="center sortable" data-sort="winPct">Win %</th>
-                    <th class="center game-history-header" id="gameHistoryHeader">
-                        <span id="gameHistoryLabel">Recent Form</span>
-                        <span class="expand-header-btn" id="expandHeaderBtn" title="Expand to show all games">▶</span>
-                    </th>
-                </tr>
-            </thead>
-            <tbody id="leaderboardBody">
-                    </tbody>
-                </table>
-                <div class="tooltip" id="tooltip"></div>
+                <!-- Matrix View -->
+                <div class="picks-view-content" id="matrixView">
+                    <div class="matrix-filters">
+                        <div class="matrix-filter-group">
+                            <label for="matrixWeekFilter">Week:</label>
+                            <select id="matrixWeekFilter">
+                                <option value="all">All Weeks</option>
+                            </select>
+                        </div>
+                        <div class="matrix-filter-group">
+                            <label for="matrixGameFilter">Games:</label>
+                            <select id="matrixGameFilter">
+                                <option value="all">All Games</option>
+                                <option value="completed">Completed Only</option>
+                                <option value="upcoming">Upcoming Only</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="picks-matrix-container">
+                        <table class="picks-matrix-table" id="picksMatrixTable">
+                            <thead id="matrixTableHead"></thead>
+                            <tbody id="matrixTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Distribution View -->
+                <div class="picks-view-content" id="distributionView" style="display: none;">
+                    <div class="matrix-filters">
+                        <div class="matrix-filter-group">
+                            <label for="distributionWeekFilter">Week:</label>
+                            <select id="distributionWeekFilter">
+                                <option value="all">All Weeks</option>
+                            </select>
+                        </div>
+                        <div class="matrix-filter-group">
+                            <label for="distributionGameFilter">Games:</label>
+                            <select id="distributionGameFilter">
+                                <option value="all">All Games</option>
+                                <option value="completed">Completed Only</option>
+                                <option value="upcoming">Upcoming Only</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="distribution-list" id="distributionList"></div>
+                </div>
             </section>
+            </div> <!-- end left-column-container -->
 
             <!-- Right Column Container -->
             <div class="right-column-container">
@@ -1630,7 +2265,24 @@
             </div> <!-- end right-column-container -->
 
         </div> <!-- end dashboard-grid -->
+
     </div> <!-- end dashboard-container -->
+
+    <!-- Player Details Modal -->
+    <div class="modal-overlay" id="playerModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div>
+                    <h2 class="modal-title" id="modalPlayerName"></h2>
+                    <div class="modal-subtitle" id="modalPlayerStats"></div>
+                </div>
+                <button class="modal-close" id="closeModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="picks-list" id="modalPicksList"></div>
+            </div>
+        </div>
+    </div>
 
     <!-- Matchup Tooltip -->
     <div id="matchupTooltip"></div>
@@ -1780,6 +2432,14 @@
                     }
                 });
 
+                // Calculate percentages for each team
+                let team1Percentage = 0;
+                let team2Percentage = 0;
+                if (totalPicks > 0) {
+                    team1Percentage = Math.round((pickCounts[game.team1] / totalPicks) * 100);
+                    team2Percentage = Math.round((pickCounts[game.team2] / totalPicks) * 100);
+                }
+
                 // Determine chalk (majority pick)
                 let chalkPick = null;
                 let chalkPercentage = 50;
@@ -1787,10 +2447,10 @@
                 if (totalPicks > 0) {
                     if (pickCounts[game.team1] > pickCounts[game.team2]) {
                         chalkPick = game.team1;
-                        chalkPercentage = (pickCounts[game.team1] / totalPicks * 100).toFixed(0);
+                        chalkPercentage = team1Percentage;
                     } else if (pickCounts[game.team2] > pickCounts[game.team1]) {
                         chalkPick = game.team2;
-                        chalkPercentage = (pickCounts[game.team2] / totalPicks * 100).toFixed(0);
+                        chalkPercentage = team2Percentage;
                     }
                 }
 
@@ -1799,6 +2459,8 @@
                     team2: game.team2,
                     team1Picks: pickCounts[game.team1],
                     team2Picks: pickCounts[game.team2],
+                    team1Percentage: team1Percentage,
+                    team2Percentage: team2Percentage,
                     totalPicks: totalPicks,
                     chalkPick: chalkPick,
                     chalkPercentage: chalkPercentage
@@ -2188,7 +2850,10 @@
 
                 row.innerHTML = `
                     <td class="center ${rankClass}">${player.rank}</td>
-                    <td class="player-name">${player.name}</td>
+                    <td class="player-name" onclick="showPlayerDetails('${player.name.replace(/'/g, "\\'")}')" title="Click to view all picks">
+                        ${player.name}
+                        <i class="fas fa-list-ul picks-icon"></i>
+                    </td>
                     <td class="center">${player.wins}</td>
                     <td class="center">${player.losses}</td>
                     <td class="center ${winPctClass}">${player.winPct.toFixed(1)}%</td>
@@ -3250,6 +3915,513 @@
         }
 
         // Load and display data
+        // ===== PLAYER DETAILS MODAL =====
+        window.showPlayerDetails = function(playerName) {
+            // Find player data
+            const player = leaderboardData.find(p => p.name === playerName);
+            if (!player) return;
+
+            // Get all picks for this player from rawPicksData
+            const headers = Object.keys(rawPicksData[0]);
+            const nameHeader = headers.find(h => h.toLowerCase().includes('name'));
+            const playerRow = rawPicksData.find(row => {
+                const rowName = row[nameHeader] ? row[nameHeader].trim() : '';
+                return rowName === playerName;
+            });
+            if (!playerRow) return;
+
+            // Get all game headers
+            const gameHeaders = headers.filter(h => h.includes('Week'));
+
+            // Build picks data with full game information
+            const allPicks = [];
+            gameHeaders.forEach(gameHeader => {
+                const gameInfo = parseGameColumn(gameHeader);
+                if (!gameInfo) return;
+
+                const gameKey = createGameKey(gameInfo.week, gameInfo.date, gameInfo.time, gameInfo.sheet);
+                const game = matchupsData[gameKey];
+                if (!game) return;
+
+                const playerPick = playerRow[gameHeader];
+                if (!playerPick) return;
+
+                let result = null;
+                if (game.winner) {
+                    result = (playerPick === game.winner) ? 'W' : 'L';
+                }
+
+                allPicks.push({
+                    gameNumber: game.gameNumber,
+                    week: game.week,
+                    date: game.date,
+                    time: game.time,
+                    sheet: game.sheet,
+                    team1: game.team1,
+                    team2: game.team2,
+                    pick: playerPick,
+                    winner: game.winner,
+                    result: result
+                });
+            });
+
+            // Sort by game number
+            allPicks.sort((a, b) => a.gameNumber - b.gameNumber);
+
+            // Update modal content
+            document.getElementById('modalPlayerName').textContent = playerName;
+            document.getElementById('modalPlayerStats').textContent =
+                `${player.wins}-${player.losses} (${player.winPct.toFixed(1)}%) • Rank: ${player.rank}`;
+
+            const picksList = document.getElementById('modalPicksList');
+            picksList.innerHTML = '';
+
+            allPicks.forEach(pick => {
+                const pickItem = document.createElement('div');
+                let statusClass = 'pick-pending';
+                if (pick.result === 'W') statusClass = 'pick-win';
+                else if (pick.result === 'L') statusClass = 'pick-loss';
+
+                pickItem.className = `pick-item ${statusClass}`;
+
+                let resultBadge = '';
+                if (pick.result === 'W') {
+                    resultBadge = '<span class="pick-result-badge win">WIN</span>';
+                } else if (pick.result === 'L') {
+                    resultBadge = '<span class="pick-result-badge loss">LOSS</span>';
+                } else {
+                    resultBadge = '<span class="pick-result-badge pending">TBD</span>';
+                }
+
+                pickItem.innerHTML = `
+                    <div class="pick-game-number">Game ${pick.gameNumber}</div>
+                    <div class="pick-details">
+                        <div class="pick-matchup">
+                            <span class="pick-matchup-teams">${pick.team1} vs ${pick.team2}</span>
+                        </div>
+                        <div class="pick-info">
+                            Week ${pick.week} • ${pick.date} • ${pick.time} • Sheet ${pick.sheet}
+                        </div>
+                        <div class="pick-choice">
+                            <span class="pick-choice-label">Picked:</span>
+                            <span class="pick-choice-team">${pick.pick}</span>
+                        </div>
+                        ${pick.winner ? `<div class="pick-info">Winner: <strong>${pick.winner}</strong></div>` : ''}
+                    </div>
+                    <div class="pick-result">
+                        ${resultBadge}
+                    </div>
+                `;
+
+                picksList.appendChild(pickItem);
+            });
+
+            // Show modal
+            document.getElementById('playerModal').classList.add('active');
+        }
+
+        function closePlayerModal() {
+            document.getElementById('playerModal').classList.remove('active');
+        }
+
+        // Close modal on overlay click
+        document.getElementById('playerModal').addEventListener('click', (e) => {
+            if (e.target.id === 'playerModal') {
+                closePlayerModal();
+            }
+        });
+
+        document.getElementById('closeModal').addEventListener('click', closePlayerModal);
+
+        // ===== PICK DISTRIBUTION VIEW =====
+        let distributionFilters = {
+            week: 'all',
+            gameStatus: 'all'
+        };
+
+        function renderPickDistribution() {
+            const container = document.getElementById('distributionList');
+            container.innerHTML = '';
+
+            // Get all games in order
+            let filteredGames = [...allGames];
+
+            // Apply filters
+            if (distributionFilters.week !== 'all') {
+                filteredGames = filteredGames.filter(g => g.week == distributionFilters.week);
+            }
+            if (distributionFilters.gameStatus === 'completed') {
+                filteredGames = filteredGames.filter(g => g.winner !== null);
+            } else if (distributionFilters.gameStatus === 'upcoming') {
+                filteredGames = filteredGames.filter(g => g.winner === null);
+            }
+
+            // Render each game's distribution
+            filteredGames.forEach(game => {
+                const analysis = pickAnalysis[game.gameKey];
+                if (!analysis) return;
+
+                const item = document.createElement('div');
+                item.className = 'distribution-item';
+
+                const team1Pct = analysis.team1Percentage || 0;
+                const team2Pct = analysis.team2Percentage || 0;
+                const team1Count = analysis.team1Picks || 0;
+                const team2Count = analysis.team2Picks || 0;
+                const totalPicks = team1Count + team2Count;
+
+                // Determine winner badge
+                let winnerBadge = '';
+                if (game.winner) {
+                    winnerBadge = `<span class="distribution-winner-badge">
+                        <i class="fas fa-trophy"></i> Winner: ${game.winner}
+                    </span>`;
+                }
+
+                item.innerHTML = `
+                    <div class="distribution-header">
+                        <div class="distribution-game-info">
+                            Week ${game.week} • ${game.date} • ${game.time} • Sheet ${game.sheet}
+                        </div>
+                        ${winnerBadge}
+                    </div>
+                    <div class="distribution-matchup">${game.team1} vs ${game.team2}</div>
+                    <div class="distribution-bar-container">
+                        <div class="distribution-bar team1" style="width: ${team1Pct}%" title="${game.team1}: ${team1Count} picks (${team1Pct}%)">
+                            ${team1Pct >= 15 ? team1Pct + '%' : ''}
+                        </div>
+                        <div class="distribution-bar team2" style="width: ${team2Pct}%" title="${game.team2}: ${team2Count} picks (${team2Pct}%)">
+                            ${team2Pct >= 15 ? team2Pct + '%' : ''}
+                        </div>
+                    </div>
+                    <div class="distribution-labels">
+                        <div class="distribution-label">
+                            <div class="distribution-label-color team1"></div>
+                            <span class="distribution-label-text">${game.team1}</span>
+                            <span class="distribution-label-count">${team1Count} picks (${team1Pct}%)</span>
+                        </div>
+                        <div class="distribution-label">
+                            <div class="distribution-label-color team2"></div>
+                            <span class="distribution-label-text">${game.team2}</span>
+                            <span class="distribution-label-count">${team2Count} picks (${team2Pct}%)</span>
+                        </div>
+                    </div>
+                `;
+
+                container.appendChild(item);
+            });
+
+            if (filteredGames.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: #999; padding: 40px;">No games match the selected filters.</p>';
+            }
+        }
+
+        function setupCombinedPicksView() {
+            const matrixView = document.getElementById('matrixView');
+            const distributionView = document.getElementById('distributionView');
+            const toggleButtons = document.querySelectorAll('.picks-toggle-btn');
+            const title = document.getElementById('picksViewTitle');
+
+            // Toggle between views
+            toggleButtons.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const view = btn.dataset.view;
+
+                    // Update button states
+                    toggleButtons.forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+
+                    // Show/hide views
+                    if (view === 'matrix') {
+                        matrixView.style.display = 'block';
+                        distributionView.style.display = 'none';
+                        title.textContent = 'All Player Picks';
+                    } else {
+                        matrixView.style.display = 'none';
+                        distributionView.style.display = 'block';
+                        title.textContent = 'Pick Distribution';
+
+                        // Render distribution if not already done
+                        const container = document.getElementById('distributionList');
+                        if (container.innerHTML === '') {
+                            renderPickDistribution();
+                        }
+                    }
+                });
+            });
+
+            // Setup matrix filters
+            const matrixWeekFilter = document.getElementById('matrixWeekFilter');
+            const weeks = [...new Set(allGames.map(g => g.week))].sort((a, b) => a - b);
+            weeks.forEach(week => {
+                const option = document.createElement('option');
+                option.value = week;
+                option.textContent = `Week ${week}`;
+                matrixWeekFilter.appendChild(option);
+            });
+
+            matrixWeekFilter.addEventListener('change', (e) => {
+                matrixFilters.week = e.target.value;
+                renderPicksMatrix();
+            });
+
+            document.getElementById('matrixGameFilter').addEventListener('change', (e) => {
+                matrixFilters.gameStatus = e.target.value;
+                renderPicksMatrix();
+            });
+
+            // Setup distribution filters
+            const distributionWeekFilter = document.getElementById('distributionWeekFilter');
+            weeks.forEach(week => {
+                const option = document.createElement('option');
+                option.value = week;
+                option.textContent = `Week ${week}`;
+                distributionWeekFilter.appendChild(option);
+            });
+
+            distributionWeekFilter.addEventListener('change', (e) => {
+                distributionFilters.week = e.target.value;
+                renderPickDistribution();
+            });
+
+            document.getElementById('distributionGameFilter').addEventListener('change', (e) => {
+                distributionFilters.gameStatus = e.target.value;
+                renderPickDistribution();
+            });
+
+            // Render initial matrix view
+            renderPicksMatrix();
+        }
+
+        // ===== PICKS MATRIX VIEW =====
+        let matrixFilters = {
+            week: 'all',
+            gameStatus: 'all'
+        };
+
+        function createPieChart(team1Pct, team2Pct) {
+            const size = 50;
+            const radius = 20;
+            const cx = size / 2;
+            const cy = size / 2;
+
+            // Brand colors for contrast
+            const team1Color = '#57707d'; // --w3-color-d1
+            const team2Color = '#ab9000'; // Gold/yellow
+
+            // Calculate the end angle for team1 (starting at top, going clockwise)
+            const team1Angle = (team1Pct / 100) * 360;
+
+            // Convert to radians and calculate end point
+            const team1Radians = ((team1Angle - 90) * Math.PI) / 180;
+            const team1X = cx + radius * Math.cos(team1Radians);
+            const team1Y = cy + radius * Math.sin(team1Radians);
+
+            // Determine if we need the large arc flag
+            const largeArc1 = team1Pct > 50 ? 1 : 0;
+            const largeArc2 = team2Pct > 50 ? 1 : 0;
+
+            let svg = `<svg class="matrix-header-pie" viewBox="0 0 ${size} ${size}">`;
+
+            if (team1Pct === 0) {
+                // All team2
+                svg += `<circle cx="${cx}" cy="${cy}" r="${radius}" fill="${team2Color}"/>`;
+            } else if (team2Pct === 0) {
+                // All team1
+                svg += `<circle cx="${cx}" cy="${cy}" r="${radius}" fill="${team1Color}"/>`;
+            } else if (team1Pct === 50) {
+                // Perfect split - show half and half
+                svg += `
+                    <path d="M ${cx},${cy} L ${cx},${cy - radius} A ${radius},${radius} 0 0 1 ${cx},${cy + radius} Z" fill="${team1Color}"/>
+                    <path d="M ${cx},${cy} L ${cx},${cy + radius} A ${radius},${radius} 0 0 1 ${cx},${cy - radius} Z" fill="${team2Color}"/>
+                `;
+            } else {
+                // Team1 slice
+                svg += `
+                    <path d="M ${cx},${cy} L ${cx},${cy - radius} A ${radius},${radius} 0 ${largeArc1} 1 ${team1X},${team1Y} Z"
+                          fill="${team1Color}"/>
+                `;
+
+                // Team2 slice - fills the rest
+                svg += `
+                    <path d="M ${cx},${cy} L ${team1X},${team1Y} A ${radius},${radius} 0 ${largeArc2} 1 ${cx},${cy - radius} Z"
+                          fill="${team2Color}"/>
+                `;
+            }
+
+            svg += '</svg>';
+            return svg;
+        }
+
+        function renderPicksMatrix() {
+            const thead = document.getElementById('matrixTableHead');
+            const tbody = document.getElementById('matrixTableBody');
+
+            // Get all game headers
+            const headers = Object.keys(rawPicksData[0]);
+            const gameHeaders = headers.filter(h => h.includes('Week'));
+
+            // Build game list with full info
+            const games = [];
+            gameHeaders.forEach(gameHeader => {
+                const gameInfo = parseGameColumn(gameHeader);
+                if (!gameInfo) return;
+
+                const gameKey = createGameKey(gameInfo.week, gameInfo.date, gameInfo.time, gameInfo.sheet);
+                const game = matchupsData[gameKey];
+                if (!game) return;
+
+                games.push({
+                    header: gameHeader,
+                    ...game
+                });
+            });
+
+            // Sort by game number
+            games.sort((a, b) => a.gameNumber - b.gameNumber);
+
+            // Apply filters
+            let filteredGames = games;
+            if (matrixFilters.week !== 'all') {
+                filteredGames = filteredGames.filter(g => g.week == matrixFilters.week);
+            }
+            if (matrixFilters.gameStatus === 'completed') {
+                filteredGames = filteredGames.filter(g => g.winner !== null);
+            } else if (matrixFilters.gameStatus === 'upcoming') {
+                filteredGames = filteredGames.filter(g => g.winner === null);
+            }
+
+            // Build header row
+            thead.innerHTML = '';
+            const headerRow = document.createElement('tr');
+
+            // Player name column
+            const playerHeader = document.createElement('th');
+            playerHeader.className = 'player-col';
+            playerHeader.textContent = 'Player';
+            headerRow.appendChild(playerHeader);
+
+            // Group games by week for header
+            const weekGroups = {};
+            filteredGames.forEach(game => {
+                if (!weekGroups[game.week]) {
+                    weekGroups[game.week] = [];
+                }
+                weekGroups[game.week].push(game);
+            });
+
+            // Add game columns
+            filteredGames.forEach(game => {
+                const gameHeader = document.createElement('th');
+
+                // Get pick analysis for this game
+                const analysis = pickAnalysis[game.gameKey];
+                const team1Pct = analysis ? (analysis.team1Percentage || 0) : 50;
+                const team2Pct = analysis ? (analysis.team2Percentage || 0) : 50;
+                const team1Count = analysis ? (analysis.team1Picks || 0) : 0;
+                const team2Count = analysis ? (analysis.team2Picks || 0) : 0;
+
+                // Create pie chart
+                const pieChartSVG = createPieChart(team1Pct, team2Pct);
+
+                gameHeader.innerHTML = `
+                    <div class="matrix-header-content">
+                        <div class="matrix-header-pie-wrapper" style="position: relative;">
+                            ${pieChartSVG}
+                            <div class="pie-tooltip" id="pieTooltip-${game.gameNumber}">
+                                <div style="color: #becbd2; font-weight: 600;">${game.team1}: ${team1Pct}%</div>
+                                <div style="color: #f4d03f; font-weight: 600;">${game.team2}: ${team2Pct}%</div>
+                            </div>
+                        </div>
+                        <div class="matrix-header-info">
+                            <div style="font-weight: bold;">Week ${game.week}</div>
+                            <div style="font-size: 10px; margin-top: 2px;">${game.date}</div>
+                            <div style="font-size: 10px;">${game.time}</div>
+                            <div style="font-size: 10px; margin-top: 5px; font-weight: 600; line-height: 1.5;">
+                                <div style="color: #57707d;">${game.team1} (${team1Pct}%)</div>
+                                <div style="color: #ab9000;">${game.team2} (${team2Pct}%)</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                headerRow.appendChild(gameHeader);
+
+                // Add hover event to pie chart
+                const pieChart = gameHeader.querySelector('.matrix-header-pie');
+                const tooltip = gameHeader.querySelector(`#pieTooltip-${game.gameNumber}`);
+
+                if (pieChart && tooltip) {
+                    pieChart.addEventListener('mouseenter', (e) => {
+                        tooltip.classList.add('active');
+                        const rect = pieChart.getBoundingClientRect();
+                        tooltip.style.left = '50%';
+                        tooltip.style.transform = 'translateX(-50%)';
+                        tooltip.style.top = '-35px';
+                    });
+
+                    pieChart.addEventListener('mouseleave', () => {
+                        tooltip.classList.remove('active');
+                    });
+                }
+            });
+
+            thead.appendChild(headerRow);
+
+            // Build body rows
+            tbody.innerHTML = '';
+
+            // Get name header for finding player rows
+            const allHeaders = Object.keys(rawPicksData[0]);
+            const nameHeader = allHeaders.find(h => h.toLowerCase().includes('name'));
+
+            leaderboardData.forEach(player => {
+                const row = document.createElement('tr');
+
+                // Player name cell
+                const nameCell = document.createElement('td');
+                nameCell.className = 'player-col';
+                nameCell.textContent = player.name;
+                nameCell.style.cursor = 'pointer';
+                nameCell.onclick = () => showPlayerDetails(player.name);
+                row.appendChild(nameCell);
+
+                // Find player row in raw data
+                const playerRow = rawPicksData.find(r => {
+                    const rowName = r[nameHeader] ? r[nameHeader].trim() : '';
+                    return rowName === player.name;
+                });
+
+                // Add pick cells
+                filteredGames.forEach(game => {
+                    const pickCell = document.createElement('td');
+
+                    if (playerRow && playerRow[game.header]) {
+                        const pick = playerRow[game.header];
+                        const pickDiv = document.createElement('div');
+                        pickDiv.className = 'matrix-pick-cell';
+
+                        // Determine result class
+                        let resultClass = 'pending';
+                        if (game.winner) {
+                            resultClass = (pick === game.winner) ? 'win' : 'loss';
+                        }
+                        pickDiv.classList.add(resultClass);
+
+                        pickDiv.textContent = pick;
+                        pickCell.appendChild(pickDiv);
+                    } else {
+                        pickCell.textContent = '-';
+                        pickCell.style.color = '#ccc';
+                    }
+
+                    row.appendChild(pickCell);
+                });
+
+                tbody.appendChild(row);
+            });
+        }
+
         Promise.all([
             d3.csv(matchupsUrl),
             d3.csv(picksUrl),
@@ -3296,6 +4468,9 @@
             // Setup what-if analysis
             renderWhatIfPanel();
             setupWhatIfControls();
+
+            // Setup combined picks view controls
+            setupCombinedPicksView();
 
             // Load team lineups and setup schedule
             loadTeamLineups().then(() => {
