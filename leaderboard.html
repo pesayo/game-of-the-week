@@ -1763,6 +1763,12 @@
             width: 50px;
             height: 50px;
             margin: 8px auto;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .matrix-header-pie:hover {
+            opacity: 0.8;
         }
 
         .matrix-header-content {
@@ -1774,6 +1780,23 @@
 
         .matrix-header-info {
             text-align: center;
+        }
+
+        .pie-tooltip {
+            position: absolute;
+            background: rgba(0, 0, 0, 0.85);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            pointer-events: none;
+            white-space: nowrap;
+            z-index: 1000;
+            display: none;
+        }
+
+        .pie-tooltip.active {
+            display: block;
         }
 
         .picks-matrix-table th.player-col {
@@ -4245,20 +4268,44 @@
 
                 gameHeader.innerHTML = `
                     <div class="matrix-header-content">
-                        ${pieChartSVG}
+                        <div class="matrix-header-pie-wrapper" style="position: relative;">
+                            ${pieChartSVG}
+                            <div class="pie-tooltip" id="pieTooltip-${game.gameNumber}">
+                                <div style="color: #becbd2; font-weight: 600;">${game.team1}: ${team1Pct}%</div>
+                                <div style="color: #dfe5e8; font-weight: 600;">${game.team2}: ${team2Pct}%</div>
+                            </div>
+                        </div>
                         <div class="matrix-header-info">
                             <div style="font-weight: bold;">Week ${game.week}</div>
                             <div style="font-size: 10px; margin-top: 2px;">${game.date}</div>
                             <div style="font-size: 10px;">${game.time}</div>
-                            <div style="font-size: 10px; margin-top: 5px; font-weight: 600; line-height: 1.4;">
-                                <span style="color: #57707d;">${game.team1} (${team1Pct}%)</span>
-                                <span style="color: #666;"> vs </span>
-                                <span style="color: #9eb1bb;">${game.team2} (${team2Pct}%)</span>
+                            <div style="font-size: 10px; margin-top: 5px; font-weight: 600; line-height: 1.5;">
+                                <div style="color: #57707d;">${game.team1} (${team1Pct}%)</div>
+                                <div style="color: #9eb1bb;">${game.team2} (${team2Pct}%)</div>
                             </div>
                         </div>
                     </div>
                 `;
+
                 headerRow.appendChild(gameHeader);
+
+                // Add hover event to pie chart
+                const pieChart = gameHeader.querySelector('.matrix-header-pie');
+                const tooltip = gameHeader.querySelector(`#pieTooltip-${game.gameNumber}`);
+
+                if (pieChart && tooltip) {
+                    pieChart.addEventListener('mouseenter', (e) => {
+                        tooltip.classList.add('active');
+                        const rect = pieChart.getBoundingClientRect();
+                        tooltip.style.left = '50%';
+                        tooltip.style.transform = 'translateX(-50%)';
+                        tooltip.style.top = '-35px';
+                    });
+
+                    pieChart.addEventListener('mouseleave', () => {
+                        tooltip.classList.remove('active');
+                    });
+                }
             });
 
             thead.appendChild(headerRow);
