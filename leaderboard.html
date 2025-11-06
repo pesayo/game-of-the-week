@@ -1253,6 +1253,17 @@
             font-size: 16px;
         }
 
+        .whatif-summary-inline {
+            font-size: 14px;
+            font-weight: 400;
+            color: var(--text-secondary);
+            margin-left: 8px;
+        }
+
+        .whatif-summary-inline strong {
+            color: var(--text-primary);
+        }
+
         .whatif-content {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -2309,13 +2320,6 @@
                 <h2 class="section-title"><i class="fas fa-wand-magic-sparkles"></i> What-If Analysis</h2>
                 <p style="color: var(--text-secondary); margin-bottom: 20px;">Select winners for upcoming games to see how it would affect the standings. Click a selected team again to unset.</p>
 
-                <!-- Summary -->
-                <div class="whatif-summary">
-                    <div class="whatif-summary-text">
-                        <strong id="selectionCount">0</strong> of <strong id="totalGamesCount">0</strong> games selected
-                    </div>
-                </div>
-
                 <!-- Two Column Layout -->
                 <div class="whatif-content">
                     <!-- Left Column: Game Selection -->
@@ -2340,7 +2344,10 @@
 
                     <!-- Right Column: Projected Standings -->
                     <div class="whatif-column">
-                        <div class="whatif-column-title">Standings Impact</div>
+                        <div class="whatif-column-title">
+                            Standings Impact
+                            <span class="whatif-summary-inline">(<strong id="selectionCount">0</strong> of <strong id="totalGamesCount">0</strong> hypothetical choices)</span>
+                        </div>
 
                         <div class="whatif-results" id="whatifResults">
                             <div class="whatif-placeholder">
