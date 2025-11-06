@@ -669,8 +669,8 @@
 
         /* Week group styles */
         .week-group {
-            grid-column: 1 / -1;
             margin-top: 25px;
+            width: 100%;
         }
 
         .week-group:first-child {
@@ -691,8 +691,13 @@
 
         .week-games {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
             gap: 12px;
+        }
+
+        /* Override grid for full schedule container to allow week grouping */
+        #matchupsGrid {
+            display: block;
         }
 
         .matchup-card {
