@@ -545,6 +545,68 @@
             transform: rotate(180deg);
         }
 
+        /* Upcoming Matchup Card Styles */
+        .upcoming-matchup-card {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 3px 15px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .upcoming-matchup-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            text-align: center;
+        }
+
+        .upcoming-matchup-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .upcoming-matchup-info {
+            font-size: 13px;
+            opacity: 0.95;
+        }
+
+        .upcoming-matchup-body {
+            padding: 20px;
+        }
+
+        .upcoming-team-section {
+            margin-bottom: 20px;
+        }
+
+        .upcoming-team-section:last-of-type {
+            margin-bottom: 0;
+        }
+
+        .upcoming-team-name {
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 12px;
+            color: #333;
+            text-align: center;
+        }
+
+        .upcoming-members-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .upcoming-vs-divider {
+            text-align: center;
+            color: #999;
+            font-size: 16px;
+            font-weight: bold;
+            margin: 15px 0;
+        }
+
         /* Schedule Styles */
         .schedule-section {
             grid-column: 1 / -1;
@@ -586,7 +648,7 @@
         .matchup-card {
             background-color: #f8f9fa;
             border-radius: 8px;
-            padding: 15px;
+            padding: 12px 15px;
             border: 2px solid #e0e0e0;
             cursor: pointer;
             transition: all 0.3s;
@@ -594,20 +656,33 @@
         }
 
         .matchup-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+            transform: translateY(-2px);
+            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.12);
             border-color: #4CAF50;
         }
 
         .matchup-card.completed {
             border-color: #4CAF50;
+            background-color: #f0f9f0;
         }
 
-        .matchup-header {
+        .matchup-compact-header {
             font-size: 11px;
             color: #666;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
             text-align: center;
+        }
+
+        .matchup-compact-teams {
+            font-size: 14px;
+            text-align: center;
+            color: #333;
+        }
+
+        .compact-vs {
+            color: #999;
+            font-weight: normal;
+            margin: 0 8px;
         }
 
         .matchup-teams {
@@ -1416,9 +1491,6 @@
     <div id="matchupTooltip"></div>
 
     <script>
-        // Version check - if you see this alert, new code is loading
-        alert('Script loaded - Version 2.0 with alerts');
-
         const matchupsUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQi6KQIneboHgXLY48j6eRSCPD66Sbf4-WzSvmB7gAZv4duklJ0nluIUZZT3S68FTLp1DGcfZVHqq6n/pub?gid=1301060622&single=true&output=csv";
         const picksUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQi6KQIneboHgXLY48j6eRSCPD66Sbf4-WzSvmB7gAZv4duklJ0nluIUZZT3S68FTLp1DGcfZVHqq6n/pub?gid=881893402&single=true&output=csv";
         const playerInfoUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQi6KQIneboHgXLY48j6eRSCPD66Sbf4-WzSvmB7gAZv4duklJ0nluIUZZT3S68FTLp1DGcfZVHqq6n/pub?gid=1863176371&single=true&output=csv";
@@ -2425,7 +2497,6 @@
 
         // Get upcoming games (next game date or today's games if it's game day)
         function getUpcomingGamesFiltered() {
-            alert('getUpcomingGamesFiltered V2 called');
             const today = new Date();
             today.setHours(0, 0, 0, 0);
 
@@ -2435,16 +2506,12 @@
                 parsedDate: parseGameDate(game.date)
             })).filter(game => game.parsedDate !== null);
 
-            alert(`Total games with valid dates: ${allGamesWithDates.length}`);
-
             // Filter to future/today unplayed games only
             const futureUnplayedGames = allGamesWithDates.filter(game => {
                 const isFuture = game.parsedDate >= today;
                 const isUnplayed = !game.winner;
                 return isFuture && isUnplayed;
             });
-
-            alert(`Future unplayed games: ${futureUnplayedGames.length}`);
 
             if (futureUnplayedGames.length === 0) {
                 return [];
@@ -2455,8 +2522,6 @@
 
             // Get the first (next) game date
             const nextGameDate = futureUnplayedGames[0].parsedDate;
-            const nextGameDateStr = nextGameDate.toLocaleDateString();
-            alert(`Next game date: ${nextGameDateStr}`);
 
             // Filter to only games on that specific date
             const upcomingGames = futureUnplayedGames.filter(game => {
@@ -2464,30 +2529,24 @@
                 return isSameDate;
             });
 
-            alert(`Games on ${nextGameDateStr}: ${upcomingGames.length}`);
-
             return upcomingGames;
         }
 
-        // Create a matchup card element
+        // Create a compact matchup card element for full schedule
         function createMatchupCard(game) {
             const card = document.createElement('div');
             card.className = `matchup-card ${game.winner ? 'completed' : ''}`;
 
+            // Compact single-line format: "Marcus Oldenburg vs Steve Oakeson" with winner indicator
+            const team1Display = game.winner === game.team1 ? `<strong>${game.team1}</strong> 🏆` : game.team1;
+            const team2Display = game.winner === game.team2 ? `<strong>${game.team2}</strong> 🏆` : game.team2;
+
             card.innerHTML = `
-                <div class="matchup-header">
+                <div class="matchup-compact-header">
                     Week ${game.week} | ${game.date} | ${game.time} | Sheet ${game.sheet}
                 </div>
-                <div class="matchup-teams">
-                    <div class="matchup-team ${game.winner === game.team1 ? 'winner' : ''}">
-                        <span class="matchup-team-name">Team ${game.team1}</span>
-                        ${game.winner === game.team1 ? '<span class="winner-badge">Winner</span>' : ''}
-                    </div>
-                    <div class="matchup-vs">vs</div>
-                    <div class="matchup-team ${game.winner === game.team2 ? 'winner' : ''}">
-                        <span class="matchup-team-name">Team ${game.team2}</span>
-                        ${game.winner === game.team2 ? '<span class="winner-badge">Winner</span>' : ''}
-                    </div>
+                <div class="matchup-compact-teams">
+                    ${team1Display} <span class="compact-vs">vs</span> ${team2Display}
                 </div>
             `;
 
@@ -2510,15 +2569,65 @@
             return card;
         }
 
-        // Render upcoming matchups
+        // Create an expanded upcoming matchup card with team lineups
+        function createUpcomingMatchupCard(game) {
+            const card = document.createElement('div');
+            card.className = 'upcoming-matchup-card';
+
+            const team1LastName = game.team1.split(' ').pop();
+            const team2LastName = game.team2.split(' ').pop();
+            const team1Lineup = teamLineups[game.team1] || [];
+            const team2Lineup = teamLineups[game.team2] || [];
+
+            card.innerHTML = `
+                <div class="upcoming-matchup-header">
+                    <div class="upcoming-matchup-title">${game.team1} vs ${game.team2}</div>
+                    <div class="upcoming-matchup-info">Week ${game.week} | ${game.date} | ${game.time} | Sheet ${game.sheet}</div>
+                </div>
+                <div class="upcoming-matchup-body">
+                    <div class="upcoming-team-section">
+                        <div class="upcoming-team-name">${game.team1}</div>
+                        <div class="upcoming-members-row" id="upcoming-team1-${game.week}-${game.sheet}"></div>
+                    </div>
+                    <div class="upcoming-vs-divider">VS</div>
+                    <div class="upcoming-team-section">
+                        <div class="upcoming-team-name">${game.team2}</div>
+                        <div class="upcoming-members-row" id="upcoming-team2-${game.week}-${game.sheet}"></div>
+                    </div>
+                </div>
+            `;
+
+            // Add team members after card is created
+            setTimeout(() => {
+                const team1Container = document.getElementById(`upcoming-team1-${game.week}-${game.sheet}`);
+                const team2Container = document.getElementById(`upcoming-team2-${game.week}-${game.sheet}`);
+
+                if (team1Container && team1Lineup.length > 0) {
+                    team1Lineup.forEach(member => {
+                        team1Container.appendChild(createTooltipMemberElement(member));
+                    });
+                } else if (team1Container) {
+                    team1Container.innerHTML = '<div style="color: #999; font-size: 12px;">No lineup data</div>';
+                }
+
+                if (team2Container && team2Lineup.length > 0) {
+                    team2Lineup.forEach(member => {
+                        team2Container.appendChild(createTooltipMemberElement(member));
+                    });
+                } else if (team2Container) {
+                    team2Container.innerHTML = '<div style="color: #999; font-size: 12px;">No lineup data</div>';
+                }
+            }, 0);
+
+            return card;
+        }
+
+        // Render upcoming matchups with expanded team lineup view
         function renderUpcomingMatchups() {
-            alert('renderUpcomingMatchups() starting');
             const container = document.getElementById('upcomingMatchupsGrid');
             container.innerHTML = '';
 
-            alert('About to call getUpcomingGamesFiltered()');
             const upcomingGames = getUpcomingGamesFiltered();
-            alert(`getUpcomingGamesFiltered() returned: ${upcomingGames.length} games`);
 
             if (upcomingGames.length === 0) {
                 container.innerHTML = '<div style="text-align: center; color: #666; padding: 20px;">No upcoming games scheduled</div>';
@@ -2526,7 +2635,7 @@
             }
 
             upcomingGames.forEach(game => {
-                container.appendChild(createMatchupCard(game));
+                container.appendChild(createUpcomingMatchupCard(game));
             });
         }
 
@@ -2923,9 +3032,7 @@
             setupWhatIfControls();
 
             // Load team lineups and setup schedule
-            console.log('About to load team lineups');
             loadTeamLineups().then(() => {
-                console.log('Team lineups loaded, rendering schedule components');
                 renderUpcomingMatchups();
                 renderSchedule();
                 setupScheduleFilters();
