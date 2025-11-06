@@ -1,0 +1,26 @@
+# Environment variables with credentials
+.env
+
+# Cache directories
+cache/
+*.pyc
+__pycache__/
+
+# Generated data files (optional - uncomment if you don't want to commit them)
+# team_cards.json
+
+# Python virtual environment
+venv/
+env/
+.venv/
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
