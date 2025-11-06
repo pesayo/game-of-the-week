@@ -1662,39 +1662,61 @@
             color: #666;
         }
 
-        /* Picks Matrix View */
-        .picks-matrix-toggle {
-            text-align: center;
-            margin: 20px 0;
+        /* Combined Picks View */
+        .picks-view-section {
+            margin-top: 20px;
         }
 
-        .picks-matrix-btn {
-            padding: 12px 24px;
-            border: 2px solid #607d8b;
-            border-radius: 8px;
-            background-color: white;
-            color: #607d8b;
-            cursor: pointer;
-            font-size: 16px;
-            font-weight: 600;
-            transition: all 0.3s;
-            display: inline-flex;
+        .picks-view-header {
+            display: flex;
+            justify-content: space-between;
             align-items: center;
-            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
         }
 
-        .picks-matrix-btn:hover {
+        .picks-view-header .section-title {
+            margin-bottom: 0;
+            padding-bottom: 0;
+            border-bottom: none;
+        }
+
+        .picks-view-toggle {
+            display: flex;
+            gap: 10px;
+            background-color: #f8f9fa;
+            padding: 5px;
+            border-radius: 8px;
+        }
+
+        .picks-toggle-btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 5px;
+            background-color: transparent;
+            color: #666;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .picks-toggle-btn:hover {
+            background-color: #e8e8e8;
+            color: #333;
+        }
+
+        .picks-toggle-btn.active {
             background-color: #607d8b;
             color: white;
         }
 
-        .picks-matrix-section {
-            display: none;
-            margin-top: 20px;
-        }
-
-        .picks-matrix-section.active {
-            display: block;
+        .picks-view-content {
+            /* Content containers */
         }
 
         .matrix-filters {
@@ -1868,15 +1890,6 @@
         }
 
         /* Pick Distribution Chart */
-        .pick-distribution-section {
-            display: none;
-            margin-top: 20px;
-        }
-
-        .pick-distribution-section.active {
-            display: block;
-        }
-
         .distribution-list {
             display: grid;
             gap: 15px;
@@ -2093,6 +2106,70 @@
                 <div class="tooltip" id="tooltip"></div>
             </section>
 
+            <!-- Combined Picks View Section -->
+            <section class="section picks-view-section">
+                <div class="picks-view-header">
+                    <h2 class="section-title"><i class="fas fa-th"></i> <span id="picksViewTitle">All Player Picks</span></h2>
+                    <div class="picks-view-toggle">
+                        <button class="picks-toggle-btn active" data-view="matrix">
+                            <i class="fas fa-table"></i> Matrix
+                        </button>
+                        <button class="picks-toggle-btn" data-view="distribution">
+                            <i class="fas fa-chart-bar"></i> Distribution
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Matrix View -->
+                <div class="picks-view-content" id="matrixView">
+                    <div class="matrix-filters">
+                        <div class="matrix-filter-group">
+                            <label for="matrixWeekFilter">Week:</label>
+                            <select id="matrixWeekFilter">
+                                <option value="all">All Weeks</option>
+                            </select>
+                        </div>
+                        <div class="matrix-filter-group">
+                            <label for="matrixGameFilter">Games:</label>
+                            <select id="matrixGameFilter">
+                                <option value="all">All Games</option>
+                                <option value="completed">Completed Only</option>
+                                <option value="upcoming">Upcoming Only</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="picks-matrix-container">
+                        <table class="picks-matrix-table" id="picksMatrixTable">
+                            <thead id="matrixTableHead"></thead>
+                            <tbody id="matrixTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Distribution View -->
+                <div class="picks-view-content" id="distributionView" style="display: none;">
+                    <div class="matrix-filters">
+                        <div class="matrix-filter-group">
+                            <label for="distributionWeekFilter">Week:</label>
+                            <select id="distributionWeekFilter">
+                                <option value="all">All Weeks</option>
+                            </select>
+                        </div>
+                        <div class="matrix-filter-group">
+                            <label for="distributionGameFilter">Games:</label>
+                            <select id="distributionGameFilter">
+                                <option value="all">All Games</option>
+                                <option value="completed">Completed Only</option>
+                                <option value="upcoming">Upcoming Only</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="distribution-list" id="distributionList"></div>
+                </div>
+            </section>
+
             <!-- Right Column Container -->
             <div class="right-column-container">
                 <!-- Horse Race Section -->
@@ -2172,71 +2249,6 @@
             </div> <!-- end right-column-container -->
 
         </div> <!-- end dashboard-grid -->
-
-        <!-- Picks Matrix Toggle -->
-        <div class="picks-matrix-toggle" id="picksMatrixToggle" style="display: none;">
-            <button class="picks-matrix-btn" id="togglePicksMatrix">
-                <i class="fas fa-table"></i>
-                <span id="matrixBtnText">View All Picks Matrix</span>
-            </button>
-            <button class="picks-matrix-btn" id="togglePickDistribution" style="margin-left: 15px;">
-                <i class="fas fa-chart-bar"></i>
-                <span id="distributionBtnText">View Pick Distribution</span>
-            </button>
-        </div>
-
-        <!-- Picks Matrix Section -->
-        <section class="section picks-matrix-section" id="picksMatrixSection">
-            <h2 class="section-title"><i class="fas fa-th"></i> All Player Picks</h2>
-
-            <div class="matrix-filters">
-                <div class="matrix-filter-group">
-                    <label for="matrixWeekFilter">Week:</label>
-                    <select id="matrixWeekFilter">
-                        <option value="all">All Weeks</option>
-                    </select>
-                </div>
-                <div class="matrix-filter-group">
-                    <label for="matrixGameFilter">Games:</label>
-                    <select id="matrixGameFilter">
-                        <option value="all">All Games</option>
-                        <option value="completed">Completed Only</option>
-                        <option value="upcoming">Upcoming Only</option>
-                    </select>
-                </div>
-            </div>
-
-            <div class="picks-matrix-container">
-                <table class="picks-matrix-table" id="picksMatrixTable">
-                    <thead id="matrixTableHead"></thead>
-                    <tbody id="matrixTableBody"></tbody>
-                </table>
-            </div>
-        </section>
-
-        <!-- Pick Distribution Section -->
-        <section class="section pick-distribution-section" id="pickDistributionSection">
-            <h2 class="section-title"><i class="fas fa-chart-bar"></i> Pick Distribution by Game</h2>
-
-            <div class="matrix-filters">
-                <div class="matrix-filter-group">
-                    <label for="distributionWeekFilter">Week:</label>
-                    <select id="distributionWeekFilter">
-                        <option value="all">All Weeks</option>
-                    </select>
-                </div>
-                <div class="matrix-filter-group">
-                    <label for="distributionGameFilter">Games:</label>
-                    <select id="distributionGameFilter">
-                        <option value="all">All Games</option>
-                        <option value="completed">Completed Only</option>
-                        <option value="upcoming">Upcoming Only</option>
-                    </select>
-                </div>
-            </div>
-
-            <div class="distribution-list" id="distributionList"></div>
-        </section>
 
     </div> <!-- end dashboard-container -->
 
@@ -4088,51 +4100,81 @@
             }
         }
 
-        function setupPickDistributionControls() {
-            const toggleBtn = document.getElementById('togglePickDistribution');
-            const distributionSection = document.getElementById('pickDistributionSection');
-            const btnText = document.getElementById('distributionBtnText');
+        function setupCombinedPicksView() {
+            const matrixView = document.getElementById('matrixView');
+            const distributionView = document.getElementById('distributionView');
+            const toggleButtons = document.querySelectorAll('.picks-toggle-btn');
+            const title = document.getElementById('picksViewTitle');
 
-            let isDistributionVisible = false;
+            // Toggle between views
+            toggleButtons.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const view = btn.dataset.view;
 
-            toggleBtn.addEventListener('click', () => {
-                isDistributionVisible = !isDistributionVisible;
-                distributionSection.classList.toggle('active', isDistributionVisible);
-                btnText.textContent = isDistributionVisible ? 'Hide Pick Distribution' : 'View Pick Distribution';
+                    // Update button states
+                    toggleButtons.forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
 
-                if (isDistributionVisible) {
-                    const container = document.getElementById('distributionList');
-                    if (container.innerHTML === '') {
-                        renderPickDistribution();
+                    // Show/hide views
+                    if (view === 'matrix') {
+                        matrixView.style.display = 'block';
+                        distributionView.style.display = 'none';
+                        title.textContent = 'All Player Picks';
+                    } else {
+                        matrixView.style.display = 'none';
+                        distributionView.style.display = 'block';
+                        title.textContent = 'Pick Distribution';
+
+                        // Render distribution if not already done
+                        const container = document.getElementById('distributionList');
+                        if (container.innerHTML === '') {
+                            renderPickDistribution();
+                        }
                     }
-
-                    // Scroll to distribution if showing
-                    setTimeout(() => {
-                        distributionSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                    }, 100);
-                }
+                });
             });
 
-            // Week filter
-            const weekFilter = document.getElementById('distributionWeekFilter');
+            // Setup matrix filters
+            const matrixWeekFilter = document.getElementById('matrixWeekFilter');
             const weeks = [...new Set(allGames.map(g => g.week))].sort((a, b) => a - b);
             weeks.forEach(week => {
                 const option = document.createElement('option');
                 option.value = week;
                 option.textContent = `Week ${week}`;
-                weekFilter.appendChild(option);
+                matrixWeekFilter.appendChild(option);
             });
 
-            weekFilter.addEventListener('change', (e) => {
+            matrixWeekFilter.addEventListener('change', (e) => {
+                matrixFilters.week = e.target.value;
+                renderPicksMatrix();
+            });
+
+            document.getElementById('matrixGameFilter').addEventListener('change', (e) => {
+                matrixFilters.gameStatus = e.target.value;
+                renderPicksMatrix();
+            });
+
+            // Setup distribution filters
+            const distributionWeekFilter = document.getElementById('distributionWeekFilter');
+            weeks.forEach(week => {
+                const option = document.createElement('option');
+                option.value = week;
+                option.textContent = `Week ${week}`;
+                distributionWeekFilter.appendChild(option);
+            });
+
+            distributionWeekFilter.addEventListener('change', (e) => {
                 distributionFilters.week = e.target.value;
                 renderPickDistribution();
             });
 
-            // Game status filter
             document.getElementById('distributionGameFilter').addEventListener('change', (e) => {
                 distributionFilters.gameStatus = e.target.value;
                 renderPickDistribution();
             });
+
+            // Render initial matrix view
+            renderPicksMatrix();
         }
 
         // ===== PICKS MATRIX VIEW =====
@@ -4364,59 +4406,6 @@
             });
         }
 
-        function setupPicksMatrixControls() {
-            const toggleBtn = document.getElementById('togglePicksMatrix');
-            const matrixSection = document.getElementById('picksMatrixSection');
-            const btnText = document.getElementById('matrixBtnText');
-
-            let isMatrixVisible = false;
-
-            toggleBtn.addEventListener('click', () => {
-                isMatrixVisible = !isMatrixVisible;
-                matrixSection.classList.toggle('active', isMatrixVisible);
-                btnText.textContent = isMatrixVisible ? 'Hide Picks Matrix' : 'View All Picks Matrix';
-
-                if (isMatrixVisible) {
-                    const tbody = document.getElementById('matrixTableBody');
-                    if (tbody.innerHTML === '') {
-                        // First time rendering
-                        renderPicksMatrix();
-                    }
-                }
-
-                // Scroll to matrix if showing
-                if (isMatrixVisible) {
-                    setTimeout(() => {
-                        matrixSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                    }, 100);
-                }
-            });
-
-            // Week filter
-            const weekFilter = document.getElementById('matrixWeekFilter');
-            const weeks = [...new Set(allGames.map(g => g.week))].sort((a, b) => a - b);
-            weeks.forEach(week => {
-                const option = document.createElement('option');
-                option.value = week;
-                option.textContent = `Week ${week}`;
-                weekFilter.appendChild(option);
-            });
-
-            weekFilter.addEventListener('change', (e) => {
-                matrixFilters.week = e.target.value;
-                renderPicksMatrix();
-            });
-
-            // Game status filter
-            document.getElementById('matrixGameFilter').addEventListener('change', (e) => {
-                matrixFilters.gameStatus = e.target.value;
-                renderPicksMatrix();
-            });
-
-            // Show the toggle button
-            document.getElementById('picksMatrixToggle').style.display = 'block';
-        }
-
         Promise.all([
             d3.csv(matchupsUrl),
             d3.csv(picksUrl),
@@ -4464,11 +4453,8 @@
             renderWhatIfPanel();
             setupWhatIfControls();
 
-            // Setup picks matrix controls
-            setupPicksMatrixControls();
-
-            // Setup pick distribution controls
-            setupPickDistributionControls();
+            // Setup combined picks view controls
+            setupCombinedPicksView();
 
             // Load team lineups and setup schedule
             loadTeamLineups().then(() => {
