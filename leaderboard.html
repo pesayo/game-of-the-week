@@ -786,7 +786,7 @@
         .upcoming-vs-divider {
             text-align: center;
             color: var(--mcc-dark-1);
-            font-size: 24px;
+            font-size: 18px;
             font-weight: bold;
             flex-shrink: 0;
             padding: 20px;
@@ -3550,15 +3550,12 @@
             const sanitizedTime = game.time.replace(/[^\w]/g, '');
 
             card.innerHTML = `
-                <div class="upcoming-matchup-header">
-                    <div class="upcoming-matchup-info">${game.time} | Sheet ${game.sheet}</div>
-                </div>
                 <div class="upcoming-matchup-body">
                     <div class="upcoming-team-section">
                         <div class="upcoming-team-name">${game.team1}</div>
                         <div class="upcoming-members-row" id="upcoming-team1-${game.week}-${game.sheet}-${sanitizedTime}"></div>
                     </div>
-                    <div class="upcoming-vs-divider">VS</div>
+                    <div class="upcoming-vs-divider">${game.time} <br> Sheet ${game.sheet}</div>
                     <div class="upcoming-team-section">
                         <div class="upcoming-team-name">${game.team2}</div>
                         <div class="upcoming-members-row" id="upcoming-team2-${game.week}-${game.sheet}-${sanitizedTime}"></div>
