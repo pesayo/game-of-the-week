@@ -2381,6 +2381,14 @@
                     }
                 });
 
+                // Calculate percentages for each team
+                let team1Percentage = 0;
+                let team2Percentage = 0;
+                if (totalPicks > 0) {
+                    team1Percentage = Math.round((pickCounts[game.team1] / totalPicks) * 100);
+                    team2Percentage = Math.round((pickCounts[game.team2] / totalPicks) * 100);
+                }
+
                 // Determine chalk (majority pick)
                 let chalkPick = null;
                 let chalkPercentage = 50;
@@ -2388,10 +2396,10 @@
                 if (totalPicks > 0) {
                     if (pickCounts[game.team1] > pickCounts[game.team2]) {
                         chalkPick = game.team1;
-                        chalkPercentage = (pickCounts[game.team1] / totalPicks * 100).toFixed(0);
+                        chalkPercentage = team1Percentage;
                     } else if (pickCounts[game.team2] > pickCounts[game.team1]) {
                         chalkPick = game.team2;
-                        chalkPercentage = (pickCounts[game.team2] / totalPicks * 100).toFixed(0);
+                        chalkPercentage = team2Percentage;
                     }
                 }
 
@@ -2400,6 +2408,8 @@
                     team2: game.team2,
                     team1Picks: pickCounts[game.team1],
                     team2Picks: pickCounts[game.team2],
+                    team1Percentage: team1Percentage,
+                    team2Percentage: team2Percentage,
                     totalPicks: totalPicks,
                     chalkPick: chalkPick,
                     chalkPercentage: chalkPercentage
