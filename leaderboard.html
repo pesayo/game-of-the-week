@@ -492,7 +492,19 @@
             box-shadow: 0 0 0 2px #FF6B35;
         }
 
-        .tooltip, #raceTooltip {
+        .tooltip {
+            position: absolute;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 25px rgba(0, 0, 0, 0.3);
+            pointer-events: none;
+            display: none;
+            z-index: 2000;
+            min-width: 400px;
+            max-width: 500px;
+        }
+
+        #raceTooltip {
             position: absolute;
             padding: 10px;
             background-color: rgba(0, 0, 0, 0.9);
@@ -2152,41 +2164,123 @@
         function showTooltip(event, playerName, gameData) {
             const tooltip = document.getElementById('tooltip');
 
-            let tooltipHtml = `<strong>${playerName}</strong><br>`;
-            tooltipHtml += `Game ${gameData.game}: <strong>${gameData.result === 'W' ? 'Win ✓' : 'Loss ✗'}</strong><br>`;
-
+            // Find the game from allGames using matchup info
+            let game = null;
             if (gameData.matchup) {
-                tooltipHtml += `<strong>vs</strong> ${gameData.matchup.opponent}<br>`;
+                game = allGames.find(g =>
+                    g.week === gameData.matchup.week &&
+                    g.date === gameData.matchup.date &&
+                    g.time === gameData.matchup.time &&
+                    g.sheet === gameData.matchup.sheet
+                );
             }
 
+            if (!game) {
+                // Fallback to simple tooltip if game not found
+                tooltip.innerHTML = `<div style="padding: 10px; color: #333;">
+                    <strong>${playerName}</strong><br>
+                    Game ${gameData.game}: <strong>${gameData.result === 'W' ? 'Win ✓' : 'Loss ✗'}</strong><br>
+                    Record: ${gameData.cumulativeWins}-${gameData.cumulativeLosses}
+                </div>`;
+                tooltip.style.display = 'block';
+                tooltip.style.left = (event.pageX + 15) + 'px';
+                tooltip.style.top = (event.pageY - 10) + 'px';
+                return;
+            }
+
+            // Get team lineups
+            const team1Lineup = teamLineups[game.team1] || [];
+            const team2Lineup = teamLineups[game.team2] || [];
+
+            // Build tooltip with matchup structure
+            let tooltipContent = `
+                <div class="matchup-tooltip-header">
+                    <div class="matchup-tooltip-title">
+                        <strong>${playerName}</strong>: ${gameData.result === 'W' ? 'Win ✓' : 'Loss ✗'}
+                    </div>
+                    <div class="matchup-tooltip-info">
+                        Week ${game.week} | ${game.date} | ${game.time} | Sheet ${game.sheet}
+                    </div>
+            `;
+
+            // Add pick information in header if available
             if (gameData.pick) {
-                tooltipHtml += `<strong>Picked:</strong> ${gameData.pick}`;
-
-                // Show contrarian indicator
+                tooltipContent += `<div class="matchup-tooltip-info">
+                    Picked: ${gameData.pick}`;
                 if (gameData.isContrarian) {
-                    tooltipHtml += ` <span style="color: #FF6B35;"><i class="fas fa-fire"></i> Against the grain!</span>`;
+                    tooltipContent += ` <i class="fas fa-fire"></i> Against the grain!`;
                 }
-                tooltipHtml += '<br>';
+                tooltipContent += `</div>`;
             }
 
-            // Show pick distribution if available
+            // Add pick distribution in header if available
             if (gameData.pickAnalysis && gameData.pickAnalysis.totalPicks > 0) {
                 const analysis = gameData.pickAnalysis;
-                tooltipHtml += `<strong>Pick Distribution:</strong><br>`;
-                tooltipHtml += `${analysis.team1}: ${analysis.team1Picks} (${(analysis.team1Picks / analysis.totalPicks * 100).toFixed(0)}%)<br>`;
-                tooltipHtml += `${analysis.team2}: ${analysis.team2Picks} (${(analysis.team2Picks / analysis.totalPicks * 100).toFixed(0)}%)<br>`;
-
-                if (analysis.chalkPick) {
-                    tooltipHtml += `<strong>Chalk:</strong> ${analysis.chalkPick} (${analysis.chalkPercentage}%)<br>`;
-                }
+                tooltipContent += `<div class="matchup-tooltip-info" style="font-size: 11px; opacity: 0.9;">
+                    Picks: ${analysis.team1} ${analysis.team1Picks} (${(analysis.team1Picks / analysis.totalPicks * 100).toFixed(0)}%) |
+                    ${analysis.team2} ${analysis.team2Picks} (${(analysis.team2Picks / analysis.totalPicks * 100).toFixed(0)}%)
+                </div>`;
             }
 
-            tooltipHtml += `<strong>Record:</strong> ${gameData.cumulativeWins}-${gameData.cumulativeLosses}`;
+            tooltipContent += `</div><div class="matchup-tooltip-body">`;
 
-            tooltip.innerHTML = tooltipHtml;
+            // Team 1
+            tooltipContent += `
+                <div class="tooltip-team-section">
+                    <div class="tooltip-team-name ${game.winner === game.team1 ? 'winner' : ''}">
+                        Team ${game.team1}${game.winner === game.team1 ? ' <i class="fas fa-trophy"></i>' : ''}
+                    </div>
+                    <div class="tooltip-members-row" id="formTeam1Members"></div>
+                </div>
+            `;
+
+            tooltipContent += '<div class="tooltip-vs-divider">VS</div>';
+
+            // Team 2
+            tooltipContent += `
+                <div class="tooltip-team-section">
+                    <div class="tooltip-team-name ${game.winner === game.team2 ? 'winner' : ''}">
+                        Team ${game.team2}${game.winner === game.team2 ? ' <i class="fas fa-trophy"></i>' : ''}
+                    </div>
+                    <div class="tooltip-members-row" id="formTeam2Members"></div>
+                </div>
+            `;
+
+            tooltipContent += '</div>';
+            tooltip.innerHTML = tooltipContent;
+
+            // Add members after HTML is in DOM
+            const team1Container = tooltip.querySelector('#formTeam1Members');
+            const team2Container = tooltip.querySelector('#formTeam2Members');
+
+            if (team1Lineup.length > 0) {
+                team1Lineup.forEach(member => {
+                    team1Container.appendChild(createTooltipMemberElement(member));
+                });
+            } else {
+                team1Container.innerHTML = '<div style="color: #999; font-size: 12px;">No lineup data</div>';
+            }
+
+            if (team2Lineup.length > 0) {
+                team2Lineup.forEach(member => {
+                    team2Container.appendChild(createTooltipMemberElement(member));
+                });
+            } else {
+                team2Container.innerHTML = '<div style="color: #999; font-size: 12px;">No lineup data</div>';
+            }
+
+            // Position tooltip near cursor
             tooltip.style.display = 'block';
-            tooltip.style.left = (event.pageX + 15) + 'px';
-            tooltip.style.top = (event.pageY - 10) + 'px';
+            const tooltipRect = tooltip.getBoundingClientRect();
+            const x = event.pageX + 15;
+            const y = event.pageY - tooltipRect.height / 2;
+
+            // Keep tooltip on screen
+            const maxX = window.innerWidth + window.scrollX - tooltipRect.width - 20;
+            const maxY = window.innerHeight + window.scrollY - tooltipRect.height - 20;
+
+            tooltip.style.left = Math.min(x, maxX) + 'px';
+            tooltip.style.top = Math.max(10, Math.min(y, maxY)) + 'px';
         }
 
         // Hide tooltip
