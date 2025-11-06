@@ -1503,6 +1503,10 @@
             color: var(--success);
         }
 
+        .record-change.losses {
+            color: var(--error);
+        }
+
         .loading {
             text-align: center;
             padding: 40px;
@@ -3902,7 +3906,7 @@
                             winsDisplay = `${player.wins}<span class="record-change">+${winsChange}</span>`;
                         }
                         if (lossesChange > 0) {
-                            lossesDisplay = `${player.losses}<span class="record-change">+${lossesChange}</span>`;
+                            lossesDisplay = `${player.losses}<span class="record-change losses">+${lossesChange}</span>`;
                         }
                     }
                 }
