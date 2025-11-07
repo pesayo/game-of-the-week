@@ -12,17 +12,17 @@
 
 #raceTooltip {
     position: absolute;
-    padding: 5px 6px;
+    padding: 6px 8px;
     background-color: rgba(0, 0, 0, 0.92);
     color: white;
-    border-radius: 5px;
-    font-size: 10px;
-    line-height: 1.25;
+    border-radius: 6px;
+    font-size: 12px;
+    line-height: 1.35;
     pointer-events: none;
     display: none;
     z-index: 1000;
     min-width: unset !important;
-    max-width: 90px !important;
+    max-width: 140px !important;
     white-space: normal;
     word-wrap: break-word;
     overflow-wrap: break-word;
