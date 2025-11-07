@@ -9,7 +9,7 @@ const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/
 const API_KEY_STORAGE_KEY = 'gemini_api_key';
 
 // Default prompt template
-const DEFAULT_PROMPT = `You are writing a weekly email to participants in a curling pick'em league. Write a witty, clever, and slightly absurd email that:
+const DEFAULT_PROMPT = `You are writing a weekly email to participants in a curling league's pick 'em, called Game of the Week. Write a witty, clever, and slightly absurd email that:
 
 1. Highlights the most interesting recent results (upsets, blowouts, close games)
 2. Makes fun of the leaders and losers in a good-natured way
@@ -17,6 +17,7 @@ const DEFAULT_PROMPT = `You are writing a weekly email to participants in a curl
 4. Uses curling terminology and puns where appropriate
 5. Keeps a light, entertaining tone - this is for fun!
 
+Note: The teams players are picking on are named after the curling team's skip. Some of those skips are also participants in the Game of the Week.
 The email should be 3-5 short paragraphs. Be creative and entertaining. Feel free to create amusing narratives or exaggerate for comedic effect.`;
 
 // State
@@ -147,12 +148,15 @@ function displayDataPreview() {
             <div class="summary-section">
                 <h3>📊 Full Standings (${summary.allPlayers.length} Players)</h3>
                 <ol>
-                    ${summary.allPlayers.map(p => `
-                        <li>
-                            <strong>${p.name}</strong> (${p.position || 'Unknown'}${p.isFunkEngEligible ? ' - Funk-Eng Eligible' : ''}):
-                            ${p.wins}-${p.losses} (${p.winPct}%)
-                        </li>
-                    `).join('')}
+                    ${summary.allPlayers.map(p => {
+                        const rankChangeSymbol = p.rankChange > 0 ? `↑${p.rankChange}` : p.rankChange < 0 ? `↓${Math.abs(p.rankChange)}` : '−';
+                        return `
+                            <li>
+                                <strong>${p.name}</strong> (${p.position || 'Unknown'}${p.isFunkEngEligible ? ' - Funk-Eng Eligible' : ''}):<br>
+                                ${p.wins}-${p.losses} (${p.winPct}%) | Form: ${p.recentForm || 'N/A'} | Movement: ${rankChangeSymbol}
+                            </li>
+                        `;
+                    }).join('')}
                 </ol>
             </div>
 
@@ -193,6 +197,57 @@ function displayDataPreview() {
     `;
 }
 
+// Calculate what the standings were before the most recent week
+function calculatePreviousWeekStandings(mostRecentWeek) {
+    const previousStandings = new Map();
+
+    if (mostRecentWeek === 0) {
+        // No games completed yet
+        return previousStandings;
+    }
+
+    // Count wins/losses for each player excluding most recent week
+    const playerStats = new Map();
+
+    leaderboardData.forEach(player => {
+        // Filter out games from the most recent week
+        const gamesBeforeLastWeek = player.allResults.filter(result => {
+            return parseInt(result.matchup.week) < mostRecentWeek;
+        });
+
+        const wins = gamesBeforeLastWeek.filter(g => g.result === 'W').length;
+        const losses = gamesBeforeLastWeek.filter(g => g.result === 'L').length;
+        const totalGames = wins + losses;
+        const winPct = totalGames > 0 ? (wins / totalGames) * 100 : 0;
+
+        playerStats.set(player.name, { name: player.name, wins, losses, winPct });
+    });
+
+    // Convert to array and sort
+    const sortedPlayers = Array.from(playerStats.values()).sort((a, b) => {
+        if (b.wins !== a.wins) return b.wins - a.wins;
+        return b.winPct - a.winPct;
+    });
+
+    // Assign ranks
+    let currentRank = 1;
+    sortedPlayers.forEach((player, index) => {
+        if (index > 0) {
+            const prevPlayer = sortedPlayers[index - 1];
+            if (player.wins === prevPlayer.wins && player.winPct === prevPlayer.winPct) {
+                previousStandings.set(player.name, previousStandings.get(prevPlayer.name));
+            } else {
+                currentRank = index + 1;
+                previousStandings.set(player.name, currentRank);
+            }
+        } else {
+            previousStandings.set(player.name, 1);
+        }
+    });
+
+    return previousStandings;
+}
+
 // Generate a structured data summary for the AI
 function generateDataSummary() {
     const completedGames = gameData.allGames.filter(g => g.winner);
@@ -208,12 +263,22 @@ function generateDataSummary() {
         ? Math.min(...upcomingGames.map(g => parseInt(g.week)))
         : 0;
 
+    // Calculate previous week's standings (without most recent week's games)
+    const previousWeekStandings = calculatePreviousWeekStandings(mostRecentWeek);
+
     // Get all players with Funk-Eng eligibility
     const allPlayers = leaderboardData.map(p => {
         // Find player info from the data
         const playerInfo = gameData.playerInfo?.find(pi => pi.Name === p.name) || {};
         const position = playerInfo.Position || '';
         const isFunkEngEligible = position === 'Lead' || position === 'Second';
+
+        // Get recent form (last 5 games, W/L only)
+        const recentForm = p.recentForm.map(g => g.result).join('');
+
+        // Calculate rank movement
+        const previousRank = previousWeekStandings.get(p.name) || p.rank;
+        const rankChange = previousRank - p.rank; // Positive = moved up
 
         return {
             name: p.name,
@@ -223,7 +288,9 @@ function generateDataSummary() {
             rank: p.rank,
             team: playerInfo.Team || '',
             position: position,
-            isFunkEngEligible: isFunkEngEligible
+            isFunkEngEligible: isFunkEngEligible,
+            recentForm: recentForm,
+            rankChange: rankChange
         };
     });
 
@@ -326,12 +393,24 @@ async function generateEmail() {
 
 Here's the current data:
 
+**LEGEND:**
+- Form: Recent game results (W = Win, L = Loss, most recent on right)
+- Movement: Rank change from last week (↑ = moved up, ↓ = moved down, − = no change)
+
 **FULL STANDINGS (All ${summary.allPlayers.length} Players):**
 Goblet (Overall) Standings:
-${summary.allPlayers.map((p, i) => `${p.rank}. ${p.name} (${p.team}, ${p.position}): ${p.wins}-${p.losses} (${p.winPct}%)`).join('\n')}
+${summary.allPlayers.map((p, i) => {
+    const rankChangeStr = p.rankChange > 0 ? ` (↑${p.rankChange})` : p.rankChange < 0 ? ` (↓${Math.abs(p.rankChange)})` : ' (−)';
+    const formStr = p.recentForm ? ` [Form: ${p.recentForm}]` : '';
+    return `${p.rank}. ${p.name} (${p.team}, ${p.position}): ${p.wins}-${p.losses} (${p.winPct}%)${rankChangeStr}${formStr}`;
+}).join('\n')}
 
 Funk-Eng Cup Eligible Players (Leads & Seconds only):
-${summary.allPlayers.filter(p => p.isFunkEngEligible).map((p, i) => `${p.rank}. ${p.name} (${p.team}, ${p.position}): ${p.wins}-${p.losses} (${p.winPct}%)`).join('\n')}
+${summary.allPlayers.filter(p => p.isFunkEngEligible).map((p, i) => {
+    const rankChangeStr = p.rankChange > 0 ? ` (↑${p.rankChange})` : p.rankChange < 0 ? ` (↓${Math.abs(p.rankChange)})` : ' (−)';
+    const formStr = p.recentForm ? ` [Form: ${p.recentForm}]` : '';
+    return `${p.rank}. ${p.name} (${p.team}, ${p.position}): ${p.wins}-${p.losses} (${p.winPct}%)${rankChangeStr}${formStr}`;
+}).join('\n')}
 
 **WEEK ${summary.mostRecentWeek} RESULTS (${summary.recentWeekGames.length} game${summary.recentWeekGames.length !== 1 ? 's' : ''}):**
 ${summary.recentWeekGames.length > 0 ? summary.recentWeekGames.map(g => `- ${g.winner} defeated ${g.loser}${g.isUpset ? ' (UPSET - only ' + (100 - g.chalkPercentage) + '% picked them!)' : ''}`).join('\n') : 'No games completed this week yet'}
