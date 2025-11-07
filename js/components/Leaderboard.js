@@ -331,6 +331,26 @@ export function populateFilters(teams, positions) {
 }
 
 /**
+ * Setup filter toggle button
+ */
+export function setupFilterToggle() {
+    const toggleBtn = document.getElementById('filterToggleBtn');
+    const filterControls = document.getElementById('filterControls');
+
+    toggleBtn.addEventListener('click', () => {
+        const isCollapsed = filterControls.classList.contains('collapsed');
+
+        if (isCollapsed) {
+            filterControls.classList.remove('collapsed');
+            toggleBtn.classList.add('expanded');
+        } else {
+            filterControls.classList.add('collapsed');
+            toggleBtn.classList.remove('expanded');
+        }
+    });
+}
+
+/**
  * Setup filter controls
  */
 export function setupFilterControls() {

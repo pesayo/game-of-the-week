@@ -436,6 +436,12 @@
     transform: rotate(5deg);
 }
 
+/* Second team avatars tilt left */
+.upcoming-team-section:last-of-type .tooltip-avatar:hover,
+.tooltip-team-section:last-child .tooltip-avatar:hover {
+    transform: rotate(-5deg);
+}
+
 .tooltip-member:not(.skip-member) .tooltip-avatar {
     width: 45px;
     height: 45px;
@@ -461,6 +467,12 @@
 .tooltip-avatar-sprite:hover {
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
     transform: rotate(5deg);
+}
+
+/* Second team avatar sprites tilt left */
+.upcoming-team-section:last-of-type .tooltip-avatar-sprite:hover,
+.tooltip-team-section:last-child .tooltip-avatar-sprite:hover {
+    transform: rotate(-5deg);
 }
 
 .tooltip-member:not(.skip-member) .tooltip-avatar-sprite {
@@ -602,4 +614,34 @@
     font-size: 14px;
     font-weight: bold;
     margin: 10px 0;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+    .upcoming-vs-divider {
+        min-width: 60px;
+        min-height: 60px;
+        padding: 10px;
+        font-size: 14px;
+    }
+
+    .upcoming-team-name {
+        font-size: 13px;
+    }
+
+    .upcoming-members-row {
+        flex-direction: column-reverse;
+        align-items: center;
+        gap: 2px;
+    }
+
+    /* Remove reverse for second team since JS already reverses it */
+    .upcoming-team-section:last-of-type .upcoming-members-row {
+        flex-direction: column;
+    }
+
+    .tooltip-member {
+        margin-bottom: 10px;
+        gap: 2px;
+    }
 }

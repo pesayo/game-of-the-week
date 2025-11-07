@@ -30,7 +30,8 @@ import {
     setupHeaderSort,
     setupExpandCollapse,
     populateFilters,
-    setupFilterControls
+    setupFilterControls,
+    setupFilterToggle
 } from './components/Leaderboard.js';
 
 import {
@@ -109,6 +110,7 @@ async function init() {
         // Populate and setup filters
         populateFilters(teams, positions);
         setupFilterControls();
+        setupFilterToggle();
 
         // Render everything
         renderHorseRace(leaderboardData);
