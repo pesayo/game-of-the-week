@@ -554,31 +554,52 @@ function formatStandingsTable() {
                     </tr>
                 </thead>
                 <tbody>
-                    ${summary.allPlayers.filter(p => p.isFunkEngEligible).map((player, index) => {
-                        const bgColor = index % 2 === 0 ? '#f8f9fa' : '#ffffff';
-                        let movementIcon = '−';
-                        let movementColor = '#95a5a6';
+                    ${(() => {
+                        // Filter to eligible players and sort by wins/win%
+                        const eligiblePlayers = summary.allPlayers.filter(p => p.isFunkEngEligible);
 
-                        if (player.rankChange > 0) {
-                            movementIcon = `↑ ${player.rankChange}`;
-                            movementColor = '#27ae60';
-                        } else if (player.rankChange < 0) {
-                            movementIcon = `↓ ${Math.abs(player.rankChange)}`;
-                            movementColor = '#e74c3c';
-                        }
+                        // Assign Funk-Eng specific ranks
+                        let currentRank = 1;
+                        eligiblePlayers.forEach((player, index) => {
+                            if (index > 0) {
+                                const prevPlayer = eligiblePlayers[index - 1];
+                                if (player.wins === prevPlayer.wins && player.winPct === prevPlayer.winPct) {
+                                    player.funkEngRank = prevPlayer.funkEngRank;
+                                } else {
+                                    currentRank = index + 1;
+                                    player.funkEngRank = currentRank;
+                                }
+                            } else {
+                                player.funkEngRank = 1;
+                            }
+                        });
 
-                        return `
-                            <tr style="background-color: ${bgColor};">
-                                <td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">${player.rank}</td>
-                                <td style="padding: 8px; border: 1px solid #ddd;">${player.name}</td>
-                                <td style="padding: 8px; border: 1px solid #ddd;">${player.team}</td>
-                                <td style="padding: 8px; border: 1px solid #ddd;">${player.position}</td>
-                                <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">${player.wins}-${player.losses}</td>
-                                <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">${player.winPct}%</td>
-                                <td style="padding: 8px; border: 1px solid #ddd; text-align: center; color: ${movementColor}; font-weight: bold;">${movementIcon}</td>
-                            </tr>
-                        `;
-                    }).join('')}
+                        return eligiblePlayers.map((player, index) => {
+                            const bgColor = index % 2 === 0 ? '#f8f9fa' : '#ffffff';
+                            let movementIcon = '−';
+                            let movementColor = '#95a5a6';
+
+                            if (player.rankChange > 0) {
+                                movementIcon = `↑ ${player.rankChange}`;
+                                movementColor = '#27ae60';
+                            } else if (player.rankChange < 0) {
+                                movementIcon = `↓ ${Math.abs(player.rankChange)}`;
+                                movementColor = '#e74c3c';
+                            }
+
+                            return `
+                                <tr style="background-color: ${bgColor};">
+                                    <td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">${player.funkEngRank}</td>
+                                    <td style="padding: 8px; border: 1px solid #ddd;">${player.name}</td>
+                                    <td style="padding: 8px; border: 1px solid #ddd;">${player.team}</td>
+                                    <td style="padding: 8px; border: 1px solid #ddd;">${player.position}</td>
+                                    <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">${player.wins}-${player.losses}</td>
+                                    <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">${player.winPct}%</td>
+                                    <td style="padding: 8px; border: 1px solid #ddd; text-align: center; color: ${movementColor}; font-weight: bold;">${movementIcon}</td>
+                                </tr>
+                            `;
+                        }).join('');
+                    })()}
                 </tbody>
             </table>
 
