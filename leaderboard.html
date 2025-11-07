@@ -1808,7 +1808,7 @@
         .picks-view-section {
             margin-top: 20px;
             min-width: 0; /* Allow section to shrink */
-            overflow: visible; /* Allow tooltips to display outside section bounds */
+            overflow: hidden; /* Prevent content from expanding section */
         }
 
         .picks-view-header {
@@ -1898,7 +1898,6 @@
 
         .picks-matrix-container {
             overflow-x: auto;
-            overflow-y: visible;
             background: white;
             border-radius: 8px;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
@@ -1962,7 +1961,7 @@
             font-size: 12px;
             pointer-events: none;
             white-space: nowrap;
-            z-index: 1000;
+            z-index: 9999;
             display: none;
         }
 
@@ -4582,17 +4581,34 @@
                 const tooltip = gameHeader.querySelector(`#pieTooltip-${game.gameNumber}`);
 
                 if (pieChart && tooltip) {
+                    const updateTooltipPosition = () => {
+                        if (tooltip.classList.contains('active')) {
+                            const rect = pieChart.getBoundingClientRect();
+                            tooltip.style.left = `${rect.left + rect.width / 2}px`;
+                            tooltip.style.top = `${rect.top - 40}px`;
+                        }
+                    };
+
                     pieChart.addEventListener('mouseenter', (e) => {
                         tooltip.classList.add('active');
                         const rect = pieChart.getBoundingClientRect();
-                        tooltip.style.left = '50%';
+                        tooltip.style.position = 'fixed';
+                        tooltip.style.left = `${rect.left + rect.width / 2}px`;
                         tooltip.style.transform = 'translateX(-50%)';
-                        tooltip.style.top = '-35px';
+                        tooltip.style.top = `${rect.top - 40}px`;
+                        tooltip.style.bottom = 'auto';
                     });
 
                     pieChart.addEventListener('mouseleave', () => {
                         tooltip.classList.remove('active');
                     });
+
+                    // Update tooltip position on scroll
+                    const matrixContainer = document.querySelector('.picks-matrix-container');
+                    if (matrixContainer) {
+                        matrixContainer.addEventListener('scroll', updateTooltipPosition);
+                    }
+                    window.addEventListener('scroll', updateTooltipPosition);
                 }
             });
 
