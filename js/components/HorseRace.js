@@ -103,23 +103,15 @@ export function renderHorseRace(data) {
         .y(d => y(d.cumulativeWins))
         .curve(d3.curveMonotoneX); // Smooth curve
 
-    // Determine tier for each player based on rank
-    const getTier = (rank) => {
-        if (rank <= 3) return 'tier-top';
-        if (rank <= Math.ceil(data.length / 2)) return 'tier-middle';
-        return 'tier-bottom';
-    };
-
     // Draw lines for each player
     data.forEach(player => {
         const lineData = player.allResults;
         const safeName = sanitizeName(player.name);
-        const tier = getTier(player.rank);
 
         // Add line path
         svg.append('path')
             .datum(lineData)
-            .attr('class', `horse-race-line ${tier}`)
+            .attr('class', 'horse-race-line')
             .attr('d', line)
             .attr('stroke', playerColors[player.name])
             .attr('data-player', safeName)
@@ -131,7 +123,7 @@ export function renderHorseRace(data) {
             .data(lineData)
             .enter()
             .append('circle')
-            .attr('class', `horse-race-dot ${tier}`)
+            .attr('class', 'horse-race-dot')
             .attr('cx', (d, i) => x(i + 1))
             .attr('cy', d => y(d.cumulativeWins))
             .attr('fill', 'white')
@@ -272,19 +264,11 @@ export function renderRaceLegend(data) {
     // Sort by rank
     const sortedData = [...data].sort((a, b) => a.rank - b.rank);
 
-    // Determine tier for styling
-    const getTier = (rank) => {
-        if (rank <= 3) return 'tier-top';
-        if (rank <= Math.ceil(data.length / 2)) return 'tier-middle';
-        return 'tier-bottom';
-    };
-
     sortedData.forEach(player => {
         const safeName = sanitizeName(player.name);
-        const tier = getTier(player.rank);
 
         const item = legendContainer.append('div')
-            .attr('class', `race-legend-item ${tier} ${player.visible === false ? 'hidden' : ''}`)
+            .attr('class', `race-legend-item ${player.visible === false ? 'hidden' : ''}`)
             .attr('data-player', safeName)
             .attr('data-player-name', player.name)
             .style('border-left-color', playerColors[player.name])

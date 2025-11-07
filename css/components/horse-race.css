@@ -11,31 +11,12 @@
     }
 }
 
-/* Line styles with visual hierarchy */
+/* Line styles */
 .horse-race-line {
     fill: none;
     stroke-width: 2px;
     transition: all 0.3s ease;
     opacity: 0.7;
-}
-
-/* Top 3 players - thicker, more prominent */
-.horse-race-line.tier-top {
-    stroke-width: 3px;
-    opacity: 0.95;
-    filter: drop-shadow(0 0 3px rgba(0, 0, 0, 0.2));
-}
-
-/* Middle tier - standard */
-.horse-race-line.tier-middle {
-    stroke-width: 2px;
-    opacity: 0.75;
-}
-
-/* Bottom tier - thinner, more subtle */
-.horse-race-line.tier-bottom {
-    stroke-width: 1.5px;
-    opacity: 0.5;
 }
 
 /* Hover and highlight states */
@@ -57,18 +38,7 @@
     stroke-width: 2px;
     transition: all 0.3s ease;
     cursor: pointer;
-}
-
-.horse-race-dot.tier-top {
-    r: 5;
-}
-
-.horse-race-dot.tier-middle {
     r: 4;
-}
-
-.horse-race-dot.tier-bottom {
-    r: 3;
 }
 
 .horse-race-dot.highlighted {
@@ -160,12 +130,6 @@
 .race-legend-item.hidden:hover {
     opacity: 0.6;
     transform: translateY(-1px);
-}
-
-/* Tier indicators */
-.race-legend-item.tier-top {
-    border-left-width: 5px;
-    background: linear-gradient(135deg, var(--gray-50) 0%, #fffef8 100%);
 }
 
 /* Card Header */
