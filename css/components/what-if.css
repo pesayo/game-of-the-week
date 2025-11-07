@@ -192,9 +192,9 @@
 }
 
 .team-option.selected {
-    background-color: var(--accent);
+    background-color: var(--gold);
     color: var(--accent-dark);
-    border-color: var(--gold);
+    border-color: var(--accent);
 
 }
 
