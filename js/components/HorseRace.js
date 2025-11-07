@@ -154,12 +154,14 @@ export function renderHorseRace(data) {
             .attr('stroke', playerColors[player.name])
             .attr('data-player', safeName)
             .attr('data-player-name', player.name)
+            .attr('data-game', d => d.game)
+            .attr('data-wins', d => d.cumulativeWins)
             .style('opacity', player.visible !== false ? 1 : 0.1)
             .on('mouseover', function(event, d) {
-                handleLineHover(safeName, true, event, d, player);
+                handleDotHover(event, d, data);
             })
             .on('mouseout', function() {
-                handleLineHover(safeName, false);
+                handleDotHoverOut();
             });
     });
 
@@ -167,62 +169,116 @@ export function renderHorseRace(data) {
     renderRaceLegend(data);
 
     /**
-     * Handle hover on line/dot
+     * Handle hover on dot - finds all visible players at same position
      */
-    function handleLineHover(safeName, isHovering, event = null, dotData = null, player = null) {
-        if (isHovering) {
-            // Highlight this line
-            d3.selectAll('.horse-race-line')
-                .classed('highlighted', false)
-                .classed('dimmed', true);
+    function handleDotHover(event, dotData, allPlayers) {
+        const gameNum = dotData.game;
+        const wins = dotData.cumulativeWins;
+
+        // Find all visible players at this exact position
+        const playersAtPosition = allPlayers.filter(p => {
+            if (p.visible === false) return false; // Skip hidden players
+
+            const gameResult = p.allResults.find(r => r.game === gameNum);
+            return gameResult && gameResult.cumulativeWins === wins;
+        });
+
+        // Only show interaction if there are visible players at this position
+        if (playersAtPosition.length === 0) return;
+
+        // Highlight all lines at this position
+        d3.selectAll('.horse-race-line')
+            .classed('highlighted', false)
+            .classed('dimmed', true);
+
+        playersAtPosition.forEach(player => {
+            const safeName = sanitizeName(player.name);
             d3.select(`.horse-race-line[data-player="${safeName}"]`)
                 .classed('highlighted', true)
                 .classed('dimmed', false);
+        });
 
-            // Highlight dots
-            d3.selectAll('.horse-race-dot')
-                .classed('highlighted', false)
-                .classed('dimmed', true);
+        // Highlight all dots at this position
+        d3.selectAll('.horse-race-dot')
+            .classed('highlighted', false)
+            .classed('dimmed', true);
+
+        playersAtPosition.forEach(player => {
+            const safeName = sanitizeName(player.name);
             d3.selectAll(`.horse-race-dot[data-player="${safeName}"]`)
                 .classed('highlighted', true)
                 .classed('dimmed', false);
+        });
 
-            // Highlight card
-            d3.selectAll('.race-legend-item').style('opacity', 0.4);
+        // Highlight cards
+        d3.selectAll('.race-legend-item').style('opacity', 0.4);
+        playersAtPosition.forEach(player => {
+            const safeName = sanitizeName(player.name);
             d3.select(`.race-legend-item[data-player="${safeName}"]`).style('opacity', 1);
+        });
 
-            // Show tooltip if we have event and data
-            if (event && dotData && player) {
-                tooltip.html(`
-                    <div style="padding: 10px;">
-                        <strong style="font-size: 14px;">${player.name}</strong><br>
-                        <span style="color: var(--text-secondary); font-size: 12px;">Game ${dotData.game}</span><br>
-                        <div style="margin-top: 8px; font-size: 13px;">
-                            ${dotData.result === 'W' ?
+        // Build tooltip content for all players at this position
+        let tooltipContent = '<div style="padding: 10px;">';
+
+        if (playersAtPosition.length === 1) {
+            const player = playersAtPosition[0];
+            const gameResult = player.allResults.find(r => r.game === gameNum);
+            tooltipContent += `
+                <strong style="font-size: 14px;">${player.name}</strong><br>
+                <span style="color: var(--text-secondary); font-size: 12px;">Game ${gameNum}</span><br>
+                <div style="margin-top: 8px; font-size: 13px;">
+                    ${gameResult.result === 'W' ?
+                        '<span style="color: var(--success);">✓ Win</span>' :
+                        '<span style="color: var(--error);">✗ Loss</span>'
+                    }
+                </div>
+                <div style="margin-top: 6px; font-size: 12px; color: var(--text-secondary);">
+                    Record: ${gameResult.cumulativeWins}-${gameResult.cumulativeLosses}
+                </div>
+            `;
+        } else {
+            tooltipContent += `<div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 8px;">Game ${gameNum} • ${wins} wins</div>`;
+            playersAtPosition.forEach((player, idx) => {
+                const gameResult = player.allResults.find(r => r.game === gameNum);
+                if (idx > 0) tooltipContent += '<div style="border-top: 1px solid var(--gray-300); margin: 6px 0;"></div>';
+                tooltipContent += `
+                    <div style="margin-bottom: 4px;">
+                        <strong style="font-size: 13px;">${player.name}</strong>
+                        <span style="margin-left: 8px; font-size: 12px;">
+                            ${gameResult.result === 'W' ?
                                 '<span style="color: var(--success);">✓ Win</span>' :
                                 '<span style="color: var(--error);">✗ Loss</span>'
                             }
-                        </div>
-                        <div style="margin-top: 6px; font-size: 12px; color: var(--text-secondary);">
-                            Record: ${dotData.cumulativeWins}-${dotData.cumulativeLosses}
-                        </div>
+                        </span>
                     </div>
-                `)
-                .style('display', 'block')
-                .style('left', (event.pageX + 15) + 'px')
-                .style('top', (event.pageY - 10) + 'px');
-            }
-        } else {
-            // Reset all
-            d3.selectAll('.horse-race-line')
-                .classed('highlighted', false)
-                .classed('dimmed', false);
-            d3.selectAll('.horse-race-dot')
-                .classed('highlighted', false)
-                .classed('dimmed', false);
-            d3.selectAll('.race-legend-item').style('opacity', null);
-            tooltip.style('display', 'none');
+                    <div style="font-size: 11px; color: var(--text-secondary);">
+                        Record: ${gameResult.cumulativeWins}-${gameResult.cumulativeLosses}
+                    </div>
+                `;
+            });
         }
+
+        tooltipContent += '</div>';
+
+        tooltip.html(tooltipContent)
+            .style('display', 'block')
+            .style('left', (event.pageX + 15) + 'px')
+            .style('top', (event.pageY - 10) + 'px');
+    }
+
+    /**
+     * Handle dot hover out
+     */
+    function handleDotHoverOut() {
+        // Reset all
+        d3.selectAll('.horse-race-line')
+            .classed('highlighted', false)
+            .classed('dimmed', false);
+        d3.selectAll('.horse-race-dot')
+            .classed('highlighted', false)
+            .classed('dimmed', false);
+        d3.selectAll('.race-legend-item').style('opacity', null);
+        tooltip.style('display', 'none');
     }
 
     /**
@@ -278,6 +334,9 @@ export function renderRaceLegend(data) {
                 renderHorseRace(horseRaceData);
             })
             .on('mouseover', function() {
+                // Only show hover effects if player is visible
+                if (player.visible === false) return;
+
                 // Highlight corresponding line
                 d3.selectAll('.horse-race-line')
                     .classed('highlighted', false)
