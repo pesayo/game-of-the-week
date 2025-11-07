@@ -3,8 +3,7 @@
 import { getPlayerColors, getHorseRaceData, setHorseRaceData } from '../state/app-state.js';
 import { sanitizeName } from '../utils/sanitizers.js';
 
-// State for current filter
-let currentFilter = 'all'; // 'all', 'top5', 'top10'
+// State for crosshair
 let crosshairGroup = null;
 
 /**
@@ -111,17 +110,8 @@ export function renderHorseRace(data) {
         return 'tier-bottom';
     };
 
-    // Filter data based on current filter
-    const getFilteredData = () => {
-        if (currentFilter === 'top5') return data.slice(0, 5);
-        if (currentFilter === 'top10') return data.slice(0, 10);
-        return data;
-    };
-
-    const filteredData = getFilteredData();
-
     // Draw lines for each player
-    filteredData.forEach(player => {
+    data.forEach(player => {
         const lineData = player.allResults;
         const safeName = sanitizeName(player.name);
         const tier = getTier(player.rank);
@@ -174,7 +164,7 @@ export function renderHorseRace(data) {
         .style('fill', 'none')
         .style('pointer-events', 'all')
         .on('mousemove', function(event) {
-            handleChartHover(event, svg, x, y, filteredData, width, height);
+            handleChartHover(event, svg, x, y, data, width, height);
         })
         .on('mouseout', function() {
             crosshairGroup.style('display', 'none');
@@ -389,42 +379,4 @@ export function setupRaceControls() {
         horseRaceData.forEach(p => p.visible = false);
         renderHorseRace(horseRaceData);
     });
-
-    // Filter buttons
-    d3.select('#showTop5').on('click', function() {
-        currentFilter = 'top5';
-        updateFilterButtons();
-        horseRaceData.forEach(p => p.visible = true);
-        renderHorseRace(horseRaceData);
-    });
-
-    d3.select('#showTop10').on('click', function() {
-        currentFilter = 'top10';
-        updateFilterButtons();
-        horseRaceData.forEach(p => p.visible = true);
-        renderHorseRace(horseRaceData);
-    });
-
-    d3.select('#showAllPlayers').on('click', function() {
-        currentFilter = 'all';
-        updateFilterButtons();
-        horseRaceData.forEach(p => p.visible = true);
-        renderHorseRace(horseRaceData);
-    });
-
-    updateFilterButtons();
-}
-
-/**
- * Update active state of filter buttons
- */
-function updateFilterButtons() {
-    d3.selectAll('.race-filter-btn').classed('active', false);
-    if (currentFilter === 'top5') {
-        d3.select('#showTop5').classed('active', true);
-    } else if (currentFilter === 'top10') {
-        d3.select('#showTop10').classed('active', true);
-    } else {
-        d3.select('#showAllPlayers').classed('active', true);
-    }
 }

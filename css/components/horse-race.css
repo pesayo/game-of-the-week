@@ -100,27 +100,13 @@
     display: flex;
     gap: 10px;
     margin-bottom: 20px;
-    flex-wrap: wrap;
-    align-items: center;
-}
-
-.race-controls-group {
-    display: flex;
-    gap: 8px;
-    align-items: center;
-}
-
-.race-controls-label {
-    font-size: 13px;
-    color: var(--text-secondary);
-    font-weight: 500;
 }
 
 .race-btn {
     padding: 8px 16px;
     border: 1px solid var(--gray-300);
     border-radius: 5px;
-    background-color: white;
+    background-color: var(--gray-100);
     cursor: pointer;
     font-size: 13px;
     font-weight: 500;
@@ -129,22 +115,6 @@
 }
 
 .race-btn:hover {
-    background-color: var(--gray-100);
-    border-color: var(--accent);
-}
-
-.race-btn.active {
-    background-color: var(--accent);
-    color: var(--accent-dark);
-    border-color: var(--accent);
-    font-weight: 600;
-}
-
-.race-btn.secondary {
-    background-color: var(--gray-100);
-}
-
-.race-btn.secondary:hover {
     background-color: var(--gray-200);
 }
 
