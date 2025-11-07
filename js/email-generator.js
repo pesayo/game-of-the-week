@@ -189,9 +189,10 @@ function displayDataPreview() {
                 <h3>📅 Next Matchups${summary.nextUpcomingGameDate ? ` - ${summary.nextUpcomingGameDate}` : ''} (${summary.upcomingWeekGames.length} game${summary.upcomingWeekGames.length !== 1 ? 's' : ''})</h3>
                 ${summary.upcomingWeekGames.length > 0 ? `
                     <ul>
-                        ${summary.upcomingWeekGames.map(g => `
-                            <li>${g.team1Skip} vs ${g.team2Skip} - Sheet ${g.sheet}, ${g.date} ${g.time}</li>
-                        `).join('')}
+                        ${summary.upcomingWeekGames.map(g => {
+                            const notesText = g.notes && g.notes.trim() ? ` <em>(Note: ${g.notes})</em>` : '';
+                            return `<li>${g.team1Skip} vs ${g.team2Skip} - Sheet ${g.sheet}, ${g.date} ${g.time}${notesText}</li>`;
+                        }).join('')}
                     </ul>
                 ` : '<p>No upcoming games scheduled</p>'}
             </div>
@@ -688,10 +689,6 @@ function formatUpcomingMatchups() {
                     const team1Detail = game.team1 !== game.team1Skip ? game.team1 : '';
                     const team2Detail = game.team2 !== game.team2Skip ? game.team2 : '';
 
-                    const notesHtml = game.notes && game.notes.trim()
-                        ? `<div style="margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px solid rgba(255,255,255,0.2); font-size: 12px; font-style: italic; opacity: 0.9; text-align: center;">${game.notes}</div>`
-                        : '';
-
                     return `
                     <div style="background: linear-gradient(135deg, #303E45 0%, #485962 100%); border-radius: 8px; padding: 1rem; color: white; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
                         <div style="text-align: center; font-size: 12px; margin-bottom: 0.75rem; opacity: 0.9; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 0.5rem;">
@@ -710,7 +707,6 @@ function formatUpcomingMatchups() {
                                 ${team2Detail ? `<div style="font-size: 11px; opacity: 0.8;">${team2Detail}</div>` : ''}
                             </div>
                         </div>
-                        ${notesHtml}
                     </div>
                 `;
                 }).join('')}
