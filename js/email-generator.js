@@ -265,7 +265,7 @@ async function generateEmail() {
     }
 
     try {
-        showStatus('Generating email with Gemini AI...', 'info');
+        showLoading();
 
         const summary = generateDataSummary();
         const customPrompt = document.getElementById('promptTemplate').value;
@@ -326,10 +326,12 @@ Now write an engaging, witty email based on this data. Format it as HTML suitabl
 
         // Display the generated email
         displayGeneratedEmail(generatedText);
+        hideLoading();
         showStatus('Email generated successfully!', 'success');
 
     } catch (error) {
         console.error('Error generating email:', error);
+        hideLoading();
         showStatus('Error generating email: ' + error.message, 'error');
     }
 }
@@ -395,6 +397,18 @@ function showStatus(message, type = 'info') {
     setTimeout(() => {
         statusDiv.style.display = 'none';
     }, 5000);
+}
+
+// Show loading overlay
+function showLoading() {
+    const overlay = document.getElementById('loadingOverlay');
+    overlay.style.display = 'flex';
+}
+
+// Hide loading overlay
+function hideLoading() {
+    const overlay = document.getElementById('loadingOverlay');
+    overlay.style.display = 'none';
 }
 
 // Start the application
