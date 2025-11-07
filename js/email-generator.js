@@ -596,6 +596,11 @@ function formatUpcomingMatchups() {
                 }).join('')}
             </div>
         </div>
+        
+
+        <p style="text-align: center; margin-top: 2rem; font-size: 16px;">
+            <strong><a href="https://pesayo.github.io/game-of-the-week/" style="color: #3498db; text-decoration: none;">View Full Dashboard</a> →</strong>
+        </p>
     `;
 }
 
@@ -713,7 +718,7 @@ function formatStandingsTable() {
             </table>
 
             <p style="text-align: center; margin-top: 2rem; font-size: 16px;">
-                <strong>📈 <a href="https://pesayo.github.io/game-of-the-week/" style="color: #3498db; text-decoration: none;">View Full Dashboard</a> →</strong>
+                <strong><a href="https://pesayo.github.io/game-of-the-week/" style="color: #3498db; text-decoration: none;">View Full Dashboard</a> →</strong>
             </p>
         </div>
     `;
