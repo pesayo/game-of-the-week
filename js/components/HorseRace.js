@@ -395,24 +395,28 @@ export function renderRaceLegend(data) {
         const info = header.append('div')
             .attr('class', 'race-card-info');
 
-        info.append('div')
+        // First line: name and record
+        const firstLine = info.append('div')
+            .attr('class', 'race-card-line');
+
+        firstLine.append('div')
             .attr('class', 'race-legend-name')
             .text(player.name);
 
-        info.append('div')
-            .attr('class', 'race-legend-rank')
-            .text(`Rank #${player.rank}`);
-
-        // Card stats
-        const stats = item.append('div')
-            .attr('class', 'race-card-stats');
-
-        stats.append('span')
+        firstLine.append('span')
             .attr('class', 'race-legend-record')
             .text(`${player.wins}-${player.losses}`);
 
+        // Second line: rank and recent form
+        const secondLine = info.append('div')
+            .attr('class', 'race-card-line');
+
+        secondLine.append('div')
+            .attr('class', 'race-legend-rank')
+            .text(`Rank #${player.rank}`);
+
         // Recent form (last 5 games)
-        const formContainer = stats.append('div')
+        const formContainer = secondLine.append('div')
             .attr('class', 'race-card-form');
 
         const recentGames = player.allResults.slice(-5);
