@@ -223,8 +223,9 @@ export function renderHorseRace(data) {
         if (playersAtPosition.length === 1) {
             const player = playersAtPosition[0];
             const gameResult = player.allResults.find(r => r.game === gameNum);
+            const playerColor = playerColors[player.name];
             tooltipContent += `
-                <strong style="font-size: 14px;">${player.name}</strong><br>
+                <strong style="font-size: 14px; color: ${playerColor}; text-shadow: 0 0 2px rgba(255,255,255,0.8);">${player.name}</strong><br>
                 <span style="color: var(--text-secondary); font-size: 12px;">Game ${gameNum}</span><br>
                 <div style="margin-top: 8px; font-size: 13px;">
                     ${gameResult.result === 'W' ?
@@ -240,10 +241,11 @@ export function renderHorseRace(data) {
             tooltipContent += `<div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 8px;">Game ${gameNum} • ${wins} wins</div>`;
             playersAtPosition.forEach((player, idx) => {
                 const gameResult = player.allResults.find(r => r.game === gameNum);
+                const playerColor = playerColors[player.name];
                 if (idx > 0) tooltipContent += '<div style="border-top: 1px solid var(--gray-300); margin: 6px 0;"></div>';
                 tooltipContent += `
                     <div style="margin-bottom: 4px;">
-                        <strong style="font-size: 13px;">${player.name}</strong>
+                        <strong style="font-size: 13px; color: ${playerColor}; text-shadow: 0 0 2px rgba(255,255,255,0.8);">${player.name}</strong>
                         <span style="margin-left: 8px; font-size: 12px;">
                             ${gameResult.result === 'W' ?
                                 '<span style="color: var(--success);">✓ Win</span>' :
