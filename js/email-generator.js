@@ -607,7 +607,7 @@ function formatStandingsTable() {
             <h3 style="color: #34495e; margin-top: 1.5rem; margin-bottom: 0.5rem;">Goblet (Overall) Standings</h3>
             <table style="width: 100%; border-collapse: collapse; margin-bottom: 2rem; font-size: 14px;">
                 <thead>
-                    <tr style="background-color: #3498db; color: white;">
+                    <tr style="background-color: #485962; color: white;">
                         <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Rank</th>
                         <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Player</th>
                         <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Team</th>
@@ -625,10 +625,10 @@ function formatStandingsTable() {
 
                         if (player.rankChange > 0) {
                             movementIcon = `↑ ${player.rankChange}`;
-                            movementColor = '#27ae60';
+                            movementColor = '#4CAF50';
                         } else if (player.rankChange < 0) {
                             movementIcon = `↓ ${Math.abs(player.rankChange)}`;
-                            movementColor = '#e74c3c';
+                            movementColor = '#f44336';
                         }
 
                         return `
@@ -649,7 +649,7 @@ function formatStandingsTable() {
             <h3 style="color: #34495e; margin-top: 1.5rem; margin-bottom: 0.5rem;">🏆 Funk-Eng Cup Standings (Leads & Seconds Only)</h3>
             <table style="width: 100%; border-collapse: collapse; margin-bottom: 2rem; font-size: 14px;">
                 <thead>
-                    <tr style="background-color: #9b59b6; color: white;">
+                    <tr style="background-color: #50536A; color: white;">
                         <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Rank</th>
                         <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Player</th>
                         <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Team</th>
@@ -687,10 +687,10 @@ function formatStandingsTable() {
 
                             if (player.rankChange > 0) {
                                 movementIcon = `↑ ${player.rankChange}`;
-                                movementColor = '#27ae60';
+                                movementColor = '#4CAF50';
                             } else if (player.rankChange < 0) {
                                 movementIcon = `↓ ${Math.abs(player.rankChange)}`;
-                                movementColor = '#e74c3c';
+                                movementColor = '#f44336';
                             }
 
                             return `
