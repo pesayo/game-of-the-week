@@ -165,7 +165,6 @@ export function processData(rawPicks, gameMap, gamesArray, pickAnalysis) {
         // Filter only completed games for stats
         const completedGames = gameResults.filter(g => g.result !== null);
         const totalGames = completedGames.length;
-        const totalLosses = completedGames.filter(g => g.result === 'L').length;
         const winPct = totalGames > 0 ? (totalWins / totalGames) * 100 : 0;
 
         // Calculate contrarian stats
