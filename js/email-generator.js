@@ -147,13 +147,16 @@ function displayDataPreview() {
         <div class="data-summary">
             <div class="summary-section">
                 <h3>📊 Full Standings (${summary.allPlayers.length} Players)</h3>
+                <p style="font-size: 0.9em; color: #666; margin-bottom: 1rem;">
+                    <strong>Win%</strong> = games won | <strong>Contrarian%</strong> = picks against majority
+                </p>
                 <ol>
                     ${summary.allPlayers.map(p => {
                         const rankChangeSymbol = p.rankChange > 0 ? `↑${p.rankChange}` : p.rankChange < 0 ? `↓${Math.abs(p.rankChange)}` : '−';
                         return `
                             <li>
                                 <strong>${p.name}</strong> (${p.position || 'Unknown'}${p.isFunkEngEligible ? ' - Funk-Eng Eligible' : ''}):<br>
-                                ${p.wins}-${p.losses} (${p.winPct}%) | Form: ${p.allForm || 'N/A'} | Movement: ${rankChangeSymbol}
+                                ${p.wins}-${p.losses} (Win: ${p.winPct}%, Contrarian: ${p.contrarianPct}%) | Form: ${p.allForm || 'N/A'} | Movement: ${rankChangeSymbol}
                             </li>
                         `;
                     }).join('')}
@@ -290,7 +293,8 @@ function generateDataSummary() {
             position: position,
             isFunkEngEligible: isFunkEngEligible,
             allForm: allForm,
-            rankChange: rankChange
+            rankChange: rankChange,
+            contrarianPct: p.contrarianPct.toFixed(0)
         };
     });
 
@@ -398,6 +402,8 @@ ${previousEmail}
 ` : ''}Here's the current data:
 
 **LEGEND:**
+- Win %: Percentage of games WON (e.g., 66.7% means they won 2 out of 3 games)
+- Contrarian %: Percentage of time they pick AGAINST the majority (e.g., 25% means 1 in 4 picks go against the crowd)
 - Form: ALL game results chronologically (W = Win, L = Loss, most recent on right). Use this to identify streaks and trends!
 - Movement: Rank change from last week (↑ = moved up, ↓ = moved down, − = no change)
 
@@ -406,14 +412,14 @@ Goblet (Overall) Standings:
 ${summary.allPlayers.map((p, i) => {
     const rankChangeStr = p.rankChange > 0 ? ` (↑${p.rankChange})` : p.rankChange < 0 ? ` (↓${Math.abs(p.rankChange)})` : ' (−)';
     const formStr = p.allForm ? ` [Form: ${p.allForm}]` : '';
-    return `${p.rank}. ${p.name} (${p.team}, ${p.position}): ${p.wins}-${p.losses} (${p.winPct}%)${rankChangeStr}${formStr}`;
+    return `${p.rank}. ${p.name} (${p.team}, ${p.position}): ${p.wins}-${p.losses} (Win%: ${p.winPct}%, Contrarian: ${p.contrarianPct}%)${rankChangeStr}${formStr}`;
 }).join('\n')}
 
 Funk-Eng Cup Eligible Players (Leads & Seconds only):
 ${summary.allPlayers.filter(p => p.isFunkEngEligible).map((p, i) => {
     const rankChangeStr = p.rankChange > 0 ? ` (↑${p.rankChange})` : p.rankChange < 0 ? ` (↓${Math.abs(p.rankChange)})` : ' (−)';
     const formStr = p.allForm ? ` [Form: ${p.allForm}]` : '';
-    return `${p.rank}. ${p.name} (${p.team}, ${p.position}): ${p.wins}-${p.losses} (${p.winPct}%)${rankChangeStr}${formStr}`;
+    return `${p.rank}. ${p.name} (${p.team}, ${p.position}): ${p.wins}-${p.losses} (Win%: ${p.winPct}%, Contrarian: ${p.contrarianPct}%)${rankChangeStr}${formStr}`;
 }).join('\n')}
 
 **WEEK ${summary.mostRecentWeek} RESULTS (${summary.recentWeekGames.length} game${summary.recentWeekGames.length !== 1 ? 's' : ''}):**
