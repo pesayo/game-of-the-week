@@ -17,6 +17,13 @@ export function renderHorseRace(data) {
     const legendContainer = d3.select('#raceLegend');
     const playerColors = getPlayerColors();
 
+    // Initialize visibility on first render - only top tier visible by default
+    data.forEach(player => {
+        if (player.visible === undefined) {
+            player.visible = player.rank <= 3; // Only top 3 visible by default
+        }
+    });
+
     container.selectAll("*").remove();
     legendContainer.selectAll("*").remove();
 

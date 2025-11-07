@@ -198,15 +198,6 @@
     background: linear-gradient(135deg, var(--gray-50) 0%, #fffef8 100%);
 }
 
-.race-legend-item.tier-top::after {
-    content: '⭐';
-    position: absolute;
-    top: 8px;
-    right: 8px;
-    font-size: 14px;
-    opacity: 0.6;
-}
-
 /* Card Header */
 .race-card-header {
     display: flex;
