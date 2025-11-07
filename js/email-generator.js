@@ -5,11 +5,11 @@ import { processData, analyzePickDistribution } from './data/data-processor.js';
 import { createGameKey } from './utils/parsers.js';
 
 // Gemini API configuration
-const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent';
+const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:generateContent';
 const API_KEY_STORAGE_KEY = 'gemini_api_key';
 
 // Default prompt template
-const DEFAULT_PROMPT = `You are writing a weekly email to participants in a curling pick'em league. Write a witty, clever, and slightly absurd email that:
+const DEFAULT_PROMPT = `You are writing a weekly email to participants in a curling league's pick 'em, called Game of the Week. Write a witty, clever, and slightly absurd email that:
 
 1. Highlights the most interesting recent results (upsets, blowouts, close games)
 2. Makes fun of the leaders and losers in a good-natured way
@@ -17,6 +17,7 @@ const DEFAULT_PROMPT = `You are writing a weekly email to participants in a curl
 4. Uses curling terminology and puns where appropriate
 5. Keeps a light, entertaining tone - this is for fun!
 
+Note: The teams players are picking on are named after the curling team's skip. Some of those skips are also participants in the Game of the Week.
 The email should be 3-5 short paragraphs. Be creative and entertaining. Feel free to create amusing narratives or exaggerate for comedic effect.`;
 
 // State
@@ -82,6 +83,15 @@ async function loadGameData() {
 
         data.matchups.forEach((row, index) => {
             const gameKey = createGameKey(row.Week, row.Date, row.Time, row.Sheet);
+
+            // Construct team names, handling undefined/empty numbers
+            const team1Name = row.Team1_Number && row.Team1_Number.trim()
+                ? `${row.Team1_Number} ${row.Team1_Skip}`
+                : row.Team1_Skip;
+            const team2Name = row.Team2_Number && row.Team2_Number.trim()
+                ? `${row.Team2_Number} ${row.Team2_Skip}`
+                : row.Team2_Skip;
+
             const game = {
                 gameNumber: index + 1,
                 week: row.Week,
@@ -89,8 +99,10 @@ async function loadGameData() {
                 phase: row.Phase || '',
                 time: row.Time,
                 sheet: row.Sheet,
-                team1: row.Team1_Number + ' ' + row.Team1_Skip,
-                team2: row.Team2_Number + ' ' + row.Team2_Skip,
+                team1: team1Name,
+                team2: team2Name,
+                team1Skip: row.Team1_Skip,
+                team2Skip: row.Team2_Skip,
                 winner: row.Winner || null,
                 isKeyMatchup: row.Key_Matchup === 'TRUE'
             };
@@ -107,7 +119,8 @@ async function loadGameData() {
         gameData = {
             allGames,
             matchupsMap,
-            pickAnalysis
+            pickAnalysis,
+            playerInfo: data.playerInfo
         };
         leaderboardData = leaderboard;
 
@@ -133,33 +146,46 @@ function displayDataPreview() {
     previewDiv.innerHTML = `
         <div class="data-summary">
             <div class="summary-section">
-                <h3>📊 Current Standings (Top 5)</h3>
+                <h3>📊 Full Standings (${summary.allPlayers.length} Players)</h3>
+                <p style="font-size: 0.9em; color: #666; margin-bottom: 1rem;">
+                    <strong>Win%</strong> = games won | <strong>Contrarian%</strong> = picks against majority
+                </p>
                 <ol>
-                    ${summary.topPlayers.map(p => `
-                        <li><strong>${p.name}</strong>: ${p.wins}-${p.losses} (${p.winPct}%)</li>
-                    `).join('')}
+                    ${summary.allPlayers.map(p => {
+                        const rankChangeSymbol = p.rankChange > 0 ? `↑${p.rankChange}` : p.rankChange < 0 ? `↓${Math.abs(p.rankChange)}` : '−';
+                        return `
+                            <li>
+                                <strong>${p.name}</strong> (${p.position || 'Unknown'}${p.isFunkEngEligible ? ' - Funk-Eng Eligible' : ''}):<br>
+                                ${p.wins}-${p.losses} (Win: ${p.winPct}%, Contrarian: ${p.contrarianPct}%) | Form: ${p.allForm || 'N/A'} | Movement: ${rankChangeSymbol}
+                            </li>
+                        `;
+                    }).join('')}
                 </ol>
             </div>
 
             <div class="summary-section">
-                <h3>🎯 Recent Results (Last ${summary.recentGames.length} games)</h3>
-                <ul>
-                    ${summary.recentGames.map(g => `
-                        <li>
-                            <strong>${g.winner}</strong> beat ${g.loser}
-                            ${g.isUpset ? ' <span class="upset-tag">UPSET!</span>' : ''}
-                        </li>
-                    `).join('')}
-                </ul>
+                <h3>🎯 Week ${summary.mostRecentWeek} Results (${summary.recentWeekGames.length} game${summary.recentWeekGames.length !== 1 ? 's' : ''})</h3>
+                ${summary.recentWeekGames.length > 0 ? `
+                    <ul>
+                        ${summary.recentWeekGames.map(g => `
+                            <li>
+                                <strong>${g.winner}</strong> beat ${g.loser}
+                                ${g.isUpset ? ' <span class="upset-tag">UPSET!</span>' : ''}
+                            </li>
+                        `).join('')}
+                    </ul>
+                ` : '<p>No results yet for this week</p>'}
             </div>
 
             <div class="summary-section">
-                <h3>📅 Upcoming Games (Next ${summary.upcomingGames.length})</h3>
-                <ul>
-                    ${summary.upcomingGames.map(g => `
-                        <li>${g.team1} vs ${g.team2} - ${g.date} ${g.time}</li>
-                    `).join('')}
-                </ul>
+                <h3>📅 Week ${summary.nextUpcomingWeek} Matchups (${summary.upcomingWeekGames.length} game${summary.upcomingWeekGames.length !== 1 ? 's' : ''})</h3>
+                ${summary.upcomingWeekGames.length > 0 ? `
+                    <ul>
+                        ${summary.upcomingWeekGames.map(g => `
+                            <li>${g.team1Skip} vs ${g.team2Skip} - Sheet ${g.sheet}, ${g.date} ${g.time}</li>
+                        `).join('')}
+                    </ul>
+                ` : '<p>No upcoming games scheduled</p>'}
             </div>
 
             ${summary.funFacts.length > 0 ? `
@@ -174,43 +200,137 @@ function displayDataPreview() {
     `;
 }
 
+// Calculate what the standings were before the most recent week
+function calculatePreviousWeekStandings(mostRecentWeek) {
+    const previousStandings = new Map();
+
+    if (mostRecentWeek === 0) {
+        // No games completed yet
+        return previousStandings;
+    }
+
+    // Count wins/losses for each player excluding most recent week
+    const playerStats = new Map();
+
+    leaderboardData.forEach(player => {
+        // Filter out games from the most recent week
+        const gamesBeforeLastWeek = player.allResults.filter(result => {
+            return parseInt(result.matchup.week) < mostRecentWeek;
+        });
+
+        const wins = gamesBeforeLastWeek.filter(g => g.result === 'W').length;
+        const losses = gamesBeforeLastWeek.filter(g => g.result === 'L').length;
+        const totalGames = wins + losses;
+        const winPct = totalGames > 0 ? (wins / totalGames) * 100 : 0;
+
+        playerStats.set(player.name, { name: player.name, wins, losses, winPct });
+    });
+
+    // Convert to array and sort
+    const sortedPlayers = Array.from(playerStats.values()).sort((a, b) => {
+        if (b.wins !== a.wins) return b.wins - a.wins;
+        return b.winPct - a.winPct;
+    });
+
+    // Assign ranks
+    let currentRank = 1;
+    sortedPlayers.forEach((player, index) => {
+        if (index > 0) {
+            const prevPlayer = sortedPlayers[index - 1];
+            if (player.wins === prevPlayer.wins && player.winPct === prevPlayer.winPct) {
+                previousStandings.set(player.name, previousStandings.get(prevPlayer.name));
+            } else {
+                currentRank = index + 1;
+                previousStandings.set(player.name, currentRank);
+            }
+        } else {
+            previousStandings.set(player.name, 1);
+        }
+    });
+
+    return previousStandings;
+}
+
 // Generate a structured data summary for the AI
 function generateDataSummary() {
     const completedGames = gameData.allGames.filter(g => g.winner);
     const upcomingGames = gameData.allGames.filter(g => !g.winner);
 
-    // Get top 5 players
-    const topPlayers = leaderboardData.slice(0, 5).map(p => ({
-        name: p.name,
-        wins: p.wins,
-        losses: p.losses,
-        winPct: p.winPct.toFixed(1),
-        rank: p.rank
-    }));
+    // Get the most recent week number with completed games
+    const mostRecentWeek = completedGames.length > 0
+        ? Math.max(...completedGames.map(g => parseInt(g.week)))
+        : 0;
 
-    // Get recent games (last 5 completed)
-    const recentGames = completedGames.slice(-5).map(g => {
-        const loser = g.winner === g.team1 ? g.team2 : g.team1;
-        const pickInfo = gameData.pickAnalysis[createGameKey(g.week, g.date, g.time, g.sheet)];
-        const isUpset = pickInfo && pickInfo.chalkPick && g.winner !== pickInfo.chalkPick;
+    // Get the next upcoming week number
+    const nextUpcomingWeek = upcomingGames.length > 0
+        ? Math.min(...upcomingGames.map(g => parseInt(g.week)))
+        : 0;
+
+    // Calculate previous week's standings (without most recent week's games)
+    const previousWeekStandings = calculatePreviousWeekStandings(mostRecentWeek);
+
+    // Get all players with Funk-Eng eligibility
+    const allPlayers = leaderboardData.map(p => {
+        // Find player info from the data
+        const playerInfo = gameData.playerInfo?.find(pi => pi.Name === p.name) || {};
+        const position = playerInfo.Position || '';
+        const isFunkEngEligible = position === 'Lead' || position === 'Second';
+
+        // Get all game results (W/L only, chronological order)
+        const allForm = p.allResults.map(g => g.result).join('');
+
+        // Calculate rank movement
+        const previousRank = previousWeekStandings.get(p.name) || p.rank;
+        const rankChange = previousRank - p.rank; // Positive = moved up
 
         return {
-            winner: g.winner,
-            loser: loser,
-            date: g.date,
-            isUpset: isUpset,
-            chalkPercentage: pickInfo ? pickInfo.chalkPercentage : null
+            name: p.name,
+            wins: p.wins,
+            losses: p.losses,
+            winPct: p.winPct.toFixed(1),
+            rank: p.rank,
+            team: playerInfo.Team || '',
+            position: position,
+            isFunkEngEligible: isFunkEngEligible,
+            allForm: allForm,
+            rankChange: rankChange,
+            contrarianPct: p.contrarianPct.toFixed(0)
         };
     });
 
-    // Get upcoming games (next 5-10)
-    const nextGames = upcomingGames.slice(0, 10).map(g => ({
-        team1: g.team1,
-        team2: g.team2,
-        date: g.date,
-        time: g.time,
-        week: g.week
-    }));
+    // Get games from most recent completed week
+    const recentWeekGames = completedGames
+        .filter(g => parseInt(g.week) === mostRecentWeek)
+        .map(g => {
+            const loserSkip = g.winner === g.team1 ? g.team2Skip : g.team1Skip;
+            const pickInfo = gameData.pickAnalysis[createGameKey(g.week, g.date, g.time, g.sheet)];
+            const isUpset = pickInfo && pickInfo.chalkPick && g.winner !== pickInfo.chalkPick;
+
+            return {
+                winner: g.winner,
+                loser: g.winner === g.team1 ? g.team2 : g.team1,
+                winnerSkip: g.winner,
+                loserSkip: loserSkip,
+                date: g.date,
+                week: g.week,
+                isUpset: isUpset,
+                chalkPercentage: pickInfo ? pickInfo.chalkPercentage : null
+            };
+        });
+
+    // Get games from next upcoming week
+    const nextWeekGames = upcomingGames
+        .filter(g => parseInt(g.week) === nextUpcomingWeek)
+        .map(g => ({
+            team1: g.team1,
+            team2: g.team2,
+            team1Skip: g.team1Skip,
+            team2Skip: g.team2Skip,
+            date: g.date,
+            time: g.time,
+            week: g.week,
+            sheet: g.sheet
+        }));
 
     // Generate fun facts
     const funFacts = [];
@@ -235,16 +355,18 @@ function generateDataSummary() {
         funFacts.push(`${topContrarian.name} goes against the grain ${topContrarian.contrarianPct.toFixed(0)}% of the time`);
     }
 
-    // Find most recent upset
-    const recentUpset = recentGames.find(g => g.isUpset);
+    // Find most recent upset from recent week
+    const recentUpset = recentWeekGames.find(g => g.isUpset);
     if (recentUpset) {
-        funFacts.push(`Recent upset: ${recentUpset.winner} beat ${recentUpset.loser} (only ${100 - recentUpset.chalkPercentage}% picked them)`);
+        funFacts.push(`Week ${mostRecentWeek} upset: ${recentUpset.winner} beat ${recentUpset.loser} (only ${100 - recentUpset.chalkPercentage}% picked them)`);
     }
 
     return {
-        topPlayers,
-        recentGames,
-        upcomingGames: nextGames,
+        allPlayers,
+        mostRecentWeek,
+        nextUpcomingWeek,
+        recentWeekGames,
+        upcomingWeekGames: nextWeekGames,
         funFacts,
         totalGamesPlayed: completedGames.length,
         totalPlayers: leaderboardData.length
@@ -265,24 +387,46 @@ async function generateEmail() {
     }
 
     try {
-        showStatus('Generating email with Gemini AI...', 'info');
+        showLoading();
 
         const summary = generateDataSummary();
         const customPrompt = document.getElementById('promptTemplate').value;
+        const previousEmail = document.getElementById('previousEmail').value.trim();
 
         // Build the full prompt with data
-        const fullPrompt = `${customPrompt}
+        let fullPrompt = `${customPrompt}
 
-Here's the current data:
+${previousEmail ? `**PREVIOUS WEEK'S EMAIL (for continuity and callbacks):**
+${previousEmail}
 
-**CURRENT STANDINGS (Top 5):**
-${summary.topPlayers.map((p, i) => `${i + 1}. ${p.name}: ${p.wins}-${p.losses} (${p.winPct}%)`).join('\n')}
+` : ''}Here's the current data:
 
-**RECENT RESULTS (Last ${summary.recentGames.length} games):**
-${summary.recentGames.map(g => `- ${g.winner} defeated ${g.loser}${g.isUpset ? ' (UPSET - only ' + (100 - g.chalkPercentage) + '% picked them!)' : ''}`).join('\n')}
+**LEGEND:**
+- Win %: Percentage of games WON (e.g., 66.7% means they won 2 out of 3 games)
+- Contrarian %: Percentage of time they pick AGAINST the majority (e.g., 25% means 1 in 4 picks go against the crowd)
+- Form: ALL game results chronologically (W = Win, L = Loss, most recent on right). Use this to identify streaks and trends!
+- Movement: Rank change from last week (↑ = moved up, ↓ = moved down, − = no change)
 
-**UPCOMING MATCHUPS (Next ${summary.upcomingGames.length}):**
-${summary.upcomingGames.map(g => `- ${g.team1} vs ${g.team2} (Week ${g.week}, ${g.date} ${g.time})`).join('\n')}
+**FULL STANDINGS (All ${summary.allPlayers.length} Players):**
+Goblet (Overall) Standings:
+${summary.allPlayers.map((p, i) => {
+    const rankChangeStr = p.rankChange > 0 ? ` (↑${p.rankChange})` : p.rankChange < 0 ? ` (↓${Math.abs(p.rankChange)})` : ' (−)';
+    const formStr = p.allForm ? ` [Form: ${p.allForm}]` : '';
+    return `${p.rank}. ${p.name} (${p.team}, ${p.position}): ${p.wins}-${p.losses} (Win%: ${p.winPct}%, Contrarian: ${p.contrarianPct}%)${rankChangeStr}${formStr}`;
+}).join('\n')}
+
+Funk-Eng Cup Eligible Players (Leads & Seconds only):
+${summary.allPlayers.filter(p => p.isFunkEngEligible).map((p, i) => {
+    const rankChangeStr = p.rankChange > 0 ? ` (↑${p.rankChange})` : p.rankChange < 0 ? ` (↓${Math.abs(p.rankChange)})` : ' (−)';
+    const formStr = p.allForm ? ` [Form: ${p.allForm}]` : '';
+    return `${p.rank}. ${p.name} (${p.team}, ${p.position}): ${p.wins}-${p.losses} (Win%: ${p.winPct}%, Contrarian: ${p.contrarianPct}%)${rankChangeStr}${formStr}`;
+}).join('\n')}
+
+**WEEK ${summary.mostRecentWeek} RESULTS (${summary.recentWeekGames.length} game${summary.recentWeekGames.length !== 1 ? 's' : ''}):**
+${summary.recentWeekGames.length > 0 ? summary.recentWeekGames.map(g => `- ${g.winner} defeated ${g.loser}${g.isUpset ? ' (UPSET - only ' + (100 - g.chalkPercentage) + '% picked them!)' : ''}`).join('\n') : 'No games completed this week yet'}
+
+**WEEK ${summary.nextUpcomingWeek} MATCHUPS (${summary.upcomingWeekGames.length} game${summary.upcomingWeekGames.length !== 1 ? 's' : ''}):**
+${summary.upcomingWeekGames.length > 0 ? summary.upcomingWeekGames.map(g => `- ${g.team1Skip} vs ${g.team2Skip} (Sheet ${g.sheet}, ${g.date} ${g.time})`).join('\n') : 'No upcoming games scheduled'}
 
 **FUN FACTS:**
 ${summary.funFacts.map(f => `- ${f}`).join('\n')}
@@ -305,7 +449,7 @@ Now write an engaging, witty email based on this data. Format it as HTML suitabl
                     temperature: 1.0,
                     topK: 40,
                     topP: 0.95,
-                    maxOutputTokens: 2048,
+                    maxOutputTokens: 8192,
                 }
             })
         });
@@ -319,17 +463,29 @@ Now write an engaging, witty email based on this data. Format it as HTML suitabl
 
         // Extract the generated text
         const generatedText = result.candidates?.[0]?.content?.parts?.[0]?.text;
+        const finishReason = result.candidates?.[0]?.finishReason;
 
         if (!generatedText) {
             throw new Error('No text generated from API');
         }
 
+        // Check if response was truncated
+        if (finishReason === 'MAX_TOKENS') {
+            console.warn('Response was truncated due to token limit');
+            hideLoading();
+            showStatus('Email generated but may be incomplete. Try regenerating.', 'error');
+            displayGeneratedEmail(generatedText + '\n\n<p><em>[Response was cut off - click Regenerate for a new attempt]</em></p>');
+            return;
+        }
+
         // Display the generated email
         displayGeneratedEmail(generatedText);
+        hideLoading();
         showStatus('Email generated successfully!', 'success');
 
     } catch (error) {
         console.error('Error generating email:', error);
+        hideLoading();
         showStatus('Error generating email: ' + error.message, 'error');
     }
 }
@@ -395,6 +551,18 @@ function showStatus(message, type = 'info') {
     setTimeout(() => {
         statusDiv.style.display = 'none';
     }, 5000);
+}
+
+// Show loading overlay
+function showLoading() {
+    const overlay = document.getElementById('loadingOverlay');
+    overlay.style.display = 'flex';
+}
+
+// Hide loading overlay
+function hideLoading() {
+    const overlay = document.getElementById('loadingOverlay');
+    overlay.style.display = 'none';
 }
 
 // Start the application
