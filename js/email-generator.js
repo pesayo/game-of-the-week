@@ -126,7 +126,8 @@ async function loadGameData() {
             allGames,
             matchupsMap,
             pickAnalysis,
-            playerInfo: data.playerInfo
+            playerInfo: data.playerInfo,
+            weeklyNarratives: data.weeklyNarratives
         };
         leaderboardData = leaderboard;
 
@@ -397,15 +398,26 @@ async function generateEmail() {
 
         const summary = generateDataSummary();
         const customPrompt = document.getElementById('promptTemplate').value;
-        const previousEmail = document.getElementById('previousEmail').value.trim();
+
+        // Get previous weeks' narratives for context
+        const previousNarratives = gameData.weeklyNarratives
+            .filter(n => n.Narrative && n.Narrative.trim() && parseInt(n.Week) < summary.nextUpcomingWeek)
+            .sort((a, b) => parseInt(a.Week) - parseInt(b.Week));
+
+        // Format previous narratives for context
+        const narrativesContext = previousNarratives.length > 0
+            ? `**PREVIOUS WEEKS' NARRATIVES (for continuity and callbacks):**
+
+${previousNarratives.map(n => `Week ${n.Week} (${n.Date}):
+${n.Narrative}`).join('\n\n')}
+
+`
+            : '';
 
         // Build the full prompt with data
         let fullPrompt = `${customPrompt}
 
-${previousEmail ? `**PREVIOUS WEEK'S EMAIL (for continuity and callbacks):**
-${previousEmail}
-
-` : ''}Here's the current data:
+${narrativesContext}Here's the current data:
 
 **LEGEND:**
 - Win %: Percentage of games WON (e.g., 66.7% means they won 2 out of 3 games)
