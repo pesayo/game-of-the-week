@@ -200,6 +200,7 @@
 
 .team-option input[type="radio"] {
     margin-right: 10px;
+    accent-color: var(--accent-dark);
 }
 
 .team-name {
