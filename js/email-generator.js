@@ -17,8 +17,14 @@ const DEFAULT_PROMPT = `You are writing a weekly email to participants in a curl
 4. Uses curling terminology and puns where appropriate
 5. Keeps a light, entertaining tone - this is for fun!
 
-Note: The teams players are picking on are named after the curling team's skip. Some of those skips are also participants in the Game of the Week.
-The email should be 3-5 short paragraphs. Be creative and entertaining. Feel free to create amusing narratives or exaggerate for comedic effect.`;
+Note: The teams players have picked are named after the curling team's skip. Some of those skips are also participants in the Game of the Week. All picks are submitted and locked in at the start of the season, there is no changing picks week to week.
+The email should be 3-5 short paragraphs. Be creative and entertaining. Feel free to create amusing narratives or exaggerate for comedic effect.
+
+IMPORTANT: Start directly with the email content. Do NOT include:
+- Subject lines
+- Greeting lines like "Hi team" or "Hello everyone"
+- Signature lines or sign-offs at the end
+Just write the body content that will go in the middle of an email.`;
 
 // State
 let gameData = null;
@@ -431,7 +437,9 @@ ${summary.upcomingWeekGames.length > 0 ? summary.upcomingWeekGames.map(g => `- $
 **FUN FACTS:**
 ${summary.funFacts.map(f => `- ${f}`).join('\n')}
 
-Now write an engaging, witty email based on this data. Format it as HTML suitable for pasting into Gmail. Use basic HTML tags like <p>, <strong>, <em>, <h2>, <ul>, <li>, etc. Make it fun and entertaining!`;
+Now write an engaging, witty email based on this data. Format it as HTML suitable for pasting into Gmail. Use basic HTML tags like <p>, <strong>, <em>, <h2>, <ul>, <li>, etc. Make it fun and entertaining!
+
+CRITICAL: Do NOT include a subject line, greeting, or signature. Start immediately with the content and end with the last paragraph. The email will have standings and matchups appended automatically.`;
 
         // Call Gemini API
         const response = await fetch(`${GEMINI_API_URL}?key=${apiKey}`, {
@@ -490,16 +498,247 @@ Now write an engaging, witty email based on this data. Format it as HTML suitabl
     }
 }
 
+// Format the recent week's matchups with results
+function formatRecentMatchups() {
+    const summary = generateDataSummary();
+
+    if (summary.recentWeekGames.length === 0) {
+        return '';
+    }
+
+    return `
+        <div style="margin-bottom: 2rem;">
+            <h3 style="color: #34495e; margin-bottom: 1rem;">📋 Last Week's Matchup${summary.recentWeekGames.length !== 1 ? 's' : ''}</h3>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem;">
+                ${summary.recentWeekGames.map(game => {
+                    // Determine winner and loser
+                    const team1IsWinner = game.winner === game.winner; // winner field contains the winning team name
+                    const team2IsWinner = !team1IsWinner;
+
+                    // Extract skip names from winner/loser
+                    const winnerSkip = game.winnerSkip;
+                    const loserSkip = game.loserSkip;
+
+                    // Check if it was an upset
+                    const upsetBadge = game.isUpset ? '<span style="background: #ff9800; color: white; font-size: 10px; padding: 2px 6px; border-radius: 3px; margin-left: 4px;">UPSET</span>' : '';
+
+                    return `
+                    <div style="background: linear-gradient(135deg, #f8f9fa 0%, #e8e8e8 100%); border-radius: 8px; padding: 1rem; box-shadow: 0 2px 4px rgba(0,0,0,0.1); border-left: 4px solid #4CAF50;">
+                        <div style="text-align: center; font-size: 12px; margin-bottom: 0.75rem; color: #666; border-bottom: 1px solid #ddd; padding-bottom: 0.5rem;">
+                            Week ${game.week} • ${game.date}
+                        </div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; gap: 0.75rem;">
+                            <div style="flex: 1; text-align: left;">
+                                <div style="font-size: 16px; font-weight: bold; margin-bottom: 0.25rem; color: #2c3e50;">
+                                    ${game.winner}
+                                    <span style="background: #4CAF50; color: white; font-size: 11px; padding: 2px 6px; border-radius: 3px; margin-left: 4px;">W</span>
+                                    ${upsetBadge}
+                                </div>
+                            </div>
+                            <div style="text-align: center; padding: 0 0.5rem;">
+                                <div style="font-size: 14px; font-weight: bold; color: #999;">VS</div>
+                            </div>
+                            <div style="flex: 1; text-align: right;">
+                                <div style="font-size: 16px; font-weight: bold; margin-bottom: 0.25rem; color: #999;">
+                                    ${game.loser}
+                                    <span style="background: #e74c3c; color: white; font-size: 11px; padding: 2px 6px; border-radius: 3px; margin-left: 4px;">L</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                }).join('')}
+            </div>
+        </div>
+    `;
+}
+
+// Format the upcoming matchups
+function formatUpcomingMatchups() {
+    const summary = generateDataSummary();
+
+    if (summary.upcomingWeekGames.length === 0) {
+        return '';
+    }
+
+    return `
+        <div style="margin-bottom: 2rem;">
+            <h3 style="color: #34495e; margin-bottom: 1rem;">🔥 Upcoming Matchup${summary.upcomingWeekGames.length !== 1 ? 's' : ''}</h3>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem;">
+                ${summary.upcomingWeekGames.map(game => {
+                    // Only show full team name if it's different from skip name
+                    const team1Detail = game.team1 !== game.team1Skip ? game.team1 : '';
+                    const team2Detail = game.team2 !== game.team2Skip ? game.team2 : '';
+
+                    return `
+                    <div style="background: linear-gradient(135deg, #303E45 0%, #485962 100%); border-radius: 8px; padding: 1rem; color: white; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                        <div style="text-align: center; font-size: 12px; margin-bottom: 0.75rem; opacity: 0.9; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 0.5rem;">
+                            ${game.date} • ${game.time} • Sheet ${game.sheet}
+                        </div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; gap: 0.75rem;">
+                            <div style="flex: 1; text-align: left;">
+                                <div style="font-size: 16px; font-weight: bold; margin-bottom: 0.25rem;">${game.team1Skip}</div>
+                                ${team1Detail ? `<div style="font-size: 11px; opacity: 0.8;">${team1Detail}</div>` : ''}
+                            </div>
+                            <div style="text-align: center; padding: 0 0.5rem;">
+                                <div style="font-size: 18px; font-weight: bold; color: #C4B99B;">VS</div>
+                            </div>
+                            <div style="flex: 1; text-align: right;">
+                                <div style="font-size: 16px; font-weight: bold; margin-bottom: 0.25rem;">${game.team2Skip}</div>
+                                ${team2Detail ? `<div style="font-size: 11px; opacity: 0.8;">${team2Detail}</div>` : ''}
+                            </div>
+                        </div>
+                    </div>
+                `;
+                }).join('')}
+            </div>
+        </div>
+    `;
+}
+
+// Format the current standings as an HTML table
+function formatStandingsTable() {
+    const summary = generateDataSummary();
+
+    let tableHTML = `
+        <div style="margin-top: 2rem; padding-top: 2rem; border-top: 2px solid #e0e0e0;">
+            <h2 style="color: #2c3e50; margin-bottom: 1rem;">📊 Current Standings</h2>
+
+            <h3 style="color: #34495e; margin-top: 1.5rem; margin-bottom: 0.5rem;">Goblet (Overall) Standings</h3>
+            <table style="width: 100%; border-collapse: collapse; margin-bottom: 2rem; font-size: 14px;">
+                <thead>
+                    <tr style="background-color: #485962; color: white;">
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd; color: white;">Rank</th>
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd; color: white;">Player</th>
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd; color: white;">Team</th>
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd; color: white;">Position</th>
+                        <th style="padding: 10px; text-align: center; border: 1px solid #ddd; color: white;">Record</th>
+                        <th style="padding: 10px; text-align: center; border: 1px solid #ddd; color: white;">Win %</th>
+                        <th style="padding: 10px; text-align: center; border: 1px solid #ddd; color: white;">Movement</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${summary.allPlayers.map((player, index) => {
+                        const bgColor = index % 2 === 0 ? '#f8f9fa' : '#ffffff';
+                        let movementIcon = '−';
+                        let movementColor = '#95a5a6';
+
+                        if (player.rankChange > 0) {
+                            movementIcon = `↑ ${player.rankChange}`;
+                            movementColor = '#4CAF50';
+                        } else if (player.rankChange < 0) {
+                            movementIcon = `↓ ${Math.abs(player.rankChange)}`;
+                            movementColor = '#f44336';
+                        }
+
+                        return `
+                            <tr style="background-color: ${bgColor};">
+                                <td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">${player.rank}</td>
+                                <td style="padding: 8px; border: 1px solid #ddd;">${player.name}</td>
+                                <td style="padding: 8px; border: 1px solid #ddd;">${player.team}</td>
+                                <td style="padding: 8px; border: 1px solid #ddd;">${player.position}</td>
+                                <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">${player.wins}-${player.losses}</td>
+                                <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">${player.winPct}%</td>
+                                <td style="padding: 8px; border: 1px solid #ddd; text-align: center; color: ${movementColor}; font-weight: bold;">${movementIcon}</td>
+                            </tr>
+                        `;
+                    }).join('')}
+                </tbody>
+            </table>
+
+            <h3 style="color: #34495e; margin-top: 1.5rem; margin-bottom: 0.5rem;">🏆 Funk-Eng Cup Standings (Leads & Seconds Only)</h3>
+            <table style="width: 100%; border-collapse: collapse; margin-bottom: 2rem; font-size: 14px;">
+                <thead>
+                    <tr style="background-color: #50536A; color: white;">
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd; color: white;">Rank</th>
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd; color: white;">Player</th>
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd; color: white;">Team</th>
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd; color: white;">Position</th>
+                        <th style="padding: 10px; text-align: center; border: 1px solid #ddd; color: white;">Record</th>
+                        <th style="padding: 10px; text-align: center; border: 1px solid #ddd; color: white;">Win %</th>
+                        <th style="padding: 10px; text-align: center; border: 1px solid #ddd; color: white;">Movement</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${(() => {
+                        // Filter to eligible players and sort by wins/win%
+                        const eligiblePlayers = summary.allPlayers.filter(p => p.isFunkEngEligible);
+
+                        // Assign Funk-Eng specific ranks
+                        let currentRank = 1;
+                        eligiblePlayers.forEach((player, index) => {
+                            if (index > 0) {
+                                const prevPlayer = eligiblePlayers[index - 1];
+                                if (player.wins === prevPlayer.wins && player.winPct === prevPlayer.winPct) {
+                                    player.funkEngRank = prevPlayer.funkEngRank;
+                                } else {
+                                    currentRank = index + 1;
+                                    player.funkEngRank = currentRank;
+                                }
+                            } else {
+                                player.funkEngRank = 1;
+                            }
+                        });
+
+                        return eligiblePlayers.map((player, index) => {
+                            const bgColor = index % 2 === 0 ? '#f8f9fa' : '#ffffff';
+                            let movementIcon = '−';
+                            let movementColor = '#95a5a6';
+
+                            if (player.rankChange > 0) {
+                                movementIcon = `↑ ${player.rankChange}`;
+                                movementColor = '#4CAF50';
+                            } else if (player.rankChange < 0) {
+                                movementIcon = `↓ ${Math.abs(player.rankChange)}`;
+                                movementColor = '#f44336';
+                            }
+
+                            return `
+                                <tr style="background-color: ${bgColor};">
+                                    <td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">${player.funkEngRank}</td>
+                                    <td style="padding: 8px; border: 1px solid #ddd;">${player.name}</td>
+                                    <td style="padding: 8px; border: 1px solid #ddd;">${player.team}</td>
+                                    <td style="padding: 8px; border: 1px solid #ddd;">${player.position}</td>
+                                    <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">${player.wins}-${player.losses}</td>
+                                    <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">${player.winPct}%</td>
+                                    <td style="padding: 8px; border: 1px solid #ddd; text-align: center; color: ${movementColor}; font-weight: bold;">${movementIcon}</td>
+                                </tr>
+                            `;
+                        }).join('');
+                    })()}
+                </tbody>
+            </table>
+
+            <p style="text-align: center; margin-top: 2rem; font-size: 16px;">
+                <strong>📈 <a href="https://pesayo.github.io/game-of-the-week/" style="color: #3498db; text-decoration: none;">View Full Dashboard</a> →</strong>
+            </p>
+        </div>
+    `;
+
+    return tableHTML;
+}
+
 // Display the generated email in the preview section
 function displayGeneratedEmail(htmlContent) {
     const previewSection = document.getElementById('previewSection');
     const emailPreview = document.getElementById('emailPreview');
 
+    // Build full email in order:
+    // 1. Recent week's matchups (results)
+    // 2. Upcoming matchups
+    // 3. AI-generated content
+    // 4. Standings tables
+    const recentMatchups = formatRecentMatchups();
+    const upcomingMatchups = formatUpcomingMatchups();
+    const standingsTable = formatStandingsTable();
+
+    const fullContent = recentMatchups + upcomingMatchups + htmlContent + standingsTable;
+
     // Store the HTML for copying
-    emailPreview.dataset.htmlContent = htmlContent;
+    emailPreview.dataset.htmlContent = fullContent;
 
     // Display the formatted email
-    emailPreview.innerHTML = htmlContent;
+    emailPreview.innerHTML = fullContent;
 
     // Show the preview section
     previewSection.style.display = 'block';
@@ -508,7 +747,7 @@ function displayGeneratedEmail(htmlContent) {
     previewSection.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
 
-// Copy email HTML to clipboard
+// Copy email HTML to clipboard as rich text (for pasting into Gmail)
 async function copyEmailToClipboard() {
     const emailPreview = document.getElementById('emailPreview');
     const htmlContent = emailPreview.dataset.htmlContent;
@@ -519,9 +758,18 @@ async function copyEmailToClipboard() {
     }
 
     try {
-        // Copy HTML to clipboard
-        await navigator.clipboard.writeText(htmlContent);
-        showStatus('Email HTML copied to clipboard!', 'success');
+        // Create a blob with HTML content
+        const blob = new Blob([htmlContent], { type: 'text/html' });
+        const plainTextBlob = new Blob([emailPreview.innerText], { type: 'text/plain' });
+
+        // Use the modern Clipboard API with multiple formats
+        const clipboardItem = new ClipboardItem({
+            'text/html': blob,
+            'text/plain': plainTextBlob
+        });
+
+        await navigator.clipboard.write([clipboardItem]);
+        showStatus('Email copied! You can now paste it directly into Gmail.', 'success');
 
         // Visual feedback
         const copyButton = document.getElementById('copyEmail');
@@ -536,7 +784,24 @@ async function copyEmailToClipboard() {
 
     } catch (error) {
         console.error('Error copying to clipboard:', error);
-        showStatus('Error copying to clipboard: ' + error.message, 'error');
+
+        // Fallback: try to copy just the HTML source
+        try {
+            await navigator.clipboard.writeText(htmlContent);
+            showStatus('Email HTML copied (paste into Gmail compose window in HTML mode)', 'success');
+
+            const copyButton = document.getElementById('copyEmail');
+            const originalText = copyButton.innerHTML;
+            copyButton.innerHTML = '<i class="fas fa-check"></i> Copied!';
+            copyButton.classList.add('success');
+
+            setTimeout(() => {
+                copyButton.innerHTML = originalText;
+                copyButton.classList.remove('success');
+            }, 2000);
+        } catch (fallbackError) {
+            showStatus('Error copying to clipboard: ' + error.message, 'error');
+        }
     }
 }
 
