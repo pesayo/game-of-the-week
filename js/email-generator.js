@@ -17,7 +17,7 @@ const DEFAULT_PROMPT = `You are writing a weekly email to participants in a curl
 4. Uses curling terminology and puns where appropriate
 5. Keeps a light, entertaining tone - this is for fun!
 
-Note: The teams players are picking on are named after the curling team's skip. Some of those skips are also participants in the Game of the Week.
+Note: The teams players have picked are named after the curling team's skip. Some of those skips are also participants in the Game of the Week. All picks are submitted and locked in at the start of the season, there is no changing picks week to week.
 The email should be 3-5 short paragraphs. Be creative and entertaining. Feel free to create amusing narratives or exaggerate for comedic effect.
 
 IMPORTANT: Start directly with the email content. Do NOT include:
@@ -608,13 +608,13 @@ function formatStandingsTable() {
             <table style="width: 100%; border-collapse: collapse; margin-bottom: 2rem; font-size: 14px;">
                 <thead>
                     <tr style="background-color: #485962; color: white;">
-                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Rank</th>
-                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Player</th>
-                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Team</th>
-                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Position</th>
-                        <th style="padding: 10px; text-align: center; border: 1px solid #ddd;">Record</th>
-                        <th style="padding: 10px; text-align: center; border: 1px solid #ddd;">Win %</th>
-                        <th style="padding: 10px; text-align: center; border: 1px solid #ddd;">Movement</th>
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd; color: white;">Rank</th>
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd; color: white;">Player</th>
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd; color: white;">Team</th>
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd; color: white;">Position</th>
+                        <th style="padding: 10px; text-align: center; border: 1px solid #ddd; color: white;">Record</th>
+                        <th style="padding: 10px; text-align: center; border: 1px solid #ddd; color: white;">Win %</th>
+                        <th style="padding: 10px; text-align: center; border: 1px solid #ddd; color: white;">Movement</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -650,13 +650,13 @@ function formatStandingsTable() {
             <table style="width: 100%; border-collapse: collapse; margin-bottom: 2rem; font-size: 14px;">
                 <thead>
                     <tr style="background-color: #50536A; color: white;">
-                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Rank</th>
-                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Player</th>
-                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Team</th>
-                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Position</th>
-                        <th style="padding: 10px; text-align: center; border: 1px solid #ddd;">Record</th>
-                        <th style="padding: 10px; text-align: center; border: 1px solid #ddd;">Win %</th>
-                        <th style="padding: 10px; text-align: center; border: 1px solid #ddd;">Movement</th>
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd; color: white;">Rank</th>
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd; color: white;">Player</th>
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd; color: white;">Team</th>
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd; color: white;">Position</th>
+                        <th style="padding: 10px; text-align: center; border: 1px solid #ddd; color: white;">Record</th>
+                        <th style="padding: 10px; text-align: center; border: 1px solid #ddd; color: white;">Win %</th>
+                        <th style="padding: 10px; text-align: center; border: 1px solid #ddd; color: white;">Movement</th>
                     </tr>
                 </thead>
                 <tbody>
