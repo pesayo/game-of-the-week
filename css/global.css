@@ -1,0 +1,4 @@
+/* Global CSS - Imports base styles for all pages */
+
+@import url('variables.css');
+@import url('base.css');
