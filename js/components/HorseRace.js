@@ -97,6 +97,30 @@ export function renderHorseRace(data) {
         .style('fill', 'var(--text-primary)')
         .text('Game Number');
 
+    // Add crosshair group
+    crosshairGroup = svg.append('g')
+        .attr('class', 'crosshair')
+        .style('display', 'none');
+
+    crosshairGroup.append('line')
+        .attr('class', 'crosshair-line')
+        .attr('y1', 0)
+        .attr('y2', height);
+
+    // Add overlay for mouse tracking (add before dots so dots are on top)
+    svg.append('rect')
+        .attr('width', width)
+        .attr('height', height)
+        .style('fill', 'none')
+        .style('pointer-events', 'all')
+        .on('mousemove', function(event) {
+            handleChartHover(event, svg, x, y, data, width, height);
+        })
+        .on('mouseout', function() {
+            crosshairGroup.style('display', 'none');
+            tooltip.style('display', 'none');
+        });
+
     // Create line generator
     const line = d3.line()
         .x((d, i) => x(i + 1))
@@ -138,30 +162,6 @@ export function renderHorseRace(data) {
                 handleLineHover(safeName, false);
             });
     });
-
-    // Add crosshair group
-    crosshairGroup = svg.append('g')
-        .attr('class', 'crosshair')
-        .style('display', 'none');
-
-    crosshairGroup.append('line')
-        .attr('class', 'crosshair-line')
-        .attr('y1', 0)
-        .attr('y2', height);
-
-    // Add overlay for mouse tracking
-    svg.append('rect')
-        .attr('width', width)
-        .attr('height', height)
-        .style('fill', 'none')
-        .style('pointer-events', 'all')
-        .on('mousemove', function(event) {
-            handleChartHover(event, svg, x, y, data, width, height);
-        })
-        .on('mouseout', function() {
-            crosshairGroup.style('display', 'none');
-            tooltip.style('display', 'none');
-        });
 
     // Render legend with new design
     renderRaceLegend(data);
