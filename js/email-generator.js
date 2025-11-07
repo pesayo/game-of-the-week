@@ -442,7 +442,15 @@ ${summary.funFacts.map(f => `- ${f}`).join('\n')}
 
 Now write an engaging, witty email based on this data. Format it as HTML suitable for pasting into Gmail. Use basic HTML tags like <p>, <strong>, <em>, <h2>, <ul>, <li>, etc. Make it fun and entertaining!
 
-CRITICAL: Do NOT include a subject line, greeting, or signature. Start immediately with the content and end with the last paragraph. The email will have standings and matchups appended automatically.`;
+CRITICAL FORMATTING INSTRUCTIONS:
+1. Start with a brief, catchy subject line (5-10 words) on the FIRST line, formatted as: <!-- SUBJECT: Your Subject Here -->
+2. After the subject line, write the email body content (do NOT include greeting or signature)
+3. The subject line comment will be extracted and used as a section header
+4. Example format:
+   <!-- SUBJECT: Ice Cold Takes and Hot Streaks -->
+   <p>Your email content starts here...</p>
+
+The email will have standings and matchups appended automatically.`;
 
         // Call Gemini API
         const response = await fetch(`${GEMINI_API_URL}?key=${apiKey}`, {
@@ -731,21 +739,34 @@ function displayGeneratedEmail(htmlContent) {
     const previewSection = document.getElementById('previewSection');
     const emailPreview = document.getElementById('emailPreview');
 
+    // Extract subject line from HTML comment
+    const subjectRegex = /<!--\s*SUBJECT:\s*(.+?)\s*-->/i;
+    const subjectMatch = htmlContent.match(subjectRegex);
+
+    let subjectLine = "This Week's Narrative"; // Default fallback
+    let contentWithoutSubject = htmlContent;
+
+    if (subjectMatch) {
+        subjectLine = subjectMatch[1].trim();
+        // Remove the subject comment from content
+        contentWithoutSubject = htmlContent.replace(subjectRegex, '').trim();
+    }
+
     // Build full email in order:
     // 1. Recent week's matchups (results)
     // 2. Upcoming matchups (with dashboard link)
-    // 3. Narrative heading with horizontal rule
+    // 3. Narrative heading with horizontal rule (using extracted subject)
     // 4. AI-generated content (narrative)
     // 5. Standings tables
     const recentMatchups = formatRecentMatchups();
     const upcomingMatchups = formatUpcomingMatchups();
     const narrativeHeading = `
         <hr style="border: none; border-top: 2px solid #e0e0e0; margin: 2rem 0;">
-        <h2 style="color: #2c3e50; margin-bottom: 1rem;">This Week's Narrative</h2>
+        <h2 style="color: #2c3e50; margin-bottom: 1rem;">${subjectLine}</h2>
     `;
     const standingsTable = formatStandingsTable();
 
-    const fullContent = recentMatchups + upcomingMatchups + narrativeHeading + htmlContent + standingsTable;
+    const fullContent = recentMatchups + upcomingMatchups + narrativeHeading + contentWithoutSubject + standingsTable;
 
     // Store the HTML for copying
     emailPreview.dataset.htmlContent = fullContent;
