@@ -490,16 +490,121 @@ Now write an engaging, witty email based on this data. Format it as HTML suitabl
     }
 }
 
+// Format the current standings as an HTML table
+function formatStandingsTable() {
+    const summary = generateDataSummary();
+
+    let tableHTML = `
+        <div style="margin-top: 2rem; padding-top: 2rem; border-top: 2px solid #e0e0e0;">
+            <h2 style="color: #2c3e50; margin-bottom: 1rem;">📊 Current Standings</h2>
+
+            <h3 style="color: #34495e; margin-top: 1.5rem; margin-bottom: 0.5rem;">Goblet (Overall) Standings</h3>
+            <table style="width: 100%; border-collapse: collapse; margin-bottom: 2rem; font-size: 14px;">
+                <thead>
+                    <tr style="background-color: #3498db; color: white;">
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Rank</th>
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Player</th>
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Team</th>
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Position</th>
+                        <th style="padding: 10px; text-align: center; border: 1px solid #ddd;">Record</th>
+                        <th style="padding: 10px; text-align: center; border: 1px solid #ddd;">Win %</th>
+                        <th style="padding: 10px; text-align: center; border: 1px solid #ddd;">Movement</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${summary.allPlayers.map((player, index) => {
+                        const bgColor = index % 2 === 0 ? '#f8f9fa' : '#ffffff';
+                        let movementIcon = '−';
+                        let movementColor = '#95a5a6';
+
+                        if (player.rankChange > 0) {
+                            movementIcon = `↑ ${player.rankChange}`;
+                            movementColor = '#27ae60';
+                        } else if (player.rankChange < 0) {
+                            movementIcon = `↓ ${Math.abs(player.rankChange)}`;
+                            movementColor = '#e74c3c';
+                        }
+
+                        return `
+                            <tr style="background-color: ${bgColor};">
+                                <td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">${player.rank}</td>
+                                <td style="padding: 8px; border: 1px solid #ddd;">${player.name}</td>
+                                <td style="padding: 8px; border: 1px solid #ddd;">${player.team}</td>
+                                <td style="padding: 8px; border: 1px solid #ddd;">${player.position}</td>
+                                <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">${player.wins}-${player.losses}</td>
+                                <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">${player.winPct}%</td>
+                                <td style="padding: 8px; border: 1px solid #ddd; text-align: center; color: ${movementColor}; font-weight: bold;">${movementIcon}</td>
+                            </tr>
+                        `;
+                    }).join('')}
+                </tbody>
+            </table>
+
+            <h3 style="color: #34495e; margin-top: 1.5rem; margin-bottom: 0.5rem;">🏆 Funk-Eng Cup Standings (Leads & Seconds Only)</h3>
+            <table style="width: 100%; border-collapse: collapse; margin-bottom: 2rem; font-size: 14px;">
+                <thead>
+                    <tr style="background-color: #9b59b6; color: white;">
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Rank</th>
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Player</th>
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Team</th>
+                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Position</th>
+                        <th style="padding: 10px; text-align: center; border: 1px solid #ddd;">Record</th>
+                        <th style="padding: 10px; text-align: center; border: 1px solid #ddd;">Win %</th>
+                        <th style="padding: 10px; text-align: center; border: 1px solid #ddd;">Movement</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${summary.allPlayers.filter(p => p.isFunkEngEligible).map((player, index) => {
+                        const bgColor = index % 2 === 0 ? '#f8f9fa' : '#ffffff';
+                        let movementIcon = '−';
+                        let movementColor = '#95a5a6';
+
+                        if (player.rankChange > 0) {
+                            movementIcon = `↑ ${player.rankChange}`;
+                            movementColor = '#27ae60';
+                        } else if (player.rankChange < 0) {
+                            movementIcon = `↓ ${Math.abs(player.rankChange)}`;
+                            movementColor = '#e74c3c';
+                        }
+
+                        return `
+                            <tr style="background-color: ${bgColor};">
+                                <td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">${player.rank}</td>
+                                <td style="padding: 8px; border: 1px solid #ddd;">${player.name}</td>
+                                <td style="padding: 8px; border: 1px solid #ddd;">${player.team}</td>
+                                <td style="padding: 8px; border: 1px solid #ddd;">${player.position}</td>
+                                <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">${player.wins}-${player.losses}</td>
+                                <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">${player.winPct}%</td>
+                                <td style="padding: 8px; border: 1px solid #ddd; text-align: center; color: ${movementColor}; font-weight: bold;">${movementIcon}</td>
+                            </tr>
+                        `;
+                    }).join('')}
+                </tbody>
+            </table>
+
+            <p style="text-align: center; margin-top: 2rem; font-size: 16px;">
+                <strong>📈 <a href="https://pesayo.github.io/game-of-the-week/" style="color: #3498db; text-decoration: none;">View Full Dashboard</a> →</strong>
+            </p>
+        </div>
+    `;
+
+    return tableHTML;
+}
+
 // Display the generated email in the preview section
 function displayGeneratedEmail(htmlContent) {
     const previewSection = document.getElementById('previewSection');
     const emailPreview = document.getElementById('emailPreview');
 
+    // Append formatted standings table and dashboard link
+    const standingsTable = formatStandingsTable();
+    const fullContent = htmlContent + standingsTable;
+
     // Store the HTML for copying
-    emailPreview.dataset.htmlContent = htmlContent;
+    emailPreview.dataset.htmlContent = fullContent;
 
     // Display the formatted email
-    emailPreview.innerHTML = htmlContent;
+    emailPreview.innerHTML = fullContent;
 
     // Show the preview section
     previewSection.style.display = 'block';
