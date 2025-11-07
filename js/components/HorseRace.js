@@ -240,7 +240,7 @@ export function renderHorseRace(data) {
             // Game result if available
             if (gameInfo && gameInfo.winner) {
                 const loser = gameInfo.winner === gameInfo.team1 ? gameInfo.team2 : gameInfo.team1;
-                tooltipContent += `<div style="font-size: 9px; opacity: 0.6; margin-top: 2px;">${gameInfo.winner} def ${loser}</div>`;
+                tooltipContent += `<div style="font-size: 9px; opacity: 0.6; margin-top: 2px;"><strong>${gameInfo.winner}</strong> def <em>${loser}</em></div>`;
             }
         } else {
             // Get the record from any player (they all have same record at this position)
@@ -265,7 +265,7 @@ export function renderHorseRace(data) {
             // Game result if available
             if (gameInfo && gameInfo.winner) {
                 const loser = gameInfo.winner === gameInfo.team1 ? gameInfo.team2 : gameInfo.team1;
-                tooltipContent += `<div style="font-size: 9px; opacity: 0.6; margin-top: 2px; padding-top: 2px; border-top: 1px solid rgba(255,255,255,0.15);">${gameInfo.winner} def ${loser}</div>`;
+                tooltipContent += `<div style="font-size: 9px; opacity: 0.6; margin-top: 2px; padding-top: 2px; border-top: 1px solid rgba(255,255,255,0.15);"><strong>${gameInfo.winner}</strong> def <em>${loser}</em></div>`;
             }
         }
 
