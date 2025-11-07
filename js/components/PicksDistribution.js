@@ -46,8 +46,20 @@ export function renderPickDistribution() {
         let team1Count = analysis.team1Picks || 0;
         let team2Count = analysis.team2Picks || 0;
         let winner = game.winner;
+        let isWinnerLoserOrdered = false;
 
-        if (sharedPicksFilters.team !== 'all' && sharedPicksFilters.team === game.team2) {
+        // For decided games with no active team filter, order winner first (green), loser second (red)
+        if (game.winner && sharedPicksFilters.team === 'all') {
+            isWinnerLoserOrdered = true;
+            // Determine if teams need swapping to put winner first
+            if (game.winner === game.team2) {
+                // Winner is team2, so swap to make winner team1
+                [team1, team2] = [team2, team1];
+                [team1Pct, team2Pct] = [team2Pct, team1Pct];
+                [team1Count, team2Count] = [team2Count, team1Count];
+            }
+            // If winner is already team1, no swap needed
+        } else if (sharedPicksFilters.team !== 'all' && sharedPicksFilters.team === game.team2) {
             // Swap teams so selected team is always first
             [team1, team2] = [team2, team1];
             [team1Pct, team2Pct] = [team2Pct, team1Pct];
@@ -63,6 +75,10 @@ export function renderPickDistribution() {
             trophyIcon = `<i class="fas fa-trophy distribution-trophy ${trophyPosition}"></i>`;
         }
 
+        // Add winner/loser classes if applicable
+        const team1Class = isWinnerLoserOrdered ? 'team1 winner' : 'team1';
+        const team2Class = isWinnerLoserOrdered ? 'team2 loser' : 'team2';
+
         item.innerHTML = `
             <div class="distribution-header">
                 <div class="distribution-game-info">
@@ -72,23 +88,23 @@ export function renderPickDistribution() {
             <div class="distribution-matchup">${team1} vs ${team2}</div>
             <div class="distribution-bar-container">
                 ${trophyIcon}
-                <div class="distribution-bar team1" style="width: ${team1Pct}%" title="${team1}: ${team1Count} picks (${team1Pct}%)">
+                <div class="distribution-bar ${team1Class}" style="width: ${team1Pct}%" title="${team1}: ${team1Count} picks (${team1Pct}%)">
                     ${team1Pct >= 15 ? team1Pct + '%' : ''}
                 </div>
-                <div class="distribution-bar team2" style="width: ${team2Pct}%" title="${team2}: ${team2Count} picks (${team2Pct}%)">
+                <div class="distribution-bar ${team2Class}" style="width: ${team2Pct}%" title="${team2}: ${team2Count} picks (${team2Pct}%)">
                     ${team2Pct >= 15 ? team2Pct + '%' : ''}
                 </div>
             </div>
             <div class="distribution-labels">
                 <div class="distribution-label">
-                    <div class="distribution-label-color team1"></div>
+                    <div class="distribution-label-color ${team1Class}"></div>
                     <span class="distribution-label-text">${team1}</span>
                     <span class="distribution-label-count">${team1Count} picks (${team1Pct}%)</span>
                 </div>
                 <div class="distribution-label">
                     <span class="distribution-label-count">(${team2Pct}%) ${team2Count} picks</span>
                     <span class="distribution-label-text">${team2}</span>
-                    <div class="distribution-label-color team2"></div>
+                    <div class="distribution-label-color ${team2Class}"></div>
                 </div>
             </div>
         `;

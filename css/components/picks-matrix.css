@@ -338,6 +338,15 @@
     background: linear-gradient(135deg, var(--mcc-dark-1) 0%, var(--mcc-dark-2) 100%);
 }
 
+/* Winner/Loser colors for decided games */
+.distribution-bar.winner {
+    background: linear-gradient(135deg, var(--success) 0%, var(--success-dark) 100%) !important;
+}
+
+.distribution-bar.loser {
+    background: linear-gradient(135deg, var(--error) 0%, var(--error-dark) 100%) !important;
+}
+
 .distribution-bar:hover {
     filter: brightness(1.1);
 }
@@ -367,6 +376,15 @@
 
 .distribution-label-color.team2 {
     background: linear-gradient(135deg, var(--mcc-dark-1) 0%, var(--mcc-dark-2) 100%);
+}
+
+/* Winner/Loser label colors */
+.distribution-label-color.winner {
+    background: linear-gradient(135deg, var(--success) 0%, var(--success-dark) 100%) !important;
+}
+
+.distribution-label-color.loser {
+    background: linear-gradient(135deg, var(--error) 0%, var(--error-dark) 100%) !important;
 }
 
 .distribution-label-text {
