@@ -445,16 +445,14 @@
             padding: 8px 16px;
             border: 1px solid var(--gray-300);
             border-radius: 5px;
-            background-color: var(--error);
-            color: white;
+            background-color: var(--gray-100);
             cursor: pointer;
             font-size: 14px;
             transition: background-color 0.2s;
-            margin-left: auto;
         }
 
         .filter-btn:hover {
-            background-color: var(--error-dark);
+            background-color: var(--gray-200);
         }
 
         table {
@@ -671,8 +669,6 @@
         /* Upcoming Matchups Styles */
         .upcoming-section {
             grid-column: 1 / -1;
-            background: linear-gradient(135deg, #dfe5e815 0%, #becbd215 100%);
-            border: 2px solid var(--mcc-blue-gray);
         }
 
         .expand-schedule-container {
@@ -727,6 +723,15 @@
             overflow: hidden;
             width: 100%;
             max-width: 1000px;
+            border: 2px solid var(--accent);
+            transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+            cursor: pointer;
+        }
+
+        .upcoming-matchup-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+            border-color: var(--gold);
         }
 
         .upcoming-matchup-header {
@@ -778,6 +783,13 @@
             flex-wrap: wrap;
         }
 
+        @keyframes handshake {
+            0%, 100% { transform: translateX(0) translateY(0); }
+            25% { transform: translateX(-1px) translateY(-3px); }
+            50% { transform: translateX(1px) translateY(3px); }
+            75% { transform: translateX(-1px) translateY(-3px); }
+        }
+
         .upcoming-vs-divider {
             text-align: center;
             color: var(--mcc-dark-1);
@@ -797,6 +809,13 @@
                         1px 1px 0 #fff,
                         0 0 3px #fff,
                         0 0 5px rgba(255, 255, 255, 0.8);
+            transition: transform 0.3s ease, color 0.3s ease, font-size 0.3s ease;
+        }
+
+        .upcoming-matchup-card:hover .upcoming-vs-divider {
+            transform: scale(1.05);
+            font-size: 22px;
+            color: var(--mcc-dark-2);
         }
 
         .upcoming-vs-divider::before {
@@ -811,6 +830,12 @@
             background-position: center;
             background-repeat: no-repeat;
             opacity: 0.07;
+            transition: opacity 0.3s ease;
+        }
+
+        .upcoming-matchup-card:hover .upcoming-vs-divider::before {
+            opacity: 0.15;
+            animation: handshake 1.5s ease-in-out 1;
         }
 
         /* Schedule Styles */
@@ -1041,6 +1066,11 @@
             flex-direction: column;
             align-items: center;
             gap: 5px;
+            transition: transform 0.2s ease;
+        }
+
+        .tooltip-member:hover {
+            transform: scale(1.1);
         }
 
         .tooltip-avatar-wrapper {
@@ -1052,6 +1082,12 @@
             object-fit: cover;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
             border-style: solid;
+            transition: box-shadow 0.2s ease, transform 0.2s ease;
+        }
+
+        .tooltip-avatar:hover {
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+            transform: rotate(5deg);
         }
 
         .tooltip-member:not(.skip-member) .tooltip-avatar {
@@ -1073,6 +1109,12 @@
             background-repeat: no-repeat;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
             border-style: solid;
+            transition: box-shadow 0.2s ease, transform 0.2s ease;
+        }
+
+        .tooltip-avatar-sprite:hover {
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+            transform: rotate(5deg);
         }
 
         .tooltip-member:not(.skip-member) .tooltip-avatar-sprite {
