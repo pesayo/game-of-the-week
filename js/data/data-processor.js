@@ -100,6 +100,7 @@ export function processData(rawPicks, gameMap, gamesArray, pickAnalysis) {
 
         const gameResults = [];
         let totalWins = 0;
+        let totalLosses = 0;
         let currentStreak = { type: null, count: 0 };
 
         // Process each game column
@@ -119,7 +120,11 @@ export function processData(rawPicks, gameMap, gamesArray, pickAnalysis) {
             if (game.winner) {
                 // Game has been played
                 result = (playerPick === game.winner) ? 'W' : 'L';
-                if (result === 'W') totalWins++;
+                if (result === 'W') {
+                    totalWins++;
+                } else {
+                    totalLosses++;
+                }
 
                 // Track streaks
                 if (currentStreak.type === result) {
@@ -142,7 +147,7 @@ export function processData(rawPicks, gameMap, gamesArray, pickAnalysis) {
                 game: game.gameNumber,
                 result: result,
                 cumulativeWins: totalWins,
-                cumulativeLosses: gameResults.filter(g => g.result === 'L').length,
+                cumulativeLosses: totalLosses,
                 isStreak: currentStreak.count >= 3 && result !== null,
                 matchup: {
                     opponent: opponent,
@@ -160,7 +165,6 @@ export function processData(rawPicks, gameMap, gamesArray, pickAnalysis) {
         // Filter only completed games for stats
         const completedGames = gameResults.filter(g => g.result !== null);
         const totalGames = completedGames.length;
-        const totalLosses = completedGames.filter(g => g.result === 'L').length;
         const winPct = totalGames > 0 ? (totalWins / totalGames) * 100 : 0;
 
         // Calculate contrarian stats

@@ -1,6 +1,6 @@
 // HorseRace component - handles horse race chart visualization
 
-import { getPlayerColors, getHorseRaceData, setHorseRaceData } from '../state/app-state.js';
+import { getPlayerColors, getHorseRaceData, setHorseRaceData, getAllGames } from '../state/app-state.js';
 import { sanitizeName } from '../utils/sanitizers.js';
 
 // State for crosshair
@@ -217,8 +217,24 @@ export function renderHorseRace(data) {
             d3.select(`.race-legend-item[data-player="${safeName}"]`).style('opacity', 1);
         });
 
+        // Get game information
+        const allGames = getAllGames();
+        const gameInfo = allGames.find(g => g.gameNumber === gameNum);
+
+        // Build game header if game info is available
+        let gameHeader = '';
+        if (gameInfo && gameInfo.winner) {
+            const loser = gameInfo.winner === gameInfo.team1 ? gameInfo.team2 : gameInfo.team1;
+            gameHeader = `
+                <div style="margin-bottom: 8px; padding-bottom: 8px; border-bottom: 1px solid var(--gray-300); font-size: 13px;">
+                    <strong>${gameInfo.winner}</strong> defeated <em>${loser}</em>
+                </div>
+            `;
+        }
+
         // Build tooltip content for all players at this position
         let tooltipContent = '<div style="padding: 10px;">';
+        tooltipContent += gameHeader;
 
         if (playersAtPosition.length === 1) {
             const player = playersAtPosition[0];
@@ -379,24 +395,28 @@ export function renderRaceLegend(data) {
         const info = header.append('div')
             .attr('class', 'race-card-info');
 
-        info.append('div')
+        // First line: name and record
+        const firstLine = info.append('div')
+            .attr('class', 'race-card-line');
+
+        firstLine.append('div')
             .attr('class', 'race-legend-name')
             .text(player.name);
 
-        info.append('div')
-            .attr('class', 'race-legend-rank')
-            .text(`Rank #${player.rank}`);
-
-        // Card stats
-        const stats = item.append('div')
-            .attr('class', 'race-card-stats');
-
-        stats.append('span')
+        firstLine.append('span')
             .attr('class', 'race-legend-record')
             .text(`${player.wins}-${player.losses}`);
 
+        // Second line: rank and recent form
+        const secondLine = info.append('div')
+            .attr('class', 'race-card-line');
+
+        secondLine.append('div')
+            .attr('class', 'race-legend-rank')
+            .text(`Rank #${player.rank}`);
+
         // Recent form (last 5 games)
-        const formContainer = stats.append('div')
+        const formContainer = secondLine.append('div')
             .attr('class', 'race-card-form');
 
         const recentGames = player.allResults.slice(-5);

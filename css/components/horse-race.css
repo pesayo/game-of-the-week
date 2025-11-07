@@ -68,24 +68,27 @@
 /* Controls */
 .race-controls {
     display: flex;
-    gap: 10px;
-    margin-bottom: 20px;
+    gap: 8px;
+    justify-content: center;
+    margin: 20px 0 15px 0;
 }
 
 .race-btn {
-    padding: 8px 16px;
+    padding: 4px 12px;
     border: 1px solid var(--gray-300);
-    border-radius: 5px;
-    background-color: var(--gray-100);
+    border-radius: 4px;
+    background-color: transparent;
     cursor: pointer;
-    font-size: 13px;
-    font-weight: 500;
+    font-size: 11px;
+    font-weight: 400;
     transition: all 0.2s;
-    color: var(--text-primary);
+    color: var(--text-secondary);
 }
 
 .race-btn:hover {
-    background-color: var(--gray-200);
+    background-color: var(--gray-100);
+    color: var(--text-primary);
+    border-color: var(--gray-400);
 }
 
 /* Player Cards Grid */
@@ -110,9 +113,6 @@
     cursor: pointer;
     transition: all 0.3s ease;
     border-left: 4px solid;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
     position: relative;
 }
 
@@ -135,7 +135,7 @@
 /* Card Header */
 .race-card-header {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     gap: 10px;
 }
 
@@ -156,38 +156,40 @@
     flex-grow: 1;
     display: flex;
     flex-direction: column;
-    gap: 2px;
+    gap: 4px;
+}
+
+.race-card-line {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
 }
 
 .race-legend-name {
     font-size: 14px;
     color: var(--text-primary);
     font-weight: 600;
+    flex-grow: 1;
 }
 
 .race-legend-rank {
     font-size: 11px;
     color: var(--text-secondary);
-}
-
-/* Card Stats */
-.race-card-stats {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding-top: 8px;
-    border-top: 1px solid var(--gray-200);
+    flex-grow: 1;
 }
 
 .race-legend-record {
     font-size: 13px;
     color: var(--text-primary);
     font-weight: 600;
+    flex-shrink: 0;
 }
 
 .race-card-form {
     display: flex;
     gap: 2px;
+    flex-shrink: 0;
 }
 
 .race-form-dot {
