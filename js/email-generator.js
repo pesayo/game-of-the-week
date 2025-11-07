@@ -172,7 +172,7 @@ function displayDataPreview() {
             </div>
 
             <div class="summary-section">
-                <h3>🎯 Week ${summary.mostRecentWeek} Results (${summary.recentWeekGames.length} game${summary.recentWeekGames.length !== 1 ? 's' : ''})</h3>
+                <h3>🎯 Most Recent Results${summary.mostRecentGameDate ? ` - ${summary.mostRecentGameDate}` : ''} (${summary.recentWeekGames.length} game${summary.recentWeekGames.length !== 1 ? 's' : ''})</h3>
                 ${summary.recentWeekGames.length > 0 ? `
                     <ul>
                         ${summary.recentWeekGames.map(g => `
@@ -186,7 +186,7 @@ function displayDataPreview() {
             </div>
 
             <div class="summary-section">
-                <h3>📅 Week ${summary.nextUpcomingWeek} Matchups (${summary.upcomingWeekGames.length} game${summary.upcomingWeekGames.length !== 1 ? 's' : ''})</h3>
+                <h3>📅 Next Matchups${summary.nextUpcomingGameDate ? ` - ${summary.nextUpcomingGameDate}` : ''} (${summary.upcomingWeekGames.length} game${summary.upcomingWeekGames.length !== 1 ? 's' : ''})</h3>
                 ${summary.upcomingWeekGames.length > 0 ? `
                     <ul>
                         ${summary.upcomingWeekGames.map(g => `
@@ -264,15 +264,62 @@ function generateDataSummary() {
     const completedGames = gameData.allGames.filter(g => g.winner);
     const upcomingGames = gameData.allGames.filter(g => !g.winner);
 
-    // Get the most recent week number with completed games
-    const mostRecentWeek = completedGames.length > 0
-        ? Math.max(...completedGames.map(g => parseInt(g.week)))
-        : 0;
+    // Helper function to parse game date
+    const parseGameDate = (dateStr) => {
+        // Date format is M/D/YYYY (e.g., "11/12/2025")
+        const [month, day, year] = dateStr.split('/').map(Number);
+        return new Date(year, month - 1, day);
+    };
 
-    // Get the next upcoming week number
-    const nextUpcomingWeek = upcomingGames.length > 0
-        ? Math.min(...upcomingGames.map(g => parseInt(g.week)))
-        : 0;
+    const now = new Date();
+
+    // Find the most recent completed game(s) by date
+    let mostRecentGameDate = null;
+    let mostRecentWeek = 0;
+
+    if (completedGames.length > 0) {
+        // Sort completed games by date (most recent first)
+        const sortedCompleted = [...completedGames].sort((a, b) => {
+            const dateA = parseGameDate(a.date);
+            const dateB = parseGameDate(b.date);
+            return dateB - dateA;
+        });
+
+        // Get the most recent game date
+        mostRecentGameDate = parseGameDate(sortedCompleted[0].date);
+        mostRecentWeek = parseInt(sortedCompleted[0].week);
+
+        // Include all games from the same date as the most recent game
+        // (handles multiple games on the same day)
+        const mostRecentDateStr = sortedCompleted[0].date;
+        const gamesOnMostRecentDate = completedGames.filter(g => g.date === mostRecentDateStr);
+
+        // If there are multiple weeks on the same date, use the highest week number
+        if (gamesOnMostRecentDate.length > 0) {
+            mostRecentWeek = Math.max(...gamesOnMostRecentDate.map(g => parseInt(g.week)));
+        }
+    }
+
+    // Find the next upcoming game(s) by date
+    let nextUpcomingWeek = 0;
+
+    if (upcomingGames.length > 0) {
+        // Sort upcoming games by date (soonest first)
+        const sortedUpcoming = [...upcomingGames].sort((a, b) => {
+            const dateA = parseGameDate(a.date);
+            const dateB = parseGameDate(b.date);
+            return dateA - dateB;
+        });
+
+        // Get the next upcoming game date
+        const nextUpcomingDateStr = sortedUpcoming[0].date;
+        const gamesOnNextDate = upcomingGames.filter(g => g.date === nextUpcomingDateStr);
+
+        // If there are multiple weeks on the same date, use the lowest week number
+        if (gamesOnNextDate.length > 0) {
+            nextUpcomingWeek = Math.min(...gamesOnNextDate.map(g => parseInt(g.week)));
+        }
+    }
 
     // Calculate previous week's standings (without most recent week's games)
     const previousWeekStandings = calculatePreviousWeekStandings(mostRecentWeek);
@@ -306,40 +353,54 @@ function generateDataSummary() {
         };
     });
 
-    // Get games from most recent completed week
-    const recentWeekGames = completedGames
-        .filter(g => parseInt(g.week) === mostRecentWeek)
-        .map(g => {
-            const loserSkip = g.winner === g.team1 ? g.team2Skip : g.team1Skip;
-            const pickInfo = gameData.pickAnalysis[createGameKey(g.week, g.date, g.time, g.sheet)];
-            const isUpset = pickInfo && pickInfo.chalkPick && g.winner !== pickInfo.chalkPick;
+    // Get games from most recent completed date (all games on that date)
+    let recentWeekGames = [];
+    if (completedGames.length > 0) {
+        // Find the most recent date
+        const mostRecentDateStr = [...completedGames]
+            .sort((a, b) => parseGameDate(b.date) - parseGameDate(a.date))[0].date;
 
-            return {
-                winner: g.winner,
-                loser: g.winner === g.team1 ? g.team2 : g.team1,
-                winnerSkip: g.winner,
-                loserSkip: loserSkip,
+        recentWeekGames = completedGames
+            .filter(g => g.date === mostRecentDateStr)
+            .map(g => {
+                const loserSkip = g.winner === g.team1 ? g.team2Skip : g.team1Skip;
+                const pickInfo = gameData.pickAnalysis[createGameKey(g.week, g.date, g.time, g.sheet)];
+                const isUpset = pickInfo && pickInfo.chalkPick && g.winner !== pickInfo.chalkPick;
+
+                return {
+                    winner: g.winner,
+                    loser: g.winner === g.team1 ? g.team2 : g.team1,
+                    winnerSkip: g.winner,
+                    loserSkip: loserSkip,
+                    date: g.date,
+                    week: g.week,
+                    isUpset: isUpset,
+                    chalkPercentage: pickInfo ? pickInfo.chalkPercentage : null
+                };
+            });
+    }
+
+    // Get games from next upcoming date (all games on that date)
+    let nextWeekGames = [];
+    if (upcomingGames.length > 0) {
+        // Find the next upcoming date
+        const nextUpcomingDateStr = [...upcomingGames]
+            .sort((a, b) => parseGameDate(a.date) - parseGameDate(b.date))[0].date;
+
+        nextWeekGames = upcomingGames
+            .filter(g => g.date === nextUpcomingDateStr)
+            .map(g => ({
+                team1: g.team1,
+                team2: g.team2,
+                team1Skip: g.team1Skip,
+                team2Skip: g.team2Skip,
                 date: g.date,
+                time: g.time,
                 week: g.week,
-                isUpset: isUpset,
-                chalkPercentage: pickInfo ? pickInfo.chalkPercentage : null
-            };
-        });
-
-    // Get games from next upcoming week
-    const nextWeekGames = upcomingGames
-        .filter(g => parseInt(g.week) === nextUpcomingWeek)
-        .map(g => ({
-            team1: g.team1,
-            team2: g.team2,
-            team1Skip: g.team1Skip,
-            team2Skip: g.team2Skip,
-            date: g.date,
-            time: g.time,
-            week: g.week,
-            sheet: g.sheet,
-            notes: g.notes
-        }));
+                sheet: g.sheet,
+                notes: g.notes
+            }));
+    }
 
     // Generate fun facts
     const funFacts = [];
@@ -370,10 +431,16 @@ function generateDataSummary() {
         funFacts.push(`Week ${mostRecentWeek} upset: ${recentUpset.winner} beat ${recentUpset.loser} (only ${100 - recentUpset.chalkPercentage}% picked them)`);
     }
 
+    // Get the actual dates for display
+    const mostRecentGameDate = recentWeekGames.length > 0 ? recentWeekGames[0].date : '';
+    const nextUpcomingGameDate = nextWeekGames.length > 0 ? nextWeekGames[0].date : '';
+
     return {
         allPlayers,
         mostRecentWeek,
         nextUpcomingWeek,
+        mostRecentGameDate,
+        nextUpcomingGameDate,
         recentWeekGames,
         upcomingWeekGames: nextWeekGames,
         funFacts,
@@ -445,10 +512,10 @@ ${summary.allPlayers.filter(p => p.isFunkEngEligible).map((p, i) => {
     return `${p.rank}. ${p.name} (${p.team}, ${p.position}): ${p.wins}-${p.losses} (Win%: ${p.winPct}%, Contrarian: ${p.contrarianPct}%)${rankChangeStr}${formStr}`;
 }).join('\n')}
 
-**WEEK ${summary.mostRecentWeek} RESULTS (${summary.recentWeekGames.length} game${summary.recentWeekGames.length !== 1 ? 's' : ''}):**
-${summary.recentWeekGames.length > 0 ? summary.recentWeekGames.map(g => `- ${g.winner} defeated ${g.loser}${g.isUpset ? ' (UPSET - only ' + (100 - g.chalkPercentage) + '% picked them!)' : ''}`).join('\n') : 'No games completed this week yet'}
+**MOST RECENT RESULTS${summary.mostRecentGameDate ? ` (${summary.mostRecentGameDate})` : ''} - ${summary.recentWeekGames.length} game${summary.recentWeekGames.length !== 1 ? 's' : ''}:**
+${summary.recentWeekGames.length > 0 ? summary.recentWeekGames.map(g => `- ${g.winner} defeated ${g.loser}${g.isUpset ? ' (UPSET - only ' + (100 - g.chalkPercentage) + '% picked them!)' : ''}`).join('\n') : 'No games completed recently'}
 
-**WEEK ${summary.nextUpcomingWeek} MATCHUPS (${summary.upcomingWeekGames.length} game${summary.upcomingWeekGames.length !== 1 ? 's' : ''}):**
+**NEXT MATCHUPS${summary.nextUpcomingGameDate ? ` (${summary.nextUpcomingGameDate})` : ''} - ${summary.upcomingWeekGames.length} game${summary.upcomingWeekGames.length !== 1 ? 's' : ''}:**
 ${summary.upcomingWeekGames.length > 0 ? summary.upcomingWeekGames.map(g => {
     const notesText = g.notes && g.notes.trim() ? ` [Note: ${g.notes}]` : '';
     return `- ${g.team1Skip} vs ${g.team2Skip} (Sheet ${g.sheet}, ${g.date} ${g.time})${notesText}`;
@@ -536,7 +603,7 @@ function formatRecentMatchups() {
 
     return `
         <div style="margin-bottom: 2rem;">
-            <h3 style="color: #34495e; margin-bottom: 1rem;">Last Week's Matchup${summary.recentWeekGames.length !== 1 ? 's' : ''}</h3>
+            <h3 style="color: #34495e; margin-bottom: 1rem;">Most Recent Result${summary.recentWeekGames.length !== 1 ? 's' : ''}${summary.mostRecentGameDate ? ` (${summary.mostRecentGameDate})` : ''}</h3>
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem;">
                 ${summary.recentWeekGames.map(game => {
                     // Determine winner and loser
@@ -591,7 +658,7 @@ function formatUpcomingMatchups() {
 
     return `
         <div style="margin-bottom: 2rem;">
-            <h3 style="color: #34495e; margin-bottom: 1rem;">Upcoming Matchup${summary.upcomingWeekGames.length !== 1 ? 's' : ''}</h3>
+            <h3 style="color: #34495e; margin-bottom: 1rem;">Next Matchup${summary.upcomingWeekGames.length !== 1 ? 's' : ''}${summary.nextUpcomingGameDate ? ` (${summary.nextUpcomingGameDate})` : ''}</h3>
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem;">
                 ${summary.upcomingWeekGames.map(game => {
                     // Only show full team name if it's different from skip name
