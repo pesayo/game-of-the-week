@@ -511,7 +511,7 @@ function formatRecentMatchups() {
 
     return `
         <div style="margin-bottom: 2rem;">
-            <h3 style="color: #34495e; margin-bottom: 1rem;">📋 Last Week's Matchup${summary.recentWeekGames.length !== 1 ? 's' : ''}</h3>
+            <h3 style="color: #34495e; margin-bottom: 1rem;">Last Week's Matchup${summary.recentWeekGames.length !== 1 ? 's' : ''}</h3>
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem;">
                 ${summary.recentWeekGames.map(game => {
                     // Determine winner and loser
@@ -566,7 +566,7 @@ function formatUpcomingMatchups() {
 
     return `
         <div style="margin-bottom: 2rem;">
-            <h3 style="color: #34495e; margin-bottom: 1rem;">🔥 Upcoming Matchup${summary.upcomingWeekGames.length !== 1 ? 's' : ''}</h3>
+            <h3 style="color: #34495e; margin-bottom: 1rem;">Upcoming Matchup${summary.upcomingWeekGames.length !== 1 ? 's' : ''}</h3>
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem;">
                 ${summary.upcomingWeekGames.map(game => {
                     // Only show full team name if it's different from skip name
@@ -605,7 +605,7 @@ function formatStandingsTable() {
 
     let tableHTML = `
         <div style="margin-top: 2rem; padding-top: 2rem; border-top: 2px solid #e0e0e0;">
-            <h2 style="color: #2c3e50; margin-bottom: 1rem;">📊 Current Standings</h2>
+            <h2 style="color: #2c3e50; margin-bottom: 1rem;">Current Standings</h2>
 
             <h3 style="color: #34495e; margin-top: 1.5rem; margin-bottom: 0.5rem;">Goblet (Overall) Standings</h3>
             <table style="width: 100%; border-collapse: collapse; margin-bottom: 2rem; font-size: 14px;">
@@ -649,7 +649,7 @@ function formatStandingsTable() {
                 </tbody>
             </table>
 
-            <h3 style="color: #34495e; margin-top: 1.5rem; margin-bottom: 0.5rem;">🏆 Funk-Eng Cup Standings (Leads & Seconds Only)</h3>
+            <h3 style="color: #34495e; margin-top: 1.5rem; margin-bottom: 0.5rem;">Funk-Eng Cup Standings (Leads & Seconds Only)</h3>
             <table style="width: 100%; border-collapse: collapse; margin-bottom: 2rem; font-size: 14px;">
                 <thead>
                     <tr style="background-color: #50536A; color: white;">
