@@ -603,3 +603,27 @@
     font-weight: bold;
     margin: 10px 0;
 }
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+    .upcoming-matchup-body {
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .upcoming-vs-divider {
+        min-width: auto;
+        min-height: auto;
+        padding: 10px 20px;
+    }
+
+    .upcoming-members-row {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    /* Reverse the second team's members to maintain Skip->Lead order */
+    .upcoming-team-section:last-of-type .upcoming-members-row {
+        flex-direction: column-reverse;
+    }
+}
