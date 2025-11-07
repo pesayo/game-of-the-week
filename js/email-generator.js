@@ -154,7 +154,7 @@ function displayDataPreview() {
             <div class="summary-section">
                 <h3>📊 Full Standings (${summary.allPlayers.length} Players)</h3>
                 <p style="font-size: 0.9em; color: #666; margin-bottom: 1rem;">
-                    <strong>Win%</strong> = games won | <strong>Contrarian%</strong> = season-long % of picks against majority
+                    <strong>Win%</strong> = games won | <strong>Contrarian%</strong> = to-date % of picks against majority (completed games only)
                 </p>
                 <ol>
                     ${summary.allPlayers.map(p => {
@@ -409,7 +409,7 @@ ${previousEmail}
 
 **LEGEND:**
 - Win %: Percentage of games WON (e.g., 66.7% means they won 2 out of 3 games)
-- Contrarian %: Season-long percentage of picks AGAINST the majority. Calculated across ALL completed games from the start of the season (e.g., 25% means in 1 out of every 4 games, they picked the team that fewer people picked). Remember: all picks were locked in at the start of the season, so a player who consistently picked underdogs will have a higher contrarian %.
+- Contrarian %: To-date percentage of picks AGAINST the majority, calculated only from completed games. Although all picks were locked in at the start of the season for the entire schedule, this percentage only reflects games played so far (e.g., 25% means in 1 out of every 4 completed games, they picked the team that fewer people picked). A player who consistently picked underdogs will have a higher contrarian %.
 - Form: ALL game results chronologically (W = Win, L = Loss, most recent on right). Use this to identify streaks and trends!
 - Movement: Rank change from last week (↑ = moved up, ↓ = moved down, − = no change)
 
