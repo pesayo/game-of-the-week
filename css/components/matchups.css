@@ -620,11 +620,16 @@
     .upcoming-members-row {
         flex-direction: column-reverse;
         align-items: center;
-        gap: 8px;
+        gap: 2px;
     }
 
     /* Remove reverse for second team since JS already reverses it */
     .upcoming-team-section:last-of-type .upcoming-members-row {
         flex-direction: column;
+    }
+
+    .tooltip-member {
+        margin-bottom: 10px;
+        gap: 2px;
     }
 }
