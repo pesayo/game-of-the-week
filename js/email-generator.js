@@ -298,24 +298,37 @@ function generateDataSummary() {
         }
     }
 
-    // Find the next upcoming game(s) by date
+    // Find the next upcoming game(s) by date (excluding postponed/past games)
     let nextUpcomingWeek = 0;
 
     if (upcomingGames.length > 0) {
-        // Sort upcoming games by date (soonest first)
-        const sortedUpcoming = [...upcomingGames].sort((a, b) => {
-            const dateA = parseGameDate(a.date);
-            const dateB = parseGameDate(b.date);
-            return dateA - dateB;
-        });
+        // Get the most recent completed game date as a threshold
+        let cutoffDate = new Date(0); // Start of epoch if no completed games
+        if (completedGames.length > 0) {
+            const mostRecentCompletedDateStr = [...completedGames]
+                .sort((a, b) => parseGameDate(b.date) - parseGameDate(a.date))[0].date;
+            cutoffDate = parseGameDate(mostRecentCompletedDateStr);
+        }
 
-        // Get the next upcoming game date
-        const nextUpcomingDateStr = sortedUpcoming[0].date;
-        const gamesOnNextDate = upcomingGames.filter(g => g.date === nextUpcomingDateStr);
+        // Filter to only truly future games
+        const futureGames = upcomingGames.filter(g => parseGameDate(g.date) > cutoffDate);
 
-        // If there are multiple weeks on the same date, use the lowest week number
-        if (gamesOnNextDate.length > 0) {
-            nextUpcomingWeek = Math.min(...gamesOnNextDate.map(g => parseInt(g.week)));
+        if (futureGames.length > 0) {
+            // Sort future games by date (soonest first)
+            const sortedUpcoming = [...futureGames].sort((a, b) => {
+                const dateA = parseGameDate(a.date);
+                const dateB = parseGameDate(b.date);
+                return dateA - dateB;
+            });
+
+            // Get the next upcoming game date
+            const nextUpcomingDateStr = sortedUpcoming[0].date;
+            const gamesOnNextDate = futureGames.filter(g => g.date === nextUpcomingDateStr);
+
+            // If there are multiple weeks on the same date, use the lowest week number
+            if (gamesOnNextDate.length > 0) {
+                nextUpcomingWeek = Math.min(...gamesOnNextDate.map(g => parseInt(g.week)));
+            }
         }
     }
 
@@ -379,25 +392,37 @@ function generateDataSummary() {
     }
 
     // Get games from next upcoming date (all games on that date)
+    // Filter out postponed/past games by only including games after the most recent completed game
     let nextWeekGames = [];
     if (upcomingGames.length > 0) {
-        // Find the next upcoming date
-        const nextUpcomingDateStr = [...upcomingGames]
-            .sort((a, b) => parseGameDate(a.date) - parseGameDate(b.date))[0].date;
+        // Get the most recent completed game date as a threshold
+        let cutoffDate = new Date(0); // Start of epoch if no completed games
+        if (recentWeekGames.length > 0) {
+            cutoffDate = parseGameDate(recentWeekGames[0].date);
+        }
 
-        nextWeekGames = upcomingGames
-            .filter(g => g.date === nextUpcomingDateStr)
-            .map(g => ({
-                team1: g.team1,
-                team2: g.team2,
-                team1Skip: g.team1Skip,
-                team2Skip: g.team2Skip,
-                date: g.date,
-                time: g.time,
-                week: g.week,
-                sheet: g.sheet,
-                notes: g.notes
-            }));
+        // Filter to only truly upcoming games (after the most recent completed game)
+        const futureGames = upcomingGames.filter(g => parseGameDate(g.date) > cutoffDate);
+
+        if (futureGames.length > 0) {
+            // Find the next upcoming date from future games
+            const nextUpcomingDateStr = [...futureGames]
+                .sort((a, b) => parseGameDate(a.date) - parseGameDate(b.date))[0].date;
+
+            nextWeekGames = futureGames
+                .filter(g => g.date === nextUpcomingDateStr)
+                .map(g => ({
+                    team1: g.team1,
+                    team2: g.team2,
+                    team1Skip: g.team1Skip,
+                    team2Skip: g.team2Skip,
+                    date: g.date,
+                    time: g.time,
+                    week: g.week,
+                    sheet: g.sheet,
+                    notes: g.notes
+                }));
+        }
     }
 
     // Generate fun facts
