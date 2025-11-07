@@ -221,62 +221,33 @@ export function renderHorseRace(data) {
         const allGames = getAllGames();
         const gameInfo = allGames.find(g => g.gameNumber === gameNum);
 
-        // Build game header if game info is available
-        let gameHeader = '';
-        if (gameInfo && gameInfo.winner) {
-            const loser = gameInfo.winner === gameInfo.team1 ? gameInfo.team2 : gameInfo.team1;
-            gameHeader = `
-                <div style="margin-bottom: 8px; padding-bottom: 8px; border-bottom: 1px solid var(--gray-300); font-size: 13px;">
-                    <strong>${gameInfo.winner}</strong> defeated <em>${loser}</em>
-                </div>
-            `;
-        }
+        // Build tooltip content - unified structure for single and multiple players
+        let tooltipContent = '';
 
-        // Build tooltip content for all players at this position
-        let tooltipContent = '<div style="padding: 10px;">';
-        tooltipContent += gameHeader;
+        // Get the record from any player (they all have same record at this position)
+        const firstPlayer = playersAtPosition[0];
+        const firstResult = firstPlayer.allResults.find(r => r.game === gameNum);
+        const record = `${firstResult.cumulativeWins}-${firstResult.cumulativeLosses}`;
 
-        if (playersAtPosition.length === 1) {
-            const player = playersAtPosition[0];
+        // Game number + record header
+        tooltipContent += `<div style="opacity: 0.7; margin-bottom: 3px; font-size: 11px;">G${gameNum} ${record}</div>`;
+
+        // Each player with icon in front
+        playersAtPosition.forEach((player, idx) => {
             const gameResult = player.allResults.find(r => r.game === gameNum);
             const playerColor = playerColors[player.name];
-            tooltipContent += `
-                <strong style="font-size: 14px; color: ${playerColor}; text-shadow: 0 0 4px rgba(255,255,255,0.5);">${player.name}</strong><br>
-                <span style="color: var(--text-secondary); font-size: 12px;">Game ${gameNum}</span><br>
-                <div style="margin-top: 8px; font-size: 13px;">
-                    ${gameResult.result === 'W' ?
-                        '<span style="color: var(--success);">✓ Win</span>' :
-                        '<span style="color: var(--error);">✗ Loss</span>'
-                    }
-                </div>
-                <div style="margin-top: 6px; font-size: 12px; color: var(--text-secondary);">
-                    Record: ${gameResult.cumulativeWins}-${gameResult.cumulativeLosses}
-                </div>
-            `;
-        } else {
-            tooltipContent += `<div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 8px;">Game ${gameNum} • ${wins} wins</div>`;
-            playersAtPosition.forEach((player, idx) => {
-                const gameResult = player.allResults.find(r => r.game === gameNum);
-                const playerColor = playerColors[player.name];
-                if (idx > 0) tooltipContent += '<div style="border-top: 1px solid var(--gray-300); margin: 6px 0;"></div>';
-                tooltipContent += `
-                    <div style="margin-bottom: 4px;">
-                        <strong style="font-size: 13px; color: ${playerColor}; text-shadow: 0 0 2px rgba(255,255,255,0.8);">${player.name}</strong>
-                        <span style="margin-left: 8px; font-size: 12px;">
-                            ${gameResult.result === 'W' ?
-                                '<span style="color: var(--success);">✓ Win</span>' :
-                                '<span style="color: var(--error);">✗ Loss</span>'
-                            }
-                        </span>
-                    </div>
-                    <div style="font-size: 11px; color: var(--text-secondary);">
-                        Record: ${gameResult.cumulativeWins}-${gameResult.cumulativeLosses}
-                    </div>
-                `;
-            });
-        }
+            const resultIcon = gameResult.result === 'W'
+                ? '<span style="color: #4CAF50;">✓</span>'
+                : '<span style="color: #f44336;">✗</span>';
 
-        tooltipContent += '</div>';
+            tooltipContent += `<div style="font-size: 11px;">${resultIcon} <span style="color: ${playerColor}; font-weight: 600;">${player.name}</span></div>`;
+        });
+
+        // Game result if available
+        if (gameInfo && gameInfo.winner) {
+            const loser = gameInfo.winner === gameInfo.team1 ? gameInfo.team2 : gameInfo.team1;
+            tooltipContent += `<div style="font-size: 10px; opacity: 0.6; margin-top: 3px; padding-top: 3px; border-top: 1px solid rgba(255,255,255,0.15);"><strong>${gameInfo.winner}</strong> def <em>${loser}</em></div>`;
+        }
 
         tooltip.html(tooltipContent)
             .style('display', 'block')

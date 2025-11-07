@@ -28,9 +28,10 @@ export function getSharedPicksFilters() {
  * Create a pie chart SVG for matrix header
  * @param {number} team1Pct - Team 1 percentage
  * @param {number} team2Pct - Team 2 percentage
+ * @param {boolean} useWinnerLoserColors - Whether to use winner (green) / loser (red) colors
  * @returns {string} SVG string
  */
-export function createPieChart(team1Pct, team2Pct) {
+export function createPieChart(team1Pct, team2Pct, useWinnerLoserColors = false) {
     const size = 50;
     const radius = 20;
     const cx = size / 2;
@@ -38,8 +39,17 @@ export function createPieChart(team1Pct, team2Pct) {
 
     // Brand colors for contrast
     const rootStyles = getComputedStyle(document.documentElement);
-    const team1Color = rootStyles.getPropertyValue('--mcc-gold-1').trim();
-    const team2Color = rootStyles.getPropertyValue('--mcc-dark-1').trim();
+    let team1Color, team2Color;
+
+    if (useWinnerLoserColors) {
+        // Winner (team1) gets green, Loser (team2) gets red
+        team1Color = rootStyles.getPropertyValue('--success').trim();
+        team2Color = rootStyles.getPropertyValue('--error').trim();
+    } else {
+        // Default brand colors
+        team1Color = rootStyles.getPropertyValue('--mcc-gold-1').trim();
+        team2Color = rootStyles.getPropertyValue('--mcc-dark-1').trim();
+    }
 
     // Calculate the end angle for team1 (starting at top, going counter-clockwise)
     const team1Angle = (team1Pct / 100) * 360;
@@ -155,25 +165,42 @@ export function renderPicksMatrix() {
         let team2Pct = analysis ? (analysis.team2Percentage || 0) : 50;
         let team1Count = analysis ? (analysis.team1Picks || 0) : 0;
         let team2Count = analysis ? (analysis.team2Picks || 0) : 0;
+        let isWinnerLoserOrdered = false;
 
-        // If a specific team is selected and it's team2, swap teams to keep selected team first
-        if (sharedPicksFilters.team !== 'all' && sharedPicksFilters.team === game.team2) {
+        // For decided games with no active team filter, order winner first (green), loser second (red)
+        if (game.winner && sharedPicksFilters.team === 'all') {
+            isWinnerLoserOrdered = true;
+            // Determine if teams need swapping to put winner first
+            if (game.winner === game.team2) {
+                // Winner is team2, so swap to make winner team1
+                [team1, team2] = [team2, team1];
+                [team1Pct, team2Pct] = [team2Pct, team1Pct];
+                [team1Count, team2Count] = [team2Count, team1Count];
+            }
+            // If winner is already team1, no swap needed
+        } else if (sharedPicksFilters.team !== 'all' && sharedPicksFilters.team === game.team2) {
             // Swap teams so selected team is always first
             [team1, team2] = [team2, team1];
             [team1Pct, team2Pct] = [team2Pct, team1Pct];
             [team1Count, team2Count] = [team2Count, team1Count];
         }
 
-        // Create pie chart
-        const pieChartSVG = createPieChart(team1Pct, team2Pct);
+        // Create pie chart with winner/loser colors if applicable
+        const pieChartSVG = createPieChart(team1Pct, team2Pct, isWinnerLoserOrdered);
+
+        // Determine colors for header text
+        const team1Color = isWinnerLoserOrdered ? 'var(--success)' : 'var(--mcc-gold-1)';
+        const team2Color = isWinnerLoserOrdered ? 'var(--error)' : 'var(--mcc-dark-1)';
+        const team1TooltipColor = isWinnerLoserOrdered ? 'var(--success)' : 'var(--gold)';
+        const team2TooltipColor = isWinnerLoserOrdered ? 'var(--error)' : 'var(--mcc-light-2)';
 
         gameHeader.innerHTML = `
             <div class="matrix-header-content">
                 <div class="matrix-header-pie-wrapper" style="position: relative;">
                     ${pieChartSVG}
                     <div class="pie-tooltip" id="pieTooltip-${game.gameNumber}">
-                        <div style="color: var(--gold); font-weight: 600;">${team1}: ${team1Pct}%</div>
-                        <div style="color: var(--mcc-light-2); font-weight: 600;">${team2}: ${team2Pct}%</div>
+                        <div style="color: ${team1TooltipColor}; font-weight: 600;">${team1}: ${team1Pct}%</div>
+                        <div style="color: ${team2TooltipColor}; font-weight: 600;">${team2}: ${team2Pct}%</div>
                     </div>
                 </div>
                 <div class="matrix-header-info">
@@ -181,8 +208,8 @@ export function renderPicksMatrix() {
                     <div style="font-size: 10px; margin-top: 2px;">${game.date}</div>
                     <div style="font-size: 10px;">${game.time}</div>
                     <div style="font-size: 10px; margin-top: 5px; font-weight: 600; line-height: 1.5;">
-                        <div style="color: var(--mcc-gold-1);">${team1} (${team1Pct}%)</div>
-                        <div style="color: var(--mcc-dark-1);">${team2} (${team2Pct}%)</div>
+                        <div style="color: ${team1Color};">${team1} (${team1Pct}%)</div>
+                        <div style="color: ${team2Color};">${team2} (${team2Pct}%)</div>
                     </div>
                 </div>
             </div>
