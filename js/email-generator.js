@@ -82,6 +82,15 @@ async function loadGameData() {
 
         data.matchups.forEach((row, index) => {
             const gameKey = createGameKey(row.Week, row.Date, row.Time, row.Sheet);
+
+            // Construct team names, handling undefined/empty numbers
+            const team1Name = row.Team1_Number && row.Team1_Number.trim()
+                ? `${row.Team1_Number} ${row.Team1_Skip}`
+                : row.Team1_Skip;
+            const team2Name = row.Team2_Number && row.Team2_Number.trim()
+                ? `${row.Team2_Number} ${row.Team2_Skip}`
+                : row.Team2_Skip;
+
             const game = {
                 gameNumber: index + 1,
                 week: row.Week,
@@ -89,8 +98,10 @@ async function loadGameData() {
                 phase: row.Phase || '',
                 time: row.Time,
                 sheet: row.Sheet,
-                team1: row.Team1_Number + ' ' + row.Team1_Skip,
-                team2: row.Team2_Number + ' ' + row.Team2_Skip,
+                team1: team1Name,
+                team2: team2Name,
+                team1Skip: row.Team1_Skip,
+                team2Skip: row.Team2_Skip,
                 winner: row.Winner || null,
                 isKeyMatchup: row.Key_Matchup === 'TRUE'
             };
@@ -107,7 +118,8 @@ async function loadGameData() {
         gameData = {
             allGames,
             matchupsMap,
-            pickAnalysis
+            pickAnalysis,
+            playerInfo: data.playerInfo
         };
         leaderboardData = leaderboard;
 
@@ -133,33 +145,40 @@ function displayDataPreview() {
     previewDiv.innerHTML = `
         <div class="data-summary">
             <div class="summary-section">
-                <h3>📊 Current Standings (Top 5)</h3>
+                <h3>📊 Full Standings (${summary.allPlayers.length} Players)</h3>
                 <ol>
-                    ${summary.topPlayers.map(p => `
-                        <li><strong>${p.name}</strong>: ${p.wins}-${p.losses} (${p.winPct}%)</li>
+                    ${summary.allPlayers.map(p => `
+                        <li>
+                            <strong>${p.name}</strong> (${p.position || 'Unknown'}${p.isFunkEngEligible ? ' - Funk-Eng Eligible' : ''}):
+                            ${p.wins}-${p.losses} (${p.winPct}%)
+                        </li>
                     `).join('')}
                 </ol>
             </div>
 
             <div class="summary-section">
-                <h3>🎯 Recent Results (Last ${summary.recentGames.length} games)</h3>
-                <ul>
-                    ${summary.recentGames.map(g => `
-                        <li>
-                            <strong>${g.winner}</strong> beat ${g.loser}
-                            ${g.isUpset ? ' <span class="upset-tag">UPSET!</span>' : ''}
-                        </li>
-                    `).join('')}
-                </ul>
+                <h3>🎯 Week ${summary.mostRecentWeek} Results (${summary.recentWeekGames.length} game${summary.recentWeekGames.length !== 1 ? 's' : ''})</h3>
+                ${summary.recentWeekGames.length > 0 ? `
+                    <ul>
+                        ${summary.recentWeekGames.map(g => `
+                            <li>
+                                <strong>${g.winner}</strong> beat ${g.loser}
+                                ${g.isUpset ? ' <span class="upset-tag">UPSET!</span>' : ''}
+                            </li>
+                        `).join('')}
+                    </ul>
+                ` : '<p>No results yet for this week</p>'}
             </div>
 
             <div class="summary-section">
-                <h3>📅 Upcoming Games (Next ${summary.upcomingGames.length})</h3>
-                <ul>
-                    ${summary.upcomingGames.map(g => `
-                        <li>${g.team1} vs ${g.team2} - ${g.date} ${g.time}</li>
-                    `).join('')}
-                </ul>
+                <h3>📅 Week ${summary.nextUpcomingWeek} Matchups (${summary.upcomingWeekGames.length} game${summary.upcomingWeekGames.length !== 1 ? 's' : ''})</h3>
+                ${summary.upcomingWeekGames.length > 0 ? `
+                    <ul>
+                        ${summary.upcomingWeekGames.map(g => `
+                            <li>${g.team1Skip} vs ${g.team2Skip} - ${g.date} ${g.time}</li>
+                        `).join('')}
+                    </ul>
+                ` : '<p>No upcoming games scheduled</p>'}
             </div>
 
             ${summary.funFacts.length > 0 ? `
@@ -179,38 +198,67 @@ function generateDataSummary() {
     const completedGames = gameData.allGames.filter(g => g.winner);
     const upcomingGames = gameData.allGames.filter(g => !g.winner);
 
-    // Get top 5 players
-    const topPlayers = leaderboardData.slice(0, 5).map(p => ({
-        name: p.name,
-        wins: p.wins,
-        losses: p.losses,
-        winPct: p.winPct.toFixed(1),
-        rank: p.rank
-    }));
+    // Get the most recent week number with completed games
+    const mostRecentWeek = completedGames.length > 0
+        ? Math.max(...completedGames.map(g => parseInt(g.week)))
+        : 0;
 
-    // Get recent games (last 5 completed)
-    const recentGames = completedGames.slice(-5).map(g => {
-        const loser = g.winner === g.team1 ? g.team2 : g.team1;
-        const pickInfo = gameData.pickAnalysis[createGameKey(g.week, g.date, g.time, g.sheet)];
-        const isUpset = pickInfo && pickInfo.chalkPick && g.winner !== pickInfo.chalkPick;
+    // Get the next upcoming week number
+    const nextUpcomingWeek = upcomingGames.length > 0
+        ? Math.min(...upcomingGames.map(g => parseInt(g.week)))
+        : 0;
+
+    // Get all players with Funk-Eng eligibility
+    const allPlayers = leaderboardData.map(p => {
+        // Find player info from the data
+        const playerInfo = gameData.playerInfo?.find(pi => pi.Name === p.name) || {};
+        const position = playerInfo.Position || '';
+        const isFunkEngEligible = position === 'Lead' || position === 'Second';
 
         return {
-            winner: g.winner,
-            loser: loser,
-            date: g.date,
-            isUpset: isUpset,
-            chalkPercentage: pickInfo ? pickInfo.chalkPercentage : null
+            name: p.name,
+            wins: p.wins,
+            losses: p.losses,
+            winPct: p.winPct.toFixed(1),
+            rank: p.rank,
+            team: playerInfo.Team || '',
+            position: position,
+            isFunkEngEligible: isFunkEngEligible
         };
     });
 
-    // Get upcoming games (next 5-10)
-    const nextGames = upcomingGames.slice(0, 10).map(g => ({
-        team1: g.team1,
-        team2: g.team2,
-        date: g.date,
-        time: g.time,
-        week: g.week
-    }));
+    // Get games from most recent completed week
+    const recentWeekGames = completedGames
+        .filter(g => parseInt(g.week) === mostRecentWeek)
+        .map(g => {
+            const loserSkip = g.winner === g.team1 ? g.team2Skip : g.team1Skip;
+            const pickInfo = gameData.pickAnalysis[createGameKey(g.week, g.date, g.time, g.sheet)];
+            const isUpset = pickInfo && pickInfo.chalkPick && g.winner !== pickInfo.chalkPick;
+
+            return {
+                winner: g.winner,
+                loser: g.winner === g.team1 ? g.team2 : g.team1,
+                winnerSkip: g.winner,
+                loserSkip: loserSkip,
+                date: g.date,
+                week: g.week,
+                isUpset: isUpset,
+                chalkPercentage: pickInfo ? pickInfo.chalkPercentage : null
+            };
+        });
+
+    // Get games from next upcoming week
+    const nextWeekGames = upcomingGames
+        .filter(g => parseInt(g.week) === nextUpcomingWeek)
+        .map(g => ({
+            team1: g.team1,
+            team2: g.team2,
+            team1Skip: g.team1Skip,
+            team2Skip: g.team2Skip,
+            date: g.date,
+            time: g.time,
+            week: g.week
+        }));
 
     // Generate fun facts
     const funFacts = [];
@@ -235,16 +283,18 @@ function generateDataSummary() {
         funFacts.push(`${topContrarian.name} goes against the grain ${topContrarian.contrarianPct.toFixed(0)}% of the time`);
     }
 
-    // Find most recent upset
-    const recentUpset = recentGames.find(g => g.isUpset);
+    // Find most recent upset from recent week
+    const recentUpset = recentWeekGames.find(g => g.isUpset);
     if (recentUpset) {
-        funFacts.push(`Recent upset: ${recentUpset.winner} beat ${recentUpset.loser} (only ${100 - recentUpset.chalkPercentage}% picked them)`);
+        funFacts.push(`Week ${mostRecentWeek} upset: ${recentUpset.winner} beat ${recentUpset.loser} (only ${100 - recentUpset.chalkPercentage}% picked them)`);
     }
 
     return {
-        topPlayers,
-        recentGames,
-        upcomingGames: nextGames,
+        allPlayers,
+        mostRecentWeek,
+        nextUpcomingWeek,
+        recentWeekGames,
+        upcomingWeekGames: nextWeekGames,
         funFacts,
         totalGamesPlayed: completedGames.length,
         totalPlayers: leaderboardData.length
@@ -275,14 +325,18 @@ async function generateEmail() {
 
 Here's the current data:
 
-**CURRENT STANDINGS (Top 5):**
-${summary.topPlayers.map((p, i) => `${i + 1}. ${p.name}: ${p.wins}-${p.losses} (${p.winPct}%)`).join('\n')}
+**FULL STANDINGS (All ${summary.allPlayers.length} Players):**
+Goblet (Overall) Standings:
+${summary.allPlayers.map((p, i) => `${p.rank}. ${p.name} (${p.team}, ${p.position}): ${p.wins}-${p.losses} (${p.winPct}%)`).join('\n')}
 
-**RECENT RESULTS (Last ${summary.recentGames.length} games):**
-${summary.recentGames.map(g => `- ${g.winner} defeated ${g.loser}${g.isUpset ? ' (UPSET - only ' + (100 - g.chalkPercentage) + '% picked them!)' : ''}`).join('\n')}
+Funk-Eng Cup Eligible Players (Leads & Seconds only):
+${summary.allPlayers.filter(p => p.isFunkEngEligible).map((p, i) => `${p.rank}. ${p.name} (${p.team}, ${p.position}): ${p.wins}-${p.losses} (${p.winPct}%)`).join('\n')}
 
-**UPCOMING MATCHUPS (Next ${summary.upcomingGames.length}):**
-${summary.upcomingGames.map(g => `- ${g.team1} vs ${g.team2} (Week ${g.week}, ${g.date} ${g.time})`).join('\n')}
+**WEEK ${summary.mostRecentWeek} RESULTS (${summary.recentWeekGames.length} game${summary.recentWeekGames.length !== 1 ? 's' : ''}):**
+${summary.recentWeekGames.length > 0 ? summary.recentWeekGames.map(g => `- ${g.winner} defeated ${g.loser}${g.isUpset ? ' (UPSET - only ' + (100 - g.chalkPercentage) + '% picked them!)' : ''}`).join('\n') : 'No games completed this week yet'}
+
+**WEEK ${summary.nextUpcomingWeek} MATCHUPS (${summary.upcomingWeekGames.length} game${summary.upcomingWeekGames.length !== 1 ? 's' : ''}):**
+${summary.upcomingWeekGames.length > 0 ? summary.upcomingWeekGames.map(g => `- ${g.team1Skip} vs ${g.team2Skip} (${g.date} ${g.time})`).join('\n') : 'No upcoming games scheduled'}
 
 **FUN FACTS:**
 ${summary.funFacts.map(f => `- ${f}`).join('\n')}
