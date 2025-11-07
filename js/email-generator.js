@@ -9,7 +9,7 @@ const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/
 const API_KEY_STORAGE_KEY = 'gemini_api_key';
 
 // Default prompt template
-const DEFAULT_PROMPT = `You are writing a weekly email to participants in a curling league's pick 'em, called Game of the Week. Write a witty, clever, and slightly absurd email that:
+const DEFAULT_PROMPT = `You are writing a weekly email to participants in "The Game of the Week" (GOTW). GOTW is pick 'em game of the Madison Curling Club's Wednesday Night shift of the Mansfield Men's League. Write a witty, clever, and slightly absurd email that:
 
 1. Highlights the most interesting recent results (upsets, blowouts, close games)
 2. Makes fun of the leaders and losers in a good-natured way
