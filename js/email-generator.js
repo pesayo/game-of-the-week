@@ -274,7 +274,6 @@ function generateDataSummary() {
     const now = new Date();
 
     // Find the most recent completed game(s) by date
-    let mostRecentGameDate = null;
     let mostRecentWeek = 0;
 
     if (completedGames.length > 0) {
@@ -285,8 +284,7 @@ function generateDataSummary() {
             return dateB - dateA;
         });
 
-        // Get the most recent game date
-        mostRecentGameDate = parseGameDate(sortedCompleted[0].date);
+        // Get the most recent week
         mostRecentWeek = parseInt(sortedCompleted[0].week);
 
         // Include all games from the same date as the most recent game
