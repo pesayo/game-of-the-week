@@ -843,10 +843,24 @@
             margin-top: 20px;
         }
 
+        .schedule-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .schedule-header .section-title {
+            margin-bottom: 0;
+            padding-bottom: 0;
+            border-bottom: none;
+        }
+
         .schedule-filters {
             display: flex;
             gap: 10px;
-            margin-bottom: 20px;
             flex-wrap: wrap;
             background-color: var(--gray-50);
             padding: 5px;
@@ -1964,6 +1978,17 @@
             text-align: left;
         }
 
+        .picks-matrix-table th.player-col::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            width: 4px;
+            background: linear-gradient(to right, var(--gray-300) 0px, var(--gray-300) 1px, white 1px, white 3px, var(--gray-300) 3px, var(--gray-300) 4px);
+            z-index: 20;
+        }
+
         .picks-matrix-table td {
             padding: 8px;
             text-align: center;
@@ -1978,6 +2003,17 @@
             font-weight: 600;
             text-align: left;
             z-index: 5;
+        }
+
+        .picks-matrix-table td.player-col::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            width: 4px;
+            background: linear-gradient(to right, var(--gray-300) 0px, var(--gray-300) 1px, white 1px, white 3px, var(--gray-300) 3px, var(--gray-300) 4px);
+            z-index: 20;
         }
 
         .picks-matrix-table tbody tr:hover td {
@@ -2190,12 +2226,13 @@
 
                 <!-- Full Schedule Section (Initially Hidden) -->
                 <div class="schedule-section" id="fullScheduleSection" style="display: none;">
-                    <h2 class="section-title"><i class="fas fa-calendar"></i> Full Game Schedule</h2>
-
-                    <div class="schedule-filters">
-                        <button class="schedule-filter-btn active" data-filter="all">All Games</button>
-                        <button class="schedule-filter-btn" data-filter="completed">Completed</button>
-                        <button class="schedule-filter-btn" data-filter="upcoming">Upcoming</button>
+                    <div class="schedule-header">
+                        <h2 class="section-title"><i class="fas fa-calendar"></i> Full Game Schedule</h2>
+                        <div class="schedule-filters">
+                            <button class="schedule-filter-btn active" data-filter="all">All Games</button>
+                            <button class="schedule-filter-btn" data-filter="completed">Completed</button>
+                            <button class="schedule-filter-btn" data-filter="upcoming">Upcoming</button>
+                        </div>
                     </div>
 
                     <div class="matchups-grid" id="matchupsGrid"></div>
