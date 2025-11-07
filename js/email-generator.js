@@ -360,7 +360,7 @@ Now write an engaging, witty email based on this data. Format it as HTML suitabl
                     temperature: 1.0,
                     topK: 40,
                     topP: 0.95,
-                    maxOutputTokens: 2048,
+                    maxOutputTokens: 8192,
                 }
             })
         });
@@ -374,9 +374,19 @@ Now write an engaging, witty email based on this data. Format it as HTML suitabl
 
         // Extract the generated text
         const generatedText = result.candidates?.[0]?.content?.parts?.[0]?.text;
+        const finishReason = result.candidates?.[0]?.finishReason;
 
         if (!generatedText) {
             throw new Error('No text generated from API');
+        }
+
+        // Check if response was truncated
+        if (finishReason === 'MAX_TOKENS') {
+            console.warn('Response was truncated due to token limit');
+            hideLoading();
+            showStatus('Email generated but may be incomplete. Try regenerating.', 'error');
+            displayGeneratedEmail(generatedText + '\n\n<p><em>[Response was cut off - click Regenerate for a new attempt]</em></p>');
+            return;
         }
 
         // Display the generated email
