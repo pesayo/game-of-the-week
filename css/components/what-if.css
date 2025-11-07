@@ -192,9 +192,10 @@
 }
 
 .team-option.selected {
-    background-color: var(--success);
-    color: white;
-    border-color: var(--success-hover);
+    background-color: var(--accent);
+    color: var(--accent-dark);
+    border-color: var(--gold);
+
 }
 
 .team-option input[type="radio"] {
