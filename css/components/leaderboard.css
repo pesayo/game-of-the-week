@@ -261,3 +261,30 @@ th.game-history-header {
 tbody tr:hover .game-history-cell {
     background-color: var(--gray-50);
 }
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+    th.game-history-header {
+        min-width: 0;
+        white-space: nowrap;
+    }
+
+    #gameHistoryLabel {
+        font-size: 11px;
+    }
+
+    .expand-header-btn {
+        font-size: 14px;
+        margin-left: 4px;
+    }
+
+    th {
+        font-size: 11px;
+        padding: 8px 3px;
+    }
+
+    td {
+        padding: 8px 3px;
+        font-size: 12px;
+    }
+}
