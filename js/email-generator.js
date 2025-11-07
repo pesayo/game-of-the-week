@@ -733,14 +733,19 @@ function displayGeneratedEmail(htmlContent) {
 
     // Build full email in order:
     // 1. Recent week's matchups (results)
-    // 2. Upcoming matchups
-    // 3. AI-generated content
-    // 4. Standings tables
+    // 2. Upcoming matchups (with dashboard link)
+    // 3. Narrative heading with horizontal rule
+    // 4. AI-generated content (narrative)
+    // 5. Standings tables
     const recentMatchups = formatRecentMatchups();
     const upcomingMatchups = formatUpcomingMatchups();
+    const narrativeHeading = `
+        <hr style="border: none; border-top: 2px solid #e0e0e0; margin: 2rem 0;">
+        <h2 style="color: #2c3e50; margin-bottom: 1rem;">This Week's Narrative</h2>
+    `;
     const standingsTable = formatStandingsTable();
 
-    const fullContent = recentMatchups + upcomingMatchups + htmlContent + standingsTable;
+    const fullContent = recentMatchups + upcomingMatchups + narrativeHeading + htmlContent + standingsTable;
 
     // Store the HTML for copying
     emailPreview.dataset.htmlContent = fullContent;
