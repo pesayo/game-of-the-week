@@ -157,7 +157,7 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background-image: url('handshake.png');
+    background-image: url('../../assets/images/handshake.png');
     background-size: contain;
     background-position: center;
     background-repeat: no-repeat;
@@ -450,7 +450,7 @@
 
 .tooltip-avatar-sprite {
     border-radius: 50%;
-    background-image: url('mcc_integration/generic_avatar_sprite.png');
+    background-image: url('../../assets/images/generic_avatar_sprite.png');
     background-size: 500%;
     background-repeat: no-repeat;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
