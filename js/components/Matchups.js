@@ -165,13 +165,11 @@ export function hideMatchupTooltip() {
 }
 
 /**
- * Get upcoming games (next game date or today's games if it's game day)
+ * Get upcoming games (next game date after the most recent completed game)
+ * Filters out postponed/past games by using most recent completed game as cutoff
  * @returns {Array} List of upcoming games
  */
 export function getUpcomingGamesFiltered() {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
     const allGames = getAllGames();
 
     // Get all games with parsed dates
@@ -180,12 +178,20 @@ export function getUpcomingGamesFiltered() {
         parsedDate: parseGameDate(game.date)
     })).filter(game => game.parsedDate !== null);
 
-    // Filter to future/today unplayed games only
-    const futureUnplayedGames = allGamesWithDates.filter(game => {
-        const isFuture = game.parsedDate >= today;
-        const isUnplayed = !game.winner;
-        return isFuture && isUnplayed;
-    });
+    // Separate completed and unplayed games
+    const completedGames = allGamesWithDates.filter(game => game.winner);
+    const unplayedGames = allGamesWithDates.filter(game => !game.winner);
+
+    // Get the most recent completed game date as a threshold
+    let cutoffDate = new Date(0); // Start of epoch if no completed games
+    if (completedGames.length > 0) {
+        // Sort completed games by date (most recent first)
+        const sortedCompleted = [...completedGames].sort((a, b) => b.parsedDate - a.parsedDate);
+        cutoffDate = sortedCompleted[0].parsedDate;
+    }
+
+    // Filter to only truly future games (after the most recent completed game)
+    const futureUnplayedGames = unplayedGames.filter(game => game.parsedDate > cutoffDate);
 
     if (futureUnplayedGames.length === 0) {
         return [];
