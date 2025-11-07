@@ -413,6 +413,9 @@ ${previousEmail}
 - Form: ALL game results chronologically (W = Win, L = Loss, most recent on right). Use this to identify streaks and trends!
 - Movement: Rank change from last week (↑ = moved up, ↓ = moved down, − = no change)
 
+**IMPORTANT - TEAM vs PICKS:**
+Each player below shows their name followed by (Team, Position). The "Team" is the actual curling team they PLAY FOR in real life. This is separate from their picks - players predict which teams will win each game, and those picks can be ANY team, not just their own team. For example, "Pete Young (Ken Niedhart, Lead)" means Pete Young plays for Ken Niedhart's team, but Pete's picks for who will win games could include Jim Niedhart, Ken Niedhart, or any other team. Do NOT say a player "picks for" or "plays for" a team they selected to win - they are just predicting winners.
+
 **FULL STANDINGS (All ${summary.allPlayers.length} Players):**
 Goblet (Overall) Standings:
 ${summary.allPlayers.map((p, i) => {
