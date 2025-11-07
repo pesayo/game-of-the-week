@@ -4600,6 +4600,27 @@
                         pickDiv.classList.add(resultClass);
 
                         pickDiv.textContent = pick;
+
+                        // Apply team colors for undetermined matchups (no winner yet)
+                        if (!game.winner) {
+                            // Determine display order (same logic as header)
+                            let team1 = game.team1;
+                            let team2 = game.team2;
+
+                            if (sharedPicksFilters.team !== 'all' && sharedPicksFilters.team === game.team2) {
+                                [team1, team2] = [team2, team1];
+                            }
+
+                            // Apply color based on pick (matching pie chart colors)
+                            if (pick === team1) {
+                                pickDiv.style.color = 'var(--mcc-dark-1)';
+                                pickDiv.style.fontWeight = '600';
+                            } else if (pick === team2) {
+                                pickDiv.style.color = 'var(--mcc-gold-1)';
+                                pickDiv.style.fontWeight = '600';
+                            }
+                        }
+
                         pickCell.appendChild(pickDiv);
                     } else {
                         pickCell.textContent = '-';
