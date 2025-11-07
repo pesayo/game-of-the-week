@@ -153,7 +153,7 @@ function displayDataPreview() {
                         return `
                             <li>
                                 <strong>${p.name}</strong> (${p.position || 'Unknown'}${p.isFunkEngEligible ? ' - Funk-Eng Eligible' : ''}):<br>
-                                ${p.wins}-${p.losses} (${p.winPct}%) | Form: ${p.recentForm || 'N/A'} | Movement: ${rankChangeSymbol}
+                                ${p.wins}-${p.losses} (${p.winPct}%) | Form: ${p.allForm || 'N/A'} | Movement: ${rankChangeSymbol}
                             </li>
                         `;
                     }).join('')}
@@ -273,8 +273,8 @@ function generateDataSummary() {
         const position = playerInfo.Position || '';
         const isFunkEngEligible = position === 'Lead' || position === 'Second';
 
-        // Get recent form (last 5 games, W/L only)
-        const recentForm = p.recentForm.map(g => g.result).join('');
+        // Get all game results (W/L only, chronological order)
+        const allForm = p.allResults.map(g => g.result).join('');
 
         // Calculate rank movement
         const previousRank = previousWeekStandings.get(p.name) || p.rank;
@@ -289,7 +289,7 @@ function generateDataSummary() {
             team: playerInfo.Team || '',
             position: position,
             isFunkEngEligible: isFunkEngEligible,
-            recentForm: recentForm,
+            allForm: allForm,
             rankChange: rankChange
         };
     });
@@ -387,28 +387,32 @@ async function generateEmail() {
 
         const summary = generateDataSummary();
         const customPrompt = document.getElementById('promptTemplate').value;
+        const previousEmail = document.getElementById('previousEmail').value.trim();
 
         // Build the full prompt with data
-        const fullPrompt = `${customPrompt}
+        let fullPrompt = `${customPrompt}
 
-Here's the current data:
+${previousEmail ? `**PREVIOUS WEEK'S EMAIL (for continuity and callbacks):**
+${previousEmail}
+
+` : ''}Here's the current data:
 
 **LEGEND:**
-- Form: Recent game results (W = Win, L = Loss, most recent on right)
+- Form: ALL game results chronologically (W = Win, L = Loss, most recent on right). Use this to identify streaks and trends!
 - Movement: Rank change from last week (↑ = moved up, ↓ = moved down, − = no change)
 
 **FULL STANDINGS (All ${summary.allPlayers.length} Players):**
 Goblet (Overall) Standings:
 ${summary.allPlayers.map((p, i) => {
     const rankChangeStr = p.rankChange > 0 ? ` (↑${p.rankChange})` : p.rankChange < 0 ? ` (↓${Math.abs(p.rankChange)})` : ' (−)';
-    const formStr = p.recentForm ? ` [Form: ${p.recentForm}]` : '';
+    const formStr = p.allForm ? ` [Form: ${p.allForm}]` : '';
     return `${p.rank}. ${p.name} (${p.team}, ${p.position}): ${p.wins}-${p.losses} (${p.winPct}%)${rankChangeStr}${formStr}`;
 }).join('\n')}
 
 Funk-Eng Cup Eligible Players (Leads & Seconds only):
 ${summary.allPlayers.filter(p => p.isFunkEngEligible).map((p, i) => {
     const rankChangeStr = p.rankChange > 0 ? ` (↑${p.rankChange})` : p.rankChange < 0 ? ` (↓${Math.abs(p.rankChange)})` : ' (−)';
-    const formStr = p.recentForm ? ` [Form: ${p.recentForm}]` : '';
+    const formStr = p.allForm ? ` [Form: ${p.allForm}]` : '';
     return `${p.rank}. ${p.name} (${p.team}, ${p.position}): ${p.wins}-${p.losses} (${p.winPct}%)${rankChangeStr}${formStr}`;
 }).join('\n')}
 
