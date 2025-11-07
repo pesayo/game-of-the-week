@@ -225,7 +225,7 @@ export function renderHorseRace(data) {
             const gameResult = player.allResults.find(r => r.game === gameNum);
             const playerColor = playerColors[player.name];
             tooltipContent += `
-                <strong style="font-size: 14px; color: ${playerColor}; text-shadow: 0 0 2px rgba(255,255,255,0.8);">${player.name}</strong><br>
+                <strong style="font-size: 14px; color: ${playerColor}; text-shadow: 0 0 4px rgba(255,255,255,0.5);">${player.name}</strong><br>
                 <span style="color: var(--text-secondary); font-size: 12px;">Game ${gameNum}</span><br>
                 <div style="margin-top: 8px; font-size: 13px;">
                     ${gameResult.result === 'W' ?
