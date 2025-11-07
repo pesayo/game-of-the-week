@@ -606,20 +606,21 @@
 
 /* Mobile responsiveness */
 @media (max-width: 768px) {
-    .upcoming-matchup-body {
-        flex-direction: column;
-        gap: 15px;
+    .upcoming-vs-divider {
+        min-width: 60px;
+        min-height: 60px;
+        padding: 10px;
+        font-size: 14px;
     }
 
-    .upcoming-vs-divider {
-        min-width: auto;
-        min-height: auto;
-        padding: 10px 20px;
+    .upcoming-team-name {
+        font-size: 13px;
     }
 
     .upcoming-members-row {
         flex-direction: column;
         align-items: center;
+        gap: 8px;
     }
 
     /* Reverse the second team's members to maintain Skip->Lead order */
