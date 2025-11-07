@@ -4182,16 +4182,28 @@
                 const item = document.createElement('div');
                 item.className = 'distribution-item';
 
-                const team1Pct = analysis.team1Percentage || 0;
-                const team2Pct = analysis.team2Percentage || 0;
-                const team1Count = analysis.team1Picks || 0;
-                const team2Count = analysis.team2Picks || 0;
+                // If a specific team is selected and it's team2, swap teams to keep selected team first
+                let team1 = game.team1;
+                let team2 = game.team2;
+                let team1Pct = analysis.team1Percentage || 0;
+                let team2Pct = analysis.team2Percentage || 0;
+                let team1Count = analysis.team1Picks || 0;
+                let team2Count = analysis.team2Picks || 0;
+                let winner = game.winner;
+
+                if (sharedPicksFilters.team !== 'all' && sharedPicksFilters.team === game.team2) {
+                    // Swap teams so selected team is always first
+                    [team1, team2] = [team2, team1];
+                    [team1Pct, team2Pct] = [team2Pct, team1Pct];
+                    [team1Count, team2Count] = [team2Count, team1Count];
+                }
+
                 const totalPicks = team1Count + team2Count;
 
                 // Determine trophy position based on winner
                 let trophyIcon = '';
-                if (game.winner) {
-                    const trophyPosition = game.winner === game.team1 ? 'left' : 'right';
+                if (winner) {
+                    const trophyPosition = winner === team1 ? 'left' : 'right';
                     trophyIcon = `<i class="fas fa-trophy distribution-trophy ${trophyPosition}"></i>`;
                 }
 
@@ -4201,25 +4213,25 @@
                             Week ${game.week} • ${game.date} • ${game.time} • Sheet ${game.sheet}
                         </div>
                     </div>
-                    <div class="distribution-matchup">${game.team1} vs ${game.team2}</div>
+                    <div class="distribution-matchup">${team1} vs ${team2}</div>
                     <div class="distribution-bar-container">
                         ${trophyIcon}
-                        <div class="distribution-bar team1" style="width: ${team1Pct}%" title="${game.team1}: ${team1Count} picks (${team1Pct}%)">
+                        <div class="distribution-bar team1" style="width: ${team1Pct}%" title="${team1}: ${team1Count} picks (${team1Pct}%)">
                             ${team1Pct >= 15 ? team1Pct + '%' : ''}
                         </div>
-                        <div class="distribution-bar team2" style="width: ${team2Pct}%" title="${game.team2}: ${team2Count} picks (${team2Pct}%)">
+                        <div class="distribution-bar team2" style="width: ${team2Pct}%" title="${team2}: ${team2Count} picks (${team2Pct}%)">
                             ${team2Pct >= 15 ? team2Pct + '%' : ''}
                         </div>
                     </div>
                     <div class="distribution-labels">
                         <div class="distribution-label">
                             <div class="distribution-label-color team1"></div>
-                            <span class="distribution-label-text">${game.team1}</span>
+                            <span class="distribution-label-text">${team1}</span>
                             <span class="distribution-label-count">${team1Count} picks (${team1Pct}%)</span>
                         </div>
                         <div class="distribution-label">
                             <div class="distribution-label-color team2"></div>
-                            <span class="distribution-label-text">${game.team2}</span>
+                            <span class="distribution-label-text">${team2}</span>
                             <span class="distribution-label-count">${team2Count} picks (${team2Pct}%)</span>
                         </div>
                     </div>
@@ -4485,10 +4497,20 @@
 
                 // Get pick analysis for this game
                 const analysis = pickAnalysis[game.gameKey];
-                const team1Pct = analysis ? (analysis.team1Percentage || 0) : 50;
-                const team2Pct = analysis ? (analysis.team2Percentage || 0) : 50;
-                const team1Count = analysis ? (analysis.team1Picks || 0) : 0;
-                const team2Count = analysis ? (analysis.team2Picks || 0) : 0;
+                let team1 = game.team1;
+                let team2 = game.team2;
+                let team1Pct = analysis ? (analysis.team1Percentage || 0) : 50;
+                let team2Pct = analysis ? (analysis.team2Percentage || 0) : 50;
+                let team1Count = analysis ? (analysis.team1Picks || 0) : 0;
+                let team2Count = analysis ? (analysis.team2Picks || 0) : 0;
+
+                // If a specific team is selected and it's team2, swap teams to keep selected team first
+                if (sharedPicksFilters.team !== 'all' && sharedPicksFilters.team === game.team2) {
+                    // Swap teams so selected team is always first
+                    [team1, team2] = [team2, team1];
+                    [team1Pct, team2Pct] = [team2Pct, team1Pct];
+                    [team1Count, team2Count] = [team2Count, team1Count];
+                }
 
                 // Create pie chart
                 const pieChartSVG = createPieChart(team1Pct, team2Pct);
@@ -4498,8 +4520,8 @@
                         <div class="matrix-header-pie-wrapper" style="position: relative;">
                             ${pieChartSVG}
                             <div class="pie-tooltip" id="pieTooltip-${game.gameNumber}">
-                                <div style="color: var(--mcc-light-2); font-weight: 600;">${game.team1}: ${team1Pct}%</div>
-                                <div style="color: var(--gold); font-weight: 600;">${game.team2}: ${team2Pct}%</div>
+                                <div style="color: var(--mcc-light-2); font-weight: 600;">${team1}: ${team1Pct}%</div>
+                                <div style="color: var(--gold); font-weight: 600;">${team2}: ${team2Pct}%</div>
                             </div>
                         </div>
                         <div class="matrix-header-info">
@@ -4507,8 +4529,8 @@
                             <div style="font-size: 10px; margin-top: 2px;">${game.date}</div>
                             <div style="font-size: 10px;">${game.time}</div>
                             <div style="font-size: 10px; margin-top: 5px; font-weight: 600; line-height: 1.5;">
-                                <div style="color: var(--mcc-dark-1);">${game.team1} (${team1Pct}%)</div>
-                                <div style="color: var(--mcc-gold-1);">${game.team2} (${team2Pct}%)</div>
+                                <div style="color: var(--mcc-dark-1);">${team1} (${team1Pct}%)</div>
+                                <div style="color: var(--mcc-gold-1);">${team2} (${team2Pct}%)</div>
                             </div>
                         </div>
                     </div>
