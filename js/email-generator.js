@@ -110,7 +110,8 @@ async function loadGameData() {
                 team1Skip: row.Team1_Skip,
                 team2Skip: row.Team2_Skip,
                 winner: row.Winner || null,
-                isKeyMatchup: row.Key_Matchup === 'TRUE'
+                isKeyMatchup: row.Key_Matchup === 'TRUE',
+                notes: row.Notes || ''
             };
             matchupsMap[gameKey] = game;
             allGames.push(game);
@@ -336,7 +337,8 @@ function generateDataSummary() {
             date: g.date,
             time: g.time,
             week: g.week,
-            sheet: g.sheet
+            sheet: g.sheet,
+            notes: g.notes
         }));
 
     // Generate fun facts
@@ -447,7 +449,10 @@ ${summary.allPlayers.filter(p => p.isFunkEngEligible).map((p, i) => {
 ${summary.recentWeekGames.length > 0 ? summary.recentWeekGames.map(g => `- ${g.winner} defeated ${g.loser}${g.isUpset ? ' (UPSET - only ' + (100 - g.chalkPercentage) + '% picked them!)' : ''}`).join('\n') : 'No games completed this week yet'}
 
 **WEEK ${summary.nextUpcomingWeek} MATCHUPS (${summary.upcomingWeekGames.length} game${summary.upcomingWeekGames.length !== 1 ? 's' : ''}):**
-${summary.upcomingWeekGames.length > 0 ? summary.upcomingWeekGames.map(g => `- ${g.team1Skip} vs ${g.team2Skip} (Sheet ${g.sheet}, ${g.date} ${g.time})`).join('\n') : 'No upcoming games scheduled'}
+${summary.upcomingWeekGames.length > 0 ? summary.upcomingWeekGames.map(g => {
+    const notesText = g.notes && g.notes.trim() ? ` [Note: ${g.notes}]` : '';
+    return `- ${g.team1Skip} vs ${g.team2Skip} (Sheet ${g.sheet}, ${g.date} ${g.time})${notesText}`;
+}).join('\n') : 'No upcoming games scheduled'}
 
 **FUN FACTS:**
 ${summary.funFacts.map(f => `- ${f}`).join('\n')}
@@ -593,6 +598,10 @@ function formatUpcomingMatchups() {
                     const team1Detail = game.team1 !== game.team1Skip ? game.team1 : '';
                     const team2Detail = game.team2 !== game.team2Skip ? game.team2 : '';
 
+                    const notesHtml = game.notes && game.notes.trim()
+                        ? `<div style="margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px solid rgba(255,255,255,0.2); font-size: 12px; font-style: italic; opacity: 0.9; text-align: center;">${game.notes}</div>`
+                        : '';
+
                     return `
                     <div style="background: linear-gradient(135deg, #303E45 0%, #485962 100%); border-radius: 8px; padding: 1rem; color: white; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
                         <div style="text-align: center; font-size: 12px; margin-bottom: 0.75rem; opacity: 0.9; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 0.5rem;">
@@ -611,6 +620,7 @@ function formatUpcomingMatchups() {
                                 ${team2Detail ? `<div style="font-size: 11px; opacity: 0.8;">${team2Detail}</div>` : ''}
                             </div>
                         </div>
+                        ${notesHtml}
                     </div>
                 `;
                 }).join('')}
