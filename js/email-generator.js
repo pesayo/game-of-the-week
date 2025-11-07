@@ -154,7 +154,7 @@ function displayDataPreview() {
             <div class="summary-section">
                 <h3>📊 Full Standings (${summary.allPlayers.length} Players)</h3>
                 <p style="font-size: 0.9em; color: #666; margin-bottom: 1rem;">
-                    <strong>Win%</strong> = games won | <strong>Contrarian%</strong> = picks against majority
+                    <strong>Win%</strong> = games won | <strong>Contrarian%</strong> = to-date % of picks against majority (completed games only)
                 </p>
                 <ol>
                     ${summary.allPlayers.map(p => {
@@ -409,9 +409,12 @@ ${previousEmail}
 
 **LEGEND:**
 - Win %: Percentage of games WON (e.g., 66.7% means they won 2 out of 3 games)
-- Contrarian %: Percentage of time they pick AGAINST the majority (e.g., 25% means 1 in 4 picks go against the crowd)
+- Contrarian %: To-date percentage of picks AGAINST the majority, calculated only from completed games. Although all picks were locked in at the start of the season for the entire schedule, this percentage only reflects games played so far (e.g., 25% means in 1 out of every 4 completed games, they picked the team that fewer people picked). A player who consistently picked underdogs will have a higher contrarian %.
 - Form: ALL game results chronologically (W = Win, L = Loss, most recent on right). Use this to identify streaks and trends!
 - Movement: Rank change from last week (↑ = moved up, ↓ = moved down, − = no change)
+
+**IMPORTANT - TEAM vs PICKS:**
+Each player below shows their name followed by (Team, Position). The "Team" is the actual curling team they PLAY FOR in real life. This is separate from their picks - players predict which teams will win each game, and those picks can be ANY team, not just their own team. For example, "Pete Young (Ken Niedhart, Lead)" means Pete Young plays for Ken Niedhart's team, but Pete's picks for who will win games could include Jim Niedhart, Ken Niedhart, or any other team. Do NOT say a player "picks for" or "plays for" a team they selected to win - they are just predicting winners.
 
 **FULL STANDINGS (All ${summary.allPlayers.length} Players):**
 Goblet (Overall) Standings:
@@ -508,7 +511,7 @@ function formatRecentMatchups() {
 
     return `
         <div style="margin-bottom: 2rem;">
-            <h3 style="color: #34495e; margin-bottom: 1rem;">📋 Last Week's Matchup${summary.recentWeekGames.length !== 1 ? 's' : ''}</h3>
+            <h3 style="color: #34495e; margin-bottom: 1rem;">Last Week's Matchup${summary.recentWeekGames.length !== 1 ? 's' : ''}</h3>
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem;">
                 ${summary.recentWeekGames.map(game => {
                     // Determine winner and loser
@@ -563,7 +566,7 @@ function formatUpcomingMatchups() {
 
     return `
         <div style="margin-bottom: 2rem;">
-            <h3 style="color: #34495e; margin-bottom: 1rem;">🔥 Upcoming Matchup${summary.upcomingWeekGames.length !== 1 ? 's' : ''}</h3>
+            <h3 style="color: #34495e; margin-bottom: 1rem;">Upcoming Matchup${summary.upcomingWeekGames.length !== 1 ? 's' : ''}</h3>
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem;">
                 ${summary.upcomingWeekGames.map(game => {
                     // Only show full team name if it's different from skip name
@@ -602,7 +605,7 @@ function formatStandingsTable() {
 
     let tableHTML = `
         <div style="margin-top: 2rem; padding-top: 2rem; border-top: 2px solid #e0e0e0;">
-            <h2 style="color: #2c3e50; margin-bottom: 1rem;">📊 Current Standings</h2>
+            <h2 style="color: #2c3e50; margin-bottom: 1rem;">Current Standings</h2>
 
             <h3 style="color: #34495e; margin-top: 1.5rem; margin-bottom: 0.5rem;">Goblet (Overall) Standings</h3>
             <table style="width: 100%; border-collapse: collapse; margin-bottom: 2rem; font-size: 14px;">
@@ -646,7 +649,7 @@ function formatStandingsTable() {
                 </tbody>
             </table>
 
-            <h3 style="color: #34495e; margin-top: 1.5rem; margin-bottom: 0.5rem;">🏆 Funk-Eng Cup Standings (Leads & Seconds Only)</h3>
+            <h3 style="color: #34495e; margin-top: 1.5rem; margin-bottom: 0.5rem;">Funk-Eng Cup Standings (Leads & Seconds Only)</h3>
             <table style="width: 100%; border-collapse: collapse; margin-bottom: 2rem; font-size: 14px;">
                 <thead>
                     <tr style="background-color: #50536A; color: white;">
