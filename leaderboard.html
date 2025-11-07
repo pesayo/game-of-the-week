@@ -4425,11 +4425,11 @@
             const team1Color = rootStyles.getPropertyValue('--mcc-dark-1').trim();
             const team2Color = rootStyles.getPropertyValue('--mcc-gold-1').trim();
 
-            // Calculate the end angle for team1 (starting at top, going clockwise)
+            // Calculate the end angle for team1 (starting at top, going counter-clockwise)
             const team1Angle = (team1Pct / 100) * 360;
 
-            // Convert to radians and calculate end point
-            const team1Radians = ((team1Angle - 90) * Math.PI) / 180;
+            // Convert to radians and calculate end point (negative for counter-clockwise)
+            const team1Radians = ((-team1Angle - 90) * Math.PI) / 180;
             const team1X = cx + radius * Math.cos(team1Radians);
             const team1Y = cy + radius * Math.sin(team1Radians);
 
@@ -4446,21 +4446,21 @@
                 // All team1
                 svg += `<circle cx="${cx}" cy="${cy}" r="${radius}" fill="${team1Color}"/>`;
             } else if (team1Pct === 50) {
-                // Perfect split - show half and half
+                // Perfect split - show half and half (team1 on left, team2 on right)
                 svg += `
-                    <path d="M ${cx},${cy} L ${cx},${cy - radius} A ${radius},${radius} 0 0 1 ${cx},${cy + radius} Z" fill="${team1Color}"/>
-                    <path d="M ${cx},${cy} L ${cx},${cy + radius} A ${radius},${radius} 0 0 1 ${cx},${cy - radius} Z" fill="${team2Color}"/>
+                    <path d="M ${cx},${cy} L ${cx},${cy - radius} A ${radius},${radius} 0 0 0 ${cx},${cy + radius} Z" fill="${team1Color}"/>
+                    <path d="M ${cx},${cy} L ${cx},${cy + radius} A ${radius},${radius} 0 0 0 ${cx},${cy - radius} Z" fill="${team2Color}"/>
                 `;
             } else {
-                // Team1 slice
+                // Team1 slice (counter-clockwise from top)
                 svg += `
-                    <path d="M ${cx},${cy} L ${cx},${cy - radius} A ${radius},${radius} 0 ${largeArc1} 1 ${team1X},${team1Y} Z"
+                    <path d="M ${cx},${cy} L ${cx},${cy - radius} A ${radius},${radius} 0 ${largeArc1} 0 ${team1X},${team1Y} Z"
                           fill="${team1Color}"/>
                 `;
 
-                // Team2 slice - fills the rest
+                // Team2 slice - fills the rest (counter-clockwise)
                 svg += `
-                    <path d="M ${cx},${cy} L ${team1X},${team1Y} A ${radius},${radius} 0 ${largeArc2} 1 ${cx},${cy - radius} Z"
+                    <path d="M ${cx},${cy} L ${team1X},${team1Y} A ${radius},${radius} 0 ${largeArc2} 0 ${cx},${cy - radius} Z"
                           fill="${team2Color}"/>
                 `;
             }
