@@ -611,27 +611,34 @@ function formatStandingsTable() {
                 </tbody>
             </table>
 
-            <h3 style="color: #34495e; margin-top: 2rem; margin-bottom: 1rem;">🔥 Upcoming Matchup(s)</h3>
-            <div style="display: grid; gap: 1rem; margin-bottom: 2rem;">
-                ${summary.upcomingWeekGames.map(game => `
-                    <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 12px; padding: 1.5rem; color: white; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
-                        <div style="display: flex; justify-content: space-between; align-items: center; gap: 1rem;">
+            <h3 style="color: #34495e; margin-top: 2rem; margin-bottom: 1rem;">🔥 Upcoming Matchup${summary.upcomingWeekGames.length !== 1 ? 's' : ''}</h3>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
+                ${summary.upcomingWeekGames.map(game => {
+                    // Only show full team name if it's different from skip name
+                    const team1Detail = game.team1 !== game.team1Skip ? game.team1 : '';
+                    const team2Detail = game.team2 !== game.team2Skip ? game.team2 : '';
+
+                    return `
+                    <div style="background: linear-gradient(135deg, #303E45 0%, #485962 100%); border-radius: 8px; padding: 1rem; color: white; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                        <div style="text-align: center; font-size: 12px; margin-bottom: 0.75rem; opacity: 0.9; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 0.5rem;">
+                            ${game.date} • ${game.time} • Sheet ${game.sheet}
+                        </div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; gap: 0.75rem;">
                             <div style="flex: 1; text-align: left;">
-                                <div style="font-size: 18px; font-weight: bold; margin-bottom: 0.5rem;">${game.team1Skip}</div>
-                                <div style="font-size: 12px; opacity: 0.9;">${game.team1}</div>
+                                <div style="font-size: 16px; font-weight: bold; margin-bottom: 0.25rem;">${game.team1Skip}</div>
+                                ${team1Detail ? `<div style="font-size: 11px; opacity: 0.8;">${team1Detail}</div>` : ''}
                             </div>
-                            <div style="text-align: center; padding: 0 1rem;">
-                                <div style="font-size: 14px; font-weight: bold; margin-bottom: 0.25rem;">${game.time}</div>
-                                <div style="font-size: 24px; font-weight: bold; margin: 0.5rem 0;">VS</div>
-                                <div style="font-size: 14px; opacity: 0.9;">Sheet ${game.sheet}</div>
+                            <div style="text-align: center; padding: 0 0.5rem;">
+                                <div style="font-size: 18px; font-weight: bold; color: #C4B99B;">VS</div>
                             </div>
                             <div style="flex: 1; text-align: right;">
-                                <div style="font-size: 18px; font-weight: bold; margin-bottom: 0.5rem;">${game.team2Skip}</div>
-                                <div style="font-size: 12px; opacity: 0.9;">${game.team2}</div>
+                                <div style="font-size: 16px; font-weight: bold; margin-bottom: 0.25rem;">${game.team2Skip}</div>
+                                ${team2Detail ? `<div style="font-size: 11px; opacity: 0.8;">${team2Detail}</div>` : ''}
                             </div>
                         </div>
                     </div>
-                `).join('')}
+                `;
+                }).join('')}
             </div>
 
             <p style="text-align: center; margin-top: 2rem; font-size: 16px;">
