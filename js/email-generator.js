@@ -5,7 +5,7 @@ import { processData, analyzePickDistribution } from './data/data-processor.js';
 import { createGameKey } from './utils/parsers.js';
 
 // Gemini API configuration
-const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent';
+const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:generateContent';
 const API_KEY_STORAGE_KEY = 'gemini_api_key';
 
 // Default prompt template
