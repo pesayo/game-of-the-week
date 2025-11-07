@@ -127,26 +127,14 @@ export function renderHorseRace(data) {
         const tier = getTier(player.rank);
 
         // Add line path
-        const path = svg.append('path')
+        svg.append('path')
             .datum(lineData)
             .attr('class', `horse-race-line ${tier}`)
             .attr('d', line)
             .attr('stroke', playerColors[player.name])
             .attr('data-player', safeName)
             .attr('data-player-name', player.name)
-            .style('opacity', player.visible !== false ? null : 0.1)
-            .style('stroke-dasharray', function() {
-                return this.getTotalLength();
-            })
-            .style('stroke-dashoffset', function() {
-                return this.getTotalLength();
-            });
-
-        // Animate line drawing
-        path.transition()
-            .duration(1500)
-            .ease(d3.easeLinear)
-            .style('stroke-dashoffset', 0);
+            .style('opacity', player.visible !== false ? null : 0.1);
 
         // Add dots
         svg.selectAll(`.dot-${safeName}`)
@@ -160,17 +148,13 @@ export function renderHorseRace(data) {
             .attr('stroke', playerColors[player.name])
             .attr('data-player', safeName)
             .attr('data-player-name', player.name)
-            .style('opacity', player.visible !== false ? 0 : 0.1)
+            .style('opacity', player.visible !== false ? 1 : 0.1)
             .on('mouseover', function(event, d) {
                 handleLineHover(safeName, true, event, d, player);
             })
             .on('mouseout', function() {
                 handleLineHover(safeName, false);
-            })
-            .transition()
-            .delay(1500)
-            .duration(500)
-            .style('opacity', player.visible !== false ? 1 : 0.1);
+            });
     });
 
     // Add crosshair group
