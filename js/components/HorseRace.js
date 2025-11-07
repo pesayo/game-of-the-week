@@ -232,20 +232,20 @@ export function renderHorseRace(data) {
                 ? '<span style="color: #4CAF50;">✓</span>'
                 : '<span style="color: #f44336;">✗</span>';
 
-            // Compact format with vertical stacking
-            tooltipContent += `<div style="font-weight: 600; margin-bottom: 2px;"><span style="color: ${playerColor}; text-shadow: 0 0 3px rgba(255,255,255,0.4);">${player.name}</span></div>`;
-            tooltipContent += `<div style="opacity: 0.8;">G${gameNum} ${resultIcon} ${gameResult.cumulativeWins}-${gameResult.cumulativeLosses}</div>`;
+            // Ultra-compact format
+            tooltipContent += `<div style="font-weight: 600; margin-bottom: 1px;"><span style="color: ${playerColor}; text-shadow: 0 0 3px rgba(255,255,255,0.4);">${player.name}</span></div>`;
+            tooltipContent += `<div style="opacity: 0.8; font-size: 9px;">G${gameNum} ${resultIcon} ${gameResult.cumulativeWins}-${gameResult.cumulativeLosses}</div>`;
 
-            // Game result on third line if available
+            // Game result if available
             if (gameInfo && gameInfo.winner) {
                 const loser = gameInfo.winner === gameInfo.team1 ? gameInfo.team2 : gameInfo.team1;
-                tooltipContent += `<div style="font-size: 10px; opacity: 0.6; margin-top: 2px;">${gameInfo.winner} def. ${loser}</div>`;
+                tooltipContent += `<div style="font-size: 9px; opacity: 0.6; margin-top: 2px;">${gameInfo.winner} bt ${loser}</div>`;
             }
         } else {
-            // Multiple players - header line
-            tooltipContent += `<div style="opacity: 0.7; margin-bottom: 3px; font-size: 10px;">G${gameNum} (${wins}W)</div>`;
+            // Multiple players - minimal header
+            tooltipContent += `<div style="opacity: 0.6; margin-bottom: 2px; font-size: 9px;">G${gameNum}</div>`;
 
-            // Each player stacked
+            // Each player ultra-compact
             playersAtPosition.forEach((player, idx) => {
                 const gameResult = player.allResults.find(r => r.game === gameNum);
                 const playerColor = playerColors[player.name];
@@ -253,14 +253,14 @@ export function renderHorseRace(data) {
                     ? '<span style="color: #4CAF50;">✓</span>'
                     : '<span style="color: #f44336;">✗</span>';
 
-                if (idx > 0) tooltipContent += '<div style="height: 2px;"></div>';
-                tooltipContent += `<div><span style="color: ${playerColor}; text-shadow: 0 0 2px rgba(255,255,255,0.5); font-weight: 600;">${player.name}</span> ${resultIcon} <span style="opacity: 0.8;">${gameResult.cumulativeWins}-${gameResult.cumulativeLosses}</span></div>`;
+                if (idx > 0) tooltipContent += '<div style="height: 1px;"></div>';
+                tooltipContent += `<div style="font-size: 9px;"><span style="color: ${playerColor}; font-weight: 600;">${player.name}</span><br>${resultIcon} ${gameResult.cumulativeWins}-${gameResult.cumulativeLosses}</div>`;
             });
 
-            // Game result at bottom if available
+            // Game result if available
             if (gameInfo && gameInfo.winner) {
                 const loser = gameInfo.winner === gameInfo.team1 ? gameInfo.team2 : gameInfo.team1;
-                tooltipContent += `<div style="font-size: 10px; opacity: 0.6; margin-top: 3px; padding-top: 3px; border-top: 1px solid rgba(255,255,255,0.15);">${gameInfo.winner} def. ${loser}</div>`;
+                tooltipContent += `<div style="font-size: 9px; opacity: 0.6; margin-top: 2px; padding-top: 2px; border-top: 1px solid rgba(255,255,255,0.15);">${gameInfo.winner} bt ${loser}</div>`;
             }
         }
 
