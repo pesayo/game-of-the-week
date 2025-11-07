@@ -175,7 +175,7 @@ function displayDataPreview() {
                 ${summary.upcomingWeekGames.length > 0 ? `
                     <ul>
                         ${summary.upcomingWeekGames.map(g => `
-                            <li>${g.team1Skip} vs ${g.team2Skip} - ${g.date} ${g.time}</li>
+                            <li>${g.team1Skip} vs ${g.team2Skip} - Sheet ${g.sheet}, ${g.date} ${g.time}</li>
                         `).join('')}
                     </ul>
                 ` : '<p>No upcoming games scheduled</p>'}
@@ -257,7 +257,8 @@ function generateDataSummary() {
             team2Skip: g.team2Skip,
             date: g.date,
             time: g.time,
-            week: g.week
+            week: g.week,
+            sheet: g.sheet
         }));
 
     // Generate fun facts
@@ -336,7 +337,7 @@ ${summary.allPlayers.filter(p => p.isFunkEngEligible).map((p, i) => `${p.rank}. 
 ${summary.recentWeekGames.length > 0 ? summary.recentWeekGames.map(g => `- ${g.winner} defeated ${g.loser}${g.isUpset ? ' (UPSET - only ' + (100 - g.chalkPercentage) + '% picked them!)' : ''}`).join('\n') : 'No games completed this week yet'}
 
 **WEEK ${summary.nextUpcomingWeek} MATCHUPS (${summary.upcomingWeekGames.length} game${summary.upcomingWeekGames.length !== 1 ? 's' : ''}):**
-${summary.upcomingWeekGames.length > 0 ? summary.upcomingWeekGames.map(g => `- ${g.team1Skip} vs ${g.team2Skip} (${g.date} ${g.time})`).join('\n') : 'No upcoming games scheduled'}
+${summary.upcomingWeekGames.length > 0 ? summary.upcomingWeekGames.map(g => `- ${g.team1Skip} vs ${g.team2Skip} (Sheet ${g.sheet}, ${g.date} ${g.time})`).join('\n') : 'No upcoming games scheduled'}
 
 **FUN FACTS:**
 ${summary.funFacts.map(f => `- ${f}`).join('\n')}
