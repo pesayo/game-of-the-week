@@ -1961,7 +1961,7 @@
             font-size: 12px;
             pointer-events: none;
             white-space: nowrap;
-            z-index: 1000;
+            z-index: 9999;
             display: none;
         }
 
@@ -2137,11 +2137,11 @@
         }
 
         .distribution-bar.team1 {
-            background: linear-gradient(135deg, var(--mcc-dark-1) 0%, var(--mcc-dark-2) 100%);
+            background: linear-gradient(135deg, var(--mcc-gold-1) 0%, var(--mcc-gold-2) 100%);
         }
 
         .distribution-bar.team2 {
-            background: linear-gradient(135deg, var(--mcc-gold-1) 0%, var(--mcc-gold-2) 100%);
+            background: linear-gradient(135deg, var(--mcc-dark-1) 0%, var(--mcc-dark-2) 100%);
         }
 
         .distribution-bar:hover {
@@ -2168,11 +2168,11 @@
         }
 
         .distribution-label-color.team1 {
-            background: linear-gradient(135deg, var(--mcc-dark-1) 0%, var(--mcc-dark-2) 100%);
+            background: linear-gradient(135deg, var(--mcc-gold-1) 0%, var(--mcc-gold-2) 100%);
         }
 
         .distribution-label-color.team2 {
-            background: linear-gradient(135deg, var(--mcc-gold-1) 0%, var(--mcc-gold-2) 100%);
+            background: linear-gradient(135deg, var(--mcc-dark-1) 0%, var(--mcc-dark-2) 100%);
         }
 
         .distribution-label-text {
@@ -4422,14 +4422,14 @@
 
             // Brand colors for contrast
             const rootStyles = getComputedStyle(document.documentElement);
-            const team1Color = rootStyles.getPropertyValue('--mcc-dark-1').trim();
-            const team2Color = rootStyles.getPropertyValue('--mcc-gold-1').trim();
+            const team1Color = rootStyles.getPropertyValue('--mcc-gold-1').trim();
+            const team2Color = rootStyles.getPropertyValue('--mcc-dark-1').trim();
 
-            // Calculate the end angle for team1 (starting at top, going clockwise)
+            // Calculate the end angle for team1 (starting at top, going counter-clockwise)
             const team1Angle = (team1Pct / 100) * 360;
 
-            // Convert to radians and calculate end point
-            const team1Radians = ((team1Angle - 90) * Math.PI) / 180;
+            // Convert to radians and calculate end point (negative for counter-clockwise)
+            const team1Radians = ((-team1Angle - 90) * Math.PI) / 180;
             const team1X = cx + radius * Math.cos(team1Radians);
             const team1Y = cy + radius * Math.sin(team1Radians);
 
@@ -4446,21 +4446,21 @@
                 // All team1
                 svg += `<circle cx="${cx}" cy="${cy}" r="${radius}" fill="${team1Color}"/>`;
             } else if (team1Pct === 50) {
-                // Perfect split - show half and half
+                // Perfect split - show half and half (team1 on left, team2 on right)
                 svg += `
-                    <path d="M ${cx},${cy} L ${cx},${cy - radius} A ${radius},${radius} 0 0 1 ${cx},${cy + radius} Z" fill="${team1Color}"/>
-                    <path d="M ${cx},${cy} L ${cx},${cy + radius} A ${radius},${radius} 0 0 1 ${cx},${cy - radius} Z" fill="${team2Color}"/>
+                    <path d="M ${cx},${cy} L ${cx},${cy - radius} A ${radius},${radius} 0 0 0 ${cx},${cy + radius} Z" fill="${team1Color}"/>
+                    <path d="M ${cx},${cy} L ${cx},${cy + radius} A ${radius},${radius} 0 0 0 ${cx},${cy - radius} Z" fill="${team2Color}"/>
                 `;
             } else {
-                // Team1 slice
+                // Team1 slice (counter-clockwise from top)
                 svg += `
-                    <path d="M ${cx},${cy} L ${cx},${cy - radius} A ${radius},${radius} 0 ${largeArc1} 1 ${team1X},${team1Y} Z"
+                    <path d="M ${cx},${cy} L ${cx},${cy - radius} A ${radius},${radius} 0 ${largeArc1} 0 ${team1X},${team1Y} Z"
                           fill="${team1Color}"/>
                 `;
 
-                // Team2 slice - fills the rest
+                // Team2 slice - fills the rest (counter-clockwise)
                 svg += `
-                    <path d="M ${cx},${cy} L ${team1X},${team1Y} A ${radius},${radius} 0 ${largeArc2} 1 ${cx},${cy - radius} Z"
+                    <path d="M ${cx},${cy} L ${team1X},${team1Y} A ${radius},${radius} 0 ${largeArc2} 0 ${cx},${cy - radius} Z"
                           fill="${team2Color}"/>
                 `;
             }
@@ -4558,8 +4558,8 @@
                         <div class="matrix-header-pie-wrapper" style="position: relative;">
                             ${pieChartSVG}
                             <div class="pie-tooltip" id="pieTooltip-${game.gameNumber}">
-                                <div style="color: var(--mcc-light-2); font-weight: 600;">${team1}: ${team1Pct}%</div>
-                                <div style="color: var(--gold); font-weight: 600;">${team2}: ${team2Pct}%</div>
+                                <div style="color: var(--gold); font-weight: 600;">${team1}: ${team1Pct}%</div>
+                                <div style="color: var(--mcc-light-2); font-weight: 600;">${team2}: ${team2Pct}%</div>
                             </div>
                         </div>
                         <div class="matrix-header-info">
@@ -4567,8 +4567,8 @@
                             <div style="font-size: 10px; margin-top: 2px;">${game.date}</div>
                             <div style="font-size: 10px;">${game.time}</div>
                             <div style="font-size: 10px; margin-top: 5px; font-weight: 600; line-height: 1.5;">
-                                <div style="color: var(--mcc-dark-1);">${team1} (${team1Pct}%)</div>
-                                <div style="color: var(--mcc-gold-1);">${team2} (${team2Pct}%)</div>
+                                <div style="color: var(--mcc-gold-1);">${team1} (${team1Pct}%)</div>
+                                <div style="color: var(--mcc-dark-1);">${team2} (${team2Pct}%)</div>
                             </div>
                         </div>
                     </div>
@@ -4581,17 +4581,34 @@
                 const tooltip = gameHeader.querySelector(`#pieTooltip-${game.gameNumber}`);
 
                 if (pieChart && tooltip) {
+                    const updateTooltipPosition = () => {
+                        if (tooltip.classList.contains('active')) {
+                            const rect = pieChart.getBoundingClientRect();
+                            tooltip.style.left = `${rect.left + rect.width / 2}px`;
+                            tooltip.style.top = `${rect.top - 40}px`;
+                        }
+                    };
+
                     pieChart.addEventListener('mouseenter', (e) => {
                         tooltip.classList.add('active');
                         const rect = pieChart.getBoundingClientRect();
-                        tooltip.style.left = '50%';
+                        tooltip.style.position = 'fixed';
+                        tooltip.style.left = `${rect.left + rect.width / 2}px`;
                         tooltip.style.transform = 'translateX(-50%)';
-                        tooltip.style.top = '-35px';
+                        tooltip.style.top = `${rect.top - 40}px`;
+                        tooltip.style.bottom = 'auto';
                     });
 
                     pieChart.addEventListener('mouseleave', () => {
                         tooltip.classList.remove('active');
                     });
+
+                    // Update tooltip position on scroll
+                    const matrixContainer = document.querySelector('.picks-matrix-container');
+                    if (matrixContainer) {
+                        matrixContainer.addEventListener('scroll', updateTooltipPosition);
+                    }
+                    window.addEventListener('scroll', updateTooltipPosition);
                 }
             });
 
@@ -4651,10 +4668,10 @@
 
                             // Apply color based on pick (matching pie chart colors)
                             if (pick === team1) {
-                                pickDiv.style.color = 'var(--mcc-dark-1)';
+                                pickDiv.style.color = 'var(--mcc-gold-1)';
                                 pickDiv.style.fontWeight = '600';
                             } else if (pick === team2) {
-                                pickDiv.style.color = 'var(--mcc-gold-1)';
+                                pickDiv.style.color = 'var(--mcc-dark-1)';
                                 pickDiv.style.fontWeight = '600';
                             }
                         }
