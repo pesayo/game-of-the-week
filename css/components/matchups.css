@@ -618,13 +618,13 @@
     }
 
     .upcoming-members-row {
-        flex-direction: column;
+        flex-direction: column-reverse;
         align-items: center;
         gap: 8px;
     }
 
-    /* Reverse the second team's members to maintain Skip->Lead order */
+    /* Remove reverse for second team since JS already reverses it */
     .upcoming-team-section:last-of-type .upcoming-members-row {
-        flex-direction: column-reverse;
+        flex-direction: column;
     }
 }
