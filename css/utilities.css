@@ -1,0 +1,15 @@
+.loading {
+    text-align: center;
+    padding: 40px;
+    font-size: 16px;
+    color: var(--text-secondary);
+}
+
+.error {
+    background-color: var(--error-bg);
+    color: var(--error-dark);
+    padding: 20px;
+    border-radius: 5px;
+    margin: 20px 0;
+    border-left: 4px solid var(--error-dark);
+}

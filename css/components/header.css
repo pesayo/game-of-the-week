@@ -1,0 +1,73 @@
+.header-content {
+    position: relative;
+    display: inline-block;
+    margin: 0 auto;
+}
+
+.header-goblet {
+    width: 160px;
+    height: 160px;
+    display: block;
+    margin: 0 auto;
+}
+
+.header-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    white-space: nowrap;
+}
+
+.header-text h1 {
+    font-size: 42px;
+    color: var(--text-primary);
+    margin: 0;
+    font-weight: 700;
+    text-shadow:
+        -2px -2px 0 #fff,
+        2px -2px 0 #fff,
+        -2px 2px 0 #fff,
+        2px 2px 0 #fff,
+        0 0 8px rgba(255, 255, 255, 0.8);
+}
+
+.header-text .subtitle {
+    font-size: 14px;
+    color: var(--mcc-blue-gray);
+    margin-top: 3px;
+    font-weight: 600;
+    text-shadow:
+        -1px -1px 0 #fff,
+        1px -1px 0 #fff,
+        -1px 1px 0 #fff,
+        1px 1px 0 #fff,
+        0 0 4px rgba(255, 255, 255, 0.9);
+}
+
+.league-link {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    font-size: 14px;
+    z-index: 1000;
+}
+
+.league-link a {
+    color: var(--mcc-blue-gray);
+    text-decoration: none;
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    background-color: rgba(255, 255, 255, 0.95);
+    border-radius: 6px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.league-link a:hover {
+    color: var(--mcc-dark-2);
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.15);
+    background-color: rgba(255, 255, 255, 1);
+}

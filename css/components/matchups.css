@@ -1,0 +1,605 @@
+/* Upcoming Matchups Styles */
+.upcoming-section {
+    grid-column: 1 / -1;
+}
+
+.expand-schedule-container {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.expand-schedule-btn {
+    padding: 6px 16px;
+    border: 1px solid var(--silver);
+    border-radius: 6px;
+    background-color: white;
+    color: var(--gray-400);
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 500;
+    transition: all 0.3s;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.expand-schedule-btn:hover {
+    background-color: var(--gray-100);
+    color: var(--mcc-blue-gray);
+    border-color: var(--mcc-blue-gray);
+}
+
+#expandScheduleIcon {
+    transition: transform 0.3s;
+    font-size: 12px;
+}
+
+.expand-schedule-btn.expanded #expandScheduleIcon {
+    transform: rotate(180deg);
+}
+
+
+/* Centered single-column layout for upcoming matchups */
+.upcoming-section .matchups-grid {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+}
+
+/* Upcoming Matchup Card Styles */
+.upcoming-matchup-card {
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 3px 15px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    width: 100%;
+    max-width: 1000px;
+    border: 2px solid var(--accent);
+    transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+    cursor: pointer;
+}
+
+.upcoming-matchup-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    border-color: var(--gold);
+}
+
+.upcoming-matchup-header {
+    background: linear-gradient(135deg, var(--mcc-dark-1) 0%, var(--mcc-dark-2) 100%);
+    color: white;
+    padding: 10px 15px;
+    text-align: center;
+}
+
+.upcoming-matchup-title {
+    font-size: 16px;
+    font-weight: bold;
+    margin-bottom: 3px;
+}
+
+.upcoming-matchup-info {
+    font-size: 12px;
+    opacity: 0.95;
+}
+
+.upcoming-matchup-body {
+    padding: 15px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+.upcoming-team-section {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+}
+
+.upcoming-team-name {
+    font-size: 15px;
+    font-weight: bold;
+    color: var(--text-primary);
+    text-align: center;
+}
+
+.upcoming-members-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+@keyframes handshake {
+    0%, 100% { transform: translateX(0) translateY(0); }
+    25% { transform: translateX(-1px) translateY(-3px); }
+    50% { transform: translateX(1px) translateY(3px); }
+    75% { transform: translateX(-1px) translateY(-3px); }
+}
+
+.upcoming-vs-divider {
+    text-align: center;
+    color: var(--mcc-dark-1);
+    font-size: 18px;
+    font-weight: bold;
+    flex-shrink: 0;
+    padding: 20px;
+    position: relative;
+    min-width: 100px;
+    min-height: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-shadow: -1px -1px 0 #fff,
+                1px -1px 0 #fff,
+                -1px 1px 0 #fff,
+                1px 1px 0 #fff,
+                0 0 3px #fff,
+                0 0 5px rgba(255, 255, 255, 0.8);
+    transition: transform 0.3s ease, color 0.3s ease, font-size 0.3s ease;
+}
+
+.upcoming-matchup-card:hover .upcoming-vs-divider {
+    transform: scale(1.05);
+    font-size: 22px;
+    color: var(--mcc-dark-2);
+}
+
+.upcoming-vs-divider::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: url('handshake.png');
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
+    opacity: 0.07;
+    transition: opacity 0.3s ease;
+}
+
+.upcoming-matchup-card:hover .upcoming-vs-divider::before {
+    opacity: 0.15;
+    animation: handshake 1.5s ease-in-out 1;
+}
+
+/* Schedule Styles */
+.schedule-section {
+    margin-top: 20px;
+}
+
+.schedule-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.schedule-header .section-title {
+    margin-bottom: 0;
+    padding-bottom: 0;
+    border-bottom: none;
+}
+
+.schedule-filters {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    background-color: var(--gray-50);
+    padding: 5px;
+    border-radius: 8px;
+}
+
+.schedule-filter-btn {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 5px;
+    background-color: transparent;
+    color: var(--text-secondary);
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.2s;
+}
+
+.schedule-filter-btn:hover {
+    background-color: var(--gray-200);
+    color: var(--text-primary);
+}
+
+.schedule-filter-btn.active {
+    background-color: var(--mcc-blue-gray);
+    color: white;
+}
+
+.matchups-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 15px;
+}
+
+/* Week group styles */
+.week-group {
+    margin-top: 30px;
+    padding-top: 25px;
+    width: 100%;
+    border-top: 1px solid #dfe5e8;
+}
+
+.week-group:first-child {
+    margin-top: 0;
+    padding-top: 0;
+    border-top: none;
+}
+
+.week-header {
+    color: var(--mcc-blue-gray);
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 15px;
+}
+
+.week-games {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 12px;
+}
+
+/* Override grid for full schedule container to allow week grouping */
+#matchupsGrid {
+    display: block;
+}
+
+.matchup-card {
+    background-color: var(--gray-50);
+    border-radius: 8px;
+    padding: 12px 15px;
+    border: 2px solid var(--gray-200);
+    cursor: pointer;
+    transition: all 0.3s;
+    position: relative;
+}
+
+.matchup-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.12);
+    border-color: var(--accent);
+}
+
+.matchup-card.completed {
+    border-color: var(--success);
+    background-color: var(--success-bg);
+}
+
+.matchup-compact-header {
+    font-size: 11px;
+    color: var(--text-secondary);
+    margin-bottom: 8px;
+    text-align: center;
+}
+
+.matchup-compact-teams {
+    font-size: 14px;
+    text-align: center;
+    color: var(--text-primary);
+}
+
+.compact-vs {
+    color: var(--text-muted);
+    font-weight: normal;
+    margin: 0 8px;
+}
+
+.matchup-teams {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.matchup-team {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 10px;
+    background-color: white;
+    border-radius: 5px;
+    transition: background-color 0.2s;
+}
+
+.matchup-team.winner {
+    background-color: var(--success);
+    color: white;
+    font-weight: bold;
+}
+
+.matchup-team-name {
+    flex-grow: 1;
+}
+
+.matchup-vs {
+    text-align: center;
+    font-size: 12px;
+    color: var(--text-muted);
+    margin: 3px 0;
+}
+
+.winner-badge {
+    background-color: white;
+    color: var(--success);
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: bold;
+}
+
+/* Matchup Tooltip with Team Lineups */
+#matchupTooltip {
+    position: absolute;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 5px 25px rgba(0, 0, 0, 0.3);
+    pointer-events: none;
+    display: none;
+    z-index: 2000;
+    min-width: 400px;
+    max-width: 500px;
+}
+
+.matchup-tooltip-header {
+    background: linear-gradient(135deg, var(--mcc-dark-1) 0%, var(--mcc-dark-2) 100%);
+    color: white;
+    padding: 15px;
+    border-radius: 10px 10px 0 0;
+    text-align: center;
+}
+
+.matchup-tooltip-title {
+    font-size: 16px;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.matchup-tooltip-info {
+    font-size: 12px;
+    opacity: 0.9;
+}
+
+.matchup-tooltip-body {
+    padding: 15px;
+}
+
+.tooltip-team-section {
+    margin-bottom: 20px;
+}
+
+.tooltip-team-section:last-child {
+    margin-bottom: 0;
+}
+
+.tooltip-team-name {
+    font-size: 14px;
+    font-weight: bold;
+    margin-bottom: 10px;
+    color: var(--text-primary);
+    text-align: center;
+}
+
+.tooltip-team-name.winner {
+    color: var(--success);
+}
+
+.tooltip-members-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.tooltip-member {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+    transition: transform 0.2s ease;
+}
+
+.tooltip-member:hover {
+    transform: scale(1.1);
+}
+
+.tooltip-avatar-wrapper {
+    position: relative;
+}
+
+.tooltip-avatar {
+    border-radius: 50%;
+    object-fit: cover;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    border-style: solid;
+    transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.tooltip-avatar:hover {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+    transform: rotate(5deg);
+}
+
+.tooltip-member:not(.skip-member) .tooltip-avatar {
+    width: 45px;
+    height: 45px;
+    border-width: 2px;
+}
+
+.tooltip-member.skip-member .tooltip-avatar {
+    width: 55px;
+    height: 55px;
+    border-width: 3px;
+}
+
+.tooltip-avatar-sprite {
+    border-radius: 50%;
+    background-image: url('mcc_integration/generic_avatar_sprite.png');
+    background-size: 500%;
+    background-repeat: no-repeat;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    border-style: solid;
+    transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.tooltip-avatar-sprite:hover {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+    transform: rotate(5deg);
+}
+
+.tooltip-member:not(.skip-member) .tooltip-avatar-sprite {
+    width: 45px;
+    height: 45px;
+    border-width: 2px;
+}
+
+.tooltip-member.skip-member .tooltip-avatar-sprite {
+    width: 55px;
+    height: 55px;
+    border-width: 3px;
+}
+
+.tooltip-avatar-placeholder {
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    border-style: solid;
+}
+
+.tooltip-member:not(.skip-member) .tooltip-avatar-placeholder {
+    width: 45px;
+    height: 45px;
+    font-size: 16px;
+    border-width: 2px;
+}
+
+.tooltip-member.skip-member .tooltip-avatar-placeholder {
+    width: 55px;
+    height: 55px;
+    font-size: 20px;
+    border-width: 3px;
+}
+
+/* Position-specific avatar colors for tooltip */
+.tooltip-avatar.position-skip,
+.tooltip-avatar-sprite.position-skip {
+    border-color: #ffd700;
+}
+
+.tooltip-avatar-placeholder.position-skip {
+    border-color: #ffd700;
+    background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+    color: #333;
+}
+
+.tooltip-avatar.position-vice,
+.tooltip-avatar-sprite.position-vice {
+    border-color: #c0c0c0;
+}
+
+.tooltip-avatar-placeholder.position-vice {
+    border-color: #c0c0c0;
+    background: linear-gradient(135deg, #c0c0c0 0%, #e0e0e0 100%);
+    color: #333;
+}
+
+.tooltip-avatar.position-second,
+.tooltip-avatar-sprite.position-second {
+    border-color: #cd7f32;
+}
+
+.tooltip-avatar-placeholder.position-second {
+    border-color: #cd7f32;
+    background: linear-gradient(135deg, #cd7f32 0%, #e8a864 100%);
+    color: #fff;
+}
+
+.tooltip-avatar.position-lead,
+.tooltip-avatar-sprite.position-lead {
+    border-color: #3498db;
+}
+
+.tooltip-avatar-placeholder.position-lead {
+    border-color: #3498db;
+    background: linear-gradient(135deg, #3498db 0%, #5dade2 100%);
+    color: #fff;
+}
+
+.tooltip-avatar.position-fifth,
+.tooltip-avatar-sprite.position-fifth {
+    border-color: #95a5a6;
+}
+
+.tooltip-avatar-placeholder.position-fifth {
+    border-color: #95a5a6;
+    background: linear-gradient(135deg, #95a5a6 0%, #bdc3c7 100%);
+    color: #fff;
+}
+
+.tooltip-member-name {
+    font-size: 10px;
+    color: var(--text-secondary);
+    text-align: center;
+}
+
+.tooltip-position-badge {
+    display: inline-block;
+    padding: 2px 6px;
+    border-radius: 8px;
+    font-size: 9px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+.tooltip-position-badge.position-skip {
+    background-color: var(--gold);
+    color: #000;
+}
+
+.tooltip-position-badge.position-vice {
+    background-color: var(--silver);
+    color: #000;
+}
+
+.tooltip-position-badge.position-second {
+    background-color: var(--bronze);
+    color: #fff;
+}
+
+.tooltip-position-badge.position-lead {
+    background-color: var(--info);
+    color: #fff;
+}
+
+.tooltip-position-badge.position-fifth {
+    background-color: var(--gray-neutral);
+    color: #fff;
+}
+
+.tooltip-vs-divider {
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 14px;
+    font-weight: bold;
+    margin: 10px 0;
+}
