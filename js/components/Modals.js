@@ -111,7 +111,7 @@ export function showTooltip(event, playerName, gameData) {
             <div class="tooltip-team-section winner-section">
                 <div class="tooltip-members-row" id="formFirstTeamMembers"></div>
                 <div class="tooltip-team-name winner">
-                    Team ${firstTeam} <i class="fas fa-trophy"></i>
+                    Team ${firstTeam}
                 </div>
             </div>
         `;
@@ -135,7 +135,7 @@ export function showTooltip(event, playerName, gameData) {
         tooltipContent += `
             <div class="tooltip-team-section">
                 <div class="tooltip-team-name winner">
-                    Team ${secondTeam} <i class="fas fa-trophy"></i>
+                    Team ${secondTeam}
                 </div>
                 <div class="tooltip-members-row" id="formSecondTeamMembers"></div>
             </div>

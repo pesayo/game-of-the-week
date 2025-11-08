@@ -133,7 +133,7 @@ export function showMatchupTooltip(event, game) {
             <div class="tooltip-team-section winner-section">
                 <div class="tooltip-members-row" id="firstTeamMembers"></div>
                 <div class="tooltip-team-name winner">
-                    Team ${firstTeam} <i class="fas fa-trophy"></i>
+                    Team ${firstTeam}
                 </div>
             </div>
         `;
@@ -157,7 +157,7 @@ export function showMatchupTooltip(event, game) {
         tooltipContent += `
             <div class="tooltip-team-section">
                 <div class="tooltip-team-name winner">
-                    Team ${secondTeam} <i class="fas fa-trophy"></i>
+                    Team ${secondTeam}
                 </div>
                 <div class="tooltip-members-row" id="secondTeamMembers"></div>
             </div>
@@ -291,8 +291,8 @@ export function createMatchupCard(game) {
     }
 
     // Format team displays with winner styling
-    const firstTeamDisplay = game.winner === firstTeam ? `<strong>${firstTeam}</strong> <i class="fas fa-trophy"></i>` : firstTeam;
-    const secondTeamDisplay = game.winner === secondTeam ? `<strong>${secondTeam}</strong> <i class="fas fa-trophy"></i>` : secondTeam;
+    const firstTeamDisplay = game.winner === firstTeam ? `<strong>${firstTeam}</strong>` : firstTeam;
+    const secondTeamDisplay = game.winner === secondTeam ? `<strong>${secondTeam}</strong>` : secondTeam;
 
     card.innerHTML = `
         <div class="matchup-compact-header">
