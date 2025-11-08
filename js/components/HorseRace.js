@@ -323,36 +323,12 @@ export function renderRaceLegend(data) {
                 renderHorseRace(horseRaceData);
             })
             .on('mouseover', function() {
-                // Only show hover effects if player is visible
-                if (player.visible === false) return;
-
-                // Highlight corresponding line
-                d3.selectAll('.horse-race-line')
-                    .classed('highlighted', false)
-                    .classed('dimmed', true);
-                d3.select(`.horse-race-line[data-player="${safeName}"]`)
-                    .classed('highlighted', true)
-                    .classed('dimmed', false);
-
-                d3.selectAll('.horse-race-dot')
-                    .classed('highlighted', false)
-                    .classed('dimmed', true);
-                d3.selectAll(`.horse-race-dot[data-player="${safeName}"]`)
-                    .classed('highlighted', true)
-                    .classed('dimmed', false);
-
-                // Dim other cards
-                d3.selectAll('.race-legend-item').style('opacity', 0.4);
-                d3.select(this).style('opacity', 1);
+                // Highlight entire player line (temporarily show if hidden)
+                highlightPlayerOnChart(player.name);
             })
             .on('mouseout', function() {
-                d3.selectAll('.horse-race-line')
-                    .classed('highlighted', false)
-                    .classed('dimmed', false);
-                d3.selectAll('.horse-race-dot')
-                    .classed('highlighted', false)
-                    .classed('dimmed', false);
-                d3.selectAll('.race-legend-item').style('opacity', null);
+                // Restore original state
+                unhighlightChart();
             });
 
         // Card header
