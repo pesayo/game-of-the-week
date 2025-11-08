@@ -93,7 +93,11 @@ export function showMatchupTooltip(event, game) {
     // Determine team order and divider text based on whether game has been decided
     let firstTeam, secondTeam, firstTeamLineup, secondTeamLineup;
     let dividerText = 'VS';
-    let titleText = `Team ${game.team1} vs Team ${game.team2}`;
+
+    // Extract last names for header
+    const team1LastName = game.team1.split(' ').pop();
+    const team2LastName = game.team2.split(' ').pop();
+    const titleText = `${team1LastName} vs ${team2LastName}`;
 
     if (game.winner) {
         // Game decided: winner first, loser second
@@ -109,7 +113,6 @@ export function showMatchupTooltip(event, game) {
             secondTeamLineup = team1Lineup;
         }
         dividerText = 'DEFEATED';
-        titleText = `Team ${firstTeam} defeated Team ${secondTeam}`;
     } else {
         // Game not decided: keep original order
         firstTeam = game.team1;
