@@ -63,25 +63,25 @@ export function renderStreakTracker(data) {
             <!-- Current Active Streaks -->
             <div class="streak-section">
                 <h3 class="streak-section-title">
-                    <i class="fas fa-fire"></i> Active Streaks (3+)
+                    <i class="fas fa-fire"></i> Active Streaks
                 </h3>
-                ${activeStreaks.length > 0 ? renderActiveStreaks(activeStreaks) : '<p class="no-data">No active streaks of 3+ games</p>'}
+                ${activeStreaks.length > 0 ? renderActiveStreaks(activeStreaks) : '<p class="no-data">No active streaks</p>'}
             </div>
 
             <!-- Longest Win Streaks -->
             <div class="streak-section">
                 <h3 class="streak-section-title">
-                    <i class="fas fa-trophy"></i> Longest Win Streaks (3+)
+                    <i class="fas fa-trophy"></i> Longest Win Streaks
                 </h3>
-                ${longestWinStreaks.length > 0 ? renderStreakList(longestWinStreaks, 'win') : '<p class="no-data">No win streaks of 3+ games</p>'}
+                ${longestWinStreaks.length > 0 ? renderStreakList(longestWinStreaks, 'win') : '<p class="no-data">No win streaks</p>'}
             </div>
 
             <!-- Longest Loss Streaks -->
             <div class="streak-section">
                 <h3 class="streak-section-title">
-                    <i class="fas fa-arrow-down"></i> Longest Loss Streaks (3+)
+                    <i class="fas fa-arrow-down"></i> Longest Loss Streaks
                 </h3>
-                ${longestLossStreaks.length > 0 ? renderStreakList(longestLossStreaks, 'loss') : '<p class="no-data">No loss streaks of 3+ games</p>'}
+                ${longestLossStreaks.length > 0 ? renderStreakList(longestLossStreaks, 'loss') : '<p class="no-data">No loss streaks</p>'}
             </div>
         </div>
     `;
