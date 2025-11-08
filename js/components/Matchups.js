@@ -126,7 +126,7 @@ export function showMatchupTooltip(event, game) {
         <div class="matchup-tooltip-body">
     `;
 
-    // First Team - always members above team name
+    // First Team - members above team name
     if (game.winner && game.winner === firstTeam) {
         // Winner
         tooltipContent += `
@@ -151,25 +151,25 @@ export function showMatchupTooltip(event, game) {
 
     tooltipContent += `<div class="tooltip-vs-divider">${dividerText}</div>`;
 
-    // Second Team - always members above team name
+    // Second Team - team name above members
     if (game.winner && game.winner === secondTeam) {
         // Winner
         tooltipContent += `
-            <div class="tooltip-team-section winner-section">
-                <div class="tooltip-members-row" id="secondTeamMembers"></div>
+            <div class="tooltip-team-section">
                 <div class="tooltip-team-name winner">
                     Team ${secondTeam} <i class="fas fa-trophy"></i>
                 </div>
+                <div class="tooltip-members-row" id="secondTeamMembers"></div>
             </div>
         `;
     } else {
         // Non-winner or undecided
         tooltipContent += `
-            <div class="tooltip-team-section winner-section">
-                <div class="tooltip-members-row" id="secondTeamMembers"></div>
+            <div class="tooltip-team-section">
                 <div class="tooltip-team-name">
                     Team ${secondTeam}
                 </div>
+                <div class="tooltip-members-row" id="secondTeamMembers"></div>
             </div>
         `;
     }
