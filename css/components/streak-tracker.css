@@ -200,7 +200,7 @@
 
 /* Intensity levels for win streaks */
 .streak-icon.win {
-    color: var(--success);
+    color: #FF8C42;
 }
 
 .streak-icon.win.intensity-3 i {
@@ -225,12 +225,12 @@
     font-size: 22px;
     opacity: 1;
     animation: pulse-intense 1.5s ease-in-out infinite;
-    filter: drop-shadow(0 0 3px var(--success));
+    filter: drop-shadow(0 0 3px #FF8C42);
 }
 
 /* Intensity levels for loss streaks */
 .streak-icon.loss {
-    color: var(--error);
+    color: #29B6F6;
 }
 
 .streak-icon.loss.intensity-3 i {
@@ -255,7 +255,7 @@
     font-size: 22px;
     opacity: 1;
     animation: pulse-intense 1.5s ease-in-out infinite;
-    filter: drop-shadow(0 0 3px var(--error));
+    filter: drop-shadow(0 0 3px #29B6F6);
 }
 
 /* Historical Streak List - Grouped by Count */

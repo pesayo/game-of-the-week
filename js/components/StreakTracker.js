@@ -108,7 +108,7 @@ function renderActiveStreaks(streaks) {
 
     if (winStreaks.length > 0) {
         html += '<div class="active-streak-group">';
-        html += '<h4 class="streak-group-label"><i class="fas fa-fire-flame-curved" style="color: var(--success);"></i> Hot</h4>';
+        html += '<h4 class="streak-group-label"><i class="fas fa-fire-flame-curved" style="color: #FF8C42;"></i> Hot</h4>';
         html += '<div class="streak-list">';
         winStreaks.forEach((streak) => {
             // Determine intensity class based on streak count
@@ -140,7 +140,7 @@ function renderActiveStreaks(streaks) {
 
     if (lossStreaks.length > 0) {
         html += '<div class="active-streak-group">';
-        html += '<h4 class="streak-group-label"><i class="fas fa-snowflake" style="color: var(--error);"></i> Cold</h4>';
+        html += '<h4 class="streak-group-label"><i class="fas fa-snowflake" style="color: #29B6F6;"></i> Cold</h4>';
         html += '<div class="streak-list">';
         lossStreaks.forEach((streak) => {
             // Determine intensity class based on streak count
