@@ -118,7 +118,7 @@
 /* Leader card special styling */
 .header-stats .leader-card {
     background: linear-gradient(135deg, rgba(255, 215, 0, 0.15), rgba(255, 255, 255, 0.7));
-    border: 1px solid rgba(255, 215, 0, 0.3);
+    border: 1px solid var(--accent-dark);
 }
 
 .header-stats .leader-card:hover {
@@ -127,11 +127,11 @@
 }
 
 .header-stats .leader-card .stat-label {
-    color: var(--gold);
+    color: var(--accent-dark);
 }
 
 .header-stats .leader-card .stat-value {
-    color: var(--gold);
+    color: var(--accent-dark);
     text-overflow: ellipsis;
     overflow: hidden;
     white-space: nowrap;
