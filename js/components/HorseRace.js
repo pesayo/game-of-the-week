@@ -420,8 +420,10 @@ export function setupRaceControls() {
 /**
  * Highlight a player's line and dots on the horse race chart
  * @param {string} playerName - The name of the player to highlight
+ * @param {number} startGame - Optional: Start game number of streak to highlight
+ * @param {number} endGame - Optional: End game number of streak to highlight
  */
-export function highlightPlayerOnChart(playerName) {
+export function highlightPlayerOnChart(playerName, startGame = null, endGame = null) {
     const safeName = sanitizeName(playerName);
 
     // Dim all lines and dots
@@ -432,13 +434,32 @@ export function highlightPlayerOnChart(playerName) {
         .classed('dimmed', true)
         .classed('highlighted', false);
 
-    // Highlight the specific player
-    d3.select(`.horse-race-line[data-player="${safeName}"]`)
-        .classed('highlighted', true)
-        .classed('dimmed', false);
-    d3.selectAll(`.horse-race-dot[data-player="${safeName}"]`)
-        .classed('highlighted', true)
-        .classed('dimmed', false);
+    // If game range is specified, only highlight dots within that range
+    if (startGame !== null && endGame !== null) {
+        d3.selectAll(`.horse-race-dot[data-player="${safeName}"]`)
+            .each(function() {
+                const dot = d3.select(this);
+                const gameNum = parseInt(dot.attr('data-game'));
+
+                if (gameNum >= startGame && gameNum <= endGame) {
+                    dot.classed('highlighted', true)
+                       .classed('dimmed', false);
+                }
+            });
+
+        // Dim the entire line but keep it visible to show context
+        d3.select(`.horse-race-line[data-player="${safeName}"]`)
+            .classed('dimmed', false)
+            .style('opacity', 0.3);
+    } else {
+        // Highlight entire line and all dots if no range specified
+        d3.select(`.horse-race-line[data-player="${safeName}"]`)
+            .classed('highlighted', true)
+            .classed('dimmed', false);
+        d3.selectAll(`.horse-race-dot[data-player="${safeName}"]`)
+            .classed('highlighted', true)
+            .classed('dimmed', false);
+    }
 
     // Dim legend items except the highlighted one
     d3.selectAll('.race-legend-item').style('opacity', 0.4);
@@ -451,7 +472,8 @@ export function highlightPlayerOnChart(playerName) {
 export function unhighlightChart() {
     d3.selectAll('.horse-race-line')
         .classed('highlighted', false)
-        .classed('dimmed', false);
+        .classed('dimmed', false)
+        .style('opacity', null);
     d3.selectAll('.horse-race-dot')
         .classed('highlighted', false)
         .classed('dimmed', false);

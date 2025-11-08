@@ -25,12 +25,19 @@ export function renderStreakTracker(data) {
     // Get current active streaks (3+ games)
     const activeStreaks = activePlayers
         .filter(p => p.currentStreak && p.currentStreak.count >= 3)
-        .map(p => ({
-            name: p.name,
-            type: p.currentStreak.type,
-            count: p.currentStreak.count,
-            color: playerColors[p.name] || '#888'
-        }))
+        .map(p => {
+            // Calculate game range for active streak (last N games)
+            const endGame = p.games; // Total games played
+            const startGame = endGame - p.currentStreak.count + 1;
+            return {
+                name: p.name,
+                type: p.currentStreak.type,
+                count: p.currentStreak.count,
+                startGame: startGame,
+                endGame: endGame,
+                color: playerColors[p.name] || '#888'
+            };
+        })
         .sort((a, b) => b.count - a.count);
 
     // Get longest winning streaks (3+ games only)
@@ -99,9 +106,11 @@ export function renderStreakTracker(data) {
     const playerCards = document.querySelectorAll('.streak-card[data-player-name], .streak-player-card[data-player-name]');
     playerCards.forEach(card => {
         const playerName = card.getAttribute('data-player-name');
+        const startGame = parseInt(card.getAttribute('data-start-game'));
+        const endGame = parseInt(card.getAttribute('data-end-game'));
 
         card.addEventListener('mouseenter', () => {
-            highlightPlayerOnChart(playerName);
+            highlightPlayerOnChart(playerName, startGame, endGame);
         });
 
         card.addEventListener('mouseleave', () => {
@@ -139,7 +148,10 @@ function renderActiveStreaks(streaks) {
             }
 
             html += `
-                <div class="streak-card active-win" style="border-left-color: ${streak.color}" data-player-name="${streak.name}">
+                <div class="streak-card active-win" style="border-left-color: ${streak.color}"
+                     data-player-name="${streak.name}"
+                     data-start-game="${streak.startGame}"
+                     data-end-game="${streak.endGame}">
                     <div class="streak-rank win-count">${streak.count}</div>
                     <div class="streak-info">
                         <div class="streak-player">${streak.name}</div>
@@ -171,7 +183,10 @@ function renderActiveStreaks(streaks) {
             }
 
             html += `
-                <div class="streak-card active-loss" style="border-left-color: ${streak.color}" data-player-name="${streak.name}">
+                <div class="streak-card active-loss" style="border-left-color: ${streak.color}"
+                     data-player-name="${streak.name}"
+                     data-start-game="${streak.startGame}"
+                     data-end-game="${streak.endGame}">
                     <div class="streak-rank loss-count">${streak.count}</div>
                     <div class="streak-info">
                         <div class="streak-player">${streak.name}</div>
@@ -227,7 +242,10 @@ function renderStreakList(streaks, type) {
                                     ? `G${streak.startGame}-${streak.endGame}`
                                     : '';
                                 return `
-                                    <div class="streak-player-card ${isWin ? 'win-card' : 'loss-card'}" style="border-left-color: ${streak.color}" data-player-name="${streak.name}">
+                                    <div class="streak-player-card ${isWin ? 'win-card' : 'loss-card'}" style="border-left-color: ${streak.color}"
+                                         data-player-name="${streak.name}"
+                                         data-start-game="${streak.startGame}"
+                                         data-end-game="${streak.endGame}">
                                         <div class="streak-player-name">${streak.name}</div>
                                         ${gameRange ? `<div class="streak-player-games">${gameRange}</div>` : ''}
                                     </div>
