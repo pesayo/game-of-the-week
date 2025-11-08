@@ -414,7 +414,7 @@ export function switchView(viewType) {
     setCurrentView(viewType);
 
     // Update button states
-    document.querySelectorAll('.view-toggle-btn').forEach(btn => {
+    document.querySelectorAll('.standings-toggle-btn').forEach(btn => {
         btn.classList.remove('active');
     });
     document.getElementById(`view${viewType.charAt(0).toUpperCase() + viewType.slice(1)}Btn`).classList.add('active');
@@ -467,7 +467,7 @@ export function switchView(viewType) {
  * Setup view toggle controls
  */
 export function setupViewToggle() {
-    const viewButtons = document.querySelectorAll('.view-toggle-btn');
+    const viewButtons = document.querySelectorAll('.standings-toggle-btn');
 
     viewButtons.forEach(btn => {
         btn.addEventListener('click', () => {

@@ -25,41 +25,54 @@ th.sortable.sorted-desc::after {
     opacity: 1;
 }
 
-/* View Toggle Section */
-.view-toggle-section {
+/* Standings Header */
+.standings-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.standings-header .section-title {
+    margin-bottom: 0;
+    padding-bottom: 0;
+    border-bottom: none;
+}
+
+/* View Toggle Buttons */
+.standings-view-toggle {
     display: flex;
     gap: 10px;
-    margin-bottom: 20px;
-    justify-content: center;
-    flex-wrap: wrap;
+    background-color: var(--gray-50);
+    padding: 5px;
+    border-radius: 8px;
 }
 
-.view-toggle-btn {
-    padding: 10px 20px;
-    border: 2px solid var(--gray-300);
-    border-radius: 6px;
-    background-color: white;
-    color: var(--gray-600);
-    font-size: 14px;
-    font-weight: 600;
+.standings-toggle-btn {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 5px;
+    background-color: transparent;
+    color: var(--text-secondary);
     cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
     transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
 }
 
-.view-toggle-btn:hover {
-    background-color: var(--gray-100);
-    border-color: var(--accent);
+.standings-toggle-btn:hover {
+    background-color: var(--gray-200);
+    color: var(--text-primary);
 }
 
-.view-toggle-btn.active {
-    background-color: var(--accent);
+.standings-toggle-btn.active {
+    background-color: var(--mcc-blue-gray);
     color: white;
-    border-color: var(--accent);
-}
-
-.view-toggle-btn.active:hover {
-    background-color: var(--accent-dark);
-    border-color: var(--accent-dark);
 }
 
 .filter-section {

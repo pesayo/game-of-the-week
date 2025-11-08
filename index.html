@@ -81,13 +81,19 @@
             <div class="left-column-container">
                 <!-- Leaderboard Section -->
                 <section class="section leaderboard-section">
-                    <h2 class="section-title"><i class="fas fa-medal"></i> Current Standings</h2>
-
-                    <!-- View Toggle Controls -->
-                    <div class="view-toggle-section">
-                        <button class="view-toggle-btn active" id="viewPlayerBtn" data-view="player">Player</button>
-                        <button class="view-toggle-btn" id="viewTeamBtn" data-view="team">Team</button>
-                        <button class="view-toggle-btn" id="viewPositionBtn" data-view="position">Position</button>
+                    <div class="standings-header">
+                        <h2 class="section-title"><i class="fas fa-medal"></i> Current Standings</h2>
+                        <div class="standings-view-toggle">
+                            <button class="standings-toggle-btn active" id="viewPlayerBtn" data-view="player">
+                                <i class="fas fa-user"></i> Player
+                            </button>
+                            <button class="standings-toggle-btn" id="viewTeamBtn" data-view="team">
+                                <i class="fas fa-users"></i> Team
+                            </button>
+                            <button class="standings-toggle-btn" id="viewPositionBtn" data-view="position">
+                                <i class="fas fa-chess"></i> Position
+                            </button>
+                        </div>
                     </div>
 
                     <!-- Filter Controls -->
