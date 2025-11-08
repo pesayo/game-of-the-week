@@ -280,16 +280,36 @@ export function setupHeaderSort() {
 export function setupExpandCollapse() {
     const expandBtn = document.getElementById('expandHeaderBtn');
     const gameHistoryHeader = document.getElementById('gameHistoryHeader');
+    const gameHistoryLabel = document.getElementById('gameHistoryLabel');
 
-    // Click on either the button or the header to toggle
-    const toggleHandler = (e) => {
-        // Prevent sorting if clicking on the game history header
-        e.stopPropagation();
-        toggleExpandCollapse();
-    };
+    // Count completed games
+    const allGames = getAllGames();
+    const completedGames = allGames.filter(game => game.winner);
+    const completedCount = completedGames.length;
 
-    expandBtn.addEventListener('click', toggleHandler);
-    gameHistoryHeader.addEventListener('click', toggleHandler);
+    // Update header based on number of completed games
+    if (completedCount <= 5) {
+        // 5 or fewer games: show "GAMES" with no expand button
+        gameHistoryLabel.textContent = 'GAMES';
+        expandBtn.style.display = 'none';
+        // Remove click handler from header since there's no expansion
+        gameHistoryHeader.style.cursor = 'default';
+    } else {
+        // More than 5 games: show "Recent Games" with expand button
+        gameHistoryLabel.textContent = 'Recent Games';
+        expandBtn.style.display = 'inline-block';
+        gameHistoryHeader.style.cursor = 'pointer';
+
+        // Click on either the button or the header to toggle
+        const toggleHandler = (e) => {
+            // Prevent sorting if clicking on the game history header
+            e.stopPropagation();
+            toggleExpandCollapse();
+        };
+
+        expandBtn.addEventListener('click', toggleHandler);
+        gameHistoryHeader.addEventListener('click', toggleHandler);
+    }
 }
 
 /**
