@@ -217,8 +217,12 @@ function renderStreakList(streaks, type) {
                                     .map(word => word[0])
                                     .join('');
                                 return `
-                                    <div class="streak-player-card ${isWin ? 'win-card' : 'loss-card'}" style="border-left-color: ${streak.color}" title="${streak.name}${gameRange ? ' - ' + gameRange : ''}">
-                                        <div class="streak-player-content">
+                                    <div class="streak-player-card ${isWin ? 'win-card' : 'loss-card'}" style="border-left-color: ${streak.color}">
+                                        <div class="streak-player-content-full">
+                                            <div class="streak-player-name">${streak.name}</div>
+                                            ${gameRange ? `<div class="streak-player-games">${gameRange}</div>` : ''}
+                                        </div>
+                                        <div class="streak-player-content-abbreviated">
                                             <div class="streak-player-initials">${initials}</div>
                                             ${gameRange ? `<div class="streak-player-games">${gameRange}</div>` : ''}
                                         </div>
