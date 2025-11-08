@@ -32,9 +32,9 @@ export function renderStreakTracker(data) {
         }))
         .sort((a, b) => b.count - a.count);
 
-    // Get longest winning streaks
+    // Get longest winning streaks (3+ games only)
     const longestWinStreaks = activePlayers
-        .filter(p => p.longestWinStreak && p.longestWinStreak.count > 0)
+        .filter(p => p.longestWinStreak && p.longestWinStreak.count >= 3)
         .map(p => ({
             name: p.name,
             count: p.longestWinStreak.count,
@@ -45,9 +45,9 @@ export function renderStreakTracker(data) {
         .sort((a, b) => b.count - a.count)
         .slice(0, 10); // Top 10
 
-    // Get longest losing streaks
+    // Get longest losing streaks (3+ games only)
     const longestLossStreaks = activePlayers
-        .filter(p => p.longestLossStreak && p.longestLossStreak.count > 0)
+        .filter(p => p.longestLossStreak && p.longestLossStreak.count >= 3)
         .map(p => ({
             name: p.name,
             count: p.longestLossStreak.count,
@@ -71,17 +71,17 @@ export function renderStreakTracker(data) {
             <!-- Longest Win Streaks -->
             <div class="streak-section">
                 <h3 class="streak-section-title">
-                    <i class="fas fa-trophy"></i> Longest Win Streaks
+                    <i class="fas fa-trophy"></i> Longest Win Streaks (3+)
                 </h3>
-                ${longestWinStreaks.length > 0 ? renderStreakList(longestWinStreaks, 'win') : '<p class="no-data">No win streak data</p>'}
+                ${longestWinStreaks.length > 0 ? renderStreakList(longestWinStreaks, 'win') : '<p class="no-data">No win streaks of 3+ games</p>'}
             </div>
 
             <!-- Longest Loss Streaks -->
             <div class="streak-section">
                 <h3 class="streak-section-title">
-                    <i class="fas fa-arrow-down"></i> Longest Loss Streaks
+                    <i class="fas fa-arrow-down"></i> Longest Loss Streaks (3+)
                 </h3>
-                ${longestLossStreaks.length > 0 ? renderStreakList(longestLossStreaks, 'loss') : '<p class="no-data">No loss streak data</p>'}
+                ${longestLossStreaks.length > 0 ? renderStreakList(longestLossStreaks, 'loss') : '<p class="no-data">No loss streaks of 3+ games</p>'}
             </div>
         </div>
     `;
