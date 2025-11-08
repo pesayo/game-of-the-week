@@ -235,7 +235,6 @@ th.sortable.sorted-desc::after {
 
 .player-name:hover {
     color: var(--accent-dark);
-    text-decoration: underline;
 }
 
 .player-name .picks-icon {
