@@ -102,20 +102,22 @@ function renderActiveStreaks(streaks) {
 
     if (winStreaks.length > 0) {
         // Add ranks with tie handling for win streaks
-        const winStreaksWithRanks = winStreaks.map((streak, index) => {
+        const winStreaksWithRanks = [];
+        for (let i = 0; i < winStreaks.length; i++) {
+            const streak = winStreaks[i];
             let rank;
-            if (index === 0) {
+            if (i === 0) {
                 rank = 1;
             } else {
-                const prevStreak = winStreaks[index - 1];
+                const prevStreak = winStreaks[i - 1];
                 if (streak.count === prevStreak.count) {
-                    rank = winStreaksWithRanks[index - 1].rank;
+                    rank = winStreaksWithRanks[i - 1].rank;
                 } else {
-                    rank = index + 1;
+                    rank = i + 1;
                 }
             }
-            return { ...streak, rank };
-        });
+            winStreaksWithRanks.push({ ...streak, rank });
+        }
 
         html += '<div class="active-streak-group">';
         html += '<h4 class="streak-group-label"><i class="fas fa-fire-flame-curved" style="color: var(--win-color);"></i> Hot Hands</h4>';
@@ -142,20 +144,22 @@ function renderActiveStreaks(streaks) {
 
     if (lossStreaks.length > 0) {
         // Add ranks with tie handling for loss streaks
-        const lossStreaksWithRanks = lossStreaks.map((streak, index) => {
+        const lossStreaksWithRanks = [];
+        for (let i = 0; i < lossStreaks.length; i++) {
+            const streak = lossStreaks[i];
             let rank;
-            if (index === 0) {
+            if (i === 0) {
                 rank = 1;
             } else {
-                const prevStreak = lossStreaks[index - 1];
+                const prevStreak = lossStreaks[i - 1];
                 if (streak.count === prevStreak.count) {
-                    rank = lossStreaksWithRanks[index - 1].rank;
+                    rank = lossStreaksWithRanks[i - 1].rank;
                 } else {
-                    rank = index + 1;
+                    rank = i + 1;
                 }
             }
-            return { ...streak, rank };
-        });
+            lossStreaksWithRanks.push({ ...streak, rank });
+        }
 
         html += '<div class="active-streak-group">';
         html += '<h4 class="streak-group-label"><i class="fas fa-snowflake" style="color: var(--loss-color);"></i> Cold Streaks</h4>';
@@ -184,61 +188,67 @@ function renderActiveStreaks(streaks) {
 }
 
 /**
- * Render historical streak list
+ * Render historical streak list grouped by count
  * @param {Array} streaks - Array of streak objects with game ranges
  * @param {string} type - 'win' or 'loss'
  * @returns {string} HTML string
  */
 function renderStreakList(streaks, type) {
     const isWin = type === 'win';
-    const maxStreak = streaks[0].count;
 
-    // Add ranks with tie handling
-    let currentRank = 1;
-    const streaksWithRanks = streaks.map((streak, index) => {
-        let rank;
-        if (index === 0) {
-            rank = 1;
-        } else {
-            const prevStreak = streaks[index - 1];
-            // Check if tied with previous streak (same count)
-            if (streak.count === prevStreak.count) {
-                rank = streaksWithRanks[index - 1].rank;
-            } else {
-                rank = index + 1;
-            }
+    // Group streaks by count
+    const groupedByCount = {};
+    streaks.forEach(streak => {
+        if (!groupedByCount[streak.count]) {
+            groupedByCount[streak.count] = [];
         }
-        return { ...streak, rank };
+        groupedByCount[streak.count].push(streak);
+    });
+
+    // Sort counts descending
+    const sortedCounts = Object.keys(groupedByCount).map(Number).sort((a, b) => b - a);
+
+    // Assign rank (same count = same rank)
+    let currentRank = 1;
+    const countToRank = {};
+    sortedCounts.forEach((count, index) => {
+        countToRank[count] = currentRank;
+        currentRank += groupedByCount[count].length;
     });
 
     return `
-        <div class="streak-list historical">
-            ${streaksWithRanks.map((streak, index) => {
-                const percentage = (streak.count / maxStreak) * 100;
-                const gameRange = streak.startGame && streak.endGame
-                    ? `G${streak.startGame}-G${streak.endGame}`
-                    : '';
+        <div class="streak-list-grouped">
+            ${sortedCounts.map(count => {
+                const group = groupedByCount[count];
+                const rank = countToRank[count];
 
-                // Medal for top 3 ranks (not positions)
+                // Medal for top 3 ranks
                 let medal = '';
-                if (streak.rank === 1) medal = '<i class="fas fa-medal" style="color: #FFD700;"></i>';
-                else if (streak.rank === 2) medal = '<i class="fas fa-medal" style="color: #C0C0C0;"></i>';
-                else if (streak.rank === 3) medal = '<i class="fas fa-medal" style="color: #CD7F32;"></i>';
+                if (rank === 1) medal = '<i class="fas fa-medal" style="color: #FFD700;"></i>';
+                else if (rank === 2) medal = '<i class="fas fa-medal" style="color: #C0C0C0;"></i>';
+                else if (rank === 3) medal = '<i class="fas fa-medal" style="color: #CD7F32;"></i>';
 
                 return `
-                    <div class="streak-row ${isWin ? 'win-row' : 'loss-row'}">
-                        <div class="streak-row-rank">
-                            ${medal ? medal : `<span class="rank-number">${streak.rank}</span>`}
+                    <div class="streak-count-group">
+                        <div class="streak-count-header">
+                            <div class="streak-count-badge ${isWin ? 'win-badge' : 'loss-badge'}">
+                                ${medal ? medal : `<span class="rank-number">#${rank}</span>`}
+                                <span class="count-number">${count}</span>
+                                <span class="count-label">${isWin ? 'W' : 'L'}</span>
+                            </div>
                         </div>
-                        <div class="streak-row-content">
-                            <div class="streak-row-header">
-                                <span class="streak-row-player" style="color: ${streak.color}">${streak.name}</span>
-                                <span class="streak-row-count">${streak.count} ${isWin ? 'W' : 'L'}</span>
-                            </div>
-                            <div class="streak-row-bar-container">
-                                <div class="streak-row-bar ${isWin ? 'win-bar' : 'loss-bar'}" style="width: ${percentage}%"></div>
-                            </div>
-                            ${gameRange ? `<div class="streak-row-games">${gameRange}</div>` : ''}
+                        <div class="streak-players-grid">
+                            ${group.map(streak => {
+                                const gameRange = streak.startGame && streak.endGame
+                                    ? `G${streak.startGame}-${streak.endGame}`
+                                    : '';
+                                return `
+                                    <div class="streak-player-card ${isWin ? 'win-card' : 'loss-card'}" style="border-left-color: ${streak.color}">
+                                        <div class="streak-player-name">${streak.name}</div>
+                                        ${gameRange ? `<div class="streak-player-games">${gameRange}</div>` : ''}
+                                    </div>
+                                `;
+                            }).join('')}
                         </div>
                     </div>
                 `;

@@ -157,98 +157,105 @@
     color: var(--error);
 }
 
-/* Historical Streak List */
-.streak-list.historical {
-    gap: 8px;
+/* Historical Streak List - Grouped by Count */
+.streak-list-grouped {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
 }
 
-.streak-row {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 10px;
+.streak-count-group {
     background-color: white;
-    border-radius: 6px;
-    border-left: 3px solid transparent;
-    transition: background-color 0.2s;
+    border-radius: 8px;
+    padding: 12px;
+    border: 1px solid var(--gray-200);
 }
 
-.streak-row:hover {
-    background-color: var(--gray-100);
+.streak-count-header {
+    margin-bottom: 10px;
 }
 
-.streak-row.win-row {
-    border-left-color: var(--success);
-}
-
-.streak-row.loss-row {
-    border-left-color: var(--error);
-}
-
-.streak-row-rank {
-    min-width: 30px;
-    text-align: center;
-}
-
-.streak-row-rank .rank-number {
-    font-weight: 600;
-    color: var(--text-secondary);
-    font-size: 14px;
-}
-
-.streak-row-rank i {
-    font-size: 18px;
-}
-
-.streak-row-content {
-    flex: 1;
-}
-
-.streak-row-header {
-    display: flex;
-    justify-content: space-between;
+.streak-count-badge {
+    display: inline-flex;
     align-items: center;
-    margin-bottom: 6px;
-}
-
-.streak-row-player {
-    font-weight: 600;
-    font-size: 14px;
-}
-
-.streak-row-count {
+    gap: 8px;
+    padding: 6px 12px;
+    border-radius: 6px;
     font-weight: 700;
-    font-size: 15px;
+}
+
+.streak-count-badge.win-badge {
+    background: linear-gradient(135deg, var(--success-light), var(--success-bg));
+    border: 2px solid var(--success);
+}
+
+.streak-count-badge.loss-badge {
+    background: linear-gradient(135deg, var(--error-light), var(--error-bg));
+    border: 2px solid var(--error);
+}
+
+.streak-count-badge .rank-number {
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+
+.streak-count-badge i {
+    font-size: 16px;
+}
+
+.streak-count-badge .count-number {
+    font-size: 20px;
     color: var(--text-primary);
-    background-color: var(--gray-100);
-    padding: 2px 8px;
+}
+
+.streak-count-badge .count-label {
+    font-size: 14px;
+    color: var(--text-secondary);
+    font-weight: 600;
+}
+
+.streak-players-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 6px;
+}
+
+@media (min-width: 768px) {
+    .streak-players-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+.streak-player-card {
+    padding: 8px 10px;
+    background-color: var(--gray-50);
     border-radius: 4px;
+    border-left: 4px solid var(--gray-400);
+    transition: transform 0.2s, box-shadow 0.2s;
 }
 
-.streak-row-bar-container {
-    height: 8px;
-    background-color: var(--gray-200);
-    border-radius: 4px;
-    overflow: hidden;
-    margin-bottom: 4px;
+.streak-player-card:hover {
+    transform: translateX(2px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.streak-row-bar {
-    height: 100%;
-    border-radius: 4px;
-    transition: width 0.3s ease;
+.streak-player-card.win-card {
+    background: linear-gradient(to right, rgba(76, 175, 80, 0.05), var(--gray-50));
 }
 
-.streak-row-bar.win-bar {
-    background: linear-gradient(to right, var(--success-dark), var(--success));
+.streak-player-card.loss-card {
+    background: linear-gradient(to right, rgba(244, 67, 54, 0.05), var(--gray-50));
 }
 
-.streak-row-bar.loss-bar {
-    background: linear-gradient(to right, var(--error-dark), var(--error));
+.streak-player-name {
+    font-weight: 600;
+    font-size: 13px;
+    color: var(--text-primary);
+    margin-bottom: 2px;
 }
 
-.streak-row-games {
-    font-size: 11px;
+.streak-player-games {
+    font-size: 10px;
     color: var(--text-muted);
     font-family: monospace;
 }
