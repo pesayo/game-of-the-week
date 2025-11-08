@@ -65,7 +65,9 @@ export function renderStreakTracker(data) {
                 <h3 class="streak-section-title">
                     <i class="fas fa-fire"></i> Active Streaks
                 </h3>
-                ${activeStreaks.length > 0 ? renderActiveStreaks(activeStreaks) : '<p class="no-data">No active streaks</p>'}
+                <div class="streak-section-content">
+                    ${activeStreaks.length > 0 ? renderActiveStreaks(activeStreaks) : '<p class="no-data">No active streaks</p>'}
+                </div>
             </div>
 
             <!-- Longest Win Streaks -->
@@ -73,7 +75,9 @@ export function renderStreakTracker(data) {
                 <h3 class="streak-section-title">
                     <i class="fas fa-trophy"></i> Longest Win Streaks
                 </h3>
-                ${longestWinStreaks.length > 0 ? renderStreakList(longestWinStreaks, 'win') : '<p class="no-data">No win streaks</p>'}
+                <div class="streak-section-content">
+                    ${longestWinStreaks.length > 0 ? renderStreakList(longestWinStreaks, 'win') : '<p class="no-data">No win streaks</p>'}
+                </div>
             </div>
 
             <!-- Longest Loss Streaks -->
@@ -81,7 +85,9 @@ export function renderStreakTracker(data) {
                 <h3 class="streak-section-title">
                     <i class="fas fa-arrow-down"></i> Longest Loss Streaks
                 </h3>
-                ${longestLossStreaks.length > 0 ? renderStreakList(longestLossStreaks, 'loss') : '<p class="no-data">No loss streaks</p>'}
+                <div class="streak-section-content">
+                    ${longestLossStreaks.length > 0 ? renderStreakList(longestLossStreaks, 'loss') : '<p class="no-data">No loss streaks</p>'}
+                </div>
             </div>
         </div>
     `;

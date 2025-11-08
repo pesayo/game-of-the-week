@@ -12,6 +12,7 @@
     display: grid;
     grid-template-columns: 1fr;
     gap: 30px;
+    align-items: start;
 }
 
 @media (min-width: 1200px) {
@@ -26,6 +27,30 @@
     padding: 20px;
     border-radius: 8px;
     border: 1px solid var(--gray-200);
+    max-height: 800px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Scrollbar styling */
+.streak-section::-webkit-scrollbar {
+    width: 8px;
+}
+
+.streak-section::-webkit-scrollbar-track {
+    background: var(--gray-100);
+    border-radius: 4px;
+}
+
+.streak-section::-webkit-scrollbar-thumb {
+    background: var(--gray-400);
+    border-radius: 4px;
+}
+
+.streak-section::-webkit-scrollbar-thumb:hover {
+    background: var(--gray-500);
 }
 
 .streak-section-title {
@@ -38,10 +63,26 @@
     display: flex;
     align-items: center;
     gap: 8px;
+    position: sticky;
+    top: 0;
+    background-color: var(--gray-50);
+    z-index: 1;
+    margin-left: -20px;
+    margin-right: -20px;
+    margin-top: -20px;
+    padding-left: 20px;
+    padding-right: 20px;
+    padding-top: 20px;
 }
 
 .streak-section-title i {
     color: var(--accent);
+}
+
+.streak-section-content {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
 }
 
 /* Active Streaks Section */
