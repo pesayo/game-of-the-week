@@ -9,9 +9,9 @@ const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/
 const API_KEY_STORAGE_KEY = 'gemini_api_key';
 
 // Default prompt template
-const DEFAULT_PROMPT = `You are writing a weekly email to participants in "The Game of the Week" (GOTW). GOTW is the pick 'em game of the Madison Curling Club's Wednesday Night shift of the Mansfield Men's League. Write a witty, clever, and slightly absurd email that:
+const DEFAULT_PROMPT = `You are writing a weekly email to participants in "The Game of the Week" (GOTW). GOTW is the pick 'em game of the Madison Curling Club's Wednesday night shift of the Mansfield men's league. The GOTW winner gets possession of the "Goblet" for the following season. Write a witty, clever, and slightly absurd email that:
 
-1. Highlights the most interesting recent results (upsets, blowouts, close games)
+1. Highlights the most interesting recent results (upsets, interesting tie-ins, streaks, etc.)
 2. Makes fun of the leaders and losers in a good-natured way
 3. Previews the upcoming matchups with dramatic flair
 4. Uses curling terminology and puns where appropriate
@@ -552,6 +552,7 @@ Now write an engaging, witty email based on this data. Format it as HTML suitabl
 
 CRITICAL FORMATTING INSTRUCTIONS:
 1. Start with a brief, catchy subject line (5-10 words) on the FIRST line, formatted as: <!-- SUBJECT: Your Subject Here -->
+2. (optional) bonus points if the subject is a slightly obscure, but not too obscure, popular movie/tv line, or popular music lyric, if so put it in quotes with a trailing elipsis: <!--- SUBJECT: “Like a dog without a bone, An actor out on loan”… -->
 2. After the subject line, write the email body content (do NOT include greeting or signature)
 3. The subject line comment will be extracted and used as a section header
 4. Example format:
