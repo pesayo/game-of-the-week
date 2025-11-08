@@ -9,7 +9,7 @@ const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/
 const API_KEY_STORAGE_KEY = 'gemini_api_key';
 
 // Default prompt template
-const DEFAULT_PROMPT = `You are writing a weekly email to participants in a curling league's pick 'em, called Game of the Week. Write a witty, clever, and slightly absurd email that:
+const DEFAULT_PROMPT = `You are writing a weekly email to participants in "The Game of the Week" (GOTW). GOTW is the pick 'em game of the Madison Curling Club's Wednesday Night shift of the Mansfield Men's League. Write a witty, clever, and slightly absurd email that:
 
 1. Highlights the most interesting recent results (upsets, blowouts, close games)
 2. Makes fun of the leaders and losers in a good-natured way
@@ -110,7 +110,8 @@ async function loadGameData() {
                 team1Skip: row.Team1_Skip,
                 team2Skip: row.Team2_Skip,
                 winner: row.Winner || null,
-                isKeyMatchup: row.Key_Matchup === 'TRUE'
+                isKeyMatchup: row.Key_Matchup === 'TRUE',
+                notes: row.Notes || ''
             };
             matchupsMap[gameKey] = game;
             allGames.push(game);
@@ -126,7 +127,8 @@ async function loadGameData() {
             allGames,
             matchupsMap,
             pickAnalysis,
-            playerInfo: data.playerInfo
+            playerInfo: data.playerInfo,
+            weeklyNarratives: data.weeklyNarratives
         };
         leaderboardData = leaderboard;
 
@@ -170,7 +172,7 @@ function displayDataPreview() {
             </div>
 
             <div class="summary-section">
-                <h3>🎯 Week ${summary.mostRecentWeek} Results (${summary.recentWeekGames.length} game${summary.recentWeekGames.length !== 1 ? 's' : ''})</h3>
+                <h3>🎯 Most Recent Results${summary.mostRecentGameDate ? ` - ${summary.mostRecentGameDate}` : ''} (${summary.recentWeekGames.length} game${summary.recentWeekGames.length !== 1 ? 's' : ''})</h3>
                 ${summary.recentWeekGames.length > 0 ? `
                     <ul>
                         ${summary.recentWeekGames.map(g => `
@@ -184,12 +186,13 @@ function displayDataPreview() {
             </div>
 
             <div class="summary-section">
-                <h3>📅 Week ${summary.nextUpcomingWeek} Matchups (${summary.upcomingWeekGames.length} game${summary.upcomingWeekGames.length !== 1 ? 's' : ''})</h3>
+                <h3>📅 Next Matchups${summary.nextUpcomingGameDate ? ` - ${summary.nextUpcomingGameDate}` : ''} (${summary.upcomingWeekGames.length} game${summary.upcomingWeekGames.length !== 1 ? 's' : ''})</h3>
                 ${summary.upcomingWeekGames.length > 0 ? `
                     <ul>
-                        ${summary.upcomingWeekGames.map(g => `
-                            <li>${g.team1Skip} vs ${g.team2Skip} - Sheet ${g.sheet}, ${g.date} ${g.time}</li>
-                        `).join('')}
+                        ${summary.upcomingWeekGames.map(g => {
+                            const notesText = g.notes && g.notes.trim() ? ` <em>(Note: ${g.notes})</em>` : '';
+                            return `<li>${g.team1Skip} vs ${g.team2Skip} - Sheet ${g.sheet}, ${g.date} ${g.time}${notesText}</li>`;
+                        }).join('')}
                     </ul>
                 ` : '<p>No upcoming games scheduled</p>'}
             </div>
@@ -262,15 +265,73 @@ function generateDataSummary() {
     const completedGames = gameData.allGames.filter(g => g.winner);
     const upcomingGames = gameData.allGames.filter(g => !g.winner);
 
-    // Get the most recent week number with completed games
-    const mostRecentWeek = completedGames.length > 0
-        ? Math.max(...completedGames.map(g => parseInt(g.week)))
-        : 0;
+    // Helper function to parse game date
+    const parseGameDate = (dateStr) => {
+        // Date format is M/D/YYYY (e.g., "11/12/2025")
+        const [month, day, year] = dateStr.split('/').map(Number);
+        return new Date(year, month - 1, day);
+    };
 
-    // Get the next upcoming week number
-    const nextUpcomingWeek = upcomingGames.length > 0
-        ? Math.min(...upcomingGames.map(g => parseInt(g.week)))
-        : 0;
+    const now = new Date();
+
+    // Find the most recent completed game(s) by date
+    let mostRecentWeek = 0;
+
+    if (completedGames.length > 0) {
+        // Sort completed games by date (most recent first)
+        const sortedCompleted = [...completedGames].sort((a, b) => {
+            const dateA = parseGameDate(a.date);
+            const dateB = parseGameDate(b.date);
+            return dateB - dateA;
+        });
+
+        // Get the most recent week
+        mostRecentWeek = parseInt(sortedCompleted[0].week);
+
+        // Include all games from the same date as the most recent game
+        // (handles multiple games on the same day)
+        const mostRecentDateStr = sortedCompleted[0].date;
+        const gamesOnMostRecentDate = completedGames.filter(g => g.date === mostRecentDateStr);
+
+        // If there are multiple weeks on the same date, use the highest week number
+        if (gamesOnMostRecentDate.length > 0) {
+            mostRecentWeek = Math.max(...gamesOnMostRecentDate.map(g => parseInt(g.week)));
+        }
+    }
+
+    // Find the next upcoming game(s) by date (excluding postponed/past games)
+    let nextUpcomingWeek = 0;
+
+    if (upcomingGames.length > 0) {
+        // Get the most recent completed game date as a threshold
+        let cutoffDate = new Date(0); // Start of epoch if no completed games
+        if (completedGames.length > 0) {
+            const mostRecentCompletedDateStr = [...completedGames]
+                .sort((a, b) => parseGameDate(b.date) - parseGameDate(a.date))[0].date;
+            cutoffDate = parseGameDate(mostRecentCompletedDateStr);
+        }
+
+        // Filter to only truly future games
+        const futureGames = upcomingGames.filter(g => parseGameDate(g.date) > cutoffDate);
+
+        if (futureGames.length > 0) {
+            // Sort future games by date (soonest first)
+            const sortedUpcoming = [...futureGames].sort((a, b) => {
+                const dateA = parseGameDate(a.date);
+                const dateB = parseGameDate(b.date);
+                return dateA - dateB;
+            });
+
+            // Get the next upcoming game date
+            const nextUpcomingDateStr = sortedUpcoming[0].date;
+            const gamesOnNextDate = futureGames.filter(g => g.date === nextUpcomingDateStr);
+
+            // If there are multiple weeks on the same date, use the lowest week number
+            if (gamesOnNextDate.length > 0) {
+                nextUpcomingWeek = Math.min(...gamesOnNextDate.map(g => parseInt(g.week)));
+            }
+        }
+    }
 
     // Calculate previous week's standings (without most recent week's games)
     const previousWeekStandings = calculatePreviousWeekStandings(mostRecentWeek);
@@ -304,39 +365,66 @@ function generateDataSummary() {
         };
     });
 
-    // Get games from most recent completed week
-    const recentWeekGames = completedGames
-        .filter(g => parseInt(g.week) === mostRecentWeek)
-        .map(g => {
-            const loserSkip = g.winner === g.team1 ? g.team2Skip : g.team1Skip;
-            const pickInfo = gameData.pickAnalysis[createGameKey(g.week, g.date, g.time, g.sheet)];
-            const isUpset = pickInfo && pickInfo.chalkPick && g.winner !== pickInfo.chalkPick;
+    // Get games from most recent completed date (all games on that date)
+    let recentWeekGames = [];
+    if (completedGames.length > 0) {
+        // Find the most recent date
+        const mostRecentDateStr = [...completedGames]
+            .sort((a, b) => parseGameDate(b.date) - parseGameDate(a.date))[0].date;
 
-            return {
-                winner: g.winner,
-                loser: g.winner === g.team1 ? g.team2 : g.team1,
-                winnerSkip: g.winner,
-                loserSkip: loserSkip,
-                date: g.date,
-                week: g.week,
-                isUpset: isUpset,
-                chalkPercentage: pickInfo ? pickInfo.chalkPercentage : null
-            };
-        });
+        recentWeekGames = completedGames
+            .filter(g => g.date === mostRecentDateStr)
+            .map(g => {
+                const loserSkip = g.winner === g.team1 ? g.team2Skip : g.team1Skip;
+                const pickInfo = gameData.pickAnalysis[createGameKey(g.week, g.date, g.time, g.sheet)];
+                const isUpset = pickInfo && pickInfo.chalkPick && g.winner !== pickInfo.chalkPick;
 
-    // Get games from next upcoming week
-    const nextWeekGames = upcomingGames
-        .filter(g => parseInt(g.week) === nextUpcomingWeek)
-        .map(g => ({
-            team1: g.team1,
-            team2: g.team2,
-            team1Skip: g.team1Skip,
-            team2Skip: g.team2Skip,
-            date: g.date,
-            time: g.time,
-            week: g.week,
-            sheet: g.sheet
-        }));
+                return {
+                    winner: g.winner,
+                    loser: g.winner === g.team1 ? g.team2 : g.team1,
+                    winnerSkip: g.winner,
+                    loserSkip: loserSkip,
+                    date: g.date,
+                    week: g.week,
+                    isUpset: isUpset,
+                    chalkPercentage: pickInfo ? pickInfo.chalkPercentage : null
+                };
+            });
+    }
+
+    // Get games from next upcoming date (all games on that date)
+    // Filter out postponed/past games by only including games after the most recent completed game
+    let nextWeekGames = [];
+    if (upcomingGames.length > 0) {
+        // Get the most recent completed game date as a threshold
+        let cutoffDate = new Date(0); // Start of epoch if no completed games
+        if (recentWeekGames.length > 0) {
+            cutoffDate = parseGameDate(recentWeekGames[0].date);
+        }
+
+        // Filter to only truly upcoming games (after the most recent completed game)
+        const futureGames = upcomingGames.filter(g => parseGameDate(g.date) > cutoffDate);
+
+        if (futureGames.length > 0) {
+            // Find the next upcoming date from future games
+            const nextUpcomingDateStr = [...futureGames]
+                .sort((a, b) => parseGameDate(a.date) - parseGameDate(b.date))[0].date;
+
+            nextWeekGames = futureGames
+                .filter(g => g.date === nextUpcomingDateStr)
+                .map(g => ({
+                    team1: g.team1,
+                    team2: g.team2,
+                    team1Skip: g.team1Skip,
+                    team2Skip: g.team2Skip,
+                    date: g.date,
+                    time: g.time,
+                    week: g.week,
+                    sheet: g.sheet,
+                    notes: g.notes
+                }));
+        }
+    }
 
     // Generate fun facts
     const funFacts = [];
@@ -367,10 +455,16 @@ function generateDataSummary() {
         funFacts.push(`Week ${mostRecentWeek} upset: ${recentUpset.winner} beat ${recentUpset.loser} (only ${100 - recentUpset.chalkPercentage}% picked them)`);
     }
 
+    // Get the actual dates for display
+    const mostRecentGameDate = recentWeekGames.length > 0 ? recentWeekGames[0].date : '';
+    const nextUpcomingGameDate = nextWeekGames.length > 0 ? nextWeekGames[0].date : '';
+
     return {
         allPlayers,
         mostRecentWeek,
         nextUpcomingWeek,
+        mostRecentGameDate,
+        nextUpcomingGameDate,
         recentWeekGames,
         upcomingWeekGames: nextWeekGames,
         funFacts,
@@ -397,15 +491,26 @@ async function generateEmail() {
 
         const summary = generateDataSummary();
         const customPrompt = document.getElementById('promptTemplate').value;
-        const previousEmail = document.getElementById('previousEmail').value.trim();
+
+        // Get previous weeks' narratives for context
+        const previousNarratives = gameData.weeklyNarratives
+            .filter(n => n.Narrative && n.Narrative.trim() && parseInt(n.Week) < summary.nextUpcomingWeek)
+            .sort((a, b) => parseInt(a.Week) - parseInt(b.Week));
+
+        // Format previous narratives for context
+        const narrativesContext = previousNarratives.length > 0
+            ? `**PREVIOUS WEEKS' NARRATIVES (for continuity and callbacks):**
+
+${previousNarratives.map(n => `Week ${n.Week} (${n.Date}):
+${n.Narrative}`).join('\n\n')}
+
+`
+            : '';
 
         // Build the full prompt with data
         let fullPrompt = `${customPrompt}
 
-${previousEmail ? `**PREVIOUS WEEK'S EMAIL (for continuity and callbacks):**
-${previousEmail}
-
-` : ''}Here's the current data:
+${narrativesContext}Here's the current data:
 
 **LEGEND:**
 - Win %: Percentage of games WON (e.g., 66.7% means they won 2 out of 3 games)
@@ -431,18 +536,29 @@ ${summary.allPlayers.filter(p => p.isFunkEngEligible).map((p, i) => {
     return `${p.rank}. ${p.name} (${p.team}, ${p.position}): ${p.wins}-${p.losses} (Win%: ${p.winPct}%, Contrarian: ${p.contrarianPct}%)${rankChangeStr}${formStr}`;
 }).join('\n')}
 
-**WEEK ${summary.mostRecentWeek} RESULTS (${summary.recentWeekGames.length} game${summary.recentWeekGames.length !== 1 ? 's' : ''}):**
-${summary.recentWeekGames.length > 0 ? summary.recentWeekGames.map(g => `- ${g.winner} defeated ${g.loser}${g.isUpset ? ' (UPSET - only ' + (100 - g.chalkPercentage) + '% picked them!)' : ''}`).join('\n') : 'No games completed this week yet'}
+**MOST RECENT RESULTS${summary.mostRecentGameDate ? ` (${summary.mostRecentGameDate})` : ''} - ${summary.recentWeekGames.length} game${summary.recentWeekGames.length !== 1 ? 's' : ''}:**
+${summary.recentWeekGames.length > 0 ? summary.recentWeekGames.map(g => `- ${g.winner} defeated ${g.loser}${g.isUpset ? ' (UPSET - only ' + (100 - g.chalkPercentage) + '% picked them!)' : ''}`).join('\n') : 'No games completed recently'}
 
-**WEEK ${summary.nextUpcomingWeek} MATCHUPS (${summary.upcomingWeekGames.length} game${summary.upcomingWeekGames.length !== 1 ? 's' : ''}):**
-${summary.upcomingWeekGames.length > 0 ? summary.upcomingWeekGames.map(g => `- ${g.team1Skip} vs ${g.team2Skip} (Sheet ${g.sheet}, ${g.date} ${g.time})`).join('\n') : 'No upcoming games scheduled'}
+**NEXT MATCHUPS${summary.nextUpcomingGameDate ? ` (${summary.nextUpcomingGameDate})` : ''} - ${summary.upcomingWeekGames.length} game${summary.upcomingWeekGames.length !== 1 ? 's' : ''}:**
+${summary.upcomingWeekGames.length > 0 ? summary.upcomingWeekGames.map(g => {
+    const notesText = g.notes && g.notes.trim() ? ` [Note: ${g.notes}]` : '';
+    return `- ${g.team1Skip} vs ${g.team2Skip} (Sheet ${g.sheet}, ${g.date} ${g.time})${notesText}`;
+}).join('\n') : 'No upcoming games scheduled'}
 
 **FUN FACTS:**
 ${summary.funFacts.map(f => `- ${f}`).join('\n')}
 
 Now write an engaging, witty email based on this data. Format it as HTML suitable for pasting into Gmail. Use basic HTML tags like <p>, <strong>, <em>, <h2>, <ul>, <li>, etc. Make it fun and entertaining!
 
-CRITICAL: Do NOT include a subject line, greeting, or signature. Start immediately with the content and end with the last paragraph. The email will have standings and matchups appended automatically.`;
+CRITICAL FORMATTING INSTRUCTIONS:
+1. Start with a brief, catchy subject line (5-10 words) on the FIRST line, formatted as: <!-- SUBJECT: Your Subject Here -->
+2. After the subject line, write the email body content (do NOT include greeting or signature)
+3. The subject line comment will be extracted and used as a section header
+4. Example format:
+   <!-- SUBJECT: Ice Cold Takes and Hot Streaks -->
+   <p>Your email content starts here...</p>
+
+The email will have standings and matchups appended automatically.`;
 
         // Call Gemini API
         const response = await fetch(`${GEMINI_API_URL}?key=${apiKey}`, {
@@ -511,7 +627,7 @@ function formatRecentMatchups() {
 
     return `
         <div style="margin-bottom: 2rem;">
-            <h3 style="color: #34495e; margin-bottom: 1rem;">Last Week's Matchup${summary.recentWeekGames.length !== 1 ? 's' : ''}</h3>
+            <h3 style="color: #34495e; margin-bottom: 1rem;">Most Recent Result${summary.recentWeekGames.length !== 1 ? 's' : ''}${summary.mostRecentGameDate ? ` (${summary.mostRecentGameDate})` : ''}</h3>
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem;">
                 ${summary.recentWeekGames.map(game => {
                     // Determine winner and loser
@@ -566,7 +682,7 @@ function formatUpcomingMatchups() {
 
     return `
         <div style="margin-bottom: 2rem;">
-            <h3 style="color: #34495e; margin-bottom: 1rem;">Upcoming Matchup${summary.upcomingWeekGames.length !== 1 ? 's' : ''}</h3>
+            <h3 style="color: #34495e; margin-bottom: 1rem;">Next Matchup${summary.upcomingWeekGames.length !== 1 ? 's' : ''}${summary.nextUpcomingGameDate ? ` (${summary.nextUpcomingGameDate})` : ''}</h3>
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem;">
                 ${summary.upcomingWeekGames.map(game => {
                     // Only show full team name if it's different from skip name
@@ -731,22 +847,72 @@ function displayGeneratedEmail(htmlContent) {
     const previewSection = document.getElementById('previewSection');
     const emailPreview = document.getElementById('emailPreview');
 
+    // Extract subject line from HTML comment
+    const subjectRegex = /<!--\s*SUBJECT:\s*(.+?)\s*-->/i;
+    const subjectMatch = htmlContent.match(subjectRegex);
+
+    let subjectLine = "This Week's Narrative"; // Default fallback
+    let contentWithoutSubject = htmlContent;
+
+    if (subjectMatch) {
+        subjectLine = subjectMatch[1].trim();
+        // Remove the subject comment from content
+        contentWithoutSubject = htmlContent.replace(subjectRegex, '').trim();
+    }
+
     // Build full email in order:
     // 1. Recent week's matchups (results)
-    // 2. Upcoming matchups
-    // 3. AI-generated content
-    // 4. Standings tables
+    // 2. Upcoming matchups (with dashboard link)
+    // 3. Narrative heading with horizontal rule (using extracted subject)
+    // 4. AI-generated content (narrative) - wrapped in editable div
+    // 5. Standings tables
     const recentMatchups = formatRecentMatchups();
     const upcomingMatchups = formatUpcomingMatchups();
+    const narrativeHeading = `
+        <hr style="border: none; border-top: 2px solid #e0e0e0; margin: 2rem 0;">
+        <h2 style="color: #2c3e50; margin-bottom: 1rem;">${subjectLine}</h2>
+    `;
+
+    // Wrap narrative in an editable div with clear styling
+    const editableNarrative = `
+        <div class="editable-narrative" contenteditable="true" style="outline: none; padding: 1rem; border-radius: 4px; transition: background-color 0.2s;">
+            ${contentWithoutSubject}
+        </div>
+        <div style="text-align: right; margin-top: 0.5rem; font-size: 12px; color: #666; font-style: italic;">
+            <i class="fas fa-edit"></i> Click above to edit the narrative
+        </div>
+    `;
+
     const standingsTable = formatStandingsTable();
 
-    const fullContent = recentMatchups + upcomingMatchups + htmlContent + standingsTable;
+    const fullContent = recentMatchups + upcomingMatchups + narrativeHeading + editableNarrative + standingsTable;
 
     // Store the HTML for copying
     emailPreview.dataset.htmlContent = fullContent;
 
     // Display the formatted email
     emailPreview.innerHTML = fullContent;
+
+    // Add hover effect to editable narrative
+    setTimeout(() => {
+        const editableDiv = emailPreview.querySelector('.editable-narrative');
+        if (editableDiv) {
+            editableDiv.addEventListener('mouseenter', () => {
+                editableDiv.style.backgroundColor = '#f8f9fa';
+            });
+            editableDiv.addEventListener('mouseleave', () => {
+                editableDiv.style.backgroundColor = 'transparent';
+            });
+            editableDiv.addEventListener('focus', () => {
+                editableDiv.style.backgroundColor = '#fff3cd';
+                editableDiv.style.border = '2px dashed #ffc107';
+            });
+            editableDiv.addEventListener('blur', () => {
+                editableDiv.style.backgroundColor = 'transparent';
+                editableDiv.style.border = 'none';
+            });
+        }
+    }, 0);
 
     // Show the preview section
     previewSection.style.display = 'block';
@@ -758,17 +924,33 @@ function displayGeneratedEmail(htmlContent) {
 // Copy email HTML to clipboard as rich text (for pasting into Gmail)
 async function copyEmailToClipboard() {
     const emailPreview = document.getElementById('emailPreview');
-    const htmlContent = emailPreview.dataset.htmlContent;
 
-    if (!htmlContent) {
+    if (!emailPreview.innerHTML) {
         showStatus('No email to copy', 'error');
         return;
     }
 
+    // Clone the preview and remove the edit hint
+    const clone = emailPreview.cloneNode(true);
+    const editHint = clone.querySelector('.editable-narrative + div');
+    if (editHint) {
+        editHint.remove();
+    }
+
+    // Get the edited content (captures any inline edits made by user)
+    const editableDiv = clone.querySelector('.editable-narrative');
+    if (editableDiv) {
+        // Replace the editable div with its content (removes contenteditable attribute)
+        const narrativeContent = editableDiv.innerHTML;
+        editableDiv.outerHTML = narrativeContent;
+    }
+
+    const htmlContent = clone.innerHTML;
+
     try {
         // Create a blob with HTML content
         const blob = new Blob([htmlContent], { type: 'text/html' });
-        const plainTextBlob = new Blob([emailPreview.innerText], { type: 'text/plain' });
+        const plainTextBlob = new Blob([clone.innerText], { type: 'text/plain' });
 
         // Use the modern Clipboard API with multiple formats
         const clipboardItem = new ClipboardItem({
@@ -777,7 +959,7 @@ async function copyEmailToClipboard() {
         });
 
         await navigator.clipboard.write([clipboardItem]);
-        showStatus('Email copied! You can now paste it directly into Gmail.', 'success');
+        showStatus('Email copied with your edits! You can now paste it directly into Gmail.', 'success');
 
         // Visual feedback
         const copyButton = document.getElementById('copyEmail');
