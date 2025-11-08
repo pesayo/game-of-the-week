@@ -109,8 +109,8 @@ export function renderLeaderboard(data) {
             row.innerHTML = `
                 <td class="center ${rankClass}">${item.rank}</td>
                 <td class="player-name" onclick="showPlayerDetails('${item.name.replace(/'/g, "\\'")}')" title="Click to view all picks">
+                    <i class="fas fa-clipboard-list picks-icon"></i>
                     ${item.name}
-                    <i class="fas fa-list-ul picks-icon"></i>
                 </td>
                 <td class="center">${item.wins}</td>
                 <td class="center">${item.losses}</td>
