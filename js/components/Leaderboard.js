@@ -64,8 +64,10 @@ export function renderStatsSummary(data) {
         </div>
         <div class="stat-card">
             <div class="stat-label">Overall Record</div>
-            <div class="stat-value" style="font-size: 20px;">${totalWins}-${totalLosses}</div>
-            <div class="stat-value" style="font-size: 14px; margin-top: 2px; color: var(--text-secondary);">(${avgWinPct.toFixed(1)}%)</div>
+            <div class="stat-value">
+                <span style="font-size: 20px;">${totalWins}-${totalLosses}</span>
+                <span style="font-size: 12px; color: var(--text-secondary); margin-left: 6px;">(${avgWinPct.toFixed(1)}%)</span>
+            </div>
         </div>
     `;
 
