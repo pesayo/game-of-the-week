@@ -256,7 +256,10 @@ export function renderComparisonTable(tableId, data, compareData) {
         html += `
             <tr>
                 <td class="center ${rankClass}">${player.rank}${rankChange}</td>
-                <td class="player-name">${player.name}</td>
+                <td class="player-name" onclick="showPlayerDetails('${player.name.replace(/'/g, "\\'")}')" title="Click to view all picks" style="cursor: pointer;">
+                    <i class="fas fa-list-ul picks-icon" style="font-size: 10px; opacity: 0.5;"></i>
+                    ${player.name}
+                </td>
                 <td class="center">${winsDisplay}</td>
                 <td class="center">${lossesDisplay}</td>
                 <td class="center ${winPctClass}">${player.winPct.toFixed(1)}%</td>
