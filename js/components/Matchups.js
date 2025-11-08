@@ -126,9 +126,9 @@ export function showMatchupTooltip(event, game) {
         <div class="matchup-tooltip-body">
     `;
 
-    // First Team (winner if game decided)
+    // First Team - always members above team name
     if (game.winner && game.winner === firstTeam) {
-        // Winner: members above team name
+        // Winner
         tooltipContent += `
             <div class="tooltip-team-section winner-section">
                 <div class="tooltip-members-row" id="firstTeamMembers"></div>
@@ -138,28 +138,41 @@ export function showMatchupTooltip(event, game) {
             </div>
         `;
     } else {
-        // Non-winner: team name above members
+        // Non-winner or undecided
         tooltipContent += `
-            <div class="tooltip-team-section">
+            <div class="tooltip-team-section winner-section">
+                <div class="tooltip-members-row" id="firstTeamMembers"></div>
                 <div class="tooltip-team-name">
                     Team ${firstTeam}
                 </div>
-                <div class="tooltip-members-row" id="firstTeamMembers"></div>
             </div>
         `;
     }
 
     tooltipContent += `<div class="tooltip-vs-divider">${dividerText}</div>`;
 
-    // Second Team
-    tooltipContent += `
-        <div class="tooltip-team-section">
-            <div class="tooltip-team-name ${game.winner && game.winner === secondTeam ? 'winner' : ''}">
-                Team ${secondTeam}${game.winner && game.winner === secondTeam ? ' <i class="fas fa-trophy"></i>' : ''}
+    // Second Team - always members above team name
+    if (game.winner && game.winner === secondTeam) {
+        // Winner
+        tooltipContent += `
+            <div class="tooltip-team-section winner-section">
+                <div class="tooltip-members-row" id="secondTeamMembers"></div>
+                <div class="tooltip-team-name winner">
+                    Team ${secondTeam} <i class="fas fa-trophy"></i>
+                </div>
             </div>
-            <div class="tooltip-members-row" id="secondTeamMembers"></div>
-        </div>
-    `;
+        `;
+    } else {
+        // Non-winner or undecided
+        tooltipContent += `
+            <div class="tooltip-team-section winner-section">
+                <div class="tooltip-members-row" id="secondTeamMembers"></div>
+                <div class="tooltip-team-name">
+                    Team ${secondTeam}
+                </div>
+            </div>
+        `;
+    }
 
     tooltipContent += '</div>';
     tooltip.innerHTML = tooltipContent;
