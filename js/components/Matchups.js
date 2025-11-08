@@ -275,16 +275,31 @@ export function createMatchupCard(game) {
     const card = document.createElement('div');
     card.className = `matchup-card ${game.winner ? 'completed' : ''}`;
 
-    // Compact single-line format: "Marcus Oldenburg vs Steve Oakeson" with winner indicator
-    const team1Display = game.winner === game.team1 ? `<strong>${game.team1}</strong> <i class="fas fa-trophy"></i>` : game.team1;
-    const team2Display = game.winner === game.team2 ? `<strong>${game.team2}</strong> <i class="fas fa-trophy"></i>` : game.team2;
+    // Determine team order and divider based on whether game is decided
+    let firstTeam, secondTeam, dividerText;
+
+    if (game.winner) {
+        // Game decided: winner first
+        firstTeam = game.winner;
+        secondTeam = game.winner === game.team1 ? game.team2 : game.team1;
+        dividerText = 'def.';
+    } else {
+        // Game not decided: original order
+        firstTeam = game.team1;
+        secondTeam = game.team2;
+        dividerText = 'vs';
+    }
+
+    // Format team displays with winner styling
+    const firstTeamDisplay = game.winner === firstTeam ? `<strong>${firstTeam}</strong> <i class="fas fa-trophy"></i>` : firstTeam;
+    const secondTeamDisplay = game.winner === secondTeam ? `<strong>${secondTeam}</strong> <i class="fas fa-trophy"></i>` : secondTeam;
 
     card.innerHTML = `
         <div class="matchup-compact-header">
             Week ${game.week} | ${game.date} | ${game.time} | Sheet ${game.sheet}
         </div>
         <div class="matchup-compact-teams">
-            ${team1Display} <span class="compact-vs">vs</span> ${team2Display}
+            ${firstTeamDisplay} <span class="compact-vs">${dividerText}</span> ${secondTeamDisplay}
         </div>
     `;
 
