@@ -68,9 +68,18 @@
 /* Controls */
 .race-controls {
     display: flex;
-    gap: 8px;
+    gap: 12px;
     justify-content: center;
-    margin: 20px 0 15px 0;
+    align-items: center;
+    margin: 15px 0;
+}
+
+.race-instruction {
+    font-size: 11px;
+    color: var(--text-secondary);
+    opacity: 0.7;
+    font-style: italic;
+    margin-left: 8px;
 }
 
 .race-btn {
@@ -94,8 +103,8 @@
 /* Player Cards Grid */
 .race-legend {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-    gap: 12px;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 10px;
     margin-top: 25px;
 }
 
@@ -109,7 +118,7 @@
 .race-legend-item {
     background-color: var(--gray-50);
     border-radius: 8px;
-    padding: 12px;
+    padding: 8px;
     cursor: pointer;
     transition: all 0.3s ease;
     border-left: 4px solid;
@@ -136,7 +145,7 @@
 .race-card-header {
     display: flex;
     align-items: flex-start;
-    gap: 10px;
+    gap: 8px;
 }
 
 .race-legend-color {
