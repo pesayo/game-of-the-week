@@ -211,10 +211,18 @@ function renderStreakList(streaks, type) {
                                 const gameRange = streak.startGame && streak.endGame
                                     ? `G${streak.startGame}-${streak.endGame}`
                                     : '';
+                                // Get player initials
+                                const initials = streak.name
+                                    .split(' ')
+                                    .map(word => word[0])
+                                    .join('');
                                 return `
                                     <div class="streak-player-card ${isWin ? 'win-card' : 'loss-card'}" style="border-left-color: ${streak.color}">
-                                        <div class="streak-player-name">${streak.name}</div>
-                                        ${gameRange ? `<div class="streak-player-games">${gameRange}</div>` : ''}
+                                        <div class="streak-player-initials">${initials}</div>
+                                        <div class="streak-player-tooltip">
+                                            <div class="tooltip-player-name">${streak.name}</div>
+                                            ${gameRange ? `<div class="tooltip-game-range">${gameRange}</div>` : ''}
+                                        </div>
                                     </div>
                                 `;
                             }).join('')}

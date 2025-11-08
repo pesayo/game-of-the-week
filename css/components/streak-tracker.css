@@ -321,30 +321,29 @@
 
 .streak-players-grid {
     display: grid;
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(auto-fill, minmax(50px, 1fr));
     gap: 6px;
     flex: 1;
     min-width: 0;
 }
 
-@media (min-width: 768px) {
-    .streak-players-grid {
-        grid-template-columns: repeat(2, 1fr);
-    }
-}
-
 .streak-player-card {
-    padding: 8px 10px;
+    padding: 8px;
     background-color: var(--gray-50);
     border-radius: 4px;
     border-left: 4px solid var(--gray-400);
     transition: transform 0.2s, box-shadow 0.2s;
     min-width: 0;
+    position: relative;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .streak-player-card:hover {
-    transform: translateX(2px);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 }
 
 .streak-player-card.win-card {
@@ -355,19 +354,54 @@
     background: linear-gradient(to right, rgba(244, 67, 54, 0.05), var(--gray-50));
 }
 
-.streak-player-name {
-    font-weight: 600;
-    font-size: 13px;
+.streak-player-initials {
+    font-weight: 700;
+    font-size: 12px;
     color: var(--text-primary);
-    margin-bottom: 2px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    text-align: center;
 }
 
-.streak-player-games {
-    font-size: 10px;
-    color: var(--text-muted);
+.streak-player-tooltip {
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: var(--gray-900);
+    color: white;
+    padding: 8px 12px;
+    border-radius: 6px;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s;
+    margin-bottom: 8px;
+    z-index: 1000;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.streak-player-tooltip::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 6px solid transparent;
+    border-top-color: var(--gray-900);
+}
+
+.streak-player-card:hover .streak-player-tooltip {
+    opacity: 1;
+}
+
+.tooltip-player-name {
+    font-weight: 600;
+    font-size: 13px;
+    margin-bottom: 2px;
+}
+
+.tooltip-game-range {
+    font-size: 11px;
+    opacity: 0.8;
     font-family: monospace;
 }
 
