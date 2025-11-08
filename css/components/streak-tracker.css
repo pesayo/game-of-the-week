@@ -1,0 +1,299 @@
+/* Streak Tracker Component Styles */
+
+.streak-tracker-section {
+    background-color: white;
+    padding: 25px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Main Grid Layout */
+.streak-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 30px;
+}
+
+@media (min-width: 1200px) {
+    .streak-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+/* Section Styles */
+.streak-section {
+    background-color: var(--gray-50);
+    padding: 20px;
+    border-radius: 8px;
+    border: 1px solid var(--gray-200);
+}
+
+.streak-section-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0 0 20px 0;
+    padding-bottom: 10px;
+    border-bottom: 2px solid var(--accent);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.streak-section-title i {
+    color: var(--accent);
+}
+
+/* Active Streaks Section */
+.active-streak-group {
+    margin-bottom: 20px;
+}
+
+.active-streak-group:last-child {
+    margin-bottom: 0;
+}
+
+.streak-group-label {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin: 0 0 12px 0;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.streak-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+/* Active Streak Cards */
+.streak-card {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    background-color: white;
+    border-radius: 6px;
+    border-left: 4px solid var(--gray-400);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.streak-card:hover {
+    transform: translateX(2px);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+}
+
+.streak-card.active-win {
+    background: linear-gradient(to right, rgba(76, 175, 80, 0.05), white);
+}
+
+.streak-card.active-loss {
+    background: linear-gradient(to right, rgba(244, 67, 54, 0.05), white);
+}
+
+.streak-rank {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 28px;
+    height: 28px;
+    background-color: var(--accent);
+    color: white;
+    border-radius: 50%;
+    font-weight: 700;
+    font-size: 14px;
+}
+
+.streak-rank.cold {
+    background-color: var(--error);
+}
+
+.streak-info {
+    flex: 1;
+}
+
+.streak-player {
+    font-weight: 600;
+    font-size: 15px;
+    color: var(--text-primary);
+    margin-bottom: 2px;
+}
+
+.streak-count {
+    display: flex;
+    align-items: baseline;
+    gap: 5px;
+}
+
+.streak-number {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.streak-label {
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+
+.streak-icon {
+    display: flex;
+    gap: 2px;
+    font-size: 14px;
+    opacity: 0.7;
+}
+
+.streak-icon.win {
+    color: var(--success);
+}
+
+.streak-icon.loss {
+    color: var(--error);
+}
+
+/* Historical Streak List */
+.streak-list.historical {
+    gap: 8px;
+}
+
+.streak-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px;
+    background-color: white;
+    border-radius: 6px;
+    border-left: 3px solid transparent;
+    transition: background-color 0.2s;
+}
+
+.streak-row:hover {
+    background-color: var(--gray-100);
+}
+
+.streak-row.win-row {
+    border-left-color: var(--success);
+}
+
+.streak-row.loss-row {
+    border-left-color: var(--error);
+}
+
+.streak-row-rank {
+    min-width: 30px;
+    text-align: center;
+}
+
+.streak-row-rank .rank-number {
+    font-weight: 600;
+    color: var(--text-secondary);
+    font-size: 14px;
+}
+
+.streak-row-rank i {
+    font-size: 18px;
+}
+
+.streak-row-content {
+    flex: 1;
+}
+
+.streak-row-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 6px;
+}
+
+.streak-row-player {
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.streak-row-count {
+    font-weight: 700;
+    font-size: 15px;
+    color: var(--text-primary);
+    background-color: var(--gray-100);
+    padding: 2px 8px;
+    border-radius: 4px;
+}
+
+.streak-row-bar-container {
+    height: 8px;
+    background-color: var(--gray-200);
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 4px;
+}
+
+.streak-row-bar {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.3s ease;
+}
+
+.streak-row-bar.win-bar {
+    background: linear-gradient(to right, var(--success-dark), var(--success));
+}
+
+.streak-row-bar.loss-bar {
+    background: linear-gradient(to right, var(--error-dark), var(--error));
+}
+
+.streak-row-games {
+    font-size: 11px;
+    color: var(--text-muted);
+    font-family: monospace;
+}
+
+/* Empty State */
+.no-data {
+    text-align: center;
+    color: var(--text-muted);
+    padding: 20px;
+    font-style: italic;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .streak-section-title {
+        font-size: 16px;
+    }
+
+    .streak-card {
+        padding: 10px;
+    }
+
+    .streak-number {
+        font-size: 18px;
+    }
+
+    .streak-icon {
+        font-size: 12px;
+    }
+}
+
+/* Animation for hot/cold indicators */
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.6;
+    }
+}
+
+.streak-card.active-win .streak-icon.win {
+    animation: pulse 2s infinite;
+}
+
+.streak-card.active-loss .streak-icon.loss {
+    animation: pulse 2s infinite;
+}

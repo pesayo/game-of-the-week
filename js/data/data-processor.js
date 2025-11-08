@@ -102,6 +102,9 @@ export function processData(rawPicks, gameMap, gamesArray, pickAnalysis) {
         let totalWins = 0;
         let totalLosses = 0;
         let currentStreak = { type: null, count: 0 };
+        let longestWinStreak = { count: 0, startGame: null, endGame: null };
+        let longestLossStreak = { count: 0, startGame: null, endGame: null };
+        let tempStreak = { type: null, count: 0, startGame: null };
 
         // Process each game column
         gameHeaders.forEach((gameHeader, headerIndex) => {
@@ -126,11 +129,33 @@ export function processData(rawPicks, gameMap, gamesArray, pickAnalysis) {
                     totalLosses++;
                 }
 
-                // Track streaks
+                // Track current streak (for real-time display)
                 if (currentStreak.type === result) {
                     currentStreak.count++;
                 } else {
                     currentStreak = { type: result, count: 1 };
+                }
+
+                // Track longest streaks
+                if (tempStreak.type === result) {
+                    tempStreak.count++;
+                } else {
+                    // Previous streak ended, check if it was a record
+                    if (tempStreak.type === 'W' && tempStreak.count > longestWinStreak.count) {
+                        longestWinStreak = {
+                            count: tempStreak.count,
+                            startGame: tempStreak.startGame,
+                            endGame: game.gameNumber - 1
+                        };
+                    } else if (tempStreak.type === 'L' && tempStreak.count > longestLossStreak.count) {
+                        longestLossStreak = {
+                            count: tempStreak.count,
+                            startGame: tempStreak.startGame,
+                            endGame: game.gameNumber - 1
+                        };
+                    }
+                    // Start new streak
+                    tempStreak = { type: result, count: 1, startGame: game.gameNumber };
                 }
             }
             // If no winner yet, result stays null (game not played)
@@ -162,6 +187,21 @@ export function processData(rawPicks, gameMap, gamesArray, pickAnalysis) {
             });
         });
 
+        // Check if the final ongoing streak is a record
+        if (tempStreak.type === 'W' && tempStreak.count > longestWinStreak.count) {
+            longestWinStreak = {
+                count: tempStreak.count,
+                startGame: tempStreak.startGame,
+                endGame: tempStreak.startGame + tempStreak.count - 1
+            };
+        } else if (tempStreak.type === 'L' && tempStreak.count > longestLossStreak.count) {
+            longestLossStreak = {
+                count: tempStreak.count,
+                startGame: tempStreak.startGame,
+                endGame: tempStreak.startGame + tempStreak.count - 1
+            };
+        }
+
         // Filter only completed games for stats
         const completedGames = gameResults.filter(g => g.result !== null);
         const totalGames = completedGames.length;
@@ -189,7 +229,11 @@ export function processData(rawPicks, gameMap, gamesArray, pickAnalysis) {
             contrarianWins: contrarianWins,
             contrarianLosses: contrarianTotal - contrarianWins,
             contrarianPct: contrarianPct,
-            contrarianWinRate: contrarianWinRate
+            contrarianWinRate: contrarianWinRate,
+            // Streak data
+            currentStreak: currentStreak,
+            longestWinStreak: longestWinStreak,
+            longestLossStreak: longestLossStreak
         };
     }).filter(p => p !== null);
 

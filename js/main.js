@@ -61,6 +61,10 @@ import {
     setupModalHandlers
 } from './components/Modals.js';
 
+import {
+    renderStreakTracker
+} from './components/StreakTracker.js';
+
 /**
  * Initialize the application
  */
@@ -116,6 +120,7 @@ async function init() {
         renderHorseRace(leaderboardData);
         renderStatsSummary(leaderboardData);
         renderLeaderboard(leaderboardData);
+        renderStreakTracker(leaderboardData);
         setupHeaderSort();
         setupExpandCollapse();
         setupRaceControls();
