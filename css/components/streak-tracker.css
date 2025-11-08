@@ -151,7 +151,11 @@
     font-size: 14px;
 }
 
-.streak-rank.cold {
+.streak-rank.win-count {
+    background-color: var(--success);
+}
+
+.streak-rank.loss-count {
     background-color: var(--error);
 }
 

@@ -108,17 +108,14 @@ function renderActiveStreaks(streaks) {
 
     if (winStreaks.length > 0) {
         html += '<div class="active-streak-group">';
-        html += '<h4 class="streak-group-label"><i class="fas fa-fire-flame-curved" style="color: var(--win-color);"></i> Hot Hands</h4>';
+        html += '<h4 class="streak-group-label"><i class="fas fa-fire-flame-curved" style="color: var(--success);"></i> Hot</h4>';
         html += '<div class="streak-list">';
         winStreaks.forEach((streak) => {
             html += `
                 <div class="streak-card active-win" style="border-left-color: ${streak.color}">
-                    <div class="streak-rank">${streak.count}</div>
+                    <div class="streak-rank win-count">${streak.count}</div>
                     <div class="streak-info">
                         <div class="streak-player">${streak.name}</div>
-                        <div class="streak-count">
-                            <span class="streak-label">in a row</span>
-                        </div>
                     </div>
                     <div class="streak-icon win">
                         ${'<i class="fas fa-bolt"></i>'.repeat(Math.min(streak.count, 5))}
@@ -131,17 +128,14 @@ function renderActiveStreaks(streaks) {
 
     if (lossStreaks.length > 0) {
         html += '<div class="active-streak-group">';
-        html += '<h4 class="streak-group-label"><i class="fas fa-snowflake" style="color: var(--loss-color);"></i> Cold Streaks</h4>';
+        html += '<h4 class="streak-group-label"><i class="fas fa-snowflake" style="color: var(--error);"></i> Cold</h4>';
         html += '<div class="streak-list">';
         lossStreaks.forEach((streak) => {
             html += `
                 <div class="streak-card active-loss" style="border-left-color: ${streak.color}">
-                    <div class="streak-rank cold">${streak.count}</div>
+                    <div class="streak-rank loss-count">${streak.count}</div>
                     <div class="streak-info">
                         <div class="streak-player">${streak.name}</div>
-                        <div class="streak-count">
-                            <span class="streak-label">in a row</span>
-                        </div>
                     </div>
                     <div class="streak-icon loss">
                         ${'<i class="fas fa-icicles"></i>'.repeat(Math.min(streak.count, 5))}
