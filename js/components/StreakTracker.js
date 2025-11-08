@@ -107,36 +107,17 @@ function renderActiveStreaks(streaks) {
     let html = '';
 
     if (winStreaks.length > 0) {
-        // Add ranks with tie handling for win streaks
-        const winStreaksWithRanks = [];
-        for (let i = 0; i < winStreaks.length; i++) {
-            const streak = winStreaks[i];
-            let rank;
-            if (i === 0) {
-                rank = 1;
-            } else {
-                const prevStreak = winStreaks[i - 1];
-                if (streak.count === prevStreak.count) {
-                    rank = winStreaksWithRanks[i - 1].rank;
-                } else {
-                    rank = i + 1;
-                }
-            }
-            winStreaksWithRanks.push({ ...streak, rank });
-        }
-
         html += '<div class="active-streak-group">';
         html += '<h4 class="streak-group-label"><i class="fas fa-fire-flame-curved" style="color: var(--win-color);"></i> Hot Hands</h4>';
         html += '<div class="streak-list">';
-        winStreaksWithRanks.forEach((streak) => {
+        winStreaks.forEach((streak) => {
             html += `
                 <div class="streak-card active-win" style="border-left-color: ${streak.color}">
-                    <div class="streak-rank">${streak.rank}</div>
+                    <div class="streak-rank">${streak.count}</div>
                     <div class="streak-info">
                         <div class="streak-player">${streak.name}</div>
                         <div class="streak-count">
-                            <span class="streak-number">${streak.count}</span>
-                            <span class="streak-label">${streak.count === 1 ? 'win' : 'wins'} in a row</span>
+                            <span class="streak-label">in a row</span>
                         </div>
                     </div>
                     <div class="streak-icon win">
@@ -149,36 +130,17 @@ function renderActiveStreaks(streaks) {
     }
 
     if (lossStreaks.length > 0) {
-        // Add ranks with tie handling for loss streaks
-        const lossStreaksWithRanks = [];
-        for (let i = 0; i < lossStreaks.length; i++) {
-            const streak = lossStreaks[i];
-            let rank;
-            if (i === 0) {
-                rank = 1;
-            } else {
-                const prevStreak = lossStreaks[i - 1];
-                if (streak.count === prevStreak.count) {
-                    rank = lossStreaksWithRanks[i - 1].rank;
-                } else {
-                    rank = i + 1;
-                }
-            }
-            lossStreaksWithRanks.push({ ...streak, rank });
-        }
-
         html += '<div class="active-streak-group">';
         html += '<h4 class="streak-group-label"><i class="fas fa-snowflake" style="color: var(--loss-color);"></i> Cold Streaks</h4>';
         html += '<div class="streak-list">';
-        lossStreaksWithRanks.forEach((streak) => {
+        lossStreaks.forEach((streak) => {
             html += `
                 <div class="streak-card active-loss" style="border-left-color: ${streak.color}">
-                    <div class="streak-rank cold">${streak.rank}</div>
+                    <div class="streak-rank cold">${streak.count}</div>
                     <div class="streak-info">
                         <div class="streak-player">${streak.name}</div>
                         <div class="streak-count">
-                            <span class="streak-number">${streak.count}</span>
-                            <span class="streak-label">${streak.count === 1 ? 'loss' : 'losses'} in a row</span>
+                            <span class="streak-label">in a row</span>
                         </div>
                     </div>
                     <div class="streak-icon loss">
@@ -214,31 +176,15 @@ function renderStreakList(streaks, type) {
     // Sort counts descending
     const sortedCounts = Object.keys(groupedByCount).map(Number).sort((a, b) => b - a);
 
-    // Assign rank (same count = same rank)
-    let currentRank = 1;
-    const countToRank = {};
-    sortedCounts.forEach((count, index) => {
-        countToRank[count] = currentRank;
-        currentRank += groupedByCount[count].length;
-    });
-
     return `
         <div class="streak-list-grouped">
             ${sortedCounts.map(count => {
                 const group = groupedByCount[count];
-                const rank = countToRank[count];
-
-                // Medal for top 3 ranks
-                let medal = '';
-                if (rank === 1) medal = '<i class="fas fa-medal" style="color: #FFD700;"></i>';
-                else if (rank === 2) medal = '<i class="fas fa-medal" style="color: #C0C0C0;"></i>';
-                else if (rank === 3) medal = '<i class="fas fa-medal" style="color: #CD7F32;"></i>';
 
                 return `
                     <div class="streak-count-group">
                         <div class="streak-count-header">
                             <div class="streak-count-badge ${isWin ? 'win-badge' : 'loss-badge'}">
-                                ${medal ? medal : `<span class="rank-number">#${rank}</span>`}
                                 <span class="count-number">${count}</span>
                                 <span class="count-label">${isWin ? 'W' : 'L'}</span>
                             </div>
