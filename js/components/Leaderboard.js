@@ -372,7 +372,7 @@ export function setupFilterControls() {
         const sortedData = sortData(filteredData, currentSort, currentDirection);
         renderLeaderboard(sortedData);
         renderStatsSummary(sortedData);
-        renderStreakTracker(filteredData);
+        renderStreakTracker(leaderboardData);
     };
 
     teamFilter.addEventListener('change', applyCurrentFilters);
@@ -393,5 +393,6 @@ export function setupFilterControls() {
         const sortedData = sortData(leaderboardData, currentSort, currentDirection);
         renderLeaderboard(sortedData);
         renderStatsSummary(leaderboardData);
+        renderStreakTracker(leaderboardData);
     });
 }
