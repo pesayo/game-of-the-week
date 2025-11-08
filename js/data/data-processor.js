@@ -261,3 +261,129 @@ export function processData(rawPicks, gameMap, gamesArray, pickAnalysis) {
 
     return players;
 }
+
+/**
+ * Aggregate player data by team
+ * @param {Array} playerData - Processed player data
+ * @param {Object} playerInfoMap - Map of player name to {team, position}
+ * @returns {Array} Aggregated team data with averaged stats
+ */
+export function aggregateByTeam(playerData, playerInfoMap) {
+    const teamStats = {};
+
+    // Group players by team
+    playerData.forEach(player => {
+        const playerInfo = playerInfoMap[player.name];
+        if (!playerInfo || !playerInfo.team) return;
+
+        const team = playerInfo.team;
+        if (!teamStats[team]) {
+            teamStats[team] = {
+                name: team,
+                players: [],
+                totalWins: 0,
+                totalLosses: 0,
+                totalGames: 0
+            };
+        }
+
+        teamStats[team].players.push(player.name);
+        teamStats[team].totalWins += player.wins;
+        teamStats[team].totalLosses += player.losses;
+        teamStats[team].totalGames += player.games;
+    });
+
+    // Convert to array and calculate averages
+    const teams = Object.values(teamStats).map(team => {
+        const playerCount = team.players.length;
+        const avgWins = playerCount > 0 ? team.totalWins / playerCount : 0;
+        const avgLosses = playerCount > 0 ? team.totalLosses / playerCount : 0;
+        const avgGames = playerCount > 0 ? team.totalGames / playerCount : 0;
+        const winPct = avgGames > 0 ? (avgWins / avgGames * 100) : 0;
+
+        return {
+            name: team.name,
+            playerCount: playerCount,
+            wins: parseFloat(avgWins.toFixed(1)),
+            losses: parseFloat(avgLosses.toFixed(1)),
+            games: avgGames,
+            winPct: winPct
+        };
+    });
+
+    // Sort by wins (descending), then by win percentage
+    teams.sort((a, b) => {
+        if (b.wins !== a.wins) return b.wins - a.wins;
+        return b.winPct - a.winPct;
+    });
+
+    // Add rank
+    teams.forEach((team, index) => {
+        team.rank = index + 1;
+    });
+
+    return teams;
+}
+
+/**
+ * Aggregate player data by position
+ * @param {Array} playerData - Processed player data
+ * @param {Object} playerInfoMap - Map of player name to {team, position}
+ * @returns {Array} Aggregated position data with averaged stats
+ */
+export function aggregateByPosition(playerData, playerInfoMap) {
+    const positionStats = {};
+
+    // Group players by position
+    playerData.forEach(player => {
+        const playerInfo = playerInfoMap[player.name];
+        if (!playerInfo || !playerInfo.position) return;
+
+        const position = playerInfo.position;
+        if (!positionStats[position]) {
+            positionStats[position] = {
+                name: position,
+                players: [],
+                totalWins: 0,
+                totalLosses: 0,
+                totalGames: 0
+            };
+        }
+
+        positionStats[position].players.push(player.name);
+        positionStats[position].totalWins += player.wins;
+        positionStats[position].totalLosses += player.losses;
+        positionStats[position].totalGames += player.games;
+    });
+
+    // Convert to array and calculate averages
+    const positions = Object.values(positionStats).map(position => {
+        const playerCount = position.players.length;
+        const avgWins = playerCount > 0 ? position.totalWins / playerCount : 0;
+        const avgLosses = playerCount > 0 ? position.totalLosses / playerCount : 0;
+        const avgGames = playerCount > 0 ? position.totalGames / playerCount : 0;
+        const winPct = avgGames > 0 ? (avgWins / avgGames * 100) : 0;
+
+        return {
+            name: position.name,
+            playerCount: playerCount,
+            wins: parseFloat(avgWins.toFixed(1)),
+            losses: parseFloat(avgLosses.toFixed(1)),
+            games: avgGames,
+            winPct: winPct
+        };
+    });
+
+    // Sort by wins (descending), then by win percentage
+    positions.sort((a, b) => {
+        if (b.wins !== a.wins) return b.wins - a.wins;
+        return b.winPct - a.winPct;
+    });
+
+    // Add rank
+    positions.forEach((position, index) => {
+        position.rank = index + 1;
+    });
+
+    return positions;
+}

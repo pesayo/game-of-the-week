@@ -8,13 +8,16 @@ import {
     getCurrentDirection,
     getAllGames,
     getIsExpanded,
+    getCurrentView,
     updateActiveFilter,
     setCurrentSort,
     setCurrentDirection,
-    setIsExpanded
+    setIsExpanded,
+    setCurrentView
 } from '../state/app-state.js';
 import { showTooltip, hideTooltip } from './Modals.js';
 import { renderStreakTracker } from './StreakTracker.js';
+import { aggregateByTeam, aggregateByPosition } from '../data/data-processor.js';
 
 /**
  * Render statistics summary cards at top of dashboard
@@ -66,41 +69,58 @@ export function renderLeaderboard(data) {
     tbody.innerHTML = '';
 
     const isExpanded = getIsExpanded();
+    const currentView = getCurrentView();
 
-    data.forEach((player, playerIndex) => {
+    data.forEach((item, index) => {
         const row = document.createElement('tr');
 
         // Rank with medal colors
         let rankClass = 'rank';
-        if (player.rank === 1) rankClass += ' gold';
-        else if (player.rank === 2) rankClass += ' silver';
-        else if (player.rank === 3) rankClass += ' bronze';
+        if (item.rank === 1) rankClass += ' gold';
+        else if (item.rank === 2) rankClass += ' silver';
+        else if (item.rank === 3) rankClass += ' bronze';
 
         // Win percentage color
         let winPctClass = 'win-percentage';
-        if (player.winPct >= 60) winPctClass += ' high';
-        else if (player.winPct >= 40) winPctClass += ' medium';
+        if (item.winPct >= 60) winPctClass += ' high';
+        else if (item.winPct >= 40) winPctClass += ' medium';
         else winPctClass += ' low';
 
-        // Show either recent form or all games based on expanded state
-        const gamesToShow = isExpanded ? player.allResults : player.recentForm;
-        const gameHistoryHtml = gamesToShow.map(gameData =>
-            renderGameCell(gameData, player)
-        ).join('');
+        // Build row HTML based on view type
+        if (currentView === 'player') {
+            // Show either recent form or all games based on expanded state
+            const gamesToShow = isExpanded ? item.allResults : item.recentForm;
+            const gameHistoryHtml = gamesToShow.map(gameData =>
+                renderGameCell(gameData, item)
+            ).join('');
 
-        row.innerHTML = `
-            <td class="center ${rankClass}">${player.rank}</td>
-            <td class="player-name" onclick="showPlayerDetails('${player.name.replace(/'/g, "\\'")}')" title="Click to view all picks">
-                ${player.name}
-                <i class="fas fa-list-ul picks-icon"></i>
-            </td>
-            <td class="center">${player.wins}</td>
-            <td class="center">${player.losses}</td>
-            <td class="center ${winPctClass}">${player.winPct.toFixed(1)}%</td>
-            <td class="center game-history-cell ${isExpanded ? 'expanded' : 'collapsed'}">
-                <div class="recent-form">${gameHistoryHtml}</div>
-            </td>
-        `;
+            row.innerHTML = `
+                <td class="center ${rankClass}">${item.rank}</td>
+                <td class="player-name" onclick="showPlayerDetails('${item.name.replace(/'/g, "\\'")}')" title="Click to view all picks">
+                    ${item.name}
+                    <i class="fas fa-list-ul picks-icon"></i>
+                </td>
+                <td class="center">${item.wins}</td>
+                <td class="center">${item.losses}</td>
+                <td class="center ${winPctClass}">${item.winPct.toFixed(1)}%</td>
+                <td class="center game-history-cell ${isExpanded ? 'expanded' : 'collapsed'}">
+                    <div class="recent-form">${gameHistoryHtml}</div>
+                </td>
+            `;
+        } else {
+            // Team or Position view - no game history, no clickable names
+            const viewLabel = currentView === 'team' ? 'Team' : 'Position';
+            row.innerHTML = `
+                <td class="center ${rankClass}">${item.rank}</td>
+                <td class="group-name">
+                    ${item.name}
+                    <span class="player-count" title="${item.playerCount} player${item.playerCount !== 1 ? 's' : ''}">(${item.playerCount})</span>
+                </td>
+                <td class="center">${item.wins}</td>
+                <td class="center">${item.losses}</td>
+                <td class="center ${winPctClass}">${item.winPct.toFixed(1)}%</td>
+            `;
+        }
 
         tbody.appendChild(row);
     });
@@ -352,6 +372,77 @@ export function setupFilterToggle() {
 }
 
 /**
+ * Get data for the current view type
+ * @param {string} viewType - 'player', 'team', or 'position'
+ * @returns {Array} Data for the specified view
+ */
+export function getDataForView(viewType) {
+    const leaderboardData = getLeaderboardData();
+    const playerInfoMap = getPlayerInfoMap();
+
+    switch(viewType) {
+        case 'team':
+            return aggregateByTeam(leaderboardData, playerInfoMap);
+        case 'position':
+            return aggregateByPosition(leaderboardData, playerInfoMap);
+        case 'player':
+        default:
+            return leaderboardData;
+    }
+}
+
+/**
+ * Switch to a different view type and update the display
+ * @param {string} viewType - 'player', 'team', or 'position'
+ */
+export function switchView(viewType) {
+    setCurrentView(viewType);
+
+    // Update button states
+    document.querySelectorAll('.view-toggle-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    document.getElementById(`view${viewType.charAt(0).toUpperCase() + viewType.slice(1)}Btn`).classList.add('active');
+
+    // Update table header visibility for game history column
+    const gameHistoryHeader = document.getElementById('gameHistoryHeader');
+    if (viewType === 'player') {
+        gameHistoryHeader.style.display = '';
+    } else {
+        gameHistoryHeader.style.display = 'none';
+    }
+
+    // Get data for the view
+    const viewData = getDataForView(viewType);
+
+    // Apply filters only for player view
+    const filteredData = viewType === 'player' ? applyFilters(viewData) : viewData;
+
+    // Apply current sort
+    const currentSort = getCurrentSort();
+    const currentDirection = getCurrentDirection();
+    const sortedData = sortData(filteredData, currentSort, currentDirection);
+
+    // Re-render
+    renderLeaderboard(sortedData);
+    renderStatsSummary(viewType === 'player' ? filteredData : viewData);
+}
+
+/**
+ * Setup view toggle controls
+ */
+export function setupViewToggle() {
+    const viewButtons = document.querySelectorAll('.view-toggle-btn');
+
+    viewButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const viewType = btn.dataset.view;
+            switchView(viewType);
+        });
+    });
+}
+
+/**
  * Setup filter controls
  */
 export function setupFilterControls() {
@@ -365,14 +456,18 @@ export function setupFilterControls() {
         updateActiveFilter('position', positionFilter.value);
         updateActiveFilter('funkEngChallengers', funkEngFilter.checked);
 
-        const leaderboardData = getLeaderboardData();
+        const currentView = getCurrentView();
+        const viewData = getDataForView(currentView);
         const currentSort = getCurrentSort();
         const currentDirection = getCurrentDirection();
-        const filteredData = applyFilters(leaderboardData);
+
+        // Only apply filters for player view
+        const filteredData = currentView === 'player' ? applyFilters(viewData) : viewData;
         const sortedData = sortData(filteredData, currentSort, currentDirection);
+
         renderLeaderboard(sortedData);
-        renderStatsSummary(sortedData);
-        renderStreakTracker(leaderboardData);
+        renderStatsSummary(currentView === 'player' ? filteredData : viewData);
+        renderStreakTracker(getLeaderboardData());
     };
 
     teamFilter.addEventListener('change', applyCurrentFilters);
@@ -387,12 +482,17 @@ export function setupFilterControls() {
         updateActiveFilter('position', '');
         updateActiveFilter('funkEngChallengers', false);
 
-        const leaderboardData = getLeaderboardData();
+        const currentView = getCurrentView();
+        const viewData = getDataForView(currentView);
         const currentSort = getCurrentSort();
         const currentDirection = getCurrentDirection();
-        const sortedData = sortData(leaderboardData, currentSort, currentDirection);
+
+        // Only apply filters for player view
+        const filteredData = currentView === 'player' ? viewData : viewData;
+        const sortedData = sortData(filteredData, currentSort, currentDirection);
+
         renderLeaderboard(sortedData);
-        renderStatsSummary(leaderboardData);
-        renderStreakTracker(leaderboardData);
+        renderStatsSummary(viewData);
+        renderStreakTracker(getLeaderboardData());
     });
 }
