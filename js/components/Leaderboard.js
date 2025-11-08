@@ -14,6 +14,7 @@ import {
     setIsExpanded
 } from '../state/app-state.js';
 import { showTooltip, hideTooltip } from './Modals.js';
+import { renderStreakTracker } from './StreakTracker.js';
 
 /**
  * Render statistics summary cards at top of dashboard
@@ -371,6 +372,7 @@ export function setupFilterControls() {
         const sortedData = sortData(filteredData, currentSort, currentDirection);
         renderLeaderboard(sortedData);
         renderStatsSummary(sortedData);
+        renderStreakTracker(leaderboardData);
     };
 
     teamFilter.addEventListener('change', applyCurrentFilters);
@@ -391,5 +393,6 @@ export function setupFilterControls() {
         const sortedData = sortData(leaderboardData, currentSort, currentDirection);
         renderLeaderboard(sortedData);
         renderStatsSummary(leaderboardData);
+        renderStreakTracker(leaderboardData);
     });
 }

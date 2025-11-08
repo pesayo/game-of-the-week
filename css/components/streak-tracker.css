@@ -1,0 +1,422 @@
+/* Streak Tracker Component Styles */
+
+.streak-tracker-section {
+    background-color: white;
+    padding: 25px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Main Grid Layout */
+.streak-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 30px;
+    align-items: start;
+}
+
+@media (min-width: 1200px) {
+    .streak-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+/* Section Styles */
+.streak-section {
+    background-color: var(--gray-50);
+    padding: 20px;
+    border-radius: 8px;
+    border: 1px solid var(--gray-200);
+    max-height: 800px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Scrollbar styling */
+.streak-section::-webkit-scrollbar {
+    width: 8px;
+}
+
+.streak-section::-webkit-scrollbar-track {
+    background: var(--gray-100);
+    border-radius: 4px;
+}
+
+.streak-section::-webkit-scrollbar-thumb {
+    background: var(--gray-400);
+    border-radius: 4px;
+}
+
+.streak-section::-webkit-scrollbar-thumb:hover {
+    background: var(--gray-500);
+}
+
+.streak-section-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text-primary);
+    padding-bottom: 10px;
+    border-bottom: 2px solid var(--accent);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    position: sticky;
+    top: 0;
+    background-color: var(--gray-50);
+    z-index: 1;
+    margin-left: -20px;
+    margin-right: -20px;
+    margin-top: -5px;
+    padding-left: 20px;
+    padding-right: 20px;
+}
+
+.streak-section-title i {
+    color: var(--accent);
+}
+
+.streak-section-content {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+/* Active Streaks Section */
+.active-streak-group {
+    margin-bottom: 20px;
+}
+
+.active-streak-group:last-child {
+    margin-bottom: 0;
+}
+
+.streak-group-label {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin: 0 0 12px 0;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.streak-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+/* Active Streak Cards */
+.streak-card {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    background-color: white;
+    border-radius: 6px;
+    border-left: 4px solid var(--gray-400);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.streak-card:hover {
+    transform: translateX(2px);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+}
+
+.streak-card.active-win {
+    background: linear-gradient(to right, rgba(76, 175, 80, 0.05), white);
+}
+
+.streak-card.active-loss {
+    background: linear-gradient(to right, rgba(244, 67, 54, 0.05), white);
+}
+
+.streak-rank {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 28px;
+    height: 28px;
+    background-color: var(--accent);
+    color: white;
+    border-radius: 50%;
+    font-weight: 700;
+    font-size: 14px;
+}
+
+.streak-rank.win-count {
+    background-color: var(--success);
+}
+
+.streak-rank.loss-count {
+    background-color: var(--error);
+}
+
+.streak-info {
+    flex: 1;
+}
+
+.streak-player {
+    font-weight: 600;
+    font-size: 15px;
+    color: var(--text-primary);
+    margin-bottom: 2px;
+}
+
+.streak-count {
+    display: flex;
+    align-items: baseline;
+    gap: 5px;
+}
+
+.streak-number {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.streak-label {
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+
+.streak-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.streak-icon i {
+    font-size: 16px;
+}
+
+/* Intensity levels for win streaks */
+.streak-icon.win {
+    color: #FF8C42;
+}
+
+.streak-icon.win.intensity-3 i {
+    font-size: 16px;
+    opacity: 0.7;
+    animation: pulse-gentle 3s ease-in-out infinite;
+}
+
+.streak-icon.win.intensity-4 i {
+    font-size: 18px;
+    opacity: 0.8;
+    animation: pulse-gentle 2.5s ease-in-out infinite;
+}
+
+.streak-icon.win.intensity-5 i {
+    font-size: 20px;
+    opacity: 0.9;
+    animation: pulse-medium 2s ease-in-out infinite;
+}
+
+.streak-icon.win.intensity-6plus i {
+    font-size: 22px;
+    opacity: 1;
+    animation: pulse-intense 1.5s ease-in-out infinite;
+    filter: drop-shadow(0 0 3px #FF8C42);
+}
+
+/* Intensity levels for loss streaks */
+.streak-icon.loss {
+    color: #29B6F6;
+}
+
+.streak-icon.loss.intensity-3 i {
+    font-size: 16px;
+    opacity: 0.7;
+    animation: pulse-gentle 3s ease-in-out infinite;
+}
+
+.streak-icon.loss.intensity-4 i {
+    font-size: 18px;
+    opacity: 0.8;
+    animation: pulse-gentle 2.5s ease-in-out infinite;
+}
+
+.streak-icon.loss.intensity-5 i {
+    font-size: 20px;
+    opacity: 0.9;
+    animation: pulse-medium 2s ease-in-out infinite;
+}
+
+.streak-icon.loss.intensity-6plus i {
+    font-size: 22px;
+    opacity: 1;
+    animation: pulse-intense 1.5s ease-in-out infinite;
+    filter: drop-shadow(0 0 3px #29B6F6);
+}
+
+/* Historical Streak List - Grouped by Count */
+.streak-list-grouped {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.streak-count-group {
+    background-color: white;
+    border-radius: 8px;
+    padding: 12px;
+    border: 1px solid var(--gray-200);
+    display: flex;
+    align-items: start;
+    gap: 12px;
+}
+
+.streak-count-header {
+    flex-shrink: 0;
+}
+
+.streak-count-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    min-width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    font-weight: 700;
+    color: white;
+}
+
+.streak-count-badge.win-badge {
+    background-color: var(--success);
+}
+
+.streak-count-badge.loss-badge {
+    background-color: var(--error);
+}
+
+.streak-count-badge .rank-number {
+    font-size: 12px;
+    color: white;
+}
+
+.streak-count-badge i {
+    font-size: 16px;
+}
+
+.streak-count-badge .count-number {
+    font-size: 14px;
+    color: white;
+}
+
+.streak-count-badge .count-label {
+    font-size: 14px;
+    color: white;
+    font-weight: 600;
+}
+
+.streak-players-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex: 1;
+}
+
+.streak-player-card {
+    padding: 6px 8px;
+    background-color: var(--gray-50);
+    border-radius: 3px;
+    border-left: 3px solid var(--gray-400);
+    transition: transform 0.2s, box-shadow 0.2s;
+    max-width: 180px;
+}
+
+.streak-player-card:hover {
+    transform: translateX(2px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.streak-player-card.win-card {
+    background: linear-gradient(to right, rgba(76, 175, 80, 0.05), var(--gray-50));
+}
+
+.streak-player-card.loss-card {
+    background: linear-gradient(to right, rgba(244, 67, 54, 0.05), var(--gray-50));
+}
+
+.streak-player-name {
+    font-weight: 600;
+    font-size: 12px;
+    color: var(--text-primary);
+    line-height: 1.3;
+}
+
+.streak-player-games {
+    font-size: 9px;
+    color: var(--text-muted);
+    font-family: monospace;
+    margin-top: 1px;
+}
+
+/* Empty State */
+.no-data {
+    text-align: center;
+    color: var(--text-muted);
+    padding: 20px;
+    font-style: italic;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .streak-section-title {
+        font-size: 16px;
+    }
+
+    .streak-card {
+        padding: 10px;
+    }
+
+    .streak-number {
+        font-size: 18px;
+    }
+
+    .streak-icon {
+        font-size: 12px;
+    }
+}
+
+/* Animation keyframes for streak intensity */
+@keyframes pulse-gentle {
+    0%, 100% {
+        opacity: 0.7;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 0.85;
+        transform: scale(1.05);
+    }
+}
+
+@keyframes pulse-medium {
+    0%, 100% {
+        opacity: 0.8;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 1;
+        transform: scale(1.1);
+    }
+}
+
+@keyframes pulse-intense {
+    0%, 100% {
+        opacity: 0.9;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 1;
+        transform: scale(1.15);
+    }
+}

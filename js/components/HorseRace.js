@@ -323,36 +323,12 @@ export function renderRaceLegend(data) {
                 renderHorseRace(horseRaceData);
             })
             .on('mouseover', function() {
-                // Only show hover effects if player is visible
-                if (player.visible === false) return;
-
-                // Highlight corresponding line
-                d3.selectAll('.horse-race-line')
-                    .classed('highlighted', false)
-                    .classed('dimmed', true);
-                d3.select(`.horse-race-line[data-player="${safeName}"]`)
-                    .classed('highlighted', true)
-                    .classed('dimmed', false);
-
-                d3.selectAll('.horse-race-dot')
-                    .classed('highlighted', false)
-                    .classed('dimmed', true);
-                d3.selectAll(`.horse-race-dot[data-player="${safeName}"]`)
-                    .classed('highlighted', true)
-                    .classed('dimmed', false);
-
-                // Dim other cards
-                d3.selectAll('.race-legend-item').style('opacity', 0.4);
-                d3.select(this).style('opacity', 1);
+                // Highlight entire player line (temporarily show if hidden)
+                highlightPlayerOnChart(player.name);
             })
             .on('mouseout', function() {
-                d3.selectAll('.horse-race-line')
-                    .classed('highlighted', false)
-                    .classed('dimmed', false);
-                d3.selectAll('.horse-race-dot')
-                    .classed('highlighted', false)
-                    .classed('dimmed', false);
-                d3.selectAll('.race-legend-item').style('opacity', null);
+                // Restore original state
+                unhighlightChart();
             });
 
         // Card header
@@ -415,4 +391,115 @@ export function setupRaceControls() {
         horseRaceData.forEach(p => p.visible = false);
         renderHorseRace(horseRaceData);
     });
+}
+
+/**
+ * Highlight a player's line and dots on the horse race chart
+ * @param {string} playerName - The name of the player to highlight
+ * @param {number} startGame - Optional: Start game number of streak to highlight
+ * @param {number} endGame - Optional: End game number of streak to highlight
+ */
+export function highlightPlayerOnChart(playerName, startGame = null, endGame = null) {
+    const safeName = sanitizeName(playerName);
+
+    // Store original opacity for all elements before modifying
+    d3.selectAll('.horse-race-line').each(function() {
+        const line = d3.select(this);
+        if (!line.attr('data-original-opacity')) {
+            line.attr('data-original-opacity', line.style('opacity') || 'null');
+        }
+    });
+    d3.selectAll('.horse-race-dot').each(function() {
+        const dot = d3.select(this);
+        if (!dot.attr('data-original-opacity')) {
+            dot.attr('data-original-opacity', dot.style('opacity') || 'null');
+        }
+    });
+
+    // Dim all lines and dots
+    d3.selectAll('.horse-race-line')
+        .classed('dimmed', true)
+        .classed('highlighted', false);
+    d3.selectAll('.horse-race-dot')
+        .classed('dimmed', true)
+        .classed('highlighted', false);
+
+    // If game range is specified, only highlight dots within that range
+    if (startGame !== null && endGame !== null) {
+        // Temporarily make the player's dots visible (even if hidden)
+        d3.selectAll(`.horse-race-dot[data-player="${safeName}"]`)
+            .each(function() {
+                const dot = d3.select(this);
+                const gameNum = parseInt(dot.attr('data-game'));
+
+                if (gameNum >= startGame && gameNum <= endGame) {
+                    dot.classed('highlighted', true)
+                       .classed('dimmed', false)
+                       .style('opacity', 1); // Force visible
+                } else {
+                    // Dots outside range should still be somewhat visible for context
+                    dot.style('opacity', 0.15);
+                }
+            });
+
+        // Temporarily make the player's line visible (even if hidden) but dimmed for context
+        d3.select(`.horse-race-line[data-player="${safeName}"]`)
+            .classed('dimmed', false)
+            .style('opacity', 0.3);
+    } else {
+        // Highlight entire line and all dots if no range specified
+        const playerLine = d3.select(`.horse-race-line[data-player="${safeName}"]`);
+        playerLine.classed('highlighted', true)
+            .classed('dimmed', false);
+
+        // Force line visible if it was hidden
+        if (playerLine.attr('data-original-opacity') === '0.1') {
+            playerLine.style('opacity', 1);
+        }
+
+        d3.selectAll(`.horse-race-dot[data-player="${safeName}"]`)
+            .classed('highlighted', true)
+            .classed('dimmed', false)
+            .style('opacity', 1); // Force visible
+    }
+
+    // Dim legend items except the highlighted one
+    d3.selectAll('.race-legend-item').style('opacity', 0.4);
+    d3.select(`.race-legend-item[data-player="${safeName}"]`).style('opacity', 1);
+}
+
+/**
+ * Remove all highlighting from the horse race chart
+ */
+export function unhighlightChart() {
+    // Restore original opacity for lines
+    d3.selectAll('.horse-race-line').each(function() {
+        const line = d3.select(this);
+        const originalOpacity = line.attr('data-original-opacity');
+        if (originalOpacity) {
+            line.style('opacity', originalOpacity === 'null' ? null : originalOpacity);
+            line.attr('data-original-opacity', null); // Clear stored value
+        }
+    });
+
+    // Restore original opacity for dots
+    d3.selectAll('.horse-race-dot').each(function() {
+        const dot = d3.select(this);
+        const originalOpacity = dot.attr('data-original-opacity');
+        if (originalOpacity) {
+            dot.style('opacity', originalOpacity === 'null' ? null : originalOpacity);
+            dot.attr('data-original-opacity', null); // Clear stored value
+        }
+    });
+
+    // Remove classes
+    d3.selectAll('.horse-race-line')
+        .classed('highlighted', false)
+        .classed('dimmed', false);
+    d3.selectAll('.horse-race-dot')
+        .classed('highlighted', false)
+        .classed('dimmed', false);
+
+    // Restore legend
+    d3.selectAll('.race-legend-item').style('opacity', null);
 }
