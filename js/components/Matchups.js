@@ -90,33 +90,74 @@ export function showMatchupTooltip(event, game) {
     const team1Lineup = teamLineups[game.team1] || [];
     const team2Lineup = teamLineups[game.team2] || [];
 
+    // Determine team order and divider text based on whether game has been decided
+    let firstTeam, secondTeam, firstTeamLineup, secondTeamLineup;
+    let dividerText = 'VS';
+    let titleText = `Team ${game.team1} vs Team ${game.team2}`;
+
+    if (game.winner) {
+        // Game decided: winner first, loser second
+        if (game.winner === game.team1) {
+            firstTeam = game.team1;
+            secondTeam = game.team2;
+            firstTeamLineup = team1Lineup;
+            secondTeamLineup = team2Lineup;
+        } else {
+            firstTeam = game.team2;
+            secondTeam = game.team1;
+            firstTeamLineup = team2Lineup;
+            secondTeamLineup = team1Lineup;
+        }
+        dividerText = 'DEFEATED';
+        titleText = `Team ${firstTeam} defeated Team ${secondTeam}`;
+    } else {
+        // Game not decided: keep original order
+        firstTeam = game.team1;
+        secondTeam = game.team2;
+        firstTeamLineup = team1Lineup;
+        secondTeamLineup = team2Lineup;
+    }
+
     let tooltipContent = `
         <div class="matchup-tooltip-header">
-            <div class="matchup-tooltip-title">Team ${game.team1} vs Team ${game.team2}</div>
+            <div class="matchup-tooltip-title">${titleText}</div>
             <div class="matchup-tooltip-info">Week ${game.week} | ${game.date} | ${game.time} | Sheet ${game.sheet}</div>
         </div>
         <div class="matchup-tooltip-body">
     `;
 
-    // Team 1
+    // First Team (winner if game decided)
+    if (game.winner && game.winner === firstTeam) {
+        // Winner: members above team name
+        tooltipContent += `
+            <div class="tooltip-team-section winner-section">
+                <div class="tooltip-members-row" id="firstTeamMembers"></div>
+                <div class="tooltip-team-name winner">
+                    Team ${firstTeam} <i class="fas fa-trophy"></i>
+                </div>
+            </div>
+        `;
+    } else {
+        // Non-winner: team name above members
+        tooltipContent += `
+            <div class="tooltip-team-section">
+                <div class="tooltip-team-name">
+                    Team ${firstTeam}
+                </div>
+                <div class="tooltip-members-row" id="firstTeamMembers"></div>
+            </div>
+        `;
+    }
+
+    tooltipContent += `<div class="tooltip-vs-divider">${dividerText}</div>`;
+
+    // Second Team
     tooltipContent += `
         <div class="tooltip-team-section">
-            <div class="tooltip-team-name ${game.winner === game.team1 ? 'winner' : ''}">
-                Team ${game.team1}${game.winner === game.team1 ? ' <i class="fas fa-trophy"></i>' : ''}
+            <div class="tooltip-team-name ${game.winner && game.winner === secondTeam ? 'winner' : ''}">
+                Team ${secondTeam}${game.winner && game.winner === secondTeam ? ' <i class="fas fa-trophy"></i>' : ''}
             </div>
-            <div class="tooltip-members-row" id="team1Members"></div>
-        </div>
-    `;
-
-    tooltipContent += '<div class="tooltip-vs-divider">VS</div>';
-
-    // Team 2
-    tooltipContent += `
-        <div class="tooltip-team-section">
-            <div class="tooltip-team-name ${game.winner === game.team2 ? 'winner' : ''}">
-                Team ${game.team2}${game.winner === game.team2 ? ' <i class="fas fa-trophy"></i>' : ''}
-            </div>
-            <div class="tooltip-members-row" id="team2Members"></div>
+            <div class="tooltip-members-row" id="secondTeamMembers"></div>
         </div>
     `;
 
@@ -124,23 +165,23 @@ export function showMatchupTooltip(event, game) {
     tooltip.innerHTML = tooltipContent;
 
     // Add members after HTML is in DOM
-    const team1Container = tooltip.querySelector('#team1Members');
-    const team2Container = tooltip.querySelector('#team2Members');
+    const firstTeamContainer = tooltip.querySelector('#firstTeamMembers');
+    const secondTeamContainer = tooltip.querySelector('#secondTeamMembers');
 
-    if (team1Lineup.length > 0) {
-        team1Lineup.forEach(member => {
-            team1Container.appendChild(createTooltipMemberElement(member));
+    if (firstTeamLineup.length > 0) {
+        firstTeamLineup.forEach(member => {
+            firstTeamContainer.appendChild(createTooltipMemberElement(member));
         });
     } else {
-        team1Container.innerHTML = '<div style="color: var(--text-muted); font-size: 12px;">No lineup data available</div>';
+        firstTeamContainer.innerHTML = '<div style="color: var(--text-muted); font-size: 12px;">No lineup data available</div>';
     }
 
-    if (team2Lineup.length > 0) {
-        team2Lineup.forEach(member => {
-            team2Container.appendChild(createTooltipMemberElement(member));
+    if (secondTeamLineup.length > 0) {
+        secondTeamLineup.forEach(member => {
+            secondTeamContainer.appendChild(createTooltipMemberElement(member));
         });
     } else {
-        team2Container.innerHTML = '<div style="color: var(--text-muted); font-size: 12px;">No lineup data available</div>';
+        secondTeamContainer.innerHTML = '<div style="color: var(--text-muted); font-size: 12px;">No lineup data available</div>';
     }
 
     // Position tooltip near cursor
