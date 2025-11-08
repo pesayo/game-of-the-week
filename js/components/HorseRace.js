@@ -337,7 +337,7 @@ export function renderRaceLegend(data) {
 
         header.append('div')
             .attr('class', 'race-legend-color')
-            .style('background-color', playerColors[player.name]);
+            .style('color', playerColors[player.name]);
 
         const info = header.append('div')
             .attr('class', 'race-card-info');
