@@ -99,27 +99,31 @@
                     <!-- Filter Controls -->
                     <div class="filter-section">
                         <button class="filter-toggle-btn" id="filterToggleBtn">
-                            <span>Filters</span>
+                            <span><i class="fas fa-filter"></i> Filter Players</span>
                             <i class="fas fa-chevron-down"></i>
                         </button>
                         <div class="filter-controls collapsed" id="filterControls">
                             <div class="filter-group">
-                                <label for="teamFilter">Team:</label>
+                                <label for="teamFilter">Team Membership</label>
                                 <select id="teamFilter">
                                     <option value="">All Teams</option>
                                 </select>
                             </div>
                             <div class="filter-group">
-                                <label for="positionFilter">Position:</label>
+                                <label for="positionFilter">Position</label>
                                 <select id="positionFilter">
                                     <option value="">All Positions</option>
                                 </select>
                             </div>
                             <div class="filter-group checkbox-group">
                                 <input type="checkbox" id="funkEngFilter">
-                                <label for="funkEngFilter">Funk-Eng Challengers Only (Lead/Second)</label>
+                                <label for="funkEngFilter">Funk-Eng Challengers Only</label>
                             </div>
-                            <button class="filter-btn" id="resetFilters">Reset Filters</button>
+                            <div class="filter-actions">
+                                <button class="filter-btn reset-btn" id="resetFilters">
+                                    <i class="fas fa-redo"></i> Reset
+                                </button>
+                            </div>
                         </div>
                     </div>
 
