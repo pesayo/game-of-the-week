@@ -317,9 +317,19 @@ export function aggregateByTeam(playerData, playerInfoMap) {
         return b.winPct - a.winPct;
     });
 
-    // Add rank
+    // Add rank with tie handling
     teams.forEach((team, index) => {
-        team.rank = index + 1;
+        if (index > 0) {
+            const prevTeam = teams[index - 1];
+            // Check if tied with previous team (same wins and win percentage)
+            if (team.wins === prevTeam.wins && team.winPct === prevTeam.winPct) {
+                team.rank = prevTeam.rank;
+            } else {
+                team.rank = index + 1;
+            }
+        } else {
+            team.rank = 1;
+        }
     });
 
     return teams;
@@ -380,9 +390,19 @@ export function aggregateByPosition(playerData, playerInfoMap) {
         return b.winPct - a.winPct;
     });
 
-    // Add rank
+    // Add rank with tie handling
     positions.forEach((position, index) => {
-        position.rank = index + 1;
+        if (index > 0) {
+            const prevPosition = positions[index - 1];
+            // Check if tied with previous position (same wins and win percentage)
+            if (position.wins === prevPosition.wins && position.winPct === prevPosition.winPct) {
+                position.rank = prevPosition.rank;
+            } else {
+                position.rank = index + 1;
+            }
+        } else {
+            position.rank = 1;
+        }
     });
 
     return positions;

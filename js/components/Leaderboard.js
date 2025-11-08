@@ -404,12 +404,31 @@ export function switchView(viewType) {
     });
     document.getElementById(`view${viewType.charAt(0).toUpperCase() + viewType.slice(1)}Btn`).classList.add('active');
 
-    // Update table header visibility for game history column
+    // Update table headers based on view type
+    const nameHeader = document.getElementById('nameHeader');
+    const winsHeader = document.getElementById('winsHeader');
+    const lossesHeader = document.getElementById('lossesHeader');
     const gameHistoryHeader = document.getElementById('gameHistoryHeader');
+    const filterSection = document.querySelector('.filter-section');
+
     if (viewType === 'player') {
+        nameHeader.textContent = 'Player';
+        winsHeader.textContent = 'Wins';
+        lossesHeader.textContent = 'Losses';
         gameHistoryHeader.style.display = '';
-    } else {
+        filterSection.style.display = '';
+    } else if (viewType === 'team') {
+        nameHeader.textContent = 'Team';
+        winsHeader.textContent = 'Avg Wins';
+        lossesHeader.textContent = 'Avg Losses';
         gameHistoryHeader.style.display = 'none';
+        filterSection.style.display = 'none';
+    } else if (viewType === 'position') {
+        nameHeader.textContent = 'Position';
+        winsHeader.textContent = 'Avg Wins';
+        lossesHeader.textContent = 'Avg Losses';
+        gameHistoryHeader.style.display = 'none';
+        filterSection.style.display = 'none';
     }
 
     // Get data for the view
@@ -425,7 +444,8 @@ export function switchView(viewType) {
 
     // Re-render
     renderLeaderboard(sortedData);
-    renderStatsSummary(viewType === 'player' ? filteredData : viewData);
+    // Always show stats for all players, regardless of view
+    renderStatsSummary(getLeaderboardData());
 }
 
 /**
@@ -466,7 +486,8 @@ export function setupFilterControls() {
         const sortedData = sortData(filteredData, currentSort, currentDirection);
 
         renderLeaderboard(sortedData);
-        renderStatsSummary(currentView === 'player' ? filteredData : viewData);
+        // Always show stats for all players, regardless of view or filters
+        renderStatsSummary(getLeaderboardData());
         renderStreakTracker(getLeaderboardData());
     };
 
@@ -492,7 +513,8 @@ export function setupFilterControls() {
         const sortedData = sortData(filteredData, currentSort, currentDirection);
 
         renderLeaderboard(sortedData);
-        renderStatsSummary(viewData);
+        // Always show stats for all players, regardless of view or filters
+        renderStatsSummary(getLeaderboardData());
         renderStreakTracker(getLeaderboardData());
     });
 }
