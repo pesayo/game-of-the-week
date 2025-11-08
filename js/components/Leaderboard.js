@@ -537,9 +537,63 @@ export function setupFilterControls() {
     const funkEngFilter = document.getElementById('funkEngFilter');
     const resetFilters = document.getElementById('resetFilters');
 
-    const applyCurrentFilters = () => {
+    // Team filter - reset other filters when changed
+    teamFilter.addEventListener('change', () => {
+        // Reset other filters
+        positionFilter.value = '';
+        funkEngFilter.checked = false;
+
+        // Apply only team filter
         updateActiveFilter('team', teamFilter.value);
+        updateActiveFilter('position', '');
+        updateActiveFilter('funkEngChallengers', false);
+
+        const currentView = getCurrentView();
+        const viewData = getDataForView(currentView);
+        const currentSort = getCurrentSort();
+        const currentDirection = getCurrentDirection();
+
+        const filteredData = currentView === 'player' ? applyFilters(viewData) : viewData;
+        const sortedData = sortData(filteredData, currentSort, currentDirection);
+
+        renderLeaderboard(sortedData);
+        renderStatsSummary(getLeaderboardData());
+        renderStreakTracker(getLeaderboardData());
+    });
+
+    // Position filter - reset other filters when changed
+    positionFilter.addEventListener('change', () => {
+        // Reset other filters
+        teamFilter.value = '';
+        funkEngFilter.checked = false;
+
+        // Apply only position filter
+        updateActiveFilter('team', '');
         updateActiveFilter('position', positionFilter.value);
+        updateActiveFilter('funkEngChallengers', false);
+
+        const currentView = getCurrentView();
+        const viewData = getDataForView(currentView);
+        const currentSort = getCurrentSort();
+        const currentDirection = getCurrentDirection();
+
+        const filteredData = currentView === 'player' ? applyFilters(viewData) : viewData;
+        const sortedData = sortData(filteredData, currentSort, currentDirection);
+
+        renderLeaderboard(sortedData);
+        renderStatsSummary(getLeaderboardData());
+        renderStreakTracker(getLeaderboardData());
+    });
+
+    // Funk-Eng filter - reset other filters when changed
+    funkEngFilter.addEventListener('change', () => {
+        // Reset other filters
+        teamFilter.value = '';
+        positionFilter.value = '';
+
+        // Apply only funk-eng filter
+        updateActiveFilter('team', '');
+        updateActiveFilter('position', '');
         updateActiveFilter('funkEngChallengers', funkEngFilter.checked);
 
         const currentView = getCurrentView();
@@ -547,19 +601,13 @@ export function setupFilterControls() {
         const currentSort = getCurrentSort();
         const currentDirection = getCurrentDirection();
 
-        // Only apply filters for player view
         const filteredData = currentView === 'player' ? applyFilters(viewData) : viewData;
         const sortedData = sortData(filteredData, currentSort, currentDirection);
 
         renderLeaderboard(sortedData);
-        // Always show stats for all players, regardless of view or filters
         renderStatsSummary(getLeaderboardData());
         renderStreakTracker(getLeaderboardData());
-    };
-
-    teamFilter.addEventListener('change', applyCurrentFilters);
-    positionFilter.addEventListener('change', applyCurrentFilters);
-    funkEngFilter.addEventListener('change', applyCurrentFilters);
+    });
 
     resetFilters.addEventListener('click', () => {
         teamFilter.value = '';
