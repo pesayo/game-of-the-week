@@ -864,7 +864,7 @@ function displayGeneratedEmail(htmlContent) {
     // 1. Recent week's matchups (results)
     // 2. Upcoming matchups (with dashboard link)
     // 3. Narrative heading with horizontal rule (using extracted subject)
-    // 4. AI-generated content (narrative)
+    // 4. AI-generated content (narrative) - wrapped in editable div
     // 5. Standings tables
     const recentMatchups = formatRecentMatchups();
     const upcomingMatchups = formatUpcomingMatchups();
@@ -872,15 +872,47 @@ function displayGeneratedEmail(htmlContent) {
         <hr style="border: none; border-top: 2px solid #e0e0e0; margin: 2rem 0;">
         <h2 style="color: #2c3e50; margin-bottom: 1rem;">${subjectLine}</h2>
     `;
+
+    // Wrap narrative in an editable div with clear styling
+    const editableNarrative = `
+        <div class="editable-narrative" contenteditable="true" style="outline: none; padding: 1rem; border-radius: 4px; transition: background-color 0.2s;">
+            ${contentWithoutSubject}
+        </div>
+        <div style="text-align: right; margin-top: 0.5rem; font-size: 12px; color: #666; font-style: italic;">
+            <i class="fas fa-edit"></i> Click above to edit the narrative
+        </div>
+    `;
+
     const standingsTable = formatStandingsTable();
 
-    const fullContent = recentMatchups + upcomingMatchups + narrativeHeading + contentWithoutSubject + standingsTable;
+    const fullContent = recentMatchups + upcomingMatchups + narrativeHeading + editableNarrative + standingsTable;
 
     // Store the HTML for copying
     emailPreview.dataset.htmlContent = fullContent;
 
     // Display the formatted email
     emailPreview.innerHTML = fullContent;
+
+    // Add hover effect to editable narrative
+    setTimeout(() => {
+        const editableDiv = emailPreview.querySelector('.editable-narrative');
+        if (editableDiv) {
+            editableDiv.addEventListener('mouseenter', () => {
+                editableDiv.style.backgroundColor = '#f8f9fa';
+            });
+            editableDiv.addEventListener('mouseleave', () => {
+                editableDiv.style.backgroundColor = 'transparent';
+            });
+            editableDiv.addEventListener('focus', () => {
+                editableDiv.style.backgroundColor = '#fff3cd';
+                editableDiv.style.border = '2px dashed #ffc107';
+            });
+            editableDiv.addEventListener('blur', () => {
+                editableDiv.style.backgroundColor = 'transparent';
+                editableDiv.style.border = 'none';
+            });
+        }
+    }, 0);
 
     // Show the preview section
     previewSection.style.display = 'block';
@@ -892,17 +924,33 @@ function displayGeneratedEmail(htmlContent) {
 // Copy email HTML to clipboard as rich text (for pasting into Gmail)
 async function copyEmailToClipboard() {
     const emailPreview = document.getElementById('emailPreview');
-    const htmlContent = emailPreview.dataset.htmlContent;
 
-    if (!htmlContent) {
+    if (!emailPreview.innerHTML) {
         showStatus('No email to copy', 'error');
         return;
     }
 
+    // Clone the preview and remove the edit hint
+    const clone = emailPreview.cloneNode(true);
+    const editHint = clone.querySelector('.editable-narrative + div');
+    if (editHint) {
+        editHint.remove();
+    }
+
+    // Get the edited content (captures any inline edits made by user)
+    const editableDiv = clone.querySelector('.editable-narrative');
+    if (editableDiv) {
+        // Replace the editable div with its content (removes contenteditable attribute)
+        const narrativeContent = editableDiv.innerHTML;
+        editableDiv.outerHTML = narrativeContent;
+    }
+
+    const htmlContent = clone.innerHTML;
+
     try {
         // Create a blob with HTML content
         const blob = new Blob([htmlContent], { type: 'text/html' });
-        const plainTextBlob = new Blob([emailPreview.innerText], { type: 'text/plain' });
+        const plainTextBlob = new Blob([clone.innerText], { type: 'text/plain' });
 
         // Use the modern Clipboard API with multiple formats
         const clipboardItem = new ClipboardItem({
@@ -911,7 +959,7 @@ async function copyEmailToClipboard() {
         });
 
         await navigator.clipboard.write([clipboardItem]);
-        showStatus('Email copied! You can now paste it directly into Gmail.', 'success');
+        showStatus('Email copied with your edits! You can now paste it directly into Gmail.', 'success');
 
         // Visual feedback
         const copyButton = document.getElementById('copyEmail');
