@@ -38,7 +38,22 @@ export function renderStatsSummary(data) {
 
     const totalPlayers = data.length;
 
+    // Find current leader(s) - all players with rank 1
+    const leaders = data.filter(p => p.rank === 1);
+    const leaderText = leaders.length === 0
+        ? '—'
+        : leaders.length === 1
+            ? leaders[0].name
+            : `${leaders.length}-way tie`;
+    const leaderTitle = leaders.length > 1
+        ? `Current leaders: ${leaders.map(p => p.name).join(', ')}`
+        : '';
+
     const html = `
+        <div class="stat-card leader-card" ${leaderTitle ? `title="${leaderTitle}"` : ''}>
+            <div class="stat-label">Current Leader</div>
+            <div class="stat-value">${leaderText}</div>
+        </div>
         <div class="stat-card">
             <div class="stat-label">Total Players</div>
             <div class="stat-value">${totalPlayers}</div>
