@@ -204,7 +204,6 @@ function renderStreakList(streaks, type) {
                         <div class="streak-count-header">
                             <div class="streak-count-badge ${isWin ? 'win-badge' : 'loss-badge'}">
                                 <span class="count-number">${count}</span>
-                                <span class="count-label">${isWin ? 'W' : 'L'}</span>
                             </div>
                         </div>
                         <div class="streak-players-grid">
