@@ -111,14 +111,26 @@ function renderActiveStreaks(streaks) {
         html += '<h4 class="streak-group-label"><i class="fas fa-fire-flame-curved" style="color: var(--success);"></i> Hot</h4>';
         html += '<div class="streak-list">';
         winStreaks.forEach((streak) => {
+            // Determine intensity class based on streak count
+            let intensityClass = 'intensity-3';
+            let iconClass = 'fa-fire';
+            if (streak.count === 4) {
+                intensityClass = 'intensity-4';
+            } else if (streak.count === 5) {
+                intensityClass = 'intensity-5';
+            } else if (streak.count > 5) {
+                intensityClass = 'intensity-6plus';
+                iconClass = 'fa-fire-flame-curved';
+            }
+
             html += `
                 <div class="streak-card active-win" style="border-left-color: ${streak.color}">
                     <div class="streak-rank win-count">${streak.count}</div>
                     <div class="streak-info">
                         <div class="streak-player">${streak.name}</div>
                     </div>
-                    <div class="streak-icon win">
-                        ${'<i class="fas fa-bolt"></i>'.repeat(Math.min(streak.count, 5))}
+                    <div class="streak-icon win ${intensityClass}">
+                        <i class="fas ${iconClass}"></i>
                     </div>
                 </div>
             `;
@@ -131,14 +143,26 @@ function renderActiveStreaks(streaks) {
         html += '<h4 class="streak-group-label"><i class="fas fa-snowflake" style="color: var(--error);"></i> Cold</h4>';
         html += '<div class="streak-list">';
         lossStreaks.forEach((streak) => {
+            // Determine intensity class based on streak count
+            let intensityClass = 'intensity-3';
+            let iconClass = 'fa-snowflake';
+            if (streak.count === 4) {
+                intensityClass = 'intensity-4';
+            } else if (streak.count === 5) {
+                intensityClass = 'intensity-5';
+            } else if (streak.count > 5) {
+                intensityClass = 'intensity-6plus';
+                iconClass = 'fa-icicles';
+            }
+
             html += `
                 <div class="streak-card active-loss" style="border-left-color: ${streak.color}">
                     <div class="streak-rank loss-count">${streak.count}</div>
                     <div class="streak-info">
                         <div class="streak-player">${streak.name}</div>
                     </div>
-                    <div class="streak-icon loss">
-                        ${'<i class="fas fa-icicles"></i>'.repeat(Math.min(streak.count, 5))}
+                    <div class="streak-icon loss ${intensityClass}">
+                        <i class="fas ${iconClass}"></i>
                     </div>
                 </div>
             `;
