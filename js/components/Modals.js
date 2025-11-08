@@ -87,16 +87,17 @@ export function showTooltip(event, playerName, gameData) {
     let tooltipContent = `
         <div class="matchup-tooltip-header" style="background: ${headerGradient};">
             <div class="matchup-tooltip-title">
-                <strong>${playerName}</strong>: ${gameData.result === 'W' ? 'Win ✓' : 'Loss ✗'}
+                <strong>${playerName}</strong>
             </div>
             <div class="matchup-tooltip-info">
                 Week ${game.week} | ${game.date} | ${game.time} | Sheet ${game.sheet}
             </div>`;
 
     if (gameData.pick) {
+        const resultText = gameData.result === 'W' ? '✓ correct' : '✗ wrong';
         tooltipContent += `
             <div class="matchup-tooltip-info">
-                Picked: ${gameData.pick}
+                Picked: ${gameData.pick} - ${resultText}
             </div>`;
     }
 
