@@ -215,6 +215,12 @@ th.sortable.sorted-desc::after {
     font-weight: 600;
     color: var(--text-primary);
     font-size: 15px;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.group-name:hover {
+    color: var(--accent);
 }
 
 .group-name .player-count {

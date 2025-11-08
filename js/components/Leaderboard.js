@@ -125,9 +125,13 @@ export function renderLeaderboard(data) {
         } else {
             // Team or Position view - no game history, no clickable names
             const viewLabel = currentView === 'team' ? 'Team' : 'Position';
+            // Serialize players data for tooltip
+            const playersJson = JSON.stringify(item.players).replace(/"/g, '&quot;');
             row.innerHTML = `
                 <td class="center ${rankClass}">${item.rank}</td>
-                <td class="group-name">
+                <td class="group-name"
+                    onmouseenter="showGroupTooltip(event, ${playersJson})"
+                    onmouseleave="hideTooltip()">
                     ${item.name}
                     <span class="player-count" title="${item.playerCount} player${item.playerCount !== 1 ? 's' : ''}">(${item.playerCount})</span>
                 </td>
@@ -155,6 +159,53 @@ export function renderGameCell(gameData, player) {
         data-game="${gameData.game}"
         onmouseenter="showTooltip(event, '${player.name.replace(/'/g, "\\'")}', ${JSON.stringify(gameData).replace(/"/g, '&quot;')})"
         onmouseleave="hideTooltip()">${gameData.result}</span>`;
+}
+
+/**
+ * Show tooltip for group (team/position) with player details
+ * @param {Event} event - Mouse event
+ * @param {Array} players - Array of player objects
+ */
+export function showGroupTooltip(event, players) {
+    const tooltip = document.getElementById('tooltip');
+
+    // Sort players by rank/wins
+    const sortedPlayers = [...players].sort((a, b) => {
+        if (b.wins !== a.wins) return b.wins - a.wins;
+        return b.winPct - a.winPct;
+    });
+
+    // Build tooltip content
+    let tooltipContent = `
+        <div style="padding: 12px; min-width: 200px;">
+            <div style="font-weight: 600; margin-bottom: 8px; padding-bottom: 6px; border-bottom: 1px solid var(--gray-300); color: var(--text-primary);">
+                Players in Group
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 6px;">
+    `;
+
+    sortedPlayers.forEach(player => {
+        const winPctClass = player.winPct >= 60 ? 'high' : player.winPct >= 50 ? 'medium' : 'low';
+        tooltipContent += `
+            <div style="display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 4px 0;">
+                <span style="font-weight: 500; color: var(--text-primary);">${player.name}</span>
+                <span style="font-size: 13px; color: var(--text-secondary);">
+                    ${player.wins}W - ${player.losses}L
+                    <span class="win-percentage ${winPctClass}" style="margin-left: 6px;">(${player.winPct.toFixed(1)}%)</span>
+                </span>
+            </div>
+        `;
+    });
+
+    tooltipContent += `
+            </div>
+        </div>
+    `;
+
+    tooltip.innerHTML = tooltipContent;
+    tooltip.style.display = 'block';
+    tooltip.style.left = (event.pageX + 15) + 'px';
+    tooltip.style.top = (event.pageY - 10) + 'px';
 }
 
 /**
@@ -532,4 +583,9 @@ export function setupFilterControls() {
         renderStatsSummary(getLeaderboardData());
         renderStreakTracker(getLeaderboardData());
     });
+}
+
+// Make showGroupTooltip available globally for inline event handlers
+if (typeof window !== 'undefined') {
+    window.showGroupTooltip = showGroupTooltip;
 }

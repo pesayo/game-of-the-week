@@ -287,7 +287,7 @@ export function aggregateByTeam(playerData, playerInfoMap) {
             };
         }
 
-        teamStats[team].players.push(player.name);
+        teamStats[team].players.push(player); // Store full player object for hover cards
         teamStats[team].totalWins += player.wins;
         teamStats[team].totalLosses += player.losses;
         teamStats[team].totalGames += player.games;
@@ -304,6 +304,7 @@ export function aggregateByTeam(playerData, playerInfoMap) {
         return {
             name: team.name,
             playerCount: playerCount,
+            players: team.players, // Include full player objects for hover cards
             wins: parseFloat(avgWins.toFixed(1)),
             losses: parseFloat(avgLosses.toFixed(1)),
             games: avgGames,
@@ -360,7 +361,7 @@ export function aggregateByPosition(playerData, playerInfoMap) {
             };
         }
 
-        positionStats[position].players.push(player.name);
+        positionStats[position].players.push(player); // Store full player object for hover cards
         positionStats[position].totalWins += player.wins;
         positionStats[position].totalLosses += player.losses;
         positionStats[position].totalGames += player.games;
@@ -377,6 +378,7 @@ export function aggregateByPosition(playerData, playerInfoMap) {
         return {
             name: position.name,
             playerCount: playerCount,
+            players: position.players, // Include full player objects for hover cards
             wins: parseFloat(avgWins.toFixed(1)),
             losses: parseFloat(avgLosses.toFixed(1)),
             games: avgGames,
