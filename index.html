@@ -42,6 +42,7 @@
                     <div class="subtitle">2025-2026 Season</div>
                 </div>
             </div>
+            <div class="header-stats" id="statsSummary"></div>
         </div>
 
         <div id="loadingMessage" class="loading">Loading dashboard data...</div>
@@ -80,34 +81,49 @@
             <div class="left-column-container">
                 <!-- Leaderboard Section -->
                 <section class="section leaderboard-section">
-                    <h2 class="section-title"><i class="fas fa-medal"></i> Current Standings</h2>
-
-                    <div class="stats-summary" id="statsSummary"></div>
+                    <div class="standings-header">
+                        <h2 class="section-title"><i class="fas fa-medal"></i> Current Standings</h2>
+                        <div class="standings-view-toggle">
+                            <button class="standings-toggle-btn active" id="viewPlayerBtn" data-view="player">
+                                <i class="fas fa-user"></i> Player
+                            </button>
+                            <button class="standings-toggle-btn" id="viewTeamBtn" data-view="team">
+                                <i class="fas fa-users"></i> Team
+                            </button>
+                            <button class="standings-toggle-btn" id="viewPositionBtn" data-view="position">
+                                <i class="fas fa-chess"></i> Position
+                            </button>
+                        </div>
+                    </div>
 
                     <!-- Filter Controls -->
                     <div class="filter-section">
                         <button class="filter-toggle-btn" id="filterToggleBtn">
-                            <span>Filters</span>
+                            <span><i class="fas fa-filter"></i> Filter Players</span>
                             <i class="fas fa-chevron-down"></i>
                         </button>
                         <div class="filter-controls collapsed" id="filterControls">
                             <div class="filter-group">
-                                <label for="teamFilter">Team:</label>
+                                <label for="teamFilter">Team Membership</label>
                                 <select id="teamFilter">
                                     <option value="">All Teams</option>
                                 </select>
                             </div>
                             <div class="filter-group">
-                                <label for="positionFilter">Position:</label>
+                                <label for="positionFilter">Position</label>
                                 <select id="positionFilter">
                                     <option value="">All Positions</option>
                                 </select>
                             </div>
                             <div class="filter-group checkbox-group">
                                 <input type="checkbox" id="funkEngFilter">
-                                <label for="funkEngFilter">Funk-Eng Challengers Only (Lead/Second)</label>
+                                <label for="funkEngFilter">Funk-Eng Challengers Only</label>
                             </div>
-                            <button class="filter-btn" id="resetFilters">Reset Filters</button>
+                            <div class="filter-actions">
+                                <button class="filter-btn reset-btn" id="resetFilters">
+                                    <i class="fas fa-redo"></i> Reset
+                                </button>
+                            </div>
                         </div>
                     </div>
 
@@ -115,9 +131,9 @@
                 <thead>
                     <tr>
                         <th class="center sortable sorted-asc" data-sort="rank">Rank</th>
-                        <th class="sortable" data-sort="name">Player</th>
-                        <th class="center sortable" data-sort="wins">Wins</th>
-                        <th class="center sortable" data-sort="losses">Losses</th>
+                        <th class="sortable" data-sort="name" id="nameHeader">Player</th>
+                        <th class="center sortable" data-sort="wins" id="winsHeader">Wins</th>
+                        <th class="center sortable" data-sort="losses" id="lossesHeader">Losses</th>
                         <th class="center sortable" data-sort="winPct">Win %</th>
                         <th class="center game-history-header" id="gameHistoryHeader">
                             <span id="gameHistoryLabel">Recent Games</span>

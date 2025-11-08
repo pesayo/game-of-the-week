@@ -44,7 +44,10 @@ const state = {
     scheduleFilter: 'all', // Current schedule filter
 
     // UI state
-    isExpanded: false
+    isExpanded: false,
+
+    // View state for standings table
+    currentView: 'player' // 'player', 'team', or 'position'
 };
 
 // Getter functions
@@ -106,6 +109,10 @@ export function getScheduleFilter() {
 
 export function getIsExpanded() {
     return state.isExpanded;
+}
+
+export function getCurrentView() {
+    return state.currentView;
 }
 
 // Setter functions
@@ -185,6 +192,10 @@ export function setIsExpanded(expanded) {
     state.isExpanded = expanded;
 }
 
+export function setCurrentView(view) {
+    state.currentView = view;
+}
+
 // Utility function to get entire state (for debugging)
 export function getState() {
     return state;
@@ -211,4 +222,5 @@ export function resetState() {
     state.teamLineups = {};
     state.scheduleFilter = 'all';
     state.isExpanded = false;
+    state.currentView = 'player';
 }

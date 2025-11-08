@@ -8,13 +8,16 @@ import {
     getCurrentDirection,
     getAllGames,
     getIsExpanded,
+    getCurrentView,
     updateActiveFilter,
     setCurrentSort,
     setCurrentDirection,
-    setIsExpanded
+    setIsExpanded,
+    setCurrentView
 } from '../state/app-state.js';
 import { showTooltip, hideTooltip } from './Modals.js';
 import { renderStreakTracker } from './StreakTracker.js';
+import { aggregateByTeam, aggregateByPosition } from '../data/data-processor.js';
 
 /**
  * Render statistics summary cards at top of dashboard
@@ -35,7 +38,22 @@ export function renderStatsSummary(data) {
 
     const totalPlayers = data.length;
 
+    // Find current leader(s) - all players with rank 1
+    const leaders = data.filter(p => p.rank === 1);
+    const leaderText = leaders.length === 0
+        ? '—'
+        : leaders.length === 1
+            ? leaders[0].name
+            : `${leaders.length}-way tie`;
+    const leaderTitle = leaders.length > 1
+        ? `Current leaders: ${leaders.map(p => p.name).join(', ')}`
+        : '';
+
     const html = `
+        <div class="stat-card leader-card" ${leaderTitle ? `title="${leaderTitle}"` : ''}>
+            <div class="stat-label">Current Leader</div>
+            <div class="stat-value">${leaderText}</div>
+        </div>
         <div class="stat-card">
             <div class="stat-label">Total Players</div>
             <div class="stat-value">${totalPlayers}</div>
@@ -66,41 +84,62 @@ export function renderLeaderboard(data) {
     tbody.innerHTML = '';
 
     const isExpanded = getIsExpanded();
+    const currentView = getCurrentView();
 
-    data.forEach((player, playerIndex) => {
+    data.forEach((item, index) => {
         const row = document.createElement('tr');
 
         // Rank with medal colors
         let rankClass = 'rank';
-        if (player.rank === 1) rankClass += ' gold';
-        else if (player.rank === 2) rankClass += ' silver';
-        else if (player.rank === 3) rankClass += ' bronze';
+        if (item.rank === 1) rankClass += ' gold';
+        else if (item.rank === 2) rankClass += ' silver';
+        else if (item.rank === 3) rankClass += ' bronze';
 
         // Win percentage color
         let winPctClass = 'win-percentage';
-        if (player.winPct >= 60) winPctClass += ' high';
-        else if (player.winPct >= 40) winPctClass += ' medium';
+        if (item.winPct >= 60) winPctClass += ' high';
+        else if (item.winPct >= 40) winPctClass += ' medium';
         else winPctClass += ' low';
 
-        // Show either recent form or all games based on expanded state
-        const gamesToShow = isExpanded ? player.allResults : player.recentForm;
-        const gameHistoryHtml = gamesToShow.map(gameData =>
-            renderGameCell(gameData, player)
-        ).join('');
+        // Build row HTML based on view type
+        if (currentView === 'player') {
+            // Show either recent form or all games based on expanded state
+            const gamesToShow = isExpanded ? item.allResults : item.recentForm;
+            const gameHistoryHtml = gamesToShow.map(gameData =>
+                renderGameCell(gameData, item)
+            ).join('');
 
-        row.innerHTML = `
-            <td class="center ${rankClass}">${player.rank}</td>
-            <td class="player-name" onclick="showPlayerDetails('${player.name.replace(/'/g, "\\'")}')" title="Click to view all picks">
-                ${player.name}
-                <i class="fas fa-list-ul picks-icon"></i>
-            </td>
-            <td class="center">${player.wins}</td>
-            <td class="center">${player.losses}</td>
-            <td class="center ${winPctClass}">${player.winPct.toFixed(1)}%</td>
-            <td class="center game-history-cell ${isExpanded ? 'expanded' : 'collapsed'}">
-                <div class="recent-form">${gameHistoryHtml}</div>
-            </td>
-        `;
+            row.innerHTML = `
+                <td class="center ${rankClass}">${item.rank}</td>
+                <td class="player-name" onclick="showPlayerDetails('${item.name.replace(/'/g, "\\'")}')" title="Click to view all picks">
+                    ${item.name}
+                    <i class="fas fa-list-ul picks-icon"></i>
+                </td>
+                <td class="center">${item.wins}</td>
+                <td class="center">${item.losses}</td>
+                <td class="center ${winPctClass}">${item.winPct.toFixed(1)}%</td>
+                <td class="center game-history-cell ${isExpanded ? 'expanded' : 'collapsed'}">
+                    <div class="recent-form">${gameHistoryHtml}</div>
+                </td>
+            `;
+        } else {
+            // Team or Position view - no game history, no clickable names
+            const viewLabel = currentView === 'team' ? 'Team' : 'Position';
+            // Serialize players data for tooltip
+            const playersJson = JSON.stringify(item.players).replace(/"/g, '&quot;');
+            row.innerHTML = `
+                <td class="center ${rankClass}">${item.rank}</td>
+                <td class="group-name"
+                    onmouseenter="showGroupTooltip(event, ${playersJson})"
+                    onmouseleave="hideTooltip()">
+                    ${item.name}
+                    <span class="player-count" title="${item.playerCount} player${item.playerCount !== 1 ? 's' : ''}">(${item.playerCount})</span>
+                </td>
+                <td class="center">${item.wins}</td>
+                <td class="center">${item.losses}</td>
+                <td class="center ${winPctClass}">${item.winPct.toFixed(1)}%</td>
+            `;
+        }
 
         tbody.appendChild(row);
     });
@@ -120,6 +159,53 @@ export function renderGameCell(gameData, player) {
         data-game="${gameData.game}"
         onmouseenter="showTooltip(event, '${player.name.replace(/'/g, "\\'")}', ${JSON.stringify(gameData).replace(/"/g, '&quot;')})"
         onmouseleave="hideTooltip()">${gameData.result}</span>`;
+}
+
+/**
+ * Show tooltip for group (team/position) with player details
+ * @param {Event} event - Mouse event
+ * @param {Array} players - Array of player objects
+ */
+export function showGroupTooltip(event, players) {
+    const tooltip = document.getElementById('tooltip');
+
+    // Sort players by rank/wins
+    const sortedPlayers = [...players].sort((a, b) => {
+        if (b.wins !== a.wins) return b.wins - a.wins;
+        return b.winPct - a.winPct;
+    });
+
+    // Build tooltip content
+    let tooltipContent = `
+        <div style="padding: 12px; min-width: 200px;">
+            <div style="font-weight: 600; margin-bottom: 8px; padding-bottom: 6px; border-bottom: 1px solid var(--gray-300); color: var(--text-primary);">
+                Players in Group
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 6px;">
+    `;
+
+    sortedPlayers.forEach(player => {
+        const winPctClass = player.winPct >= 60 ? 'high' : player.winPct >= 50 ? 'medium' : 'low';
+        tooltipContent += `
+            <div style="display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 4px 0;">
+                <span style="font-weight: 500; color: var(--text-primary);">${player.name}</span>
+                <span style="font-size: 13px; color: var(--text-secondary);">
+                    ${player.wins}W - ${player.losses}L
+                    <span class="win-percentage ${winPctClass}" style="margin-left: 6px;">(${player.winPct.toFixed(1)}%)</span>
+                </span>
+            </div>
+        `;
+    });
+
+    tooltipContent += `
+            </div>
+        </div>
+    `;
+
+    tooltip.innerHTML = tooltipContent;
+    tooltip.style.display = 'block';
+    tooltip.style.left = (event.pageX + 15) + 'px';
+    tooltip.style.top = (event.pageY - 10) + 'px';
 }
 
 /**
@@ -352,6 +438,97 @@ export function setupFilterToggle() {
 }
 
 /**
+ * Get data for the current view type
+ * @param {string} viewType - 'player', 'team', or 'position'
+ * @returns {Array} Data for the specified view
+ */
+export function getDataForView(viewType) {
+    const leaderboardData = getLeaderboardData();
+    const playerInfoMap = getPlayerInfoMap();
+
+    switch(viewType) {
+        case 'team':
+            return aggregateByTeam(leaderboardData, playerInfoMap);
+        case 'position':
+            return aggregateByPosition(leaderboardData, playerInfoMap);
+        case 'player':
+        default:
+            return leaderboardData;
+    }
+}
+
+/**
+ * Switch to a different view type and update the display
+ * @param {string} viewType - 'player', 'team', or 'position'
+ */
+export function switchView(viewType) {
+    setCurrentView(viewType);
+
+    // Update button states
+    document.querySelectorAll('.standings-toggle-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    document.getElementById(`view${viewType.charAt(0).toUpperCase() + viewType.slice(1)}Btn`).classList.add('active');
+
+    // Update table headers based on view type
+    const nameHeader = document.getElementById('nameHeader');
+    const winsHeader = document.getElementById('winsHeader');
+    const lossesHeader = document.getElementById('lossesHeader');
+    const gameHistoryHeader = document.getElementById('gameHistoryHeader');
+    const filterSection = document.querySelector('.filter-section');
+
+    if (viewType === 'player') {
+        nameHeader.textContent = 'Player';
+        winsHeader.textContent = 'Wins';
+        lossesHeader.textContent = 'Losses';
+        gameHistoryHeader.style.display = '';
+        filterSection.style.display = '';
+    } else if (viewType === 'team') {
+        nameHeader.textContent = 'Team';
+        winsHeader.textContent = 'Avg Wins';
+        lossesHeader.textContent = 'Avg Losses';
+        gameHistoryHeader.style.display = 'none';
+        filterSection.style.display = 'none';
+    } else if (viewType === 'position') {
+        nameHeader.textContent = 'Position';
+        winsHeader.textContent = 'Avg Wins';
+        lossesHeader.textContent = 'Avg Losses';
+        gameHistoryHeader.style.display = 'none';
+        filterSection.style.display = 'none';
+    }
+
+    // Get data for the view
+    const viewData = getDataForView(viewType);
+
+    // Apply filters only for player view
+    const filteredData = viewType === 'player' ? applyFilters(viewData) : viewData;
+
+    // Apply current sort
+    const currentSort = getCurrentSort();
+    const currentDirection = getCurrentDirection();
+    const sortedData = sortData(filteredData, currentSort, currentDirection);
+
+    // Re-render
+    renderLeaderboard(sortedData);
+    // Always show stats for all players, regardless of view
+    renderStatsSummary(getLeaderboardData());
+}
+
+/**
+ * Setup view toggle controls
+ */
+export function setupViewToggle() {
+    const viewButtons = document.querySelectorAll('.standings-toggle-btn');
+
+    viewButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const viewType = btn.dataset.view;
+            switchView(viewType);
+        });
+    });
+}
+
+/**
  * Setup filter controls
  */
 export function setupFilterControls() {
@@ -360,24 +537,77 @@ export function setupFilterControls() {
     const funkEngFilter = document.getElementById('funkEngFilter');
     const resetFilters = document.getElementById('resetFilters');
 
-    const applyCurrentFilters = () => {
-        updateActiveFilter('team', teamFilter.value);
-        updateActiveFilter('position', positionFilter.value);
-        updateActiveFilter('funkEngChallengers', funkEngFilter.checked);
+    // Team filter - reset other filters when changed
+    teamFilter.addEventListener('change', () => {
+        // Reset other filters
+        positionFilter.value = '';
+        funkEngFilter.checked = false;
 
-        const leaderboardData = getLeaderboardData();
+        // Apply only team filter
+        updateActiveFilter('team', teamFilter.value);
+        updateActiveFilter('position', '');
+        updateActiveFilter('funkEngChallengers', false);
+
+        const currentView = getCurrentView();
+        const viewData = getDataForView(currentView);
         const currentSort = getCurrentSort();
         const currentDirection = getCurrentDirection();
-        const filteredData = applyFilters(leaderboardData);
-        const sortedData = sortData(filteredData, currentSort, currentDirection);
-        renderLeaderboard(sortedData);
-        renderStatsSummary(sortedData);
-        renderStreakTracker(leaderboardData);
-    };
 
-    teamFilter.addEventListener('change', applyCurrentFilters);
-    positionFilter.addEventListener('change', applyCurrentFilters);
-    funkEngFilter.addEventListener('change', applyCurrentFilters);
+        const filteredData = currentView === 'player' ? applyFilters(viewData) : viewData;
+        const sortedData = sortData(filteredData, currentSort, currentDirection);
+
+        renderLeaderboard(sortedData);
+        renderStatsSummary(getLeaderboardData());
+        renderStreakTracker(getLeaderboardData());
+    });
+
+    // Position filter - reset other filters when changed
+    positionFilter.addEventListener('change', () => {
+        // Reset other filters
+        teamFilter.value = '';
+        funkEngFilter.checked = false;
+
+        // Apply only position filter
+        updateActiveFilter('team', '');
+        updateActiveFilter('position', positionFilter.value);
+        updateActiveFilter('funkEngChallengers', false);
+
+        const currentView = getCurrentView();
+        const viewData = getDataForView(currentView);
+        const currentSort = getCurrentSort();
+        const currentDirection = getCurrentDirection();
+
+        const filteredData = currentView === 'player' ? applyFilters(viewData) : viewData;
+        const sortedData = sortData(filteredData, currentSort, currentDirection);
+
+        renderLeaderboard(sortedData);
+        renderStatsSummary(getLeaderboardData());
+        renderStreakTracker(getLeaderboardData());
+    });
+
+    // Funk-Eng filter - reset other filters when changed
+    funkEngFilter.addEventListener('change', () => {
+        // Reset other filters
+        teamFilter.value = '';
+        positionFilter.value = '';
+
+        // Apply only funk-eng filter
+        updateActiveFilter('team', '');
+        updateActiveFilter('position', '');
+        updateActiveFilter('funkEngChallengers', funkEngFilter.checked);
+
+        const currentView = getCurrentView();
+        const viewData = getDataForView(currentView);
+        const currentSort = getCurrentSort();
+        const currentDirection = getCurrentDirection();
+
+        const filteredData = currentView === 'player' ? applyFilters(viewData) : viewData;
+        const sortedData = sortData(filteredData, currentSort, currentDirection);
+
+        renderLeaderboard(sortedData);
+        renderStatsSummary(getLeaderboardData());
+        renderStreakTracker(getLeaderboardData());
+    });
 
     resetFilters.addEventListener('click', () => {
         teamFilter.value = '';
@@ -387,12 +617,23 @@ export function setupFilterControls() {
         updateActiveFilter('position', '');
         updateActiveFilter('funkEngChallengers', false);
 
-        const leaderboardData = getLeaderboardData();
+        const currentView = getCurrentView();
+        const viewData = getDataForView(currentView);
         const currentSort = getCurrentSort();
         const currentDirection = getCurrentDirection();
-        const sortedData = sortData(leaderboardData, currentSort, currentDirection);
+
+        // Only apply filters for player view
+        const filteredData = currentView === 'player' ? viewData : viewData;
+        const sortedData = sortData(filteredData, currentSort, currentDirection);
+
         renderLeaderboard(sortedData);
-        renderStatsSummary(leaderboardData);
-        renderStreakTracker(leaderboardData);
+        // Always show stats for all players, regardless of view or filters
+        renderStatsSummary(getLeaderboardData());
+        renderStreakTracker(getLeaderboardData());
     });
+}
+
+// Make showGroupTooltip available globally for inline event handlers
+if (typeof window !== 'undefined') {
+    window.showGroupTooltip = showGroupTooltip;
 }
