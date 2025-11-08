@@ -388,11 +388,6 @@
 }
 
 /* Winner section with members above team name */
-.tooltip-team-section.winner-section {
-    display: flex;
-    flex-direction: column-reverse;
-}
-
 .tooltip-team-section.winner-section .tooltip-team-name {
     margin-top: 10px;
     margin-bottom: 0;
