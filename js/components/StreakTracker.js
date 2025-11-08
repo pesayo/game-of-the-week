@@ -1,6 +1,7 @@
 // StreakTracker component - displays current streaks and historical streak records
 
 import { getLeaderboardData, getPlayerColors } from '../state/app-state.js';
+import { highlightPlayerOnChart, unhighlightChart } from './HorseRace.js';
 
 /**
  * Render the streak tracker section with current and longest streaks
@@ -93,6 +94,20 @@ export function renderStreakTracker(data) {
     `;
 
     document.getElementById('streakTrackerContent').innerHTML = html;
+
+    // Add event listeners to all player cards to highlight on horse race chart
+    const playerCards = document.querySelectorAll('.streak-card[data-player-name], .streak-player-card[data-player-name]');
+    playerCards.forEach(card => {
+        const playerName = card.getAttribute('data-player-name');
+
+        card.addEventListener('mouseenter', () => {
+            highlightPlayerOnChart(playerName);
+        });
+
+        card.addEventListener('mouseleave', () => {
+            unhighlightChart();
+        });
+    });
 }
 
 /**
@@ -124,7 +139,7 @@ function renderActiveStreaks(streaks) {
             }
 
             html += `
-                <div class="streak-card active-win" style="border-left-color: ${streak.color}">
+                <div class="streak-card active-win" style="border-left-color: ${streak.color}" data-player-name="${streak.name}">
                     <div class="streak-rank win-count">${streak.count}</div>
                     <div class="streak-info">
                         <div class="streak-player">${streak.name}</div>
@@ -156,7 +171,7 @@ function renderActiveStreaks(streaks) {
             }
 
             html += `
-                <div class="streak-card active-loss" style="border-left-color: ${streak.color}">
+                <div class="streak-card active-loss" style="border-left-color: ${streak.color}" data-player-name="${streak.name}">
                     <div class="streak-rank loss-count">${streak.count}</div>
                     <div class="streak-info">
                         <div class="streak-player">${streak.name}</div>
@@ -212,7 +227,7 @@ function renderStreakList(streaks, type) {
                                     ? `G${streak.startGame}-${streak.endGame}`
                                     : '';
                                 return `
-                                    <div class="streak-player-card ${isWin ? 'win-card' : 'loss-card'}" style="border-left-color: ${streak.color}">
+                                    <div class="streak-player-card ${isWin ? 'win-card' : 'loss-card'}" style="border-left-color: ${streak.color}" data-player-name="${streak.name}">
                                         <div class="streak-player-name">${streak.name}</div>
                                         ${gameRange ? `<div class="streak-player-games">${gameRange}</div>` : ''}
                                     </div>

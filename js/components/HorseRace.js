@@ -416,3 +416,44 @@ export function setupRaceControls() {
         renderHorseRace(horseRaceData);
     });
 }
+
+/**
+ * Highlight a player's line and dots on the horse race chart
+ * @param {string} playerName - The name of the player to highlight
+ */
+export function highlightPlayerOnChart(playerName) {
+    const safeName = sanitizeName(playerName);
+
+    // Dim all lines and dots
+    d3.selectAll('.horse-race-line')
+        .classed('dimmed', true)
+        .classed('highlighted', false);
+    d3.selectAll('.horse-race-dot')
+        .classed('dimmed', true)
+        .classed('highlighted', false);
+
+    // Highlight the specific player
+    d3.select(`.horse-race-line[data-player="${safeName}"]`)
+        .classed('highlighted', true)
+        .classed('dimmed', false);
+    d3.selectAll(`.horse-race-dot[data-player="${safeName}"]`)
+        .classed('highlighted', true)
+        .classed('dimmed', false);
+
+    // Dim legend items except the highlighted one
+    d3.selectAll('.race-legend-item').style('opacity', 0.4);
+    d3.select(`.race-legend-item[data-player="${safeName}"]`).style('opacity', 1);
+}
+
+/**
+ * Remove all highlighting from the horse race chart
+ */
+export function unhighlightChart() {
+    d3.selectAll('.horse-race-line')
+        .classed('highlighted', false)
+        .classed('dimmed', false);
+    d3.selectAll('.horse-race-dot')
+        .classed('highlighted', false)
+        .classed('dimmed', false);
+    d3.selectAll('.race-legend-item').style('opacity', null);
+}
