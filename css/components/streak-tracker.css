@@ -324,6 +324,7 @@
     grid-template-columns: 1fr;
     gap: 6px;
     flex: 1;
+    min-width: 0;
 }
 
 @media (min-width: 768px) {
@@ -338,6 +339,7 @@
     border-radius: 4px;
     border-left: 4px solid var(--gray-400);
     transition: transform 0.2s, box-shadow 0.2s;
+    min-width: 0;
 }
 
 .streak-player-card:hover {
@@ -358,6 +360,9 @@
     font-size: 13px;
     color: var(--text-primary);
     margin-bottom: 2px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .streak-player-games {
