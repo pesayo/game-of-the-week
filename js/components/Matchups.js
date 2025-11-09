@@ -5,6 +5,57 @@ import { parseGameDate } from '../utils/parsers.js';
 import { getSpritePosition } from '../utils/colors.js';
 
 /**
+ * Format date with day of week abbreviation
+ * @param {string} dateStr - Date string in MM/DD/YYYY format
+ * @returns {string} Formatted date like "Wed. 11/12/2025"
+ */
+function formatDateWithDay(dateStr) {
+    const [month, day, year] = dateStr.split('/');
+    const date = new Date(year, month - 1, day);
+    const dayNames = ['Sun.', 'Mon.', 'Tue.', 'Wed.', 'Thu.', 'Fri.', 'Sat.'];
+    const dayOfWeek = dayNames[date.getDay()];
+    return `${dayOfWeek} ${dateStr}`;
+}
+
+/**
+ * Calculate countdown string from target date/time
+ * @param {string} dateStr - Date string in MM/DD/YYYY format
+ * @param {string} timeStr - Time string like "6:35 PM"
+ * @returns {string} Countdown string like "5d 3:45:12"
+ */
+function calculateCountdown(dateStr, timeStr) {
+    const [month, day, year] = dateStr.split('/');
+    const [time, period] = timeStr.split(' ');
+    let [hours, minutes] = time.split(':').map(Number);
+
+    // Convert to 24-hour format
+    if (period === 'PM' && hours !== 12) {
+        hours += 12;
+    } else if (period === 'AM' && hours === 12) {
+        hours = 0;
+    }
+
+    const targetDate = new Date(year, month - 1, day, hours, minutes, 0);
+    const now = new Date();
+    const diff = targetDate - now;
+
+    if (diff <= 0) {
+        return 'Game Time!';
+    }
+
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+    const hrs = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+    const secs = Math.floor((diff % (1000 * 60)) / 1000);
+
+    if (days > 0) {
+        return `${days}d ${hrs}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    } else {
+        return `${hrs}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    }
+}
+
+/**
  * Load team lineups from team_cards.json
  */
 export async function loadTeamLineups() {
@@ -347,7 +398,10 @@ function createUpcomingMatchupCard(game) {
                 <div class="upcoming-team-name">${game.team1}</div>
                 <div class="upcoming-members-row" id="upcoming-team1-${game.week}-${game.sheet}-${sanitizedTime}"></div>
             </div>
-            <div class="upcoming-vs-divider">${game.time} <br> Sheet ${game.sheet}</div>
+            <div class="upcoming-vs-divider">
+                ${game.time} <br> Sheet ${game.sheet}
+                <div class="countdown-timer" id="countdown-${game.week}-${game.sheet}-${sanitizedTime}"></div>
+            </div>
             <div class="upcoming-team-section">
                 <div class="upcoming-team-name">${game.team2}</div>
                 <div class="upcoming-members-row" id="upcoming-team2-${game.week}-${game.sheet}-${sanitizedTime}"></div>
@@ -376,6 +430,16 @@ function createUpcomingMatchupCard(game) {
         } else if (team2Container) {
             team2Container.innerHTML = '<div style="color: #999; font-size: 12px;">No lineup data</div>';
         }
+
+        // Initialize countdown timer
+        const countdownElement = document.getElementById(`countdown-${game.week}-${game.sheet}-${sanitizedTime}`);
+        if (countdownElement) {
+            const updateCountdown = () => {
+                countdownElement.textContent = calculateCountdown(game.date, game.time);
+            };
+            updateCountdown();
+            setInterval(updateCountdown, 1000);
+        }
     }, 0);
 
     return card;
@@ -394,16 +458,19 @@ export function renderUpcomingMatchups() {
     const headerElement = document.querySelector('.upcoming-section .section-title');
     if (headerElement) {
         if (upcomingGames.length === 0) {
-            headerElement.innerHTML = '<i class="fas fa-fire"></i> Upcoming Matchups';
+            headerElement.innerHTML = '<i class="fas fa-calendar"></i> Upcoming Matchups';
         } else {
             // Get week and date from first game (all upcoming games are from the same week)
             const weekNum = upcomingGames[0].week;
             const weekDate = upcomingGames[0].date;
 
+            // Format date as "Wed. 11/12/2025"
+            const formattedDate = formatDateWithDay(weekDate);
+
             if (upcomingGames.length === 1) {
-                headerElement.innerHTML = `<i class="fas fa-fire"></i> Upcoming Matchup - Week ${weekNum} (${weekDate})`;
+                headerElement.innerHTML = `<i class="fas fa-calendar"></i> Upcoming Matchup - Week ${weekNum} | ${formattedDate}`;
             } else {
-                headerElement.innerHTML = `<i class="fas fa-fire"></i> Upcoming Matchups - Week ${weekNum} (${weekDate})`;
+                headerElement.innerHTML = `<i class="fas fa-calendar"></i> Upcoming Matchups - Week ${weekNum} | ${formattedDate}`;
             }
         }
     }
