@@ -71,7 +71,7 @@ export function renderStreakTracker(data) {
             <!-- Current Active Streaks -->
             <div class="streak-section">
                 <h3 class="streak-section-title">
-                    <i class="fas fa-fire"></i> Active Streaks
+                    <i class="fas fa-bolt"></i> Active Streaks
                 </h3>
                 <div class="streak-section-content">
                     ${activeStreaks.length > 0 ? renderActiveStreaks(activeStreaks) : '<p class="no-data">No active streaks</p>'}
