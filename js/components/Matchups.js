@@ -18,12 +18,29 @@ function formatDateWithDay(dateStr) {
 }
 
 /**
- * Calculate countdown string from target date/time
- * @param {string} dateStr - Date string in MM/DD/YYYY format
- * @param {string} timeStr - Time string like "6:35 PM"
- * @returns {string} Countdown string like "5d 3:45:12"
+ * Check if a date is in DST for US Central Time
+ * DST runs from 2nd Sunday in March at 2 AM to 1st Sunday in November at 2 AM
  */
-function calculateCountdown(dateStr, timeStr) {
+function isInDST(date) {
+    const year = date.getFullYear();
+
+    // Find 2nd Sunday in March
+    const marchFirst = new Date(year, 2, 1); // March 1st
+    const marchFirstDay = marchFirst.getDay(); // 0 = Sunday
+    const dstStart = new Date(year, 2, (14 - marchFirstDay + (marchFirstDay === 0 ? 0 : 7)), 2, 0, 0);
+
+    // Find 1st Sunday in November
+    const novFirst = new Date(year, 10, 1); // November 1st
+    const novFirstDay = novFirst.getDay();
+    const dstEnd = new Date(year, 10, (7 - novFirstDay + (novFirstDay === 0 ? 0 : 7)), 2, 0, 0);
+
+    return date >= dstStart && date < dstEnd;
+}
+
+/**
+ * Parse a date/time in Central Time and convert to local Date object
+ */
+function parseCentralTime(dateStr, timeStr) {
     const [month, day, year] = dateStr.split('/');
     const [time, period] = timeStr.split(' ');
     let [hours, minutes] = time.split(':').map(Number);
@@ -35,10 +52,36 @@ function calculateCountdown(dateStr, timeStr) {
         hours = 0;
     }
 
-    const targetDate = new Date(year, month - 1, day, hours, minutes, 0);
+    // Create a date assuming UTC, then we'll adjust for Central Time
+    const utcDate = new Date(Date.UTC(year, month - 1, day, hours, minutes, 0));
+
+    // Check if this date would be in DST
+    const centralDate = new Date(year, month - 1, day, hours, minutes, 0);
+    const offset = isInDST(centralDate) ? 5 : 6; // CDT is UTC-5, CST is UTC-6
+
+    // Adjust UTC time by adding the offset (to get the correct UTC time for this Central time)
+    utcDate.setHours(utcDate.getHours() + offset);
+
+    return utcDate;
+}
+
+/**
+ * Calculate countdown string from target date/time
+ * @param {string} dateStr - Date string in MM/DD/YYYY format (Central Time)
+ * @param {string} timeStr - Time string like "6:35 PM" (Central Time)
+ * @returns {string|null} Countdown string like "5d 3:45:12", "Game Time!", or null if game ended >2hrs ago
+ */
+function calculateCountdown(dateStr, timeStr) {
+    const targetDate = parseCentralTime(dateStr, timeStr);
     const now = new Date();
     const diff = targetDate - now;
 
+    // If game ended more than 2 hours ago, hide the timer
+    if (diff < -2 * 60 * 60 * 1000) {
+        return null;
+    }
+
+    // If game started (or starts within 2 hours from now), show "Game Time!"
     if (diff <= 0) {
         return 'Game Time!';
     }
@@ -435,7 +478,14 @@ function createUpcomingMatchupCard(game) {
         const countdownElement = document.getElementById(`countdown-${game.week}-${game.sheet}-${sanitizedTime}`);
         if (countdownElement) {
             const updateCountdown = () => {
-                countdownElement.textContent = calculateCountdown(game.date, game.time);
+                const countdown = calculateCountdown(game.date, game.time);
+                if (countdown === null) {
+                    countdownElement.textContent = '';
+                    countdownElement.style.display = 'none';
+                } else {
+                    countdownElement.textContent = countdown;
+                    countdownElement.style.display = 'block';
+                }
             };
             updateCountdown();
             setInterval(updateCountdown, 1000);
