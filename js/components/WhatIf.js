@@ -127,6 +127,17 @@ export function renderWhatIfPanel() {
             const team = this.dataset.team;
             selectWhatIfWinner(gameKey, team);
         });
+
+        // Add hover handlers to highlight players who picked this team
+        option.addEventListener('mouseenter', function() {
+            const gameKey = this.dataset.gamekey;
+            const team = this.dataset.team;
+            highlightPlayersWithPick(gameKey, team);
+        });
+
+        option.addEventListener('mouseleave', function() {
+            clearPlayerHighlights();
+        });
     });
 }
 
@@ -254,7 +265,7 @@ export function renderComparisonTable(tableId, data, compareData) {
         const lossesDisplay = `${player.losses}<span class="record-change ${lossesClass}">+${lossesChange}</span>`;
 
         html += `
-            <tr>
+            <tr data-player-name="${player.name.replace(/"/g, '&quot;')}">
                 <td class="center ${rankClass}">${player.rank}${rankChange}</td>
                 <td class="player-name">${player.name}</td>
                 <td class="center">${winsDisplay}</td>
@@ -266,6 +277,75 @@ export function renderComparisonTable(tableId, data, compareData) {
 
     html += '</tbody>';
     table.innerHTML = html;
+}
+
+/**
+ * Highlight players in the standings table who picked a specific team
+ * @param {string} gameKey - Game key
+ * @param {string} team - Team name
+ */
+function highlightPlayersWithPick(gameKey, team) {
+    const rawPicksData = getRawPicksData();
+    const allGames = getAllGames();
+
+    // Find the game to get the column header
+    const game = allGames.find(g => g.gameKey === gameKey);
+    if (!game) return;
+
+    // Find players who picked this team
+    const playersPicked = [];
+    const headers = Object.keys(rawPicksData[0] || {});
+    const nameHeader = headers.find(h => h.toLowerCase().includes('name'));
+
+    // Find the game column header
+    const gameHeaders = headers.filter(h => h.includes('Week'));
+    let gameColumn = null;
+
+    gameHeaders.forEach(header => {
+        const gameInfo = parseGameColumn(header);
+        if (gameInfo) {
+            const key = createGameKey(gameInfo.week, gameInfo.date, gameInfo.time, gameInfo.sheet);
+            if (key === gameKey) {
+                gameColumn = header;
+            }
+        }
+    });
+
+    if (!gameColumn) return;
+
+    // Find all players who picked this team
+    rawPicksData.forEach(row => {
+        const playerName = row[nameHeader] ? row[nameHeader].trim() : '';
+        const pick = row[gameColumn];
+        if (pick === team && playerName) {
+            playersPicked.push(playerName);
+        }
+    });
+
+    // Highlight rows in the standings table
+    const table = document.getElementById('projectedStandingsTable');
+    if (!table) return;
+
+    const rows = table.querySelectorAll('tbody tr');
+    rows.forEach(row => {
+        const playerName = row.dataset.playerName;
+        if (playersPicked.includes(playerName)) {
+            row.classList.add('pick-highlighted');
+        }
+    });
+}
+
+/**
+ * Clear all player highlights in the standings table
+ */
+function clearPlayerHighlights() {
+    const table = document.getElementById('projectedStandingsTable');
+    if (!table) return;
+
+    const rows = table.querySelectorAll('tbody tr');
+    rows.forEach(row => {
+        row.classList.remove('pick-highlighted');
+    });
 }
 
 /**

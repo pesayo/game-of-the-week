@@ -63,12 +63,11 @@ export function renderStatsSummary(data) {
             <div class="stat-value">${gamesPlayed}</div>
         </div>
         <div class="stat-card">
-            <div class="stat-label">Total Record</div>
-            <div class="stat-value" style="font-size: 20px;">${totalWins}-${totalLosses}</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-label">Avg Win Rate</div>
-            <div class="stat-value">${avgWinPct.toFixed(1)}%</div>
+            <div class="stat-label">Overall Record</div>
+            <div class="stat-value">
+                <span style="font-size: 20px;">${totalWins}-${totalLosses}</span>
+                <span style="font-size: 12px; color: var(--text-secondary); margin-left: 6px;">(${avgWinPct.toFixed(1)}%)</span>
+            </div>
         </div>
     `;
 
@@ -111,9 +110,9 @@ export function renderLeaderboard(data) {
 
             row.innerHTML = `
                 <td class="center ${rankClass}">${item.rank}</td>
-                <td class="player-name" onclick="showPlayerDetails('${item.name.replace(/'/g, "\\'")}')" title="Click to view all picks">
+                <td class="player-name" onclick="showPlayerDetails('${item.name.replace(/'/g, "\\'")}')" title="Click to view ${item.name}'s picks">
+                    <i class="fas fa-list-ul picks-icon" style="font-size: 10px; opacity: 0.5;"></i>
                     ${item.name}
-                    <i class="fas fa-list-ul picks-icon"></i>
                 </td>
                 <td class="center">${item.wins}</td>
                 <td class="center">${item.losses}</td>

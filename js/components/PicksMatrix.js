@@ -268,9 +268,10 @@ export function renderPicksMatrix() {
         // Player name cell
         const nameCell = document.createElement('td');
         nameCell.className = 'player-col';
-        nameCell.textContent = player.name;
         nameCell.style.cursor = 'pointer';
+        nameCell.title = `Click to view ${player.name}'s picks`;
         nameCell.onclick = () => window.showPlayerDetails(player.name);
+        nameCell.innerHTML = `<i class="fas fa-list-ul picks-icon" style="font-size: 10px; opacity: 0.5; margin-right: 6px;"></i>${player.name}`;
         row.appendChild(nameCell);
 
         // Find player row in raw data
