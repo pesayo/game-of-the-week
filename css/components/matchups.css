@@ -133,6 +133,7 @@
     min-width: 100px;
     min-height: 100px;
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
     text-shadow: -1px -1px 0 #fff,
@@ -148,6 +149,16 @@
     transform: scale(1.05);
     font-size: 22px;
     color: var(--mcc-dark-2);
+}
+
+.countdown-timer {
+    font-size: 11px;
+    color: var(--text-secondary);
+    opacity: 0.6;
+    margin-top: 8px;
+    font-weight: normal;
+    text-shadow: none;
+    letter-spacing: 0.3px;
 }
 
 .upcoming-vs-divider::before {
