@@ -69,6 +69,47 @@ th.sortable.sorted-desc::after {
     color: white;
 }
 
+.week-selector-section {
+    padding: 16px 20px;
+    background-color: var(--gray-50);
+    border-top: 1px solid var(--gray-300);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 0;
+}
+
+.week-selector-section label {
+    font-size: 13px;
+    color: var(--text-secondary);
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+}
+
+.week-selector-section select {
+    padding: 8px 12px;
+    border: 1px solid var(--gray-300);
+    border-radius: 5px;
+    font-size: 14px;
+    background-color: white;
+    cursor: pointer;
+    transition: all 0.2s;
+    min-width: 200px;
+}
+
+.week-selector-section select:hover {
+    border-color: var(--accent);
+}
+
+.week-selector-section select:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
 .filter-section {
     margin-bottom: 0 !important;
 }

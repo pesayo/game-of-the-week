@@ -9,15 +9,21 @@ import {
     getAllGames,
     getIsExpanded,
     getCurrentView,
+    getSelectedWeek,
+    getMatchupsData,
+    getRawPicksData,
+    getPickAnalysis,
     updateActiveFilter,
     setCurrentSort,
     setCurrentDirection,
     setIsExpanded,
-    setCurrentView
+    setCurrentView,
+    setSelectedWeek,
+    setLeaderboardData
 } from '../state/app-state.js';
 import { showTooltip, hideTooltip } from './Modals.js';
 import { renderStreakTracker } from './StreakTracker.js';
-import { aggregateByTeam, aggregateByPosition } from '../data/data-processor.js';
+import { aggregateByTeam, aggregateByPosition, processData } from '../data/data-processor.js';
 
 /**
  * Render statistics summary cards at top of dashboard
@@ -650,6 +656,79 @@ export function setupFilterControls() {
         renderStatsSummary(getLeaderboardData());
         renderStreakTracker(getLeaderboardData());
     });
+}
+
+/**
+ * Populate week selector dropdown with available weeks
+ */
+export function populateWeekSelector() {
+    const weekFilter = document.getElementById('standingsWeekFilter');
+    const allGames = getAllGames();
+
+    // Get unique weeks from completed games, sorted
+    const completedGames = allGames.filter(game => game.winner);
+    const weeks = [...new Set(completedGames.map(g => g.week))].sort((a, b) => a - b);
+
+    // Clear existing options except the first "Current" option
+    weekFilter.innerHTML = '<option value="">Current (All Games)</option>';
+
+    // Add week options
+    weeks.forEach(week => {
+        const option = document.createElement('option');
+        option.value = week;
+        option.textContent = `Week ${week}`;
+        weekFilter.appendChild(option);
+    });
+}
+
+/**
+ * Handle week selection change and update standings
+ */
+export function handleWeekChange() {
+    const weekFilter = document.getElementById('standingsWeekFilter');
+    const selectedValue = weekFilter.value;
+    const selectedWeek = selectedValue === '' ? null : parseInt(selectedValue, 10);
+
+    // Update state
+    setSelectedWeek(selectedWeek);
+
+    // Update title
+    const standingsTitle = document.getElementById('standingsTitle');
+    if (selectedWeek !== null) {
+        standingsTitle.textContent = `Standings After Week ${selectedWeek}`;
+    } else {
+        standingsTitle.textContent = 'Current Standings';
+    }
+
+    // Reprocess data with week filter
+    const rawPicks = getRawPicksData();
+    const gameMap = getMatchupsData();
+    const allGames = getAllGames();
+    const pickAnalysis = getPickAnalysis();
+
+    const filteredData = processData(rawPicks, gameMap, allGames, pickAnalysis, selectedWeek);
+    setLeaderboardData(filteredData);
+
+    // Re-render all views
+    const currentView = getCurrentView();
+    const viewData = getDataForView(currentView);
+    const filteredViewData = currentView === 'player' ? applyFilters(viewData) : viewData;
+
+    const currentSort = getCurrentSort();
+    const currentDirection = getCurrentDirection();
+    const sortedData = sortData(filteredViewData, currentSort, currentDirection);
+
+    renderLeaderboard(sortedData);
+    renderStatsSummary(filteredData);
+    renderStreakTracker(filteredData);
+}
+
+/**
+ * Setup week selector controls
+ */
+export function setupWeekSelector() {
+    const weekFilter = document.getElementById('standingsWeekFilter');
+    weekFilter.addEventListener('change', handleWeekChange);
 }
 
 // Make showGroupTooltip available globally for inline event handlers
