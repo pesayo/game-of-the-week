@@ -251,6 +251,8 @@
 .distribution-list {
     display: grid;
     gap: 15px;
+    max-height: 600px;
+    overflow-y: auto;
 }
 
 .distribution-item {
