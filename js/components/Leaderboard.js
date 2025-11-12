@@ -669,11 +669,9 @@ export function populateWeekSelector() {
     const completedGames = allGames.filter(game => game.winner);
     const weeksWithCompletedGames = [...new Set(completedGames.map(g => g.week))].sort((a, b) => a - b);
 
-    // Clear existing options except the first "Current" option
-    weekFilter.innerHTML = '<option value="">Current (All Games)</option>';
-
     if (weeksWithCompletedGames.length === 0) {
         // No completed games yet
+        weekFilter.innerHTML = '<option value="">Current (All Games)</option>';
         weekFilter.disabled = true;
         return;
     }
@@ -681,8 +679,10 @@ export function populateWeekSelector() {
     const minWeek = weeksWithCompletedGames[0];
     const maxCompletedWeek = weeksWithCompletedGames[weeksWithCompletedGames.length - 1];
 
+    // Set the current week option to show the actual week number
+    weekFilter.innerHTML = `<option value="">Week ${maxCompletedWeek} (current)</option>`;
+
     // Only show historical weeks (not the current/latest week)
-    // The current week is represented by "Current (All Games)" option
     // Add week options in reverse order (newest to oldest, excluding current week)
     for (let week = maxCompletedWeek - 1; week >= minWeek; week--) {
         const option = document.createElement('option');
@@ -693,6 +693,12 @@ export function populateWeekSelector() {
 
     // Disable if there are no historical weeks to show (only one week of games)
     weekFilter.disabled = maxCompletedWeek === minWeek;
+
+    // Update the title to show the current week on initial load
+    const standingsTitle = document.getElementById('standingsTitle');
+    if (standingsTitle) {
+        standingsTitle.textContent = `Week ${maxCompletedWeek} Standings`;
+    }
 }
 
 /**
@@ -709,9 +715,19 @@ export function handleWeekChange() {
     // Update title
     const standingsTitle = document.getElementById('standingsTitle');
     if (selectedWeek !== null) {
-        standingsTitle.textContent = `Standings After Week ${selectedWeek}`;
+        standingsTitle.textContent = `Week ${selectedWeek} Standings`;
     } else {
-        standingsTitle.textContent = 'Current Standings';
+        // For current, get the latest completed week number
+        const allGames = getAllGames();
+        const completedGames = allGames.filter(game => game.winner);
+        const weeks = [...new Set(completedGames.map(g => g.week))].sort((a, b) => a - b);
+        const currentWeek = weeks.length > 0 ? weeks[weeks.length - 1] : null;
+
+        if (currentWeek !== null) {
+            standingsTitle.textContent = `Week ${currentWeek} Standings`;
+        } else {
+            standingsTitle.textContent = 'Current Standings';
+        }
     }
 
     // Reprocess data with week filter
