@@ -667,11 +667,11 @@ export function populateWeekSelector() {
     const weekSliderLabels = document.getElementById('weekSliderLabels');
     const allGames = getAllGames();
 
-    // Get unique weeks from completed games, sorted
+    // Get unique weeks that have at least one completed game, sorted
     const completedGames = allGames.filter(game => game.winner);
-    const weeks = [...new Set(completedGames.map(g => g.week))].sort((a, b) => a - b);
+    const weeksWithCompletedGames = [...new Set(completedGames.map(g => g.week))].sort((a, b) => a - b);
 
-    if (weeks.length === 0) {
+    if (weeksWithCompletedGames.length === 0) {
         // No completed games yet
         weekSlider.min = 0;
         weekSlider.max = 0;
@@ -682,20 +682,28 @@ export function populateWeekSelector() {
         return;
     }
 
-    const minWeek = weeks[0];
-    const maxWeek = weeks[weeks.length - 1];
+    // Only show weeks up to the latest week with completed games
+    // This prevents showing future weeks that haven't been played yet
+    const minWeek = weeksWithCompletedGames[0];
+    const maxCompletedWeek = weeksWithCompletedGames[weeksWithCompletedGames.length - 1];
 
-    // Set slider range: minWeek to maxWeek, then maxWeek+1 = Current
+    // Generate list of all weeks from min to max (filling in gaps if any)
+    const allWeeksInRange = [];
+    for (let week = minWeek; week <= maxCompletedWeek; week++) {
+        allWeeksInRange.push(week);
+    }
+
+    // Set slider range: minWeek to maxCompletedWeek, then maxCompletedWeek+1 = Current
     weekSlider.min = minWeek;
-    weekSlider.max = maxWeek + 1; // Last position is "Current"
-    weekSlider.value = maxWeek + 1; // Start at Current
+    weekSlider.max = maxCompletedWeek + 1; // Last position is "Current"
+    weekSlider.value = maxCompletedWeek + 1; // Start at Current
     weekSlider.disabled = false;
 
-    const sliderRange = (maxWeek + 1) - minWeek;
+    const sliderRange = (maxCompletedWeek + 1) - minWeek;
 
     // Generate tick marks for each week + Current
     weekTickMarks.innerHTML = '';
-    for (let week = minWeek; week <= maxWeek; week++) {
+    for (let week = minWeek; week <= maxCompletedWeek; week++) {
         const tick = document.createElement('div');
         tick.className = 'week-tick';
         // Calculate position as percentage
@@ -711,7 +719,7 @@ export function populateWeekSelector() {
 
     // Generate labels for each week + Current
     weekSliderLabels.innerHTML = '';
-    for (let week = minWeek; week <= maxWeek; week++) {
+    for (let week = minWeek; week <= maxCompletedWeek; week++) {
         const label = document.createElement('span');
         label.className = 'week-label';
         label.textContent = `${week}`;
