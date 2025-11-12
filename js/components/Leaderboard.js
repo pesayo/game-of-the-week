@@ -751,7 +751,6 @@ export function handleWeekChange() {
     // Reprocess data with week filter
     const rawPicks = getRawPicksData();
     const gameMap = getMatchupsData();
-    const allGames = getAllGames();
     const pickAnalysis = getPickAnalysis();
 
     const filteredData = processData(rawPicks, gameMap, allGames, pickAnalysis, selectedWeek);
