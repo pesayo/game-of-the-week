@@ -17,17 +17,29 @@ export function renderCurrentHolders() {
     // Create Goblet holder card
     if (winnersData.currentGobletHolder) {
         const gobletCard = createHolderCard(
-            'Game of the Week Goblet',
+            'Keeper of the Goblet',
             winnersData.currentGobletHolder,
             'goblet'
         );
         container.appendChild(gobletCard);
     }
 
+    // Add Pantheon button in the middle
+    const pantheonBtn = document.createElement('a');
+    pantheonBtn.href = '#';
+    pantheonBtn.id = 'pantheonLink';
+    pantheonBtn.className = 'pantheon-link';
+    pantheonBtn.innerHTML = '<i class="fas fa-landmark"></i> View Pantheon';
+    pantheonBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        showPantheonModal();
+    });
+    container.appendChild(pantheonBtn);
+
     // Create Funk-Eng Cup holder card
     if (winnersData.currentFunkEngHolder) {
         const funkEngCard = createHolderCard(
-            'Funk-Eng Cup',
+            'Funk-Eng Holder',
             winnersData.currentFunkEngHolder,
             'funk-eng'
         );
@@ -140,14 +152,7 @@ export function setupPantheonModal() {
         closeBtn.addEventListener('click', closePantheonModal);
     }
 
-    // Pantheon link
-    const pantheonLink = document.getElementById('pantheonLink');
-    if (pantheonLink) {
-        pantheonLink.addEventListener('click', (e) => {
-            e.preventDefault();
-            showPantheonModal();
-        });
-    }
+    // Note: Pantheon link is now created dynamically in renderCurrentHolders()
 }
 
 // Make showPantheonModal available globally for inline onclick handlers
