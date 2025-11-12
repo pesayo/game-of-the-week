@@ -25,6 +25,46 @@ th.sortable.sorted-desc::after {
     opacity: 1;
 }
 
+/* Leaderboard Table Container with Scrolling */
+#leaderboardTable {
+    display: block;
+    max-height: 600px;
+    overflow-y: auto;
+}
+
+#leaderboardTable thead {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background-color: var(--gray-50);
+}
+
+#leaderboardTable thead,
+#leaderboardTable tbody {
+    display: table;
+    width: 100%;
+    table-layout: fixed;
+}
+
+/* Custom scrollbar for leaderboard */
+#leaderboardTable::-webkit-scrollbar {
+    width: 8px;
+}
+
+#leaderboardTable::-webkit-scrollbar-track {
+    background: var(--gray-100);
+    border-radius: 4px;
+}
+
+#leaderboardTable::-webkit-scrollbar-thumb {
+    background: var(--gray-400);
+    border-radius: 4px;
+}
+
+#leaderboardTable::-webkit-scrollbar-thumb:hover {
+    background: var(--gray-500);
+}
+
 /* Standings Header */
 .standings-header {
     display: flex;

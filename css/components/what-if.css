@@ -213,6 +213,27 @@
 .whatif-results {
     display: flex;
     flex-direction: column;
+    max-height: 600px;
+    overflow-y: auto;
+}
+
+/* Custom scrollbar for whatif results */
+.whatif-results::-webkit-scrollbar {
+    width: 8px;
+}
+
+.whatif-results::-webkit-scrollbar-track {
+    background: var(--gray-100);
+    border-radius: 4px;
+}
+
+.whatif-results::-webkit-scrollbar-thumb {
+    background: var(--gray-400);
+    border-radius: 4px;
+}
+
+.whatif-results::-webkit-scrollbar-thumb:hover {
+    background: var(--gray-500);
 }
 
 .whatif-results h3 {
@@ -260,6 +281,12 @@
 
 .comparison-table {
     width: 100%;
+}
+
+.comparison-table thead {
+    position: sticky;
+    top: 0;
+    z-index: 10;
 }
 
 .comparison-table th {
