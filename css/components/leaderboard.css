@@ -123,9 +123,6 @@ th.sortable.sorted-desc::after {
     left: 4px;
     right: 4px;
     height: 6px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
     pointer-events: none;
     z-index: 1;
 }
@@ -134,8 +131,9 @@ th.sortable.sorted-desc::after {
     width: 2px;
     height: 12px;
     background-color: var(--gray-400);
-    position: relative;
+    position: absolute;
     top: -3px;
+    transform: translateX(-50%);
 }
 
 .week-tick.current {
@@ -192,18 +190,19 @@ th.sortable.sorted-desc::after {
 }
 
 .week-slider-labels {
-    display: flex;
-    justify-content: space-between;
+    position: relative;
     font-size: 11px;
     color: var(--text-secondary);
     font-weight: 500;
     padding: 0 4px;
-    position: relative;
+    height: 20px;
 }
 
 .week-label {
+    position: absolute;
     text-align: center;
-    min-width: 40px;
+    transform: translateX(-50%);
+    white-space: nowrap;
 }
 
 .week-label.current {

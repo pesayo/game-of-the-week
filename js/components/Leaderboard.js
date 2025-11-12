@@ -691,16 +691,22 @@ export function populateWeekSelector() {
     weekSlider.value = maxWeek + 1; // Start at Current
     weekSlider.disabled = false;
 
+    const sliderRange = (maxWeek + 1) - minWeek;
+
     // Generate tick marks for each week + Current
     weekTickMarks.innerHTML = '';
     for (let week = minWeek; week <= maxWeek; week++) {
         const tick = document.createElement('div');
         tick.className = 'week-tick';
+        // Calculate position as percentage
+        const position = ((week - minWeek) / sliderRange) * 100;
+        tick.style.left = `${position}%`;
         weekTickMarks.appendChild(tick);
     }
     // Add tick for "Current"
     const currentTick = document.createElement('div');
     currentTick.className = 'week-tick current';
+    currentTick.style.left = '100%';
     weekTickMarks.appendChild(currentTick);
 
     // Generate labels for each week + Current
@@ -709,12 +715,16 @@ export function populateWeekSelector() {
         const label = document.createElement('span');
         label.className = 'week-label';
         label.textContent = `${week}`;
+        // Calculate position as percentage
+        const position = ((week - minWeek) / sliderRange) * 100;
+        label.style.left = `${position}%`;
         weekSliderLabels.appendChild(label);
     }
     // Add "Current" label
     const currentLabel = document.createElement('span');
     currentLabel.className = 'week-label current';
     currentLabel.textContent = 'Current';
+    currentLabel.style.left = '100%';
     weekSliderLabels.appendChild(currentLabel);
 }
 
