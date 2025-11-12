@@ -84,17 +84,17 @@
     color: var(--text-primary);
 }
 
-/* Pantheon Link - Subtle with sparkle effect */
+/* Pantheon Link - Subtle with sparkle effect on hover */
 .pantheon-link {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
-    padding: 6px 12px;
+    gap: 5px;
+    padding: 3px 10px;
     background: rgba(96, 125, 139, 0.15);
     color: var(--mcc-blue-gray);
     text-decoration: none;
-    border-radius: 6px;
-    font-size: 11px;
+    border-radius: 5px;
+    font-size: 10px;
     font-weight: 500;
     transition: all 0.3s ease;
     border: 1px solid rgba(96, 125, 139, 0.3);
@@ -102,7 +102,7 @@
     overflow: hidden;
 }
 
-/* Sparkle effect */
+/* Sparkle effect - only animates on hover */
 .pantheon-link::before {
     content: '';
     position: absolute;
@@ -117,7 +117,7 @@
         transparent 70%
     );
     transform: translateX(-100%) translateY(-100%) rotate(45deg);
-    animation: sparkle 3s infinite;
+    animation: none;
 }
 
 @keyframes sparkle {
@@ -135,6 +135,10 @@
     color: var(--mcc-dark-2);
     transform: translateY(-1px);
     box-shadow: 0 2px 8px rgba(96, 125, 139, 0.2);
+}
+
+.pantheon-link:hover::before {
+    animation: sparkle 3s infinite;
 }
 
 .pantheon-link i {
