@@ -59,7 +59,7 @@ function createHolderCard(title, holder, type) {
     card.className = 'holder-card';
     card.innerHTML = `
         <div class="holder-trophy-icon ${type}">
-            <i class="fas ${type === 'goblet' ? 'fa-trophy' : 'fa-medal'}"></i>
+            <i class="fas fa-trophy"></i>
         </div>
         <div class="holder-info">
             <div class="holder-title">${title}</div>
