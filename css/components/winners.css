@@ -84,65 +84,42 @@
     color: var(--text-primary);
 }
 
-/* Pantheon Link - Subtle with sparkle effect on hover */
+/* Pantheon Link - Small button with sparkle on hover */
 .pantheon-link {
     display: inline-flex;
     align-items: center;
-    gap: 5px;
-    padding: 3px 10px;
+    align-self: center;
+    gap: 4px;
+    padding: 4px 10px;
     background: rgba(96, 125, 139, 0.15);
     color: var(--mcc-blue-gray);
     text-decoration: none;
-    border-radius: 5px;
-    font-size: 10px;
+    border-radius: 4px;
+    font-size: 9px;
     font-weight: 500;
     transition: all 0.3s ease;
     border: 1px solid rgba(96, 125, 139, 0.3);
-    position: relative;
-    overflow: hidden;
-}
-
-/* Sparkle effect - only animates on hover */
-.pantheon-link::before {
-    content: '';
-    position: absolute;
-    top: -50%;
-    left: -50%;
-    width: 200%;
-    height: 200%;
-    background: linear-gradient(
-        45deg,
-        transparent 30%,
-        rgba(255, 255, 255, 0.3) 50%,
-        transparent 70%
-    );
-    transform: translateX(-100%) translateY(-100%) rotate(45deg);
-    animation: none;
-}
-
-@keyframes sparkle {
-    0% {
-        transform: translateX(-100%) translateY(-100%) rotate(45deg);
-    }
-    100% {
-        transform: translateX(100%) translateY(100%) rotate(45deg);
-    }
 }
 
 .pantheon-link:hover {
     background: rgba(96, 125, 139, 0.25);
     border-color: var(--mcc-blue-gray);
     color: var(--mcc-dark-2);
-    transform: translateY(-1px);
-    box-shadow: 0 2px 8px rgba(96, 125, 139, 0.2);
+    box-shadow: 0 0 12px rgba(255, 255, 255, 0.6), 0 0 20px rgba(96, 125, 139, 0.3);
+    animation: sparkle 1.5s ease-in-out infinite;
 }
 
-.pantheon-link:hover::before {
-    animation: sparkle 3s infinite;
+@keyframes sparkle {
+    0%, 100% {
+        box-shadow: 0 0 12px rgba(255, 255, 255, 0.6), 0 0 20px rgba(96, 125, 139, 0.3);
+    }
+    50% {
+        box-shadow: 0 0 16px rgba(255, 255, 255, 0.8), 0 0 24px rgba(96, 125, 139, 0.5);
+    }
 }
 
 .pantheon-link i {
-    font-size: 12px;
+    font-size: 10px;
 }
 
 /* Pantheon Modal Specific Styles */
