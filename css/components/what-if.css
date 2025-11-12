@@ -135,6 +135,25 @@
     display: flex;
     flex-direction: column;
     gap: 15px;
+    padding-right: 10px;
+}
+
+.upcoming-games::-webkit-scrollbar {
+    width: 8px;
+}
+
+.upcoming-games::-webkit-scrollbar-track {
+    background: var(--gray-100);
+    border-radius: 4px;
+}
+
+.upcoming-games::-webkit-scrollbar-thumb {
+    background: var(--gray-400);
+    border-radius: 4px;
+}
+
+.upcoming-games::-webkit-scrollbar-thumb:hover {
+    background: var(--gray-600);
 }
 
 .game-card {

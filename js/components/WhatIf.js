@@ -200,6 +200,30 @@ export function updateProjectedStandings() {
         const projectedData = calculateProjectedStandings();
         renderComparisonTable('projectedStandingsTable', projectedData, leaderboardData);
     }
+
+    // Match the matchup list height to the standings height
+    syncColumnHeights();
+}
+
+/**
+ * Sync the height of the matchup list to match the standings height
+ */
+function syncColumnHeights() {
+    // Use requestAnimationFrame to ensure DOM has updated after render
+    requestAnimationFrame(() => {
+        const standingsContainer = document.querySelector('.whatif-results');
+        const matchupContainer = document.querySelector('.upcoming-games');
+
+        if (standingsContainer && matchupContainer) {
+            const standingsHeight = standingsContainer.offsetHeight;
+
+            // Apply the height to the matchup list
+            if (standingsHeight > 0) {
+                matchupContainer.style.maxHeight = `${standingsHeight}px`;
+                matchupContainer.style.overflowY = 'auto';
+            }
+        }
+    });
 }
 
 /**
