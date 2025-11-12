@@ -46,6 +46,38 @@ th.sortable.sorted-desc::after {
     table-layout: fixed;
 }
 
+/* Column widths for better layout */
+#leaderboardTable th:nth-child(1),
+#leaderboardTable td:nth-child(1) {
+    width: 60px; /* Rank */
+}
+
+#leaderboardTable th:nth-child(2),
+#leaderboardTable td:nth-child(2) {
+    width: 180px; /* Player - wider */
+}
+
+#leaderboardTable th:nth-child(3),
+#leaderboardTable td:nth-child(3) {
+    width: 50px; /* W - narrower */
+}
+
+#leaderboardTable th:nth-child(4),
+#leaderboardTable td:nth-child(4) {
+    width: 50px; /* L - narrower */
+}
+
+#leaderboardTable th:nth-child(5),
+#leaderboardTable td:nth-child(5) {
+    width: 80px; /* Win % */
+}
+
+/* Recent Games column takes remaining space */
+#leaderboardTable th:nth-child(6),
+#leaderboardTable td:nth-child(6) {
+    width: auto;
+}
+
 /* Custom scrollbar for leaderboard */
 #leaderboardTable::-webkit-scrollbar {
     width: 8px;
