@@ -50,7 +50,10 @@ const state = {
     currentView: 'player', // 'player', 'team', or 'position'
 
     // Selected week for historical standings (null = current/all completed games)
-    selectedWeek: null
+    selectedWeek: null,
+
+    // Winners data (Goblet and Funk-Eng Cup)
+    winnersData: null // Stores history and current holders
 };
 
 // Getter functions
@@ -120,6 +123,10 @@ export function getCurrentView() {
 
 export function getSelectedWeek() {
     return state.selectedWeek;
+}
+
+export function getWinnersData() {
+    return state.winnersData;
 }
 
 // Setter functions
@@ -207,6 +214,10 @@ export function setSelectedWeek(week) {
     state.selectedWeek = week;
 }
 
+export function setWinnersData(data) {
+    state.winnersData = data;
+}
+
 // Utility function to get entire state (for debugging)
 export function getState() {
     return state;
@@ -235,4 +246,5 @@ export function resetState() {
     state.isExpanded = false;
     state.currentView = 'player';
     state.selectedWeek = null;
+    state.winnersData = null;
 }

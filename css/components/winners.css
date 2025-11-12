@@ -1,0 +1,297 @@
+/* Winners Component Styles */
+
+/* Header Right Section */
+.header-right {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+/* Current Holders Container */
+.current-holders-container {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+/* Holder Card */
+.holder-card {
+    background: linear-gradient(135deg, rgba(255, 215, 0, 0.15), rgba(255, 255, 255, 0.85));
+    border: 2px solid var(--gold);
+    border-radius: 12px;
+    padding: 12px 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 200px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    transition: all 0.3s ease;
+}
+
+.holder-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+    background: linear-gradient(135deg, rgba(255, 215, 0, 0.25), rgba(255, 255, 255, 0.95));
+}
+
+/* Trophy Icon */
+.holder-trophy-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    flex-shrink: 0;
+}
+
+.holder-trophy-icon.goblet {
+    background: linear-gradient(135deg, var(--gold), #ffed4e);
+    color: var(--accent-dark);
+    box-shadow: 0 2px 8px rgba(255, 215, 0, 0.4);
+}
+
+.holder-trophy-icon.funk-eng {
+    background: linear-gradient(135deg, var(--silver), #e0e0e0);
+    color: var(--gray-600);
+    box-shadow: 0 2px 8px rgba(192, 192, 192, 0.4);
+}
+
+/* Holder Info */
+.holder-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.holder-title {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-secondary);
+}
+
+.holder-name {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+/* Pantheon Link */
+.pantheon-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 18px;
+    background: linear-gradient(135deg, var(--mcc-blue-gray), var(--mcc-dark-1));
+    color: white;
+    text-decoration: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.pantheon-link:hover {
+    background: linear-gradient(135deg, var(--mcc-dark-1), var(--mcc-dark-2));
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+}
+
+.pantheon-link i {
+    font-size: 16px;
+}
+
+/* Pantheon Modal Specific Styles */
+.pantheon-modal-content {
+    max-width: 900px;
+    width: 90%;
+}
+
+.pantheon-columns {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+    margin-top: 20px;
+}
+
+.pantheon-column {
+    background: var(--gray-50);
+    border-radius: 8px;
+    padding: 20px;
+}
+
+.pantheon-column-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0 0 15px 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border-bottom: 2px solid var(--gray-300);
+    padding-bottom: 10px;
+}
+
+.pantheon-column-title i {
+    font-size: 20px;
+}
+
+.pantheon-column:first-child .pantheon-column-title {
+    color: var(--accent-dark);
+}
+
+.pantheon-column:first-child .pantheon-column-title i {
+    color: var(--gold);
+}
+
+.pantheon-column:last-child .pantheon-column-title i {
+    color: var(--silver);
+}
+
+/* Pantheon History List */
+.pantheon-history-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    max-height: 500px;
+    overflow-y: auto;
+    padding-right: 5px;
+}
+
+/* Custom scrollbar for history list */
+.pantheon-history-list::-webkit-scrollbar {
+    width: 8px;
+}
+
+.pantheon-history-list::-webkit-scrollbar-track {
+    background: var(--gray-200);
+    border-radius: 4px;
+}
+
+.pantheon-history-list::-webkit-scrollbar-thumb {
+    background: var(--gray-400);
+    border-radius: 4px;
+}
+
+.pantheon-history-list::-webkit-scrollbar-thumb:hover {
+    background: var(--gray-500);
+}
+
+/* Pantheon History Item */
+.pantheon-history-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 14px;
+    background: white;
+    border-radius: 6px;
+    border-left: 4px solid var(--mcc-blue-gray);
+    transition: all 0.2s ease;
+}
+
+.pantheon-history-item:hover {
+    transform: translateX(4px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    border-left-color: var(--gold);
+}
+
+.pantheon-history-item:first-child {
+    border-left-color: var(--gold);
+    background: linear-gradient(90deg, rgba(255, 215, 0, 0.1), white);
+    font-weight: 600;
+}
+
+.pantheon-season {
+    font-size: 13px;
+    color: var(--text-secondary);
+    font-weight: 600;
+}
+
+.pantheon-history-item:first-child .pantheon-season {
+    color: var(--accent-dark);
+}
+
+.pantheon-winner {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.pantheon-history-item:first-child .pantheon-winner {
+    color: var(--accent-dark);
+    font-size: 15px;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+    .header-right {
+        margin-top: 15px;
+        gap: 10px;
+    }
+
+    .current-holders-container {
+        gap: 10px;
+    }
+
+    .holder-card {
+        padding: 10px 15px;
+        min-width: 160px;
+        gap: 10px;
+    }
+
+    .holder-trophy-icon {
+        width: 40px;
+        height: 40px;
+        font-size: 20px;
+    }
+
+    .holder-title {
+        font-size: 9px;
+    }
+
+    .holder-name {
+        font-size: 14px;
+    }
+
+    .pantheon-link {
+        padding: 8px 14px;
+        font-size: 12px;
+    }
+
+    .pantheon-modal-content {
+        width: 95%;
+        max-width: 100%;
+    }
+
+    .pantheon-columns {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+
+    .pantheon-column {
+        padding: 15px;
+    }
+
+    .pantheon-column-title {
+        font-size: 16px;
+    }
+
+    .pantheon-history-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 4px;
+        padding: 8px 12px;
+    }
+
+    .pantheon-season,
+    .pantheon-winner {
+        font-size: 12px;
+    }
+}
