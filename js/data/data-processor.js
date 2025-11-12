@@ -85,9 +85,10 @@ export function analyzePickDistribution(rawPicks, gameMap) {
  * @param {Object} gameMap - Map of gameKey -> game info
  * @param {Array} gamesArray - Array of all games in order
  * @param {Object} pickAnalysis - Pick distribution analysis from analyzePickDistribution
+ * @param {number|null} upToWeek - Optional week number to filter games (null = all completed games)
  * @returns {Array} Processed leaderboard data with player stats and rankings
  */
-export function processData(rawPicks, gameMap, gamesArray, pickAnalysis) {
+export function processData(rawPicks, gameMap, gamesArray, pickAnalysis, upToWeek = null) {
     if (!rawPicks || rawPicks.length === 0) return [];
 
     const headers = Object.keys(rawPicks[0]);
@@ -114,6 +115,11 @@ export function processData(rawPicks, gameMap, gamesArray, pickAnalysis) {
             const gameKey = createGameKey(gameInfo.week, gameInfo.date, gameInfo.time, gameInfo.sheet);
             const game = gameMap[gameKey];
             if (!game) return;
+
+            // Skip games beyond the selected week if upToWeek is specified
+            if (upToWeek !== null && game.week > upToWeek) {
+                return;
+            }
 
             const playerPick = row[gameHeader];
             if (!playerPick) return; // Player didn't make a pick

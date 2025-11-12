@@ -32,7 +32,9 @@ import {
     populateFilters,
     setupFilterControls,
     setupFilterToggle,
-    setupViewToggle
+    setupViewToggle,
+    populateWeekSelector,
+    setupWeekSelector
 } from './components/Leaderboard.js';
 
 import {
@@ -117,6 +119,10 @@ async function init() {
         setupFilterControls();
         setupFilterToggle();
         setupViewToggle();
+
+        // Setup week selector for historical standings
+        populateWeekSelector();
+        setupWeekSelector();
 
         // Render everything
         renderHorseRace(leaderboardData);

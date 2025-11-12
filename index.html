@@ -82,7 +82,7 @@
                 <!-- Leaderboard Section -->
                 <section class="section leaderboard-section">
                     <div class="standings-header">
-                        <h2 class="section-title"><i class="fas fa-medal"></i> Current Standings</h2>
+                        <h2 class="section-title"><i class="fas fa-medal"></i> <span id="standingsTitle">Current Standings</span></h2>
                         <div class="standings-view-toggle">
                             <button class="standings-toggle-btn active" id="viewPlayerBtn" data-view="player">
                                 <i class="fas fa-user"></i> Players
@@ -94,6 +94,14 @@
                                 <i class="fas fa-chess"></i> Positions
                             </button>
                         </div>
+                    </div>
+
+                    <!-- Week Selector for Historical Standings -->
+                    <div class="week-selector-section">
+                        <label for="standingsWeekFilter"><i class="fas fa-calendar-week"></i> View Standings After Week:</label>
+                        <select id="standingsWeekFilter">
+                            <option value="">Current (All Games)</option>
+                        </select>
                     </div>
 
                     <!-- Filter Controls -->

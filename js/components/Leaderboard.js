@@ -9,15 +9,21 @@ import {
     getAllGames,
     getIsExpanded,
     getCurrentView,
+    getSelectedWeek,
+    getMatchupsData,
+    getRawPicksData,
+    getPickAnalysis,
     updateActiveFilter,
     setCurrentSort,
     setCurrentDirection,
     setIsExpanded,
-    setCurrentView
+    setCurrentView,
+    setSelectedWeek,
+    setLeaderboardData
 } from '../state/app-state.js';
 import { showTooltip, hideTooltip } from './Modals.js';
 import { renderStreakTracker } from './StreakTracker.js';
-import { aggregateByTeam, aggregateByPosition } from '../data/data-processor.js';
+import { aggregateByTeam, aggregateByPosition, processData } from '../data/data-processor.js';
 
 /**
  * Render statistics summary cards at top of dashboard
@@ -575,8 +581,15 @@ export function setupFilterControls() {
         const filteredData = currentView === 'player' ? applyFilters(viewData) : viewData;
         const sortedData = sortData(filteredData, currentSort, currentDirection);
 
+        // Always get current data for stats summary
+        const rawPicks = getRawPicksData();
+        const gameMap = getMatchupsData();
+        const allGames = getAllGames();
+        const pickAnalysis = getPickAnalysis();
+        const currentData = processData(rawPicks, gameMap, allGames, pickAnalysis, null);
+
         renderLeaderboard(sortedData);
-        renderStatsSummary(getLeaderboardData());
+        renderStatsSummary(currentData);
         renderStreakTracker(getLeaderboardData());
     });
 
@@ -599,8 +612,15 @@ export function setupFilterControls() {
         const filteredData = currentView === 'player' ? applyFilters(viewData) : viewData;
         const sortedData = sortData(filteredData, currentSort, currentDirection);
 
+        // Always get current data for stats summary
+        const rawPicks = getRawPicksData();
+        const gameMap = getMatchupsData();
+        const allGames = getAllGames();
+        const pickAnalysis = getPickAnalysis();
+        const currentData = processData(rawPicks, gameMap, allGames, pickAnalysis, null);
+
         renderLeaderboard(sortedData);
-        renderStatsSummary(getLeaderboardData());
+        renderStatsSummary(currentData);
         renderStreakTracker(getLeaderboardData());
     });
 
@@ -623,8 +643,15 @@ export function setupFilterControls() {
         const filteredData = currentView === 'player' ? applyFilters(viewData) : viewData;
         const sortedData = sortData(filteredData, currentSort, currentDirection);
 
+        // Always get current data for stats summary
+        const rawPicks = getRawPicksData();
+        const gameMap = getMatchupsData();
+        const allGames = getAllGames();
+        const pickAnalysis = getPickAnalysis();
+        const currentData = processData(rawPicks, gameMap, allGames, pickAnalysis, null);
+
         renderLeaderboard(sortedData);
-        renderStatsSummary(getLeaderboardData());
+        renderStatsSummary(currentData);
         renderStreakTracker(getLeaderboardData());
     });
 
@@ -645,11 +672,124 @@ export function setupFilterControls() {
         const filteredData = currentView === 'player' ? viewData : viewData;
         const sortedData = sortData(filteredData, currentSort, currentDirection);
 
+        // Always get current data for stats summary
+        const rawPicks = getRawPicksData();
+        const gameMap = getMatchupsData();
+        const allGames = getAllGames();
+        const pickAnalysis = getPickAnalysis();
+        const currentData = processData(rawPicks, gameMap, allGames, pickAnalysis, null);
+
         renderLeaderboard(sortedData);
         // Always show stats for all players, regardless of view or filters
-        renderStatsSummary(getLeaderboardData());
+        renderStatsSummary(currentData);
         renderStreakTracker(getLeaderboardData());
     });
+}
+
+/**
+ * Populate week selector dropdown with available weeks
+ */
+export function populateWeekSelector() {
+    const weekFilter = document.getElementById('standingsWeekFilter');
+    const allGames = getAllGames();
+
+    // Get unique weeks that have at least one completed game, sorted
+    const completedGames = allGames.filter(game => game.winner);
+    const weeksWithCompletedGames = [...new Set(completedGames.map(g => g.week))].sort((a, b) => a - b);
+
+    if (weeksWithCompletedGames.length === 0) {
+        // No completed games yet
+        weekFilter.innerHTML = '<option value="">Current (All Games)</option>';
+        weekFilter.disabled = true;
+        return;
+    }
+
+    const minWeek = weeksWithCompletedGames[0];
+    const maxCompletedWeek = weeksWithCompletedGames[weeksWithCompletedGames.length - 1];
+
+    // Set the current week option to show the actual week number
+    weekFilter.innerHTML = `<option value="">Week ${maxCompletedWeek} (current)</option>`;
+
+    // Only show historical weeks (not the current/latest week)
+    // Add week options in reverse order (newest to oldest, excluding current week)
+    for (let week = maxCompletedWeek - 1; week >= minWeek; week--) {
+        const option = document.createElement('option');
+        option.value = week;
+        option.textContent = `Week ${week}`;
+        weekFilter.appendChild(option);
+    }
+
+    // Disable if there are no historical weeks to show (only one week of games)
+    weekFilter.disabled = maxCompletedWeek === minWeek;
+
+    // Update the title to show the current week on initial load
+    const standingsTitle = document.getElementById('standingsTitle');
+    if (standingsTitle) {
+        standingsTitle.textContent = `Week ${maxCompletedWeek} Standings`;
+    }
+}
+
+/**
+ * Handle week selection change and update standings
+ */
+export function handleWeekChange() {
+    const weekFilter = document.getElementById('standingsWeekFilter');
+    const selectedValue = weekFilter.value;
+    const selectedWeek = selectedValue === '' ? null : parseInt(selectedValue, 10);
+
+    // Update state
+    setSelectedWeek(selectedWeek);
+
+    // Update title
+    const standingsTitle = document.getElementById('standingsTitle');
+    if (selectedWeek !== null) {
+        standingsTitle.textContent = `Week ${selectedWeek} Standings`;
+    } else {
+        // For current, get the latest completed week number
+        const allGames = getAllGames();
+        const completedGames = allGames.filter(game => game.winner);
+        const weeks = [...new Set(completedGames.map(g => g.week))].sort((a, b) => a - b);
+        const currentWeek = weeks.length > 0 ? weeks[weeks.length - 1] : null;
+
+        if (currentWeek !== null) {
+            standingsTitle.textContent = `Week ${currentWeek} Standings`;
+        } else {
+            standingsTitle.textContent = 'Current Standings';
+        }
+    }
+
+    // Reprocess data with week filter
+    const rawPicks = getRawPicksData();
+    const gameMap = getMatchupsData();
+    const allGames = getAllGames();
+    const pickAnalysis = getPickAnalysis();
+
+    const filteredData = processData(rawPicks, gameMap, allGames, pickAnalysis, selectedWeek);
+    setLeaderboardData(filteredData);
+
+    // Always get current (unfiltered) data for stats summary to show true current leader
+    const currentData = processData(rawPicks, gameMap, allGames, pickAnalysis, null);
+
+    // Re-render all views
+    const currentView = getCurrentView();
+    const viewData = getDataForView(currentView);
+    const filteredViewData = currentView === 'player' ? applyFilters(viewData) : viewData;
+
+    const currentSort = getCurrentSort();
+    const currentDirection = getCurrentDirection();
+    const sortedData = sortData(filteredViewData, currentSort, currentDirection);
+
+    renderLeaderboard(sortedData);
+    renderStatsSummary(currentData); // Always show current leader
+    renderStreakTracker(filteredData);
+}
+
+/**
+ * Setup week selector controls
+ */
+export function setupWeekSelector() {
+    const weekFilter = document.getElementById('standingsWeekFilter');
+    weekFilter.addEventListener('change', handleWeekChange);
 }
 
 // Make showGroupTooltip available globally for inline event handlers

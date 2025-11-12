@@ -47,7 +47,10 @@ const state = {
     isExpanded: false,
 
     // View state for standings table
-    currentView: 'player' // 'player', 'team', or 'position'
+    currentView: 'player', // 'player', 'team', or 'position'
+
+    // Selected week for historical standings (null = current/all completed games)
+    selectedWeek: null
 };
 
 // Getter functions
@@ -113,6 +116,10 @@ export function getIsExpanded() {
 
 export function getCurrentView() {
     return state.currentView;
+}
+
+export function getSelectedWeek() {
+    return state.selectedWeek;
 }
 
 // Setter functions
@@ -196,6 +203,10 @@ export function setCurrentView(view) {
     state.currentView = view;
 }
 
+export function setSelectedWeek(week) {
+    state.selectedWeek = week;
+}
+
 // Utility function to get entire state (for debugging)
 export function getState() {
     return state;
@@ -223,4 +234,5 @@ export function resetState() {
     state.scheduleFilter = 'all';
     state.isExpanded = false;
     state.currentView = 'player';
+    state.selectedWeek = null;
 }
