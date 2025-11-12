@@ -24,18 +24,6 @@ export function renderCurrentHolders() {
         container.appendChild(gobletCard);
     }
 
-    // Add Pantheon button in the middle
-    const pantheonBtn = document.createElement('a');
-    pantheonBtn.href = '#';
-    pantheonBtn.id = 'pantheonLink';
-    pantheonBtn.className = 'pantheon-link';
-    pantheonBtn.innerHTML = '<i class="fas fa-landmark"></i> View Pantheon';
-    pantheonBtn.addEventListener('click', (e) => {
-        e.preventDefault();
-        showPantheonModal();
-    });
-    container.appendChild(pantheonBtn);
-
     // Create Funk-Eng Cup holder card
     if (winnersData.currentFunkEngHolder) {
         const funkEngCard = createHolderCard(
@@ -57,6 +45,7 @@ export function renderCurrentHolders() {
 function createHolderCard(title, holder, type) {
     const card = document.createElement('div');
     card.className = 'holder-card';
+    card.style.cursor = 'pointer';
     card.innerHTML = `
         <div class="holder-trophy-icon ${type}">
             <i class="fas fa-trophy"></i>
@@ -66,6 +55,12 @@ function createHolderCard(title, holder, type) {
             <div class="holder-name">${holder}</div>
         </div>
     `;
+
+    // Make card clickable to open Pantheon modal
+    card.addEventListener('click', () => {
+        showPantheonModal();
+    });
+
     return card;
 }
 
