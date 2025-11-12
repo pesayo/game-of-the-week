@@ -98,19 +98,10 @@
 
                     <!-- Week Selector for Historical Standings -->
                     <div class="week-selector-section">
-                        <div class="week-selector-header">
-                            <label for="standingsWeekSlider">
-                                <i class="fas fa-calendar-week"></i> View Standings After Week:
-                            </label>
-                            <span class="week-display" id="weekDisplay">Current (All Games)</span>
-                        </div>
-                        <div class="week-slider-container">
-                            <div class="week-slider-track">
-                                <div class="week-tick-marks" id="weekTickMarks"></div>
-                                <input type="range" id="standingsWeekSlider" min="0" max="0" value="0" step="1">
-                            </div>
-                            <div class="week-slider-labels" id="weekSliderLabels"></div>
-                        </div>
+                        <label for="standingsWeekFilter"><i class="fas fa-calendar-week"></i> View Standings After Week:</label>
+                        <select id="standingsWeekFilter">
+                            <option value="">Current (All Games)</option>
+                        </select>
                     </div>
 
                     <!-- Filter Controls -->

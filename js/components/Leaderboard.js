@@ -659,26 +659,22 @@ export function setupFilterControls() {
 }
 
 /**
- * Populate week selector slider with available weeks
+ * Populate week selector dropdown with available weeks
  */
 export function populateWeekSelector() {
-    const weekSlider = document.getElementById('standingsWeekSlider');
-    const weekTickMarks = document.getElementById('weekTickMarks');
-    const weekSliderLabels = document.getElementById('weekSliderLabels');
+    const weekFilter = document.getElementById('standingsWeekFilter');
     const allGames = getAllGames();
 
     // Get unique weeks that have at least one completed game, sorted
     const completedGames = allGames.filter(game => game.winner);
     const weeksWithCompletedGames = [...new Set(completedGames.map(g => g.week))].sort((a, b) => a - b);
 
+    // Clear existing options except the first "Current" option
+    weekFilter.innerHTML = '<option value="">Current (All Games)</option>';
+
     if (weeksWithCompletedGames.length === 0) {
         // No completed games yet
-        weekSlider.min = 0;
-        weekSlider.max = 0;
-        weekSlider.value = 0;
-        weekSlider.disabled = true;
-        weekTickMarks.innerHTML = '';
-        weekSliderLabels.innerHTML = '<span class="week-label">No games yet</span>';
+        weekFilter.disabled = true;
         return;
     }
 
@@ -687,88 +683,40 @@ export function populateWeekSelector() {
     const minWeek = weeksWithCompletedGames[0];
     const maxCompletedWeek = weeksWithCompletedGames[weeksWithCompletedGames.length - 1];
 
-    // Generate list of all weeks from min to max (filling in gaps if any)
-    const allWeeksInRange = [];
+    // Add week options for all weeks from min to max
     for (let week = minWeek; week <= maxCompletedWeek; week++) {
-        allWeeksInRange.push(week);
+        const option = document.createElement('option');
+        option.value = week;
+        option.textContent = `Week ${week}`;
+        weekFilter.appendChild(option);
     }
 
-    // Set slider range: minWeek to maxCompletedWeek, then maxCompletedWeek+1 = Current
-    weekSlider.min = minWeek;
-    weekSlider.max = maxCompletedWeek + 1; // Last position is "Current"
-    weekSlider.value = maxCompletedWeek + 1; // Start at Current
-    weekSlider.disabled = false;
-
-    const sliderRange = (maxCompletedWeek + 1) - minWeek;
-
-    // Generate tick marks for each week + Current
-    weekTickMarks.innerHTML = '';
-    for (let week = minWeek; week <= maxCompletedWeek; week++) {
-        const tick = document.createElement('div');
-        tick.className = 'week-tick';
-        // Calculate position as percentage
-        const position = ((week - minWeek) / sliderRange) * 100;
-        tick.style.left = `${position}%`;
-        weekTickMarks.appendChild(tick);
-    }
-    // Add tick for "Current"
-    const currentTick = document.createElement('div');
-    currentTick.className = 'week-tick current';
-    currentTick.style.left = '100%';
-    weekTickMarks.appendChild(currentTick);
-
-    // Generate labels for each week + Current
-    weekSliderLabels.innerHTML = '';
-    for (let week = minWeek; week <= maxCompletedWeek; week++) {
-        const label = document.createElement('span');
-        label.className = 'week-label';
-        label.textContent = `${week}`;
-        // Calculate position as percentage
-        const position = ((week - minWeek) / sliderRange) * 100;
-        label.style.left = `${position}%`;
-        weekSliderLabels.appendChild(label);
-    }
-    // Add "Current" label
-    const currentLabel = document.createElement('span');
-    currentLabel.className = 'week-label current';
-    currentLabel.textContent = 'Current';
-    currentLabel.style.left = '100%';
-    weekSliderLabels.appendChild(currentLabel);
+    weekFilter.disabled = false;
 }
 
 /**
  * Handle week selection change and update standings
  */
 export function handleWeekChange() {
-    const weekSlider = document.getElementById('standingsWeekSlider');
-    const weekDisplay = document.getElementById('weekDisplay');
-    const sliderValue = parseInt(weekSlider.value, 10);
-
-    // Get max week to determine if we're at "Current"
-    const allGames = getAllGames();
-    const completedGames = allGames.filter(game => game.winner);
-    const weeks = [...new Set(completedGames.map(g => g.week))].sort((a, b) => a - b);
-    const maxWeek = weeks.length > 0 ? weeks[weeks.length - 1] : 0;
-
-    // If slider is at max+1, show current (all games), otherwise show specific week
-    const selectedWeek = sliderValue > maxWeek ? null : sliderValue;
+    const weekFilter = document.getElementById('standingsWeekFilter');
+    const selectedValue = weekFilter.value;
+    const selectedWeek = selectedValue === '' ? null : parseInt(selectedValue, 10);
 
     // Update state
     setSelectedWeek(selectedWeek);
 
-    // Update display and title
+    // Update title
     const standingsTitle = document.getElementById('standingsTitle');
     if (selectedWeek !== null) {
         standingsTitle.textContent = `Standings After Week ${selectedWeek}`;
-        weekDisplay.textContent = `Week ${selectedWeek}`;
     } else {
         standingsTitle.textContent = 'Current Standings';
-        weekDisplay.textContent = 'Current (All Games)';
     }
 
     // Reprocess data with week filter
     const rawPicks = getRawPicksData();
     const gameMap = getMatchupsData();
+    const allGames = getAllGames();
     const pickAnalysis = getPickAnalysis();
 
     const filteredData = processData(rawPicks, gameMap, allGames, pickAnalysis, selectedWeek);
@@ -792,9 +740,8 @@ export function handleWeekChange() {
  * Setup week selector controls
  */
 export function setupWeekSelector() {
-    const weekSlider = document.getElementById('standingsWeekSlider');
-    // Use 'input' event for real-time updates as the slider moves
-    weekSlider.addEventListener('input', handleWeekChange);
+    const weekFilter = document.getElementById('standingsWeekFilter');
+    weekFilter.addEventListener('change', handleWeekChange);
 }
 
 // Make showGroupTooltip available globally for inline event handlers
