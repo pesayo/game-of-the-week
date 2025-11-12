@@ -678,20 +678,21 @@ export function populateWeekSelector() {
         return;
     }
 
-    // Only show weeks up to the latest week with completed games
-    // This prevents showing future weeks that haven't been played yet
     const minWeek = weeksWithCompletedGames[0];
     const maxCompletedWeek = weeksWithCompletedGames[weeksWithCompletedGames.length - 1];
 
-    // Add week options for all weeks from min to max
-    for (let week = minWeek; week <= maxCompletedWeek; week++) {
+    // Only show historical weeks (not the current/latest week)
+    // The current week is represented by "Current (All Games)" option
+    // Add week options in reverse order (newest to oldest, excluding current week)
+    for (let week = maxCompletedWeek - 1; week >= minWeek; week--) {
         const option = document.createElement('option');
         option.value = week;
         option.textContent = `Week ${week}`;
         weekFilter.appendChild(option);
     }
 
-    weekFilter.disabled = false;
+    // Disable if there are no historical weeks to show (only one week of games)
+    weekFilter.disabled = maxCompletedWeek === minWeek;
 }
 
 /**
