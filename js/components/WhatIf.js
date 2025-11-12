@@ -217,9 +217,17 @@ function syncColumnHeights() {
         if (standingsContainer && matchupContainer) {
             const standingsHeight = standingsContainer.offsetHeight;
 
-            // Apply the height to the matchup list
-            if (standingsHeight > 0) {
-                matchupContainer.style.maxHeight = `${standingsHeight}px`;
+            // Calculate the height of a single table row
+            const standingsTable = document.getElementById('projectedStandingsTable');
+            const firstRow = standingsTable?.querySelector('tbody tr');
+            const rowHeight = firstRow ? firstRow.offsetHeight : 40; // Default to 40px if not found
+
+            // Subtract 3 rows worth of height to account for controls above standings
+            const adjustedHeight = standingsHeight - (rowHeight * 3);
+
+            // Apply the adjusted height to the matchup list
+            if (adjustedHeight > 0) {
+                matchupContainer.style.maxHeight = `${adjustedHeight}px`;
                 matchupContainer.style.overflowY = 'auto';
             }
         }
