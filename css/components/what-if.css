@@ -215,6 +215,27 @@
 .whatif-results {
     display: flex;
     flex-direction: column;
+    max-height: 600px;
+    overflow-y: auto;
+    padding-right: 10px;
+}
+
+.whatif-results::-webkit-scrollbar {
+    width: 8px;
+}
+
+.whatif-results::-webkit-scrollbar-track {
+    background: var(--gray-100);
+    border-radius: 4px;
+}
+
+.whatif-results::-webkit-scrollbar-thumb {
+    background: var(--gray-400);
+    border-radius: 4px;
+}
+
+.whatif-results::-webkit-scrollbar-thumb:hover {
+    background: var(--gray-600);
 }
 
 .whatif-results h3 {
