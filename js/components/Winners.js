@@ -46,6 +46,7 @@ function createHolderCard(title, holder, type) {
     const card = document.createElement('div');
     card.className = 'holder-card';
     card.style.cursor = 'pointer';
+    card.title = 'Click to view historical winners';
     card.innerHTML = `
         <div class="holder-trophy-icon ${type}">
             <i class="fas fa-trophy"></i>
