@@ -74,12 +74,19 @@ th.sortable.sorted-desc::after {
     background-color: var(--gray-50);
     border-top: 1px solid var(--gray-300);
     display: flex;
-    align-items: center;
+    flex-direction: column;
     gap: 12px;
     margin-bottom: 0;
 }
 
-.week-selector-section label {
+.week-selector-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+}
+
+.week-selector-header label {
     font-size: 13px;
     color: var(--text-secondary);
     font-weight: 600;
@@ -89,25 +96,72 @@ th.sortable.sorted-desc::after {
     white-space: nowrap;
 }
 
-.week-selector-section select {
-    padding: 8px 12px;
-    border: 1px solid var(--gray-300);
-    border-radius: 5px;
+.week-display {
     font-size: 14px;
-    background-color: white;
-    cursor: pointer;
-    transition: all 0.2s;
-    min-width: 200px;
+    font-weight: 600;
+    color: var(--accent);
+    padding: 4px 12px;
+    background-color: rgba(59, 130, 246, 0.1);
+    border-radius: 4px;
 }
 
-.week-selector-section select:hover {
-    border-color: var(--accent);
+.week-slider-container {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
 }
 
-.week-selector-section select:focus {
+.week-slider-container input[type="range"] {
+    width: 100%;
+    height: 6px;
+    border-radius: 3px;
+    background: linear-gradient(to right, var(--gray-300) 0%, var(--accent) 100%);
     outline: none;
-    border-color: var(--accent);
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    -webkit-appearance: none;
+    cursor: pointer;
+}
+
+.week-slider-container input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--accent);
+    cursor: pointer;
+    border: 3px solid white;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    transition: all 0.2s;
+}
+
+.week-slider-container input[type="range"]::-webkit-slider-thumb:hover {
+    transform: scale(1.1);
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.3);
+}
+
+.week-slider-container input[type="range"]::-moz-range-thumb {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--accent);
+    cursor: pointer;
+    border: 3px solid white;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    transition: all 0.2s;
+}
+
+.week-slider-container input[type="range"]::-moz-range-thumb:hover {
+    transform: scale(1.1);
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.3);
+}
+
+.week-slider-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    color: var(--text-secondary);
+    font-weight: 500;
+    padding: 0 4px;
 }
 
 .filter-section {

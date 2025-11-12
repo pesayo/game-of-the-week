@@ -659,45 +659,60 @@ export function setupFilterControls() {
 }
 
 /**
- * Populate week selector dropdown with available weeks
+ * Populate week selector slider with available weeks
  */
 export function populateWeekSelector() {
-    const weekFilter = document.getElementById('standingsWeekFilter');
+    const weekSlider = document.getElementById('standingsWeekSlider');
+    const weekLabelEnd = document.getElementById('weekLabelEnd');
     const allGames = getAllGames();
 
     // Get unique weeks from completed games, sorted
     const completedGames = allGames.filter(game => game.winner);
     const weeks = [...new Set(completedGames.map(g => g.week))].sort((a, b) => a - b);
 
-    // Clear existing options except the first "Current" option
-    weekFilter.innerHTML = '<option value="">Current (All Games)</option>';
+    if (weeks.length === 0) {
+        // No completed games yet
+        weekSlider.min = 0;
+        weekSlider.max = 0;
+        weekSlider.value = 0;
+        weekSlider.disabled = true;
+        weekLabelEnd.textContent = 'No games yet';
+        return;
+    }
 
-    // Add week options
-    weeks.forEach(week => {
-        const option = document.createElement('option');
-        option.value = week;
-        option.textContent = `Week ${week}`;
-        weekFilter.appendChild(option);
-    });
+    // Set slider range: 0 = current (all games), 1 to N = week 1 to week N
+    const maxWeek = Math.max(...weeks);
+    weekSlider.min = 0;
+    weekSlider.max = maxWeek;
+    weekSlider.value = 0; // Start at current
+    weekSlider.disabled = false;
+
+    // Update end label
+    weekLabelEnd.textContent = `Week ${maxWeek}`;
 }
 
 /**
  * Handle week selection change and update standings
  */
 export function handleWeekChange() {
-    const weekFilter = document.getElementById('standingsWeekFilter');
-    const selectedValue = weekFilter.value;
-    const selectedWeek = selectedValue === '' ? null : parseInt(selectedValue, 10);
+    const weekSlider = document.getElementById('standingsWeekSlider');
+    const weekDisplay = document.getElementById('weekDisplay');
+    const sliderValue = parseInt(weekSlider.value, 10);
+
+    // Value 0 = current (all games), values 1-N = week 1 to week N
+    const selectedWeek = sliderValue === 0 ? null : sliderValue;
 
     // Update state
     setSelectedWeek(selectedWeek);
 
-    // Update title
+    // Update display and title
     const standingsTitle = document.getElementById('standingsTitle');
     if (selectedWeek !== null) {
         standingsTitle.textContent = `Standings After Week ${selectedWeek}`;
+        weekDisplay.textContent = `Week ${selectedWeek}`;
     } else {
         standingsTitle.textContent = 'Current Standings';
+        weekDisplay.textContent = 'Current (All Games)';
     }
 
     // Reprocess data with week filter
@@ -727,8 +742,9 @@ export function handleWeekChange() {
  * Setup week selector controls
  */
 export function setupWeekSelector() {
-    const weekFilter = document.getElementById('standingsWeekFilter');
-    weekFilter.addEventListener('change', handleWeekChange);
+    const weekSlider = document.getElementById('standingsWeekSlider');
+    // Use 'input' event for real-time updates as the slider moves
+    weekSlider.addEventListener('input', handleWeekChange);
 }
 
 // Make showGroupTooltip available globally for inline event handlers
