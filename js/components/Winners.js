@@ -67,20 +67,20 @@ export function showPantheonModal() {
     const modal = document.getElementById('pantheonModal');
     if (!modal) return;
 
-    // Populate Goblet history
+    // Populate Goblet history (reversed so most recent is first)
     const gobletList = document.getElementById('gobletHistoryList');
     gobletList.innerHTML = '';
-    winnersData.history.forEach(entry => {
+    winnersData.history.slice().reverse().forEach(entry => {
         if (entry.goblet) {
             const item = createHistoryItem(entry.season, entry.subseason, entry.goblet);
             gobletList.appendChild(item);
         }
     });
 
-    // Populate Funk-Eng Cup history
+    // Populate Funk-Eng Cup history (reversed so most recent is first)
     const funkEngList = document.getElementById('funkEngHistoryList');
     funkEngList.innerHTML = '';
-    winnersData.history.forEach(entry => {
+    winnersData.history.slice().reverse().forEach(entry => {
         if (entry.funkEng) {
             const item = createHistoryItem(entry.season, entry.subseason, entry.funkEng);
             funkEngList.appendChild(item);
