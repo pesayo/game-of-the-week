@@ -23,6 +23,7 @@
     <link rel="stylesheet" href="css/components/what-if.css">
     <link rel="stylesheet" href="css/components/picks-matrix.css">
     <link rel="stylesheet" href="css/components/modals.css">
+    <link rel="stylesheet" href="css/components/winners.css">
 </head>
 <body>
     <!-- Utility Links (Upper Right) -->
@@ -41,6 +42,9 @@
                     <h1>Game of the Week</h1>
                     <div class="subtitle">2025-2026 Season</div>
                 </div>
+            </div>
+            <div class="header-right">
+                <div id="currentHoldersContainer" class="current-holders-container"></div>
             </div>
             <div class="header-stats" id="statsSummary"></div>
         </div>
@@ -140,8 +144,8 @@
                     <tr>
                         <th class="center sortable sorted-asc" data-sort="rank">Rank</th>
                         <th class="sortable" data-sort="name" id="nameHeader">Player</th>
-                        <th class="center sortable" data-sort="wins" id="winsHeader">Wins</th>
-                        <th class="center sortable" data-sort="losses" id="lossesHeader">Losses</th>
+                        <th class="center sortable" data-sort="wins" id="winsHeader">W</th>
+                        <th class="center sortable" data-sort="losses" id="lossesHeader">L</th>
                         <th class="center sortable" data-sort="winPct">Win %</th>
                         <th class="center game-history-header" id="gameHistoryHeader">
                             <span id="gameHistoryLabel">Recent Games</span>
@@ -311,6 +315,37 @@
             </div>
             <div class="modal-body">
                 <div class="picks-list" id="modalPicksList"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pantheon Modal -->
+    <div class="modal-overlay" id="pantheonModal">
+        <div class="modal-content pantheon-modal-content">
+            <div class="modal-header">
+                <div>
+                    <h2 class="modal-title">
+                        <i class="fas fa-landmark"></i> Hall of Champions
+                    </h2>
+                    <div class="modal-subtitle">Past Winners of Game of the Week Honors</div>
+                </div>
+                <button class="modal-close" id="closePantheon">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="pantheon-columns">
+                    <div class="pantheon-column">
+                        <h3 class="pantheon-column-title">
+                            <i class="fas fa-trophy"></i> Game of the Week Goblet
+                        </h3>
+                        <div class="pantheon-history-list" id="gobletHistoryList"></div>
+                    </div>
+                    <div class="pantheon-column">
+                        <h3 class="pantheon-column-title">
+                            <i class="fas fa-trophy"></i> Funk-Eng Cup
+                        </h3>
+                        <div class="pantheon-history-list" id="funkEngHistoryList"></div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

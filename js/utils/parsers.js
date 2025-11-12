@@ -91,3 +91,41 @@ export function parseGameDate(dateString) {
         return null;
     }
 }
+
+// Parse winners CSV data
+export function parseWinners(rawWinners) {
+    const history = [];
+    let currentGobletHolder = null;
+    let currentFunkEngHolder = null;
+
+    rawWinners.forEach(row => {
+        const season = row.Season ? row.Season.trim() : '';
+        const subseason = row.Subseason ? row.Subseason.trim() : '';
+        const goblet = row.Goblet ? row.Goblet.trim() : '';
+        const funkEng = row['Funk-Eng Cup'] ? row['Funk-Eng Cup'].trim() : '';
+
+        if (season) {
+            const entry = {
+                season,
+                subseason,
+                goblet,
+                funkEng
+            };
+            history.push(entry);
+
+            // Update current holders (last non-empty entry)
+            if (goblet) {
+                currentGobletHolder = goblet;
+            }
+            if (funkEng) {
+                currentFunkEngHolder = funkEng;
+            }
+        }
+    });
+
+    return {
+        history,
+        currentGobletHolder,
+        currentFunkEngHolder
+    };
+}

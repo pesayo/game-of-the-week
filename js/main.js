@@ -16,11 +16,12 @@ import {
     setPickAnalysis,
     setHorseRaceData,
     setPlayerColors,
-    setRawPicksData
+    setRawPicksData,
+    setWinnersData
 } from './state/app-state.js';
 
 // Import utilities
-import { parsePlayerInfo, parseMatchups } from './utils/parsers.js';
+import { parsePlayerInfo, parseMatchups, parseWinners } from './utils/parsers.js';
 import { generatePlayerColors } from './utils/colors.js';
 
 // Import components
@@ -68,6 +69,11 @@ import {
     renderStreakTracker
 } from './components/StreakTracker.js';
 
+import {
+    renderCurrentHolders,
+    setupPantheonModal
+} from './components/Winners.js';
+
 /**
  * Initialize the application
  */
@@ -83,7 +89,7 @@ async function init() {
         if (dashboardGrid) dashboardGrid.style.display = 'none';
 
         // Fetch all data
-        const { matchups, picks, playerInfo } = await fetchAllData();
+        const { matchups, picks, playerInfo, winners } = await fetchAllData();
 
         // Store raw picks for what-if calculations
         setRawPicksData(picks);
@@ -91,6 +97,10 @@ async function init() {
         // Parse player info CSV
         const { playerMap, teams, positions } = parsePlayerInfo(playerInfo);
         setPlayerInfoMap(playerMap);
+
+        // Parse winners CSV
+        const winnersData = parseWinners(winners);
+        setWinnersData(winnersData);
 
         // Parse matchups CSV
         const { gameMap, gamesArray } = parseMatchups(matchups);
@@ -143,6 +153,10 @@ async function init() {
 
         // Setup modal handlers
         setupModalHandlers();
+
+        // Render current holders and setup pantheon modal
+        renderCurrentHolders();
+        setupPantheonModal();
 
         // Load team lineups and setup schedule
         try {

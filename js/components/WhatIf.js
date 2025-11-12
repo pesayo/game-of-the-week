@@ -392,7 +392,13 @@ export function setupWhatIfControls() {
     const copyPlayerPicksBtn = document.getElementById('copyPlayerPicks');
 
     playerSelect.innerHTML = '<option value="">-- Select Player --</option>';
-    leaderboardData.forEach(player => {
+
+    // Sort players alphabetically by name
+    const sortedPlayers = [...leaderboardData].sort((a, b) =>
+        a.name.localeCompare(b.name)
+    );
+
+    sortedPlayers.forEach(player => {
         const option = document.createElement('option');
         option.value = player.name;
         option.textContent = player.name;

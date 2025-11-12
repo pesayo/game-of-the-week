@@ -78,7 +78,7 @@
 .header-stats {
     display: flex;
     justify-content: center;
-    gap: 20px;
+    gap: 15px;
     margin-top: 20px;
     flex-wrap: wrap;
     padding: 0 20px;
@@ -87,10 +87,10 @@
 .header-stats .stat-card {
     background-color: rgba(255, 255, 255, 0.7);
     backdrop-filter: blur(10px);
-    padding: 8px 16px;
+    padding: 5px 12px;
     border-radius: 6px;
     border: 1px solid var(--gray-200);
-    min-width: 100px;
+    min-width: 85px;
     transition: all 0.2s;
 }
 
@@ -101,7 +101,7 @@
 }
 
 .header-stats .stat-card .stat-label {
-    font-size: 10px;
+    font-size: 9px;
     color: var(--text-secondary);
     text-transform: uppercase;
     letter-spacing: 0.8px;
@@ -110,7 +110,7 @@
 }
 
 .header-stats .stat-card .stat-value {
-    font-size: 18px;
+    font-size: 16px;
     font-weight: bold;
     color: var(--text-primary);
 }
@@ -143,20 +143,20 @@
     }
 
     .header-stats {
-        gap: 10px;
+        gap: 8px;
         margin-top: 15px;
     }
 
     .header-stats .stat-card {
-        padding: 6px 12px;
-        min-width: 80px;
+        padding: 4px 10px;
+        min-width: 75px;
     }
 
     .header-stats .stat-card .stat-label {
-        font-size: 9px;
+        font-size: 8px;
     }
 
     .header-stats .stat-card .stat-value {
-        font-size: 16px;
+        font-size: 14px;
     }
 }
