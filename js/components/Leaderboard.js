@@ -663,7 +663,8 @@ export function setupFilterControls() {
  */
 export function populateWeekSelector() {
     const weekSlider = document.getElementById('standingsWeekSlider');
-    const weekLabelEnd = document.getElementById('weekLabelEnd');
+    const weekTickMarks = document.getElementById('weekTickMarks');
+    const weekSliderLabels = document.getElementById('weekSliderLabels');
     const allGames = getAllGames();
 
     // Get unique weeks from completed games, sorted
@@ -676,19 +677,45 @@ export function populateWeekSelector() {
         weekSlider.max = 0;
         weekSlider.value = 0;
         weekSlider.disabled = true;
-        weekLabelEnd.textContent = 'No games yet';
+        weekTickMarks.innerHTML = '';
+        weekSliderLabels.innerHTML = '<span class="week-label">No games yet</span>';
         return;
     }
 
-    // Set slider range: 0 = current (all games), 1 to N = week 1 to week N
-    const maxWeek = Math.max(...weeks);
-    weekSlider.min = 0;
-    weekSlider.max = maxWeek;
-    weekSlider.value = 0; // Start at current
+    const minWeek = weeks[0];
+    const maxWeek = weeks[weeks.length - 1];
+
+    // Set slider range: minWeek to maxWeek, then maxWeek+1 = Current
+    weekSlider.min = minWeek;
+    weekSlider.max = maxWeek + 1; // Last position is "Current"
+    weekSlider.value = maxWeek + 1; // Start at Current
     weekSlider.disabled = false;
 
-    // Update end label
-    weekLabelEnd.textContent = `Week ${maxWeek}`;
+    // Generate tick marks for each week + Current
+    weekTickMarks.innerHTML = '';
+    for (let week = minWeek; week <= maxWeek; week++) {
+        const tick = document.createElement('div');
+        tick.className = 'week-tick';
+        weekTickMarks.appendChild(tick);
+    }
+    // Add tick for "Current"
+    const currentTick = document.createElement('div');
+    currentTick.className = 'week-tick current';
+    weekTickMarks.appendChild(currentTick);
+
+    // Generate labels for each week + Current
+    weekSliderLabels.innerHTML = '';
+    for (let week = minWeek; week <= maxWeek; week++) {
+        const label = document.createElement('span');
+        label.className = 'week-label';
+        label.textContent = `${week}`;
+        weekSliderLabels.appendChild(label);
+    }
+    // Add "Current" label
+    const currentLabel = document.createElement('span');
+    currentLabel.className = 'week-label current';
+    currentLabel.textContent = 'Current';
+    weekSliderLabels.appendChild(currentLabel);
 }
 
 /**
@@ -699,8 +726,14 @@ export function handleWeekChange() {
     const weekDisplay = document.getElementById('weekDisplay');
     const sliderValue = parseInt(weekSlider.value, 10);
 
-    // Value 0 = current (all games), values 1-N = week 1 to week N
-    const selectedWeek = sliderValue === 0 ? null : sliderValue;
+    // Get max week to determine if we're at "Current"
+    const allGames = getAllGames();
+    const completedGames = allGames.filter(game => game.winner);
+    const weeks = [...new Set(completedGames.map(g => g.week))].sort((a, b) => a - b);
+    const maxWeek = weeks.length > 0 ? weeks[weeks.length - 1] : 0;
+
+    // If slider is at max+1, show current (all games), otherwise show specific week
+    const selectedWeek = sliderValue > maxWeek ? null : sliderValue;
 
     // Update state
     setSelectedWeek(selectedWeek);
