@@ -581,8 +581,15 @@ export function setupFilterControls() {
         const filteredData = currentView === 'player' ? applyFilters(viewData) : viewData;
         const sortedData = sortData(filteredData, currentSort, currentDirection);
 
+        // Always get current data for stats summary
+        const rawPicks = getRawPicksData();
+        const gameMap = getMatchupsData();
+        const allGames = getAllGames();
+        const pickAnalysis = getPickAnalysis();
+        const currentData = processData(rawPicks, gameMap, allGames, pickAnalysis, null);
+
         renderLeaderboard(sortedData);
-        renderStatsSummary(getLeaderboardData());
+        renderStatsSummary(currentData);
         renderStreakTracker(getLeaderboardData());
     });
 
@@ -605,8 +612,15 @@ export function setupFilterControls() {
         const filteredData = currentView === 'player' ? applyFilters(viewData) : viewData;
         const sortedData = sortData(filteredData, currentSort, currentDirection);
 
+        // Always get current data for stats summary
+        const rawPicks = getRawPicksData();
+        const gameMap = getMatchupsData();
+        const allGames = getAllGames();
+        const pickAnalysis = getPickAnalysis();
+        const currentData = processData(rawPicks, gameMap, allGames, pickAnalysis, null);
+
         renderLeaderboard(sortedData);
-        renderStatsSummary(getLeaderboardData());
+        renderStatsSummary(currentData);
         renderStreakTracker(getLeaderboardData());
     });
 
@@ -629,8 +643,15 @@ export function setupFilterControls() {
         const filteredData = currentView === 'player' ? applyFilters(viewData) : viewData;
         const sortedData = sortData(filteredData, currentSort, currentDirection);
 
+        // Always get current data for stats summary
+        const rawPicks = getRawPicksData();
+        const gameMap = getMatchupsData();
+        const allGames = getAllGames();
+        const pickAnalysis = getPickAnalysis();
+        const currentData = processData(rawPicks, gameMap, allGames, pickAnalysis, null);
+
         renderLeaderboard(sortedData);
-        renderStatsSummary(getLeaderboardData());
+        renderStatsSummary(currentData);
         renderStreakTracker(getLeaderboardData());
     });
 
@@ -651,9 +672,16 @@ export function setupFilterControls() {
         const filteredData = currentView === 'player' ? viewData : viewData;
         const sortedData = sortData(filteredData, currentSort, currentDirection);
 
+        // Always get current data for stats summary
+        const rawPicks = getRawPicksData();
+        const gameMap = getMatchupsData();
+        const allGames = getAllGames();
+        const pickAnalysis = getPickAnalysis();
+        const currentData = processData(rawPicks, gameMap, allGames, pickAnalysis, null);
+
         renderLeaderboard(sortedData);
         // Always show stats for all players, regardless of view or filters
-        renderStatsSummary(getLeaderboardData());
+        renderStatsSummary(currentData);
         renderStreakTracker(getLeaderboardData());
     });
 }
@@ -739,6 +767,9 @@ export function handleWeekChange() {
     const filteredData = processData(rawPicks, gameMap, allGames, pickAnalysis, selectedWeek);
     setLeaderboardData(filteredData);
 
+    // Always get current (unfiltered) data for stats summary to show true current leader
+    const currentData = processData(rawPicks, gameMap, allGames, pickAnalysis, null);
+
     // Re-render all views
     const currentView = getCurrentView();
     const viewData = getDataForView(currentView);
@@ -749,7 +780,7 @@ export function handleWeekChange() {
     const sortedData = sortData(filteredViewData, currentSort, currentDirection);
 
     renderLeaderboard(sortedData);
-    renderStatsSummary(filteredData);
+    renderStatsSummary(currentData); // Always show current leader
     renderStreakTracker(filteredData);
 }
 
