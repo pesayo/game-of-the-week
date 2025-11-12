@@ -70,44 +70,50 @@ th.sortable.sorted-desc::after {
 }
 
 .week-selector-section {
-    padding: 16px 20px;
-    background-color: var(--gray-50);
-    border-top: 1px solid var(--gray-300);
+    padding: 10px 20px;
+    background-color: transparent;
+    border-top: 1px solid var(--gray-200);
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 10px;
     margin-bottom: 0;
 }
 
 .week-selector-section label {
-    font-size: 13px;
-    color: var(--text-secondary);
-    font-weight: 600;
+    font-size: 12px;
+    color: var(--gray-500);
+    font-weight: 400;
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 5px;
     white-space: nowrap;
 }
 
+.week-selector-section label i {
+    opacity: 0.6;
+    font-size: 11px;
+}
+
 .week-selector-section select {
-    padding: 8px 12px;
-    border: 1px solid var(--gray-300);
-    border-radius: 5px;
-    font-size: 14px;
+    padding: 6px 10px;
+    border: 1px solid var(--gray-200);
+    border-radius: 4px;
+    font-size: 13px;
     background-color: white;
+    color: var(--text-secondary);
     cursor: pointer;
     transition: all 0.2s;
-    min-width: 200px;
+    min-width: 160px;
 }
 
 .week-selector-section select:hover {
-    border-color: var(--accent);
+    border-color: var(--gray-300);
 }
 
 .week-selector-section select:focus {
     outline: none;
-    border-color: var(--accent);
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    border-color: var(--gray-400);
+    box-shadow: none;
 }
 
 .filter-section {
