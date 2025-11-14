@@ -1,6 +1,6 @@
 // HorseRace component - handles horse race chart visualization
 
-import { getPlayerColors, getHorseRaceData, setHorseRaceData, getAllGames } from '../state/app-state.js';
+import { getPlayerColors, getHorseRaceData, setHorseRaceData, getAllGames, getFocusedPlayer } from '../state/app-state.js';
 import { sanitizeName } from '../utils/sanitizers.js';
 
 // State for crosshair
@@ -17,10 +17,13 @@ export function renderHorseRace(data) {
     const playerColors = getPlayerColors();
 
     // Initialize visibility on first render - only top tier visible by default
+    const focusedPlayer = getFocusedPlayer();
     data.forEach(player => {
         if (player.visible === undefined) {
-            player.visible = player.rank <= 3; // Only top 3 visible by default
+            // Top 3 visible by default, or the focused player
+            player.visible = player.rank <= 3 || (focusedPlayer && player.name === focusedPlayer);
         }
+        // After initialization, let user control visibility via legend toggle
     });
 
     container.selectAll("*").remove();

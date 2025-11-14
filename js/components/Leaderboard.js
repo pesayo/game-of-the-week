@@ -13,6 +13,7 @@ import {
     getMatchupsData,
     getRawPicksData,
     getPickAnalysis,
+    getFocusedPlayer,
     updateActiveFilter,
     setCurrentSort,
     setCurrentDirection,
@@ -90,9 +91,21 @@ export function renderLeaderboard(data) {
 
     const isExpanded = getIsExpanded();
     const currentView = getCurrentView();
+    const focusedPlayer = getFocusedPlayer();
 
     data.forEach((item, index) => {
         const row = document.createElement('tr');
+
+        // Add focused class if this row matches the focused player
+        if (focusedPlayer && currentView === 'player' && item.name === focusedPlayer) {
+            row.classList.add('focused-player');
+        } else if (focusedPlayer && (currentView === 'team' || currentView === 'position')) {
+            // Check if the group contains the focused player
+            const containsFocusedPlayer = item.players && item.players.some(p => p.name === focusedPlayer);
+            if (containsFocusedPlayer) {
+                row.classList.add('focused-group');
+            }
+        }
 
         // Rank with medal colors
         let rankClass = 'rank';

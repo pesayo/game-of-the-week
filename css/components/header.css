@@ -137,9 +137,116 @@
     white-space: nowrap;
 }
 
+/* Player Focus Section (in Standings) */
+.player-focus-section {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 8px 15px;
+    background-color: var(--gray-50);
+    border-bottom: 1px solid var(--gray-200);
+    font-size: 13px;
+}
+
+.player-focus-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--text-secondary);
+    font-weight: 600;
+    margin: 0;
+    white-space: nowrap;
+    font-size: 13px;
+}
+
+.player-focus-label i {
+    font-size: 12px;
+    opacity: 0.7;
+}
+
+.player-focus-controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.player-focus-dropdown {
+    font-size: 13px;
+    padding: 5px 10px;
+    border: 1px solid var(--gray-300);
+    border-radius: 4px;
+    background-color: white;
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: all 0.2s;
+    min-width: 140px;
+}
+
+.player-focus-dropdown:hover {
+    border-color: var(--mcc-blue-gray);
+}
+
+.player-focus-dropdown:focus {
+    outline: none;
+    border-color: var(--mcc-blue);
+    box-shadow: 0 0 0 2px rgba(39, 94, 254, 0.1);
+}
+
+.view-picks-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 5px 10px;
+    font-size: 12px;
+    background-color: white;
+    color: var(--text-secondary);
+    border: 1px solid var(--gray-300);
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.view-picks-btn:hover {
+    background-color: var(--gray-50);
+    color: var(--text-primary);
+    border-color: var(--mcc-blue-gray);
+}
+
+.view-picks-btn:active {
+    background-color: var(--gray-100);
+}
+
 @media (max-width: 768px) {
     .league-link {
         display: none;
+    }
+
+    .player-focus-section {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 8px;
+        padding: 10px 12px;
+    }
+
+    .player-focus-label {
+        font-size: 12px;
+    }
+
+    .player-focus-controls {
+        justify-content: stretch;
+    }
+
+    .player-focus-dropdown {
+        flex: 1;
+        font-size: 12px;
+        padding: 6px 10px;
+        min-width: 0;
+    }
+
+    .view-picks-btn {
+        padding: 6px 12px;
+        font-size: 12px;
     }
 
     .header-stats {

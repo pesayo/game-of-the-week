@@ -53,7 +53,10 @@ const state = {
     selectedWeek: null,
 
     // Winners data (Goblet and Funk-Eng Cup)
-    winnersData: null // Stores history and current holders
+    winnersData: null, // Stores history and current holders
+
+    // Focused player (for persistent highlighting)
+    focusedPlayer: null // Player name to highlight across all views
 };
 
 // Getter functions
@@ -127,6 +130,10 @@ export function getSelectedWeek() {
 
 export function getWinnersData() {
     return state.winnersData;
+}
+
+export function getFocusedPlayer() {
+    return state.focusedPlayer;
 }
 
 // Setter functions
@@ -218,6 +225,16 @@ export function setWinnersData(data) {
     state.winnersData = data;
 }
 
+export function setFocusedPlayer(player) {
+    state.focusedPlayer = player;
+    // Persist to localStorage
+    if (player) {
+        localStorage.setItem('gameoftheweek_focusedPlayer', player);
+    } else {
+        localStorage.removeItem('gameoftheweek_focusedPlayer');
+    }
+}
+
 // Utility function to get entire state (for debugging)
 export function getState() {
     return state;
@@ -247,4 +264,5 @@ export function resetState() {
     state.currentView = 'player';
     state.selectedWeek = null;
     state.winnersData = null;
+    state.focusedPlayer = null;
 }

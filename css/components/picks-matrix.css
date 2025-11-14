@@ -234,6 +234,24 @@
     background-color: var(--gray-200);
 }
 
+/* Focused player highlighting */
+.picks-matrix-table tbody tr.focused-player td {
+    background-color: rgba(39, 94, 254, 0.04);
+}
+
+.picks-matrix-table tbody tr.focused-player td.player-col {
+    background-color: rgba(39, 94, 254, 0.06);
+    border-left: 2px solid rgba(39, 94, 254, 0.3);
+}
+
+.picks-matrix-table tbody tr.focused-player:hover td {
+    background-color: rgba(39, 94, 254, 0.06);
+}
+
+.picks-matrix-table tbody tr.focused-player:hover td.player-col {
+    background-color: rgba(39, 94, 254, 0.08);
+}
+
 .matrix-pick-cell {
     padding: 4px;
     border-radius: 4px;
