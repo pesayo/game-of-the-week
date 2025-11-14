@@ -7,6 +7,7 @@ import {
     getRawPicksData,
     getPickAnalysis,
     getWhatifSelections,
+    getFocusedPlayer,
     setWhatifSelections,
     updateWhatifSelection,
     removeWhatifSelection,
@@ -242,6 +243,7 @@ function syncColumnHeights() {
  */
 export function renderComparisonTable(tableId, data, compareData) {
     const table = document.getElementById(tableId);
+    const focusedPlayer = getFocusedPlayer();
 
     let html = `
         <thead>
@@ -296,8 +298,11 @@ export function renderComparisonTable(tableId, data, compareData) {
         const winsDisplay = `${player.wins}<span class="record-change ${winsClass}">+${winsChange}</span>`;
         const lossesDisplay = `${player.losses}<span class="record-change ${lossesClass}">+${lossesChange}</span>`;
 
+        // Add focused class if this player is focused
+        const focusedClass = (focusedPlayer && player.name === focusedPlayer) ? ' focused-player' : '';
+
         html += `
-            <tr data-player-name="${player.name.replace(/"/g, '&quot;')}">
+            <tr data-player-name="${player.name.replace(/"/g, '&quot;')}" class="${focusedClass.trim()}">
                 <td class="center ${rankClass}">${player.rank}${rankChange}</td>
                 <td class="player-name">${player.name}</td>
                 <td class="center">${winsDisplay}</td>

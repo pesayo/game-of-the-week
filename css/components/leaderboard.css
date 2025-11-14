@@ -491,21 +491,21 @@ tbody tr:hover .game-history-cell {
 
 /* Focused player highlighting */
 tbody tr.focused-player {
-    background-color: rgba(39, 94, 254, 0.08);
-    border-left: 3px solid var(--mcc-blue);
+    background-color: rgba(39, 94, 254, 0.04);
+    border-left: 2px solid rgba(39, 94, 254, 0.3);
 }
 
 tbody tr.focused-player:hover {
-    background-color: rgba(39, 94, 254, 0.12);
+    background-color: rgba(39, 94, 254, 0.06);
 }
 
 tbody tr.focused-group {
-    background-color: rgba(39, 94, 254, 0.05);
-    border-left: 2px solid var(--mcc-blue-gray);
+    background-color: rgba(39, 94, 254, 0.03);
+    border-left: 2px solid rgba(39, 94, 254, 0.2);
 }
 
 tbody tr.focused-group:hover {
-    background-color: rgba(39, 94, 254, 0.08);
+    background-color: rgba(39, 94, 254, 0.05);
 }
 
 /* Mobile responsiveness */

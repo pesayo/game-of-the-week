@@ -7,6 +7,7 @@ import { getFocusedPlayer, setFocusedPlayer, getLeaderboardData } from '../state
 import { renderLeaderboard } from './Leaderboard.js';
 import { renderHorseRace } from './HorseRace.js';
 import { setupCombinedPicksView } from './PicksMatrix.js';
+import { updateProjectedStandings } from './WhatIf.js';
 
 /**
  * Initialize focused player from localStorage
@@ -105,4 +106,7 @@ export function refreshFocusedViews() {
 
     // Re-render picks view
     setupCombinedPicksView();
+
+    // Re-render what-if projected standings
+    updateProjectedStandings();
 }
