@@ -146,16 +146,6 @@
     align-items: center;
     gap: 8px;
     z-index: 1000;
-    background-color: rgba(255, 255, 255, 0.95);
-    padding: 6px 12px;
-    border-radius: 6px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    transition: all 0.2s;
-}
-
-.player-focus-container:hover {
-    background-color: rgba(255, 255, 255, 1);
-    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.15);
 }
 
 .player-focus-label {
@@ -189,6 +179,30 @@
     box-shadow: 0 0 0 2px rgba(39, 94, 254, 0.1);
 }
 
+.view-picks-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4px 8px;
+    font-size: 12px;
+    background-color: white;
+    color: var(--text-secondary);
+    border: 1px solid var(--gray-300);
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.view-picks-btn:hover {
+    background-color: var(--gray-50);
+    color: var(--text-primary);
+    border-color: var(--mcc-blue-gray);
+}
+
+.view-picks-btn:active {
+    background-color: var(--gray-100);
+}
+
 @media (max-width: 768px) {
     .league-link {
         display: none;
@@ -197,7 +211,6 @@
     .player-focus-container {
         top: 10px;
         left: 10px;
-        padding: 4px 8px;
         gap: 6px;
     }
 
@@ -210,6 +223,11 @@
         padding: 3px 6px;
         min-width: 100px;
         max-width: 120px;
+    }
+
+    .view-picks-btn {
+        padding: 3px 6px;
+        font-size: 11px;
     }
 
     .header-stats {

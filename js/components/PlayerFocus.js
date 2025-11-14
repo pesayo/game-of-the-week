@@ -38,10 +38,13 @@ export function renderPlayerFocusDropdown() {
     const container = document.createElement('div');
     container.className = 'player-focus-container';
     container.innerHTML = `
-        <label for="playerFocusDropdown" class="player-focus-label">Focus:</label>
+        <label for="playerFocusDropdown" class="player-focus-label">Highlight:</label>
         <select id="playerFocusDropdown" class="player-focus-dropdown">
             <option value="">No player selected</option>
         </select>
+        <button id="viewPlayerPicksBtn" class="view-picks-btn" style="display: none;" title="View player's picks">
+            <i class="fas fa-list-ul"></i>
+        </button>
     `;
 
     // Insert into the header (will be positioned absolutely via CSS)
@@ -50,6 +53,7 @@ export function renderPlayerFocusDropdown() {
     dropdown = document.getElementById('playerFocusDropdown');
     populateDropdownOptions(dropdown);
     setupDropdownHandler(dropdown);
+    setupPicksButtonHandler();
 }
 
 /**
@@ -87,9 +91,35 @@ function setupDropdownHandler(dropdown) {
         const selectedPlayer = e.target.value || null;
         setFocusedPlayer(selectedPlayer);
 
+        // Show/hide the view picks button
+        const picksBtn = document.getElementById('viewPlayerPicksBtn');
+        if (picksBtn) {
+            picksBtn.style.display = selectedPlayer ? 'inline-flex' : 'none';
+        }
+
         // Re-render affected components
         refreshFocusedViews();
     });
+}
+
+/**
+ * Setup picks button handler
+ */
+function setupPicksButtonHandler() {
+    const picksBtn = document.getElementById('viewPlayerPicksBtn');
+    const focusedPlayer = getFocusedPlayer();
+
+    if (picksBtn) {
+        // Show button if player is selected
+        picksBtn.style.display = focusedPlayer ? 'inline-flex' : 'none';
+
+        picksBtn.addEventListener('click', () => {
+            const player = getFocusedPlayer();
+            if (player && window.showPlayerDetails) {
+                window.showPlayerDetails(player);
+            }
+        });
+    }
 }
 
 /**
