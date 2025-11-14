@@ -74,50 +74,6 @@ body {
         0 4px 12px rgba(0, 0, 0, 0.3);
     transition: all 0.3s ease;
     border: 3px solid rgba(255, 215, 0, 0.5);
-    position: relative;
-    overflow: hidden;
-}
-
-.back-to-light a::before {
-    content: '✨';
-    position: absolute;
-    left: -20px;
-    top: 50%;
-    transform: translateY(-50%);
-    font-size: 1.2rem;
-    animation: sparkle-left 2s ease-in-out infinite;
-}
-
-.back-to-light a::after {
-    content: '✨';
-    position: absolute;
-    right: -20px;
-    top: 50%;
-    transform: translateY(-50%);
-    font-size: 1.2rem;
-    animation: sparkle-right 2s ease-in-out infinite;
-}
-
-@keyframes sparkle-left {
-    0%, 100% {
-        left: -20px;
-        opacity: 0;
-    }
-    50% {
-        left: 10px;
-        opacity: 1;
-    }
-}
-
-@keyframes sparkle-right {
-    0%, 100% {
-        right: -20px;
-        opacity: 0;
-    }
-    50% {
-        right: 10px;
-        opacity: 1;
-    }
 }
 
 .back-to-light a:hover {
@@ -440,11 +396,6 @@ body {
         gap: 6px;
     }
 
-    .back-to-light a::before,
-    .back-to-light a::after {
-        font-size: 1rem;
-    }
-
     .dashboard-container {
         padding: 0.5rem;
     }
@@ -517,11 +468,6 @@ body {
 
     .back-to-light a i {
         font-size: 0.85rem;
-    }
-
-    .back-to-light a::before,
-    .back-to-light a::after {
-        font-size: 0.9rem;
     }
 
     .dashboard-header .header-goblet {
