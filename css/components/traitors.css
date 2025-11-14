@@ -1,10 +1,18 @@
 /* Traitor Tracker Styles */
 
+/* Dark shrouded background */
+body {
+    background: linear-gradient(135deg, #1a1a1a 0%, #0d0d0d 50%, #1a1a1a 100%);
+    min-height: 100vh;
+}
+
 /* Header Goblet Override */
 .dashboard-header .header-goblet {
     width: 160px;
     height: 160px;
     transform: rotate(20deg);
+    filter: drop-shadow(0 0 20px rgba(255, 215, 0, 0.6))
+            drop-shadow(0 0 40px rgba(255, 215, 0, 0.3));
 }
 
 /* Loading and Error States */
