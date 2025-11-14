@@ -23,10 +23,9 @@ export function initializeFocusedPlayer() {
  * Create and render the player focus dropdown
  */
 export function renderPlayerFocusDropdown() {
-    const dashboardGrid = document.getElementById('dashboardGrid');
-    const upcomingSection = document.querySelector('.upcoming-section');
+    const weekSelectorSection = document.querySelector('.week-selector-section');
 
-    if (!dashboardGrid || !upcomingSection) return;
+    if (!weekSelectorSection) return;
 
     // Check if dropdown already exists
     let dropdown = document.getElementById('playerFocusDropdown');
@@ -43,19 +42,23 @@ export function renderPlayerFocusDropdown() {
 
     // Create dropdown container
     const container = document.createElement('div');
-    container.className = 'player-focus-container';
+    container.className = 'player-focus-section';
     container.innerHTML = `
-        <label for="playerFocusDropdown" class="player-focus-label">Highlight:</label>
-        <select id="playerFocusDropdown" class="player-focus-dropdown">
-            <option value="">No player selected</option>
-        </select>
-        <button id="viewPlayerPicksBtn" class="view-picks-btn" style="display: none;" title="View player's picks">
-            <i class="fas fa-list-ul"></i>
-        </button>
+        <label for="playerFocusDropdown" class="player-focus-label">
+            <i class="fas fa-user-check"></i> Highlight Player:
+        </label>
+        <div class="player-focus-controls">
+            <select id="playerFocusDropdown" class="player-focus-dropdown">
+                <option value="">None</option>
+            </select>
+            <button id="viewPlayerPicksBtn" class="view-picks-btn" style="display: none;" title="View player's picks">
+                <i class="fas fa-list-ul"></i>
+            </button>
+        </div>
     `;
 
-    // Insert before the upcoming section
-    dashboardGrid.insertBefore(container, upcomingSection);
+    // Insert after the week selector section
+    weekSelectorSection.parentNode.insertBefore(container, weekSelectorSection.nextSibling);
 
     dropdown = document.getElementById('playerFocusDropdown');
     populateDropdownOptions(dropdown);
