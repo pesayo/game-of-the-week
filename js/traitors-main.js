@@ -220,7 +220,6 @@ function renderTraitorsTable(traitorData) {
         <table class="traitors-table">
             <thead>
                 <tr>
-                    <th>Game</th>
                     <th>Week</th>
                     <th>Date</th>
                     <th>Time</th>
@@ -245,7 +244,6 @@ function renderTraitorsTable(traitorData) {
 
         tableHTML += `
             <tr>
-                <td class="game-number">${betrayal.gameNumber}</td>
                 <td>${betrayal.week}</td>
                 <td>${betrayal.date}</td>
                 <td>${betrayal.time}</td>

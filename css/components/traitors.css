@@ -124,6 +124,26 @@ body {
     border-radius: 12px;
     padding: 2rem;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+}
+
+/* Scroll indicator for mobile */
+@media (max-width: 768px) {
+    .traitors-section {
+        position: relative;
+    }
+
+    .traitors-section::after {
+        content: '← Scroll for more →';
+        display: block;
+        text-align: center;
+        font-size: 0.75rem;
+        color: var(--accent);
+        margin-top: 1rem;
+        opacity: 0.7;
+        font-style: italic;
+    }
 }
 
 .traitors-section h2 {
@@ -162,6 +182,7 @@ body {
 /* Traitors Table */
 .traitors-table {
     width: 100%;
+    min-width: 750px;
     border-collapse: collapse;
     background: var(--primary-3);
     border-radius: 8px;
@@ -183,10 +204,6 @@ body {
     border-bottom: 2px solid var(--primary-4);
 }
 
-.traitors-table th:first-child {
-    text-align: center;
-    width: 70px;
-}
 
 .traitors-table tbody tr {
     border-bottom: 1px solid var(--primary-2);
@@ -204,12 +221,6 @@ body {
 .traitors-table td {
     padding: 1rem;
     color: var(--text-on-dark);
-}
-
-.game-number {
-    text-align: center;
-    font-weight: 700;
-    color: var(--accent);
 }
 
 .player-name {
@@ -258,17 +269,18 @@ body {
 }
 
 /* Responsive Design */
-@media (max-width: 768px) {
-    .summary-grid {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 1rem;
+@media (max-width: 1024px) {
+    .dashboard-container {
+        padding: 1rem;
     }
 
-    .stat-value {
-        font-size: 2rem;
+    .traitors-section {
+        padding: 1.5rem;
+        margin: 2rem 0;
     }
 
     .traitors-table {
+        min-width: 650px;
         font-size: 0.875rem;
     }
 
@@ -276,22 +288,142 @@ body {
     .traitors-table td {
         padding: 0.75rem 0.5rem;
     }
-
-    .matchup-cell {
-        font-size: 0.7rem;
-    }
 }
 
-@media (max-width: 480px) {
-    .summary-grid {
-        grid-template-columns: 1fr;
+@media (max-width: 768px) {
+    .dashboard-container {
+        padding: 0.5rem;
     }
 
-    .traitors-section {
-        padding: 1rem;
+    .dashboard-header .header-text h1 {
+        font-size: 1.5rem;
+    }
+
+    .dashboard-header .header-text .subtitle {
+        font-size: 0.875rem;
+    }
+
+    .summary-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
     }
 
     .stat-value {
         font-size: 1.75rem;
+    }
+
+    .stat-label {
+        font-size: 0.75rem;
+    }
+
+    .traitors-section {
+        padding: 1rem;
+        margin: 1.5rem 0;
+    }
+
+    .traitors-section h2 {
+        font-size: 1.5rem;
+    }
+
+    .section-description {
+        font-size: 0.875rem;
+    }
+
+    .traitors-table {
+        min-width: 600px;
+        font-size: 0.8rem;
+    }
+
+    .traitors-table th,
+    .traitors-table td {
+        padding: 0.6rem 0.4rem;
+    }
+
+    .traitors-table th {
+        font-size: 0.7rem;
+    }
+
+    .matchup-cell {
+        font-size: 0.75rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .dashboard-header .header-goblet {
+        width: 120px;
+        height: 120px;
+    }
+
+    .dashboard-header .header-text h1 {
+        font-size: 1.25rem;
+    }
+
+    .dashboard-header .header-text .subtitle {
+        font-size: 0.75rem;
+    }
+
+    .traitors-summary {
+        padding: 1rem;
+        margin: 1rem 0;
+    }
+
+    .summary-grid {
+        grid-template-columns: 1fr;
+        gap: 0.75rem;
+    }
+
+    .stat-value {
+        font-size: 1.5rem;
+    }
+
+    .stat-label {
+        font-size: 0.7rem;
+    }
+
+    .traitors-section {
+        padding: 0.75rem;
+        margin: 1rem 0;
+    }
+
+    .traitors-section h2 {
+        font-size: 1.25rem;
+    }
+
+    .section-description {
+        font-size: 0.8rem;
+        margin-bottom: 1rem;
+    }
+
+    .traitors-table {
+        min-width: 550px;
+        font-size: 0.7rem;
+    }
+
+    .traitors-table th,
+    .traitors-table td {
+        padding: 0.5rem 0.3rem;
+    }
+
+    .traitors-table th {
+        font-size: 0.65rem;
+    }
+
+    .matchup-cell {
+        font-size: 0.65rem;
+    }
+
+    .player-name,
+    .picked-team {
+        font-size: 0.75rem;
+    }
+
+    .loading-indicator {
+        padding: 2rem 1rem;
+    }
+
+    .spinner {
+        width: 40px;
+        height: 40px;
+        border-width: 3px;
     }
 }
