@@ -22,6 +22,9 @@ export function renderHorseRace(data) {
         if (player.visible === undefined) {
             // Top 3 visible by default, or the focused player
             player.visible = player.rank <= 3 || (focusedPlayer && player.name === focusedPlayer);
+        } else if (focusedPlayer && player.name === focusedPlayer) {
+            // Always make focused player visible
+            player.visible = true;
         }
     });
 

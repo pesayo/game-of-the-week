@@ -23,14 +23,21 @@ export function initializeFocusedPlayer() {
  * Create and render the player focus dropdown
  */
 export function renderPlayerFocusDropdown() {
-    const header = document.querySelector('.dashboard-header');
-    if (!header) return;
+    const dashboardGrid = document.getElementById('dashboardGrid');
+    const upcomingSection = document.querySelector('.upcoming-section');
+
+    if (!dashboardGrid || !upcomingSection) return;
 
     // Check if dropdown already exists
     let dropdown = document.getElementById('playerFocusDropdown');
     if (dropdown) {
-        // Update the options
+        // Update the options and button visibility
         populateDropdownOptions(dropdown);
+        const picksBtn = document.getElementById('viewPlayerPicksBtn');
+        const focusedPlayer = getFocusedPlayer();
+        if (picksBtn) {
+            picksBtn.style.display = focusedPlayer ? 'inline-flex' : 'none';
+        }
         return;
     }
 
@@ -47,8 +54,8 @@ export function renderPlayerFocusDropdown() {
         </button>
     `;
 
-    // Insert into the header (will be positioned absolutely via CSS)
-    header.appendChild(container);
+    // Insert before the upcoming section
+    dashboardGrid.insertBefore(container, upcomingSection);
 
     dropdown = document.getElementById('playerFocusDropdown');
     populateDropdownOptions(dropdown);
