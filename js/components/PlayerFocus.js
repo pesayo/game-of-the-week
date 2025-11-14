@@ -167,7 +167,7 @@ export function refreshFocusedViews() {
 }
 
 /**
- * Scroll to the highlighted player in the standings table
+ * Scroll to the highlighted player in the standings table (within the table container only)
  */
 export function scrollToHighlightedPlayer() {
     const focusedPlayer = getFocusedPlayer();
@@ -182,11 +182,25 @@ export function scrollToHighlightedPlayer() {
         const highlightedRow = leaderboardTable.querySelector('tbody tr.focused-player, tbody tr.focused-group');
 
         if (highlightedRow) {
-            // Scroll the row into view with smooth behavior
-            highlightedRow.scrollIntoView({
-                behavior: 'smooth',
-                block: 'center',
-                inline: 'nearest'
+            // Get the scrollable container (the table itself has overflow-y: auto)
+            const scrollContainer = leaderboardTable;
+
+            // Calculate positions
+            const containerRect = scrollContainer.getBoundingClientRect();
+            const rowRect = highlightedRow.getBoundingClientRect();
+
+            // Calculate the scroll position to center the row within the container
+            const containerHeight = containerRect.height;
+            const rowTop = highlightedRow.offsetTop;
+            const rowHeight = rowRect.height;
+
+            // Target scroll position to center the row
+            const targetScroll = rowTop - (containerHeight / 2) + (rowHeight / 2);
+
+            // Smooth scroll within the container
+            scrollContainer.scrollTo({
+                top: targetScroll,
+                behavior: 'smooth'
             });
         }
     });
