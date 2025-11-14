@@ -6,54 +6,141 @@ body {
     min-height: 100vh;
 }
 
-/* Back to Light Link */
+/* Back to Light Link - Playful Escape */
 .back-to-light {
     position: absolute;
     top: 20px;
     left: 20px;
     z-index: 1000;
+    animation: float-bounce 3s ease-in-out infinite;
+}
+
+@keyframes float-bounce {
+    0%, 100% {
+        transform: translateY(0px);
+    }
+    50% {
+        transform: translateY(-10px);
+    }
+}
+
+@keyframes rainbow-glow {
+    0% {
+        box-shadow:
+            0 0 20px rgba(255, 100, 100, 0.6),
+            0 0 40px rgba(255, 200, 100, 0.4),
+            0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+    25% {
+        box-shadow:
+            0 0 20px rgba(255, 255, 100, 0.6),
+            0 0 40px rgba(100, 255, 100, 0.4),
+            0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+    50% {
+        box-shadow:
+            0 0 20px rgba(100, 200, 255, 0.6),
+            0 0 40px rgba(150, 150, 255, 0.4),
+            0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+    75% {
+        box-shadow:
+            0 0 20px rgba(255, 150, 255, 0.6),
+            0 0 40px rgba(255, 200, 150, 0.4),
+            0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+    100% {
+        box-shadow:
+            0 0 20px rgba(255, 100, 100, 0.6),
+            0 0 40px rgba(255, 200, 100, 0.4),
+            0 4px 12px rgba(0, 0, 0, 0.3);
+    }
 }
 
 .back-to-light a {
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    padding: 12px 20px;
-    background: linear-gradient(135deg, #ffffff 0%, #fffacd 100%);
+    padding: 14px 24px;
+    background: linear-gradient(135deg, #ffffff 0%, #fffacd 50%, #ffd700 100%);
     color: #1a1a1a;
     text-decoration: none;
-    font-weight: 700;
-    font-size: 1rem;
-    border-radius: 8px;
+    font-weight: 800;
+    font-size: 1.1rem;
+    border-radius: 50px;
     box-shadow:
         0 0 20px rgba(255, 255, 255, 0.6),
         0 0 40px rgba(255, 250, 205, 0.4),
         0 4px 12px rgba(0, 0, 0, 0.3);
     transition: all 0.3s ease;
-    border: 2px solid rgba(255, 215, 0, 0.3);
+    border: 3px solid rgba(255, 215, 0, 0.5);
+    position: relative;
+    overflow: hidden;
+}
+
+.back-to-light a::before {
+    content: '✨';
+    position: absolute;
+    left: -20px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 1.2rem;
+    animation: sparkle-left 2s ease-in-out infinite;
+}
+
+.back-to-light a::after {
+    content: '✨';
+    position: absolute;
+    right: -20px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 1.2rem;
+    animation: sparkle-right 2s ease-in-out infinite;
+}
+
+@keyframes sparkle-left {
+    0%, 100% {
+        left: -20px;
+        opacity: 0;
+    }
+    50% {
+        left: 10px;
+        opacity: 1;
+    }
+}
+
+@keyframes sparkle-right {
+    0%, 100% {
+        right: -20px;
+        opacity: 0;
+    }
+    50% {
+        right: 10px;
+        opacity: 1;
+    }
 }
 
 .back-to-light a:hover {
-    background: linear-gradient(135deg, #fffacd 0%, #ffd700 100%);
-    box-shadow:
-        0 0 30px rgba(255, 255, 255, 0.8),
-        0 0 60px rgba(255, 250, 205, 0.6),
-        0 6px 16px rgba(0, 0, 0, 0.4);
-    transform: translateY(-2px);
-    border-color: rgba(255, 215, 0, 0.6);
+    background: linear-gradient(135deg, #ffd700 0%, #ffed4e 50%, #ffffff 100%);
+    animation: rainbow-glow 2s ease-in-out infinite;
+    transform: scale(1.05) rotate(-2deg);
+    border-color: rgba(255, 215, 0, 0.9);
 }
 
 .back-to-light a i {
-    font-size: 0.875rem;
-    animation: gentle-pulse 2s ease-in-out infinite;
+    font-size: 1rem;
+    animation: wiggle-arrow 1s ease-in-out infinite;
 }
 
-@keyframes gentle-pulse {
+@keyframes wiggle-arrow {
     0%, 100% {
-        opacity: 0.8;
+        transform: translateX(0px) rotate(0deg);
     }
-    50% {
-        opacity: 1;
+    25% {
+        transform: translateX(-3px) rotate(-5deg);
+    }
+    75% {
+        transform: translateX(3px) rotate(5deg);
     }
 }
 
@@ -348,9 +435,14 @@ body {
     }
 
     .back-to-light a {
-        padding: 10px 16px;
-        font-size: 0.875rem;
+        padding: 12px 20px;
+        font-size: 1rem;
         gap: 6px;
+    }
+
+    .back-to-light a::before,
+    .back-to-light a::after {
+        font-size: 1rem;
     }
 
     .dashboard-container {
@@ -417,14 +509,19 @@ body {
     }
 
     .back-to-light a {
-        padding: 8px 12px;
-        font-size: 0.75rem;
-        gap: 4px;
-        border-radius: 6px;
+        padding: 10px 16px;
+        font-size: 0.9rem;
+        gap: 6px;
+        border-radius: 40px;
     }
 
     .back-to-light a i {
-        font-size: 0.75rem;
+        font-size: 0.85rem;
+    }
+
+    .back-to-light a::before,
+    .back-to-light a::after {
+        font-size: 0.9rem;
     }
 
     .dashboard-header .header-goblet {
