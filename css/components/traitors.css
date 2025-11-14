@@ -6,6 +6,57 @@ body {
     min-height: 100vh;
 }
 
+/* Back to Light Link */
+.back-to-light {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    z-index: 1000;
+}
+
+.back-to-light a {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 20px;
+    background: linear-gradient(135deg, #ffffff 0%, #fffacd 100%);
+    color: #1a1a1a;
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 1rem;
+    border-radius: 8px;
+    box-shadow:
+        0 0 20px rgba(255, 255, 255, 0.6),
+        0 0 40px rgba(255, 250, 205, 0.4),
+        0 4px 12px rgba(0, 0, 0, 0.3);
+    transition: all 0.3s ease;
+    border: 2px solid rgba(255, 215, 0, 0.3);
+}
+
+.back-to-light a:hover {
+    background: linear-gradient(135deg, #fffacd 0%, #ffd700 100%);
+    box-shadow:
+        0 0 30px rgba(255, 255, 255, 0.8),
+        0 0 60px rgba(255, 250, 205, 0.6),
+        0 6px 16px rgba(0, 0, 0, 0.4);
+    transform: translateY(-2px);
+    border-color: rgba(255, 215, 0, 0.6);
+}
+
+.back-to-light a i {
+    font-size: 0.875rem;
+    animation: gentle-pulse 2s ease-in-out infinite;
+}
+
+@keyframes gentle-pulse {
+    0%, 100% {
+        opacity: 0.8;
+    }
+    50% {
+        opacity: 1;
+    }
+}
+
 /* Ominous pulsating animation */
 @keyframes ominous-pulse {
     0%, 100% {
@@ -291,6 +342,17 @@ body {
 }
 
 @media (max-width: 768px) {
+    .back-to-light {
+        top: 10px;
+        left: 10px;
+    }
+
+    .back-to-light a {
+        padding: 10px 16px;
+        font-size: 0.875rem;
+        gap: 6px;
+    }
+
     .dashboard-container {
         padding: 0.5rem;
     }
@@ -349,6 +411,22 @@ body {
 }
 
 @media (max-width: 480px) {
+    .back-to-light {
+        top: 8px;
+        left: 8px;
+    }
+
+    .back-to-light a {
+        padding: 8px 12px;
+        font-size: 0.75rem;
+        gap: 4px;
+        border-radius: 6px;
+    }
+
+    .back-to-light a i {
+        font-size: 0.75rem;
+    }
+
     .dashboard-header .header-goblet {
         width: 120px;
         height: 120px;
