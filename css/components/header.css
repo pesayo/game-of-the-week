@@ -64,11 +64,11 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 32px;
-    height: 32px;
+    width: 40px;
+    height: 40px;
     color: #333;
     text-decoration: none;
-    font-size: 16px;
+    font-size: 20px;
     border-radius: 50%;
     transition: all 0.3s ease;
 }
@@ -266,9 +266,9 @@
     }
 
     .traitors-easter-egg a {
-        width: 28px;
-        height: 28px;
-        font-size: 14px;
+        width: 36px;
+        height: 36px;
+        font-size: 18px;
     }
 
     .league-link {
