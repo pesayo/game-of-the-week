@@ -240,7 +240,7 @@
 }
 
 .picks-matrix-table tbody tr.focused-player td.player-col {
-    background-color: rgba(39, 94, 254, 0.06);
+    background: linear-gradient(rgba(39, 94, 254, 0.06), rgba(39, 94, 254, 0.06)), white;
     border-left: 2px solid rgba(39, 94, 254, 0.3);
     z-index: 6;
 }
@@ -250,7 +250,7 @@
 }
 
 .picks-matrix-table tbody tr.focused-player:hover td.player-col {
-    background-color: rgba(39, 94, 254, 0.08);
+    background: linear-gradient(rgba(39, 94, 254, 0.08), rgba(39, 94, 254, 0.08)), white;
     z-index: 6;
 }
 
