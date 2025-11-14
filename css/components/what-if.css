@@ -326,12 +326,6 @@
     color: var(--text-muted);
 }
 
-/* Highlighted player rows when hovering over team choices */
-.comparison-table tbody tr.pick-highlighted {
-    background-color: rgba(255, 215, 0, 0.15);
-    transition: background-color 0.2s;
-}
-
 /* Focused player highlighting */
 .comparison-table tbody tr.focused-player {
     background-color: rgba(39, 94, 254, 0.04);
@@ -340,4 +334,16 @@
 
 .comparison-table tbody tr.focused-player:hover {
     background-color: rgba(39, 94, 254, 0.06);
+}
+
+/* Highlighted player rows when hovering over team choices */
+.comparison-table tbody tr.pick-highlighted {
+    background-color: rgba(255, 215, 0, 0.15);
+    transition: background-color 0.2s;
+}
+
+/* Pick highlighting overrides focus highlighting */
+.comparison-table tbody tr.focused-player.pick-highlighted {
+    background-color: rgba(255, 215, 0, 0.15);
+    border-left: 2px solid rgba(255, 215, 0, 0.4);
 }
