@@ -161,4 +161,33 @@ export function refreshFocusedViews() {
 
     // Re-render what-if projected standings
     updateProjectedStandings();
+
+    // Scroll to highlighted player
+    scrollToHighlightedPlayer();
+}
+
+/**
+ * Scroll to the highlighted player in the standings table
+ */
+export function scrollToHighlightedPlayer() {
+    const focusedPlayer = getFocusedPlayer();
+    if (!focusedPlayer) return;
+
+    // Use requestAnimationFrame to ensure DOM has updated
+    requestAnimationFrame(() => {
+        const leaderboardTable = document.getElementById('leaderboardTable');
+        if (!leaderboardTable) return;
+
+        // Find the highlighted row
+        const highlightedRow = leaderboardTable.querySelector('tbody tr.focused-player, tbody tr.focused-group');
+
+        if (highlightedRow) {
+            // Scroll the row into view with smooth behavior
+            highlightedRow.scrollIntoView({
+                behavior: 'smooth',
+                block: 'center',
+                inline: 'nearest'
+            });
+        }
+    });
 }

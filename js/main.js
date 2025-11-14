@@ -77,7 +77,8 @@ import {
 
 import {
     initializeFocusedPlayer,
-    renderPlayerFocusDropdown
+    renderPlayerFocusDropdown,
+    scrollToHighlightedPlayer
 } from './components/PlayerFocus.js';
 
 /**
@@ -169,6 +170,9 @@ async function init() {
 
         // Render player focus dropdown
         renderPlayerFocusDropdown();
+
+        // Scroll to highlighted player if one is selected
+        scrollToHighlightedPlayer();
 
         // Load team lineups and setup schedule
         try {
