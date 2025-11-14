@@ -172,14 +172,34 @@ function renderSummary(traitorData) {
 }
 
 /**
- * Render traitors table
+ * Parse date string for sorting
+ * @param {string} dateString - Date in MM/DD/YYYY format
+ * @param {string} timeString - Time in H:MM PM format
+ * @returns {Date} Date object
+ */
+function parseDateTime(dateString, timeString) {
+    const [month, day, year] = dateString.split('/').map(Number);
+    const [time, period] = timeString.split(' ');
+    let [hours, minutes] = time.split(':').map(Number);
+
+    if (period === 'PM' && hours !== 12) {
+        hours += 12;
+    } else if (period === 'AM' && hours === 12) {
+        hours = 0;
+    }
+
+    return new Date(year, month - 1, day, hours, minutes);
+}
+
+/**
+ * Render unified betrayals table
  * @param {Object} traitorData - Processed traitor data
  */
 function renderTraitorsTable(traitorData) {
     const tableContainer = document.getElementById('traitorsTable');
     if (!tableContainer) return;
 
-    if (traitorData.traitorsByPlayer.length === 0) {
+    if (traitorData.allTraitors.length === 0) {
         tableContainer.innerHTML = `
             <div class="no-traitors">
                 <i class="fas fa-trophy"></i>
@@ -189,49 +209,56 @@ function renderTraitorsTable(traitorData) {
         return;
     }
 
-    // Sort by total traitor picks (descending)
-    const sortedTraitors = [...traitorData.traitorsByPlayer].sort((a, b) => {
-        if (b.totalTraitorPicks !== a.totalTraitorPicks) {
-            return b.totalTraitorPicks - a.totalTraitorPicks;
-        }
-        return b.traitorWins - a.traitorWins;
+    // Sort all betrayals by date and time
+    const sortedBetrayal = [...traitorData.allTraitors].sort((a, b) => {
+        const dateA = parseDateTime(a.date, a.time);
+        const dateB = parseDateTime(b.date, b.time);
+        return dateA - dateB;
     });
 
     let tableHTML = `
         <table class="traitors-table">
             <thead>
                 <tr>
-                    <th>Rank</th>
-                    <th>Player</th>
+                    <th>Game</th>
+                    <th>Week</th>
+                    <th>Date</th>
+                    <th>Time</th>
+                    <th>Traitor</th>
                     <th>Position</th>
                     <th>Team</th>
-                    <th>Betrayals</th>
-                    <th>Wins</th>
-                    <th>Losses</th>
-                    <th>Pending</th>
-                    <th>Win Rate</th>
+                    <th>Matchup</th>
+                    <th>Picked</th>
+                    <th>Result</th>
                 </tr>
             </thead>
             <tbody>
     `;
 
-    sortedTraitors.forEach((traitor, index) => {
-        const completedPicks = traitor.traitorWins + traitor.traitorLosses;
-        const winRate = completedPicks > 0
-            ? ((traitor.traitorWins / completedPicks) * 100).toFixed(1)
-            : '-';
+    sortedBetrayal.forEach((betrayal) => {
+        const resultClass = betrayal.result === 'W' ? 'result-win' :
+                           betrayal.result === 'L' ? 'result-loss' :
+                           'result-pending';
+        const resultIcon = betrayal.result === 'W' ? '<i class="fas fa-check-circle"></i>' :
+                          betrayal.result === 'L' ? '<i class="fas fa-times-circle"></i>' :
+                          '<i class="fas fa-clock"></i>';
 
         tableHTML += `
             <tr>
-                <td>${index + 1}</td>
-                <td class="player-name">${traitor.playerName}</td>
-                <td>${traitor.playerPosition}</td>
-                <td class="team-name">${traitor.playerTeam}</td>
-                <td class="betrayals-count">${traitor.totalTraitorPicks}</td>
-                <td class="wins-count">${traitor.traitorWins}</td>
-                <td class="losses-count">${traitor.traitorLosses}</td>
-                <td class="pending-count">${traitor.traitorPending}</td>
-                <td>${completedPicks > 0 ? winRate + '%' : '-'}</td>
+                <td class="game-number">${betrayal.gameNumber}</td>
+                <td>${betrayal.week}</td>
+                <td>${betrayal.date}</td>
+                <td>${betrayal.time}</td>
+                <td class="player-name">${betrayal.playerName}</td>
+                <td>${betrayal.playerPosition}</td>
+                <td class="team-name">${betrayal.playerTeam}</td>
+                <td class="matchup-cell">
+                    <span class="${betrayal.team1 === betrayal.teamSkip ? 'own-team' : ''}">${betrayal.team1}</span>
+                    vs
+                    <span class="${betrayal.team2 === betrayal.teamSkip ? 'own-team' : ''}">${betrayal.team2}</span>
+                </td>
+                <td class="picked-team">${betrayal.opponent}</td>
+                <td class="${resultClass}">${resultIcon} ${betrayal.result}</td>
             </tr>
         `;
     });
@@ -244,95 +271,6 @@ function renderTraitorsTable(traitorData) {
     tableContainer.innerHTML = tableHTML;
 }
 
-/**
- * Render detailed breakdown by player
- * @param {Object} traitorData - Processed traitor data
- */
-function renderDetails(traitorData) {
-    const detailsContainer = document.getElementById('traitorsDetails');
-    if (!detailsContainer) return;
-
-    if (traitorData.traitorsByPlayer.length === 0) {
-        detailsContainer.innerHTML = '';
-        return;
-    }
-
-    // Sort by total traitor picks (descending)
-    const sortedTraitors = [...traitorData.traitorsByPlayer].sort((a, b) => {
-        if (b.totalTraitorPicks !== a.totalTraitorPicks) {
-            return b.totalTraitorPicks - a.totalTraitorPicks;
-        }
-        return b.traitorWins - a.traitorWins;
-    });
-
-    let detailsHTML = '';
-
-    sortedTraitors.forEach(traitor => {
-        // Sort picks by game number
-        const sortedPicks = [...traitor.traitorPicks].sort((a, b) => a.gameNumber - b.gameNumber);
-
-        detailsHTML += `
-            <div class="traitor-detail-card">
-                <div class="traitor-header">
-                    <h3>${traitor.playerName}</h3>
-                    <div class="traitor-meta">
-                        <span class="position-badge">${traitor.playerPosition}</span>
-                        <span class="team-badge">${traitor.playerTeam}</span>
-                    </div>
-                </div>
-                <div class="traitor-stats">
-                    <span>${traitor.totalTraitorPicks} betrayal${traitor.totalTraitorPicks !== 1 ? 's' : ''}</span>
-                    <span>${traitor.traitorWins}W - ${traitor.traitorLosses}L - ${traitor.traitorPending}P</span>
-                </div>
-                <div class="traitor-picks">
-                    <table class="picks-table">
-                        <thead>
-                            <tr>
-                                <th>Game</th>
-                                <th>Week</th>
-                                <th>Date</th>
-                                <th>Matchup</th>
-                                <th>Picked</th>
-                                <th>Result</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-        `;
-
-        sortedPicks.forEach(pick => {
-            const resultClass = pick.result === 'W' ? 'result-win' :
-                               pick.result === 'L' ? 'result-loss' :
-                               'result-pending';
-            const resultIcon = pick.result === 'W' ? '<i class="fas fa-check-circle"></i>' :
-                              pick.result === 'L' ? '<i class="fas fa-times-circle"></i>' :
-                              '<i class="fas fa-clock"></i>';
-
-            detailsHTML += `
-                <tr>
-                    <td>${pick.gameNumber}</td>
-                    <td>${pick.week}</td>
-                    <td>${pick.date}</td>
-                    <td class="matchup-cell">
-                        <span class="${pick.team1 === pick.teamSkip ? 'own-team' : ''}">${pick.team1}</span>
-                        vs
-                        <span class="${pick.team2 === pick.teamSkip ? 'own-team' : ''}">${pick.team2}</span>
-                    </td>
-                    <td class="picked-team">${pick.opponent}</td>
-                    <td class="${resultClass}">${resultIcon} ${pick.result}</td>
-                </tr>
-            `;
-        });
-
-        detailsHTML += `
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        `;
-    });
-
-    detailsContainer.innerHTML = detailsHTML;
-}
 
 /**
  * Initialize the application
@@ -365,7 +303,6 @@ async function init() {
         // Render everything
         renderSummary(traitorData);
         renderTraitorsTable(traitorData);
-        renderDetails(traitorData);
 
     } catch (error) {
         console.error('Error initializing traitor tracker:', error);

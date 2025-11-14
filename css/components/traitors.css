@@ -185,7 +185,7 @@ body {
 
 .traitors-table th:first-child {
     text-align: center;
-    width: 60px;
+    width: 70px;
 }
 
 .traitors-table tbody tr {
@@ -206,7 +206,7 @@ body {
     color: var(--text-on-dark);
 }
 
-.traitors-table td:first-child {
+.game-number {
     text-align: center;
     font-weight: 700;
     color: var(--accent);
@@ -220,121 +220,6 @@ body {
 .team-name {
     color: var(--text-on-dark);
     opacity: 0.8;
-}
-
-.betrayals-count {
-    font-weight: 700;
-    color: var(--error);
-}
-
-.wins-count {
-    color: var(--success);
-}
-
-.losses-count {
-    color: var(--error);
-}
-
-.pending-count {
-    color: var(--gray-400);
-}
-
-/* Detail Cards */
-.traitor-detail-card {
-    background: var(--primary-3);
-    border-radius: 8px;
-    padding: 1.5rem;
-    margin-bottom: 2rem;
-    border: 1px solid var(--primary-2);
-}
-
-.traitor-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 1rem;
-    padding-bottom: 1rem;
-    border-bottom: 2px solid var(--primary-2);
-}
-
-.traitor-header h3 {
-    margin: 0;
-    color: var(--text-on-dark);
-    font-size: 1.5rem;
-}
-
-.traitor-meta {
-    display: flex;
-    gap: 0.5rem;
-}
-
-.position-badge,
-.team-badge {
-    padding: 0.25rem 0.75rem;
-    border-radius: 16px;
-    font-size: 0.75rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-}
-
-.position-badge {
-    background: var(--mcc-blue-gray);
-    color: white;
-}
-
-.team-badge {
-    background: var(--secondary2-3);
-    color: var(--accent);
-}
-
-.traitor-stats {
-    display: flex;
-    gap: 2rem;
-    margin-bottom: 1.5rem;
-    color: var(--text-on-dark);
-    font-size: 0.95rem;
-}
-
-.traitor-stats span {
-    opacity: 0.8;
-}
-
-/* Picks Table */
-.picks-table {
-    width: 100%;
-    border-collapse: collapse;
-    background: var(--primary-4);
-    border-radius: 6px;
-    overflow: hidden;
-}
-
-.picks-table thead {
-    background: var(--primary-2);
-}
-
-.picks-table th {
-    padding: 0.75rem;
-    text-align: left;
-    font-weight: 600;
-    color: var(--text-on-dark);
-    font-size: 0.75rem;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-}
-
-.picks-table tbody tr {
-    border-bottom: 1px solid var(--primary-3);
-}
-
-.picks-table tbody tr:last-child {
-    border-bottom: none;
-}
-
-.picks-table td {
-    padding: 0.75rem;
-    color: var(--text-on-dark);
-    font-size: 0.875rem;
 }
 
 .matchup-cell {
@@ -390,21 +275,6 @@ body {
     .traitors-table th,
     .traitors-table td {
         padding: 0.75rem 0.5rem;
-    }
-
-    .traitor-header {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 1rem;
-    }
-
-    .picks-table {
-        font-size: 0.75rem;
-    }
-
-    .picks-table th,
-    .picks-table td {
-        padding: 0.5rem 0.25rem;
     }
 
     .matchup-cell {
