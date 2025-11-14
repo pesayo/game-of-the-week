@@ -45,6 +45,48 @@
         0 0 4px rgba(255, 255, 255, 0.9);
 }
 
+/* Easter Egg: Hidden Traitors Link */
+.traitors-easter-egg {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 999;
+    opacity: 0.05;
+    transition: all 0.4s ease;
+}
+
+.traitors-easter-egg:hover {
+    opacity: 1;
+    transform: scale(1.1);
+}
+
+.traitors-easter-egg a {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    color: #333;
+    text-decoration: none;
+    font-size: 20px;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+}
+
+.traitors-easter-egg:hover a {
+    color: #dc1414;
+    text-shadow:
+        0 0 10px rgba(220, 20, 20, 0.8),
+        0 0 20px rgba(220, 20, 20, 0.5);
+    animation: ominous-shake 0.5s ease-in-out;
+}
+
+@keyframes ominous-shake {
+    0%, 100% { transform: rotate(0deg); }
+    25% { transform: rotate(-5deg); }
+    75% { transform: rotate(5deg); }
+}
+
 .league-link {
     position: absolute;
     top: 20px;
@@ -218,6 +260,17 @@
 }
 
 @media (max-width: 768px) {
+    .traitors-easter-egg {
+        bottom: 15px;
+        right: 15px;
+    }
+
+    .traitors-easter-egg a {
+        width: 36px;
+        height: 36px;
+        font-size: 18px;
+    }
+
     .league-link {
         display: none;
     }

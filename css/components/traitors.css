@@ -1,0 +1,553 @@
+/* Traitor Tracker Styles */
+
+/* Dark shrouded background */
+body {
+    background: linear-gradient(135deg, #1a1a1a 0%, #0d0d0d 50%, #1a1a1a 100%);
+    min-height: 100vh;
+}
+
+/* Back to Light Link - Playful Escape */
+.back-to-light {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    z-index: 1000;
+}
+
+@keyframes float-bounce {
+    0%, 100% {
+        transform: translateY(0px);
+    }
+    50% {
+        transform: translateY(-10px);
+    }
+}
+
+@keyframes rainbow-glow {
+    0% {
+        box-shadow:
+            0 0 20px rgba(255, 100, 100, 0.6),
+            0 0 40px rgba(255, 200, 100, 0.4),
+            0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+    25% {
+        box-shadow:
+            0 0 20px rgba(255, 255, 100, 0.6),
+            0 0 40px rgba(100, 255, 100, 0.4),
+            0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+    50% {
+        box-shadow:
+            0 0 20px rgba(100, 200, 255, 0.6),
+            0 0 40px rgba(150, 150, 255, 0.4),
+            0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+    75% {
+        box-shadow:
+            0 0 20px rgba(255, 150, 255, 0.6),
+            0 0 40px rgba(255, 200, 150, 0.4),
+            0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+    100% {
+        box-shadow:
+            0 0 20px rgba(255, 100, 100, 0.6),
+            0 0 40px rgba(255, 200, 100, 0.4),
+            0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+}
+
+.back-to-light a {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 14px 24px;
+    background: linear-gradient(135deg, #ffffff 0%, #fffacd 50%, #ffd700 100%);
+    color: #1a1a1a;
+    text-decoration: none;
+    font-weight: 800;
+    font-size: 1.1rem;
+    border-radius: 50px;
+    box-shadow:
+        0 0 20px rgba(255, 255, 255, 0.6),
+        0 0 40px rgba(255, 250, 205, 0.4),
+        0 4px 12px rgba(0, 0, 0, 0.3);
+    transition: all 0.3s ease;
+    border: 3px solid rgba(255, 215, 0, 0.5);
+}
+
+.back-to-light a:hover {
+    background: linear-gradient(135deg, #ffd700 0%, #ffed4e 50%, #ffffff 100%);
+    animation: rainbow-glow 2s ease-in-out infinite;
+    transform: scale(1.05) rotate(-2deg);
+    border-color: rgba(255, 215, 0, 0.9);
+}
+
+.back-to-light a i {
+    font-size: 1rem;
+    animation: wiggle-arrow 2.5s ease-in-out infinite;
+}
+
+@keyframes wiggle-arrow {
+    0%, 100% {
+        transform: translateX(0px) rotate(0deg);
+    }
+    25% {
+        transform: translateX(-1.5px) rotate(-2deg);
+    }
+    75% {
+        transform: translateX(1.5px) rotate(2deg);
+    }
+}
+
+/* Ominous pulsating animation */
+@keyframes ominous-pulse {
+    0%, 100% {
+        filter: drop-shadow(0 0 15px rgba(220, 20, 20, 0.5))
+                drop-shadow(0 0 30px rgba(220, 20, 20, 0.3));
+    }
+    50% {
+        filter: drop-shadow(0 0 25px rgba(220, 20, 20, 0.8))
+                drop-shadow(0 0 50px rgba(220, 20, 20, 0.5));
+    }
+}
+
+/* Header Goblet Override */
+.dashboard-header .header-goblet {
+    width: 160px;
+    height: 160px;
+    transform: rotate(20deg);
+    animation: ominous-pulse 3s ease-in-out infinite;
+}
+
+/* Header text override for dark background */
+.dashboard-header .header-text h1 {
+    color: #ffffff;
+    text-shadow:
+        0 0 10px rgba(220, 20, 20, 0.5),
+        0 0 20px rgba(220, 20, 20, 0.3),
+        2px 2px 4px rgba(0, 0, 0, 0.8);
+}
+
+.dashboard-header .header-text .subtitle {
+    color: #cccccc;
+    text-shadow:
+        0 0 8px rgba(220, 20, 20, 0.3),
+        1px 1px 3px rgba(0, 0, 0, 0.8);
+}
+
+/* Loading and Error States */
+.loading-indicator {
+    text-align: center;
+    padding: 4rem 2rem;
+    color: var(--text-secondary);
+}
+
+.spinner {
+    border: 4px solid var(--gray-200);
+    border-top: 4px solid var(--mcc-blue-gray);
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 1rem;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.error-message {
+    background-color: var(--error-bg);
+    border: 1px solid var(--error);
+    border-radius: 8px;
+    padding: 2rem;
+    margin: 2rem;
+    text-align: center;
+    color: var(--error-dark);
+}
+
+.error-message i {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+}
+
+/* Summary Section */
+.traitors-summary {
+    background: linear-gradient(135deg, var(--primary-3) 0%, var(--primary-4) 100%);
+    border-radius: 12px;
+    padding: 2rem;
+    margin: 2rem 0;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.summary-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 2rem;
+    text-align: center;
+}
+
+.summary-stat {
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.stat-value {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--accent);
+    margin-bottom: 0.5rem;
+}
+
+.stat-label {
+    font-size: 0.875rem;
+    color: var(--text-on-dark);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    opacity: 0.8;
+}
+
+/* Traitors Section */
+.traitors-section {
+    margin: 3rem 0;
+    background: var(--surface);
+    border-radius: 12px;
+    padding: 2rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+}
+
+/* Scroll indicator for mobile */
+@media (max-width: 768px) {
+    .traitors-section {
+        position: relative;
+    }
+
+    .traitors-section::after {
+        content: '← Scroll for more →';
+        display: block;
+        text-align: center;
+        font-size: 0.75rem;
+        color: var(--accent);
+        margin-top: 1rem;
+        opacity: 0.7;
+        font-style: italic;
+    }
+}
+
+.traitors-section h2 {
+    color: var(--text-on-dark);
+    margin-top: 0;
+    margin-bottom: 1rem;
+    font-size: 1.75rem;
+}
+
+.section-description {
+    color: var(--text-on-dark);
+    opacity: 0.8;
+    margin-bottom: 1.5rem;
+    font-size: 0.95rem;
+    line-height: 1.6;
+}
+
+/* No Traitors Message */
+.no-traitors {
+    text-align: center;
+    padding: 4rem 2rem;
+    color: var(--success);
+}
+
+.no-traitors i {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+}
+
+.no-traitors p {
+    font-size: 1.25rem;
+    color: var(--text-on-dark);
+    opacity: 0.8;
+}
+
+/* Traitors Table */
+.traitors-table {
+    width: 100%;
+    min-width: 750px;
+    border-collapse: collapse;
+    background: var(--primary-3);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.traitors-table thead {
+    background: var(--primary-2);
+}
+
+.traitors-table th {
+    padding: 1rem;
+    text-align: left;
+    font-weight: 600;
+    color: var(--text-on-dark);
+    font-size: 0.875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-bottom: 2px solid var(--primary-4);
+}
+
+
+.traitors-table tbody tr {
+    border-bottom: 1px solid var(--primary-2);
+    transition: background-color 0.2s ease;
+}
+
+.traitors-table tbody tr:hover {
+    background-color: var(--primary-2);
+}
+
+.traitors-table tbody tr:last-child {
+    border-bottom: none;
+}
+
+.traitors-table td {
+    padding: 1rem;
+    color: var(--text-on-dark);
+}
+
+.player-name {
+    font-weight: 700;
+    color: #ff4444;
+    text-shadow:
+        0 0 10px rgba(220, 20, 20, 0.6),
+        0 0 20px rgba(220, 20, 20, 0.3);
+    font-style: italic;
+}
+
+.team-name {
+    color: var(--text-on-dark);
+    opacity: 0.8;
+}
+
+.matchup-cell {
+    white-space: nowrap;
+}
+
+.matchup-cell .own-team {
+    font-weight: 700;
+    color: var(--accent);
+    text-decoration: underline;
+}
+
+.picked-team {
+    font-weight: 600;
+}
+
+.result-win {
+    color: var(--success);
+    font-weight: 600;
+}
+
+.result-loss {
+    color: var(--error);
+    font-weight: 600;
+}
+
+.result-pending {
+    color: var(--gray-400);
+    font-weight: 600;
+}
+
+.result-win i,
+.result-loss i,
+.result-pending i {
+    margin-right: 0.25rem;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+    .dashboard-container {
+        padding: 1rem;
+    }
+
+    .traitors-section {
+        padding: 1.5rem;
+        margin: 2rem 0;
+    }
+
+    .traitors-table {
+        min-width: 650px;
+        font-size: 0.875rem;
+    }
+
+    .traitors-table th,
+    .traitors-table td {
+        padding: 0.75rem 0.5rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .back-to-light {
+        top: 10px;
+        left: 10px;
+    }
+
+    .back-to-light a {
+        padding: 12px 20px;
+        font-size: 1rem;
+        gap: 6px;
+    }
+
+    .dashboard-container {
+        padding: 0.5rem;
+    }
+
+    .dashboard-header .header-text h1 {
+        font-size: 1.5rem;
+    }
+
+    .dashboard-header .header-text .subtitle {
+        font-size: 0.875rem;
+    }
+
+    .summary-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+    }
+
+    .stat-value {
+        font-size: 1.75rem;
+    }
+
+    .stat-label {
+        font-size: 0.75rem;
+    }
+
+    .traitors-section {
+        padding: 1rem;
+        margin: 1.5rem 0;
+    }
+
+    .traitors-section h2 {
+        font-size: 1.5rem;
+    }
+
+    .section-description {
+        font-size: 0.875rem;
+    }
+
+    .traitors-table {
+        min-width: 600px;
+        font-size: 0.8rem;
+    }
+
+    .traitors-table th,
+    .traitors-table td {
+        padding: 0.6rem 0.4rem;
+    }
+
+    .traitors-table th {
+        font-size: 0.7rem;
+    }
+
+    .matchup-cell {
+        font-size: 0.75rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .back-to-light {
+        top: 8px;
+        left: 8px;
+    }
+
+    .back-to-light a {
+        padding: 10px 16px;
+        font-size: 0.9rem;
+        gap: 6px;
+        border-radius: 40px;
+    }
+
+    .back-to-light a i {
+        font-size: 0.85rem;
+    }
+
+    .dashboard-header .header-goblet {
+        width: 120px;
+        height: 120px;
+    }
+
+    .dashboard-header .header-text h1 {
+        font-size: 1.25rem;
+    }
+
+    .dashboard-header .header-text .subtitle {
+        font-size: 0.75rem;
+    }
+
+    .traitors-summary {
+        padding: 1rem;
+        margin: 1rem 0;
+    }
+
+    .summary-grid {
+        grid-template-columns: 1fr;
+        gap: 0.75rem;
+    }
+
+    .stat-value {
+        font-size: 1.5rem;
+    }
+
+    .stat-label {
+        font-size: 0.7rem;
+    }
+
+    .traitors-section {
+        padding: 0.75rem;
+        margin: 1rem 0;
+    }
+
+    .traitors-section h2 {
+        font-size: 1.25rem;
+    }
+
+    .section-description {
+        font-size: 0.8rem;
+        margin-bottom: 1rem;
+    }
+
+    .traitors-table {
+        min-width: 550px;
+        font-size: 0.7rem;
+    }
+
+    .traitors-table th,
+    .traitors-table td {
+        padding: 0.5rem 0.3rem;
+    }
+
+    .traitors-table th {
+        font-size: 0.65rem;
+    }
+
+    .matchup-cell {
+        font-size: 0.65rem;
+    }
+
+    .player-name,
+    .picked-team {
+        font-size: 0.75rem;
+    }
+
+    .loading-indicator {
+        padding: 2rem 1rem;
+    }
+
+    .spinner {
+        width: 40px;
+        height: 40px;
+        border-width: 3px;
+    }
+}
