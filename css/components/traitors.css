@@ -1,5 +1,10 @@
 /* Traitor Tracker Styles */
 
+/* Header Goblet Override */
+.dashboard-header .header-goblet {
+    transform: rotate(-15deg);
+}
+
 /* Loading and Error States */
 .loading-indicator {
     text-align: center;
