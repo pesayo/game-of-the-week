@@ -235,13 +235,18 @@
 }
 
 /* Focused player highlighting */
+.picks-matrix-table tbody tr.focused-player {
+    border-left: none;
+}
+
 .picks-matrix-table tbody tr.focused-player td {
     background-color: rgba(39, 94, 254, 0.04);
 }
 
 .picks-matrix-table tbody tr.focused-player td.player-col {
-    background-color: rgba(39, 94, 254, 0.06);
-    border-left: 2px solid rgba(39, 94, 254, 0.3);
+    background: linear-gradient(rgba(39, 94, 254, 0.06), rgba(39, 94, 254, 0.06)), white;
+    box-shadow: -2px 0 0 0 white;
+    z-index: 6;
 }
 
 .picks-matrix-table tbody tr.focused-player:hover td {
@@ -249,7 +254,9 @@
 }
 
 .picks-matrix-table tbody tr.focused-player:hover td.player-col {
-    background-color: rgba(39, 94, 254, 0.08);
+    background: linear-gradient(rgba(39, 94, 254, 0.08), rgba(39, 94, 254, 0.08)), white;
+    box-shadow: -2px 0 0 0 white;
+    z-index: 6;
 }
 
 .matrix-pick-cell {
