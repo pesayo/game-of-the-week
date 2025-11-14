@@ -84,7 +84,7 @@ body {
 
 .back-to-light a i {
     font-size: 1rem;
-    animation: wiggle-arrow 1s ease-in-out infinite;
+    animation: wiggle-arrow 2.5s ease-in-out infinite;
 }
 
 @keyframes wiggle-arrow {
@@ -92,10 +92,10 @@ body {
         transform: translateX(0px) rotate(0deg);
     }
     25% {
-        transform: translateX(-3px) rotate(-5deg);
+        transform: translateX(-1.5px) rotate(-2deg);
     }
     75% {
-        transform: translateX(3px) rotate(5deg);
+        transform: translateX(1.5px) rotate(2deg);
     }
 }
 
