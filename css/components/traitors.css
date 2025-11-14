@@ -2,7 +2,9 @@
 
 /* Header Goblet Override */
 .dashboard-header .header-goblet {
-    transform: rotate(-15deg);
+    width: 160px;
+    height: 160px;
+    transform: rotate(20deg);
 }
 
 /* Loading and Error States */
