@@ -235,6 +235,10 @@
 }
 
 /* Focused player highlighting */
+.picks-matrix-table tbody tr.focused-player {
+    border-left: none;
+}
+
 .picks-matrix-table tbody tr.focused-player td {
     background-color: rgba(39, 94, 254, 0.04);
 }
