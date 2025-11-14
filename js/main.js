@@ -17,7 +17,8 @@ import {
     setHorseRaceData,
     setPlayerColors,
     setRawPicksData,
-    setWinnersData
+    setWinnersData,
+    setFocusedPlayer
 } from './state/app-state.js';
 
 // Import utilities
@@ -74,6 +75,11 @@ import {
     setupPantheonModal
 } from './components/Winners.js';
 
+import {
+    initializeFocusedPlayer,
+    renderPlayerFocusDropdown
+} from './components/PlayerFocus.js';
+
 /**
  * Initialize the application
  */
@@ -87,6 +93,9 @@ async function init() {
         if (loadingMessage) loadingMessage.style.display = 'block';
         if (errorMessage) errorMessage.style.display = 'none';
         if (dashboardGrid) dashboardGrid.style.display = 'none';
+
+        // Initialize focused player from localStorage
+        initializeFocusedPlayer();
 
         // Fetch all data
         const { matchups, picks, playerInfo, winners } = await fetchAllData();
@@ -157,6 +166,9 @@ async function init() {
         // Render current holders and setup pantheon modal
         renderCurrentHolders();
         setupPantheonModal();
+
+        // Render player focus dropdown
+        renderPlayerFocusDropdown();
 
         // Load team lineups and setup schedule
         try {

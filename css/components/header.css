@@ -137,9 +137,79 @@
     white-space: nowrap;
 }
 
+/* Player Focus Dropdown */
+.player-focus-container {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    z-index: 1000;
+    background-color: rgba(255, 255, 255, 0.95);
+    padding: 6px 12px;
+    border-radius: 6px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: all 0.2s;
+}
+
+.player-focus-container:hover {
+    background-color: rgba(255, 255, 255, 1);
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.15);
+}
+
+.player-focus-label {
+    font-size: 12px;
+    color: var(--text-secondary);
+    font-weight: 600;
+    margin: 0;
+    white-space: nowrap;
+}
+
+.player-focus-dropdown {
+    font-size: 12px;
+    padding: 4px 8px;
+    border: 1px solid var(--gray-300);
+    border-radius: 4px;
+    background-color: white;
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: all 0.2s;
+    min-width: 120px;
+    max-width: 150px;
+}
+
+.player-focus-dropdown:hover {
+    border-color: var(--mcc-blue-gray);
+}
+
+.player-focus-dropdown:focus {
+    outline: none;
+    border-color: var(--mcc-blue);
+    box-shadow: 0 0 0 2px rgba(39, 94, 254, 0.1);
+}
+
 @media (max-width: 768px) {
     .league-link {
         display: none;
+    }
+
+    .player-focus-container {
+        top: 10px;
+        left: 10px;
+        padding: 4px 8px;
+        gap: 6px;
+    }
+
+    .player-focus-label {
+        font-size: 10px;
+    }
+
+    .player-focus-dropdown {
+        font-size: 11px;
+        padding: 3px 6px;
+        min-width: 100px;
+        max-width: 120px;
     }
 
     .header-stats {

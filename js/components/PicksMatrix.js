@@ -4,7 +4,8 @@ import {
     getLeaderboardData,
     getRawPicksData,
     getMatchupsData,
-    getPickAnalysis
+    getPickAnalysis,
+    getFocusedPlayer
 } from '../state/app-state.js';
 import { createGameKey, parseGameColumn } from '../utils/parsers.js';
 import { renderPickDistribution } from './PicksDistribution.js';
@@ -261,9 +262,15 @@ export function renderPicksMatrix() {
     // Get name header for finding player rows
     const allHeaders = Object.keys(rawPicksData[0]);
     const nameHeader = allHeaders.find(h => h.toLowerCase().includes('name'));
+    const focusedPlayer = getFocusedPlayer();
 
     leaderboardData.forEach(player => {
         const row = document.createElement('tr');
+
+        // Add focused class if this player is focused
+        if (focusedPlayer && player.name === focusedPlayer) {
+            row.classList.add('focused-player');
+        }
 
         // Player name cell
         const nameCell = document.createElement('td');
