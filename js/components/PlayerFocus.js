@@ -3,8 +3,8 @@
  * Provides a dropdown in the header to persistently focus on a specific player
  */
 
-import { getFocusedPlayer, setFocusedPlayer, getLeaderboardData } from '../state/app-state.js';
-import { renderLeaderboard } from './Leaderboard.js';
+import { getFocusedPlayer, setFocusedPlayer, getLeaderboardData, getCurrentView, getCurrentSort, getCurrentDirection } from '../state/app-state.js';
+import { renderLeaderboard, getDataForView, applyFilters, sortData } from './Leaderboard.js';
 import { renderHorseRace } from './HorseRace.js';
 import { setupCombinedPicksView } from './PicksMatrix.js';
 import { updateProjectedStandings } from './WhatIf.js';
@@ -134,9 +134,21 @@ function setupPicksButtonHandler() {
  */
 export function refreshFocusedViews() {
     const leaderboardData = getLeaderboardData();
+    const currentView = getCurrentView();
+
+    // Get data for the current view (player/team/position)
+    const viewData = getDataForView(currentView);
+
+    // Apply filters only for player view
+    const filteredData = currentView === 'player' ? applyFilters(viewData) : viewData;
+
+    // Apply current sort
+    const currentSort = getCurrentSort();
+    const currentDirection = getCurrentDirection();
+    const sortedData = sortData(filteredData, currentSort, currentDirection);
 
     // Re-render leaderboard with highlighting
-    renderLeaderboard(leaderboardData);
+    renderLeaderboard(sortedData);
 
     // Re-render horse race to update default active player
     renderHorseRace(leaderboardData);
