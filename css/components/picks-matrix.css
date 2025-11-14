@@ -242,6 +242,7 @@
 .picks-matrix-table tbody tr.focused-player td.player-col {
     background-color: rgba(39, 94, 254, 0.06);
     border-left: 2px solid rgba(39, 94, 254, 0.3);
+    z-index: 6;
 }
 
 .picks-matrix-table tbody tr.focused-player:hover td {
@@ -250,6 +251,7 @@
 
 .picks-matrix-table tbody tr.focused-player:hover td.player-col {
     background-color: rgba(39, 94, 254, 0.08);
+    z-index: 6;
 }
 
 .matrix-pick-cell {
