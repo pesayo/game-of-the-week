@@ -318,8 +318,12 @@ body {
 }
 
 .player-name {
-    font-weight: 600;
-    color: var(--text-on-dark);
+    font-weight: 700;
+    color: #ff4444;
+    text-shadow:
+        0 0 10px rgba(220, 20, 20, 0.6),
+        0 0 20px rgba(220, 20, 20, 0.3);
+    font-style: italic;
 }
 
 .team-name {
