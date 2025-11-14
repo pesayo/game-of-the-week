@@ -22,7 +22,7 @@ export function initializeFocusedPlayer() {
  * Create and render the player focus dropdown
  */
 export function renderPlayerFocusDropdown() {
-    const header = document.querySelector('.header');
+    const header = document.querySelector('.dashboard-header');
     if (!header) return;
 
     // Check if dropdown already exists
@@ -43,13 +43,8 @@ export function renderPlayerFocusDropdown() {
         </select>
     `;
 
-    // Insert after the header content
-    const headerContent = header.querySelector('.header-content');
-    if (headerContent) {
-        headerContent.appendChild(container);
-    } else {
-        header.appendChild(container);
-    }
+    // Insert into the header (will be positioned absolutely via CSS)
+    header.appendChild(container);
 
     dropdown = document.getElementById('playerFocusDropdown');
     populateDropdownOptions(dropdown);
