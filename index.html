@@ -22,6 +22,7 @@
     <link rel="stylesheet" href="css/components/matchups.css">
     <link rel="stylesheet" href="css/components/what-if.css">
     <link rel="stylesheet" href="css/components/picks-matrix.css">
+    <link rel="stylesheet" href="css/components/similarity-matrix.css">
     <link rel="stylesheet" href="css/components/modals.css">
     <link rel="stylesheet" href="css/components/winners.css">
 </head>
@@ -253,6 +254,12 @@
                     <div class="distribution-list" id="distributionList"></div>
                 </div>
             </section>
+
+                <!-- Pick Similarity Matrix Section -->
+                <section class="section similarity-matrix-section">
+                    <h2 class="section-title"><i class="fas fa-grip"></i> Pick Similarity Matrix</h2>
+                    <div id="similarityMatrixContent"></div>
+                </section>
             </div> <!-- end left-column-container -->
 
             <!-- Right Column Container -->
@@ -363,8 +370,50 @@
         </div>
     </div>
 
+    <!-- Similarity Modal -->
+    <div class="modal-overlay" id="similarityModal">
+        <div class="modal-content similarity-modal-content">
+            <div class="modal-header similarity-modal-header">
+                <div class="similarity-modal-title">
+                    <h2 class="similarity-comparison-title">
+                        <span id="similarityModalPlayer1"></span>
+                        <span class="similarity-vs">vs</span>
+                        <span id="similarityModalPlayer2"></span>
+                    </h2>
+                    <div class="modal-subtitle">Pick Comparison</div>
+                </div>
+                <button class="modal-close" id="closeSimilarityModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="similarity-stats-summary">
+                    <div class="similarity-stat">
+                        <span class="similarity-stat-label">Agreement</span>
+                        <span class="similarity-stat-value" id="similarityPercentage"></span>
+                    </div>
+                    <div class="similarity-stat">
+                        <span class="similarity-stat-label">Matching Games</span>
+                        <span class="similarity-stat-value" id="matchingGames"></span>
+                    </div>
+                    <div class="similarity-stat">
+                        <span class="similarity-stat-label">Different Picks</span>
+                        <span class="similarity-stat-value" id="differentGames"></span>
+                    </div>
+                </div>
+
+                <h3 class="differences-section-title">
+                    <i class="fas fa-exchange-alt"></i>
+                    Games Where Picks Differed
+                </h3>
+                <div id="similarityDifferencesList"></div>
+            </div>
+        </div>
+    </div>
+
     <!-- Matchup Tooltip -->
     <div id="matchupTooltip"></div>
+
+    <!-- Similarity Tooltip -->
+    <div id="similarityTooltip"></div>
 
     <!-- Main Application Entry Point -->
     <script type="module" src="js/main.js"></script>
