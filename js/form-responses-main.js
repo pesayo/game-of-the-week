@@ -3,7 +3,7 @@ import { picksUrl } from './config/constants.js';
 
 // Global state
 let allResponses = [];
-let currentFilter = 'all';
+let currentFilter = 'serious';
 
 /**
  * Fetches form responses data from Google Sheets CSV
@@ -130,6 +130,18 @@ function getCategoryBadge(category) {
 }
 
 /**
+ * Shuffles an array randomly (Fisher-Yates shuffle)
+ */
+function shuffleArray(array) {
+    const shuffled = [...array];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    return shuffled;
+}
+
+/**
  * Renders the responses list
  */
 function renderResponses(responses) {
@@ -154,25 +166,17 @@ function renderResponses(responses) {
         return;
     }
 
-    // Sort by timestamp (most recent first)
-    const sortedResponses = [...filteredResponses].sort((a, b) => {
-        return new Date(b.timestamp) - new Date(a.timestamp);
-    });
+    // Randomize order
+    const randomizedResponses = shuffleArray(filteredResponses);
 
-    const responsesHTML = sortedResponses.map((item, index) => `
-        <div class="response-card" style="animation-delay: ${index * 0.05}s">
+    const responsesHTML = randomizedResponses.map((item, index) => `
+        <div class="response-card" style="animation-delay: ${index * 0.02}s">
             <div class="response-header">
                 <div class="response-player">
                     <i class="fas fa-user"></i>
                     <strong>${item.playerName}</strong>
                 </div>
-                <div class="response-meta">
-                    ${getCategoryBadge(item.category)}
-                    <div class="response-timestamp">
-                        <i class="fas fa-clock"></i>
-                        ${formatTimestamp(item.timestamp)}
-                    </div>
-                </div>
+                ${getCategoryBadge(item.category)}
             </div>
             <div class="response-content">
                 ${item.response}

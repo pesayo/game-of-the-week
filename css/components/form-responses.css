@@ -213,21 +213,24 @@
 
 /* Responses List */
 #responsesList {
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1rem;
 }
 
 /* Response Card */
 .response-card {
     background: #ffffff;
-    border-radius: 12px;
-    padding: 1.5rem;
+    border-radius: 8px;
+    padding: 1rem;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     border: 1px solid var(--gray-200);
     transition: all 0.3s ease;
     opacity: 0;
     animation: fadeInUp 0.4s ease forwards;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
 }
 
 @keyframes fadeInUp {
@@ -251,65 +254,44 @@
 .response-header {
     display: flex;
     justify-content: space-between;
-    align-items: center;
-    margin-bottom: 1rem;
-    padding-bottom: 0.75rem;
-    border-bottom: 2px solid var(--gray-200);
-    flex-wrap: wrap;
-    gap: 0.75rem;
+    align-items: flex-start;
+    gap: 0.5rem;
 }
 
 .response-player {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: 0.4rem;
     color: var(--text-primary);
-    font-size: 1rem;
+    font-size: 0.875rem;
+    flex: 1;
 }
 
 .response-player i {
     color: var(--accent);
-    font-size: 0.9rem;
+    font-size: 0.75rem;
 }
 
 .response-player strong {
     font-weight: 600;
 }
 
-.response-meta {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    flex-wrap: wrap;
-}
-
-.response-timestamp {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    color: var(--text-secondary);
-    font-size: 0.875rem;
-}
-
-.response-timestamp i {
-    font-size: 0.8rem;
-}
-
 /* Category Badges */
 .category-badge {
     display: inline-flex;
     align-items: center;
-    gap: 0.35rem;
-    padding: 0.25rem 0.75rem;
-    font-size: 0.75rem;
+    gap: 0.25rem;
+    padding: 0.2rem 0.5rem;
+    font-size: 0.65rem;
     font-weight: 600;
-    border-radius: 12px;
+    border-radius: 8px;
     text-transform: uppercase;
     letter-spacing: 0.03em;
+    flex-shrink: 0;
 }
 
 .category-badge i {
-    font-size: 0.7rem;
+    font-size: 0.6rem;
 }
 
 .category-badge.silly {
@@ -333,9 +315,8 @@
 /* Response Content */
 .response-content {
     color: var(--text-primary);
-    font-size: 1rem;
-    line-height: 1.6;
-    padding: 0.5rem 0;
+    font-size: 0.875rem;
+    line-height: 1.5;
 }
 
 /* Responsive Design */
@@ -432,22 +413,21 @@
         padding: 0.5rem 0.75rem;
     }
 
+    #responsesList {
+        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+        gap: 0.875rem;
+    }
+
     .response-card {
-        padding: 1rem;
+        padding: 0.875rem;
     }
 
-    .response-header {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 0.5rem;
-    }
-
-    .response-meta {
-        gap: 0.75rem;
+    .response-player {
+        font-size: 0.8rem;
     }
 
     .response-content {
-        font-size: 0.95rem;
+        font-size: 0.85rem;
     }
 }
 
@@ -518,36 +498,33 @@
     }
 
     #responsesList {
-        gap: 1rem;
+        grid-template-columns: 1fr;
+        gap: 0.75rem;
     }
 
     .response-card {
-        padding: 0.875rem;
+        padding: 0.75rem;
     }
 
     .response-player {
-        font-size: 0.9rem;
+        font-size: 0.75rem;
     }
 
-    .response-meta {
-        gap: 0.5rem;
-    }
-
-    .response-timestamp {
-        font-size: 0.8rem;
+    .response-player i {
+        font-size: 0.7rem;
     }
 
     .category-badge {
-        font-size: 0.65rem;
-        padding: 0.2rem 0.6rem;
+        font-size: 0.6rem;
+        padding: 0.15rem 0.4rem;
     }
 
     .category-badge i {
-        font-size: 0.6rem;
+        font-size: 0.55rem;
     }
 
     .response-content {
-        font-size: 0.875rem;
+        font-size: 0.8rem;
     }
 
     .loading-indicator {
