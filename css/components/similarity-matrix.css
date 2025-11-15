@@ -3,7 +3,12 @@
 .similarity-matrix-section {
     margin-top: 20px;
     min-width: 0;
-    overflow: hidden;
+}
+
+#similarityMatrixContent {
+    max-height: 700px;
+    overflow-x: auto;
+    overflow-y: auto;
 }
 
 /* Description */
@@ -356,6 +361,10 @@
 
 /* Responsive adjustments */
 @media (max-width: 768px) {
+    #similarityMatrixContent {
+        max-height: 600px;
+    }
+
     .highlights-grid {
         grid-template-columns: 1fr;
     }
@@ -379,6 +388,26 @@
     .row-label {
         font-size: 9px !important;
     }
+}
+
+/* Scrollbar styling for similarity content */
+#similarityMatrixContent::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+#similarityMatrixContent::-webkit-scrollbar-track {
+    background: var(--bg-light);
+    border-radius: 4px;
+}
+
+#similarityMatrixContent::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: 4px;
+}
+
+#similarityMatrixContent::-webkit-scrollbar-thumb:hover {
+    background: #999;
 }
 
 /* Scrollbar styling for differences list */
