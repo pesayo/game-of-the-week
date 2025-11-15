@@ -211,45 +211,12 @@ function renderViewToggleInHeader() {
 }
 
 /**
- * Render filters for a specific view
+ * Render shared game filter for all views
  */
-function renderFilters(container, viewType, data) {
+function renderGameFilter(container) {
     const filtersDiv = container.append('div')
         .attr('class', 'matrix-filters');
 
-    // Player selector for Player Focus and Matrix views
-    if (viewType === 'player' || viewType === 'matrix') {
-        const playerGroup = filtersDiv.append('div')
-            .attr('class', 'matrix-filter-group');
-
-        playerGroup.append('label')
-            .attr('for', 'similarityPlayerSelect')
-            .text(viewType === 'player' ? 'Compare:' : 'Focus:');
-
-        const select = playerGroup.append('select')
-            .attr('id', 'similarityPlayerSelect')
-            .on('change', function() {
-                selectedPlayer = this.value;
-                renderSimilarityMatrix();
-            });
-
-        // Add "None" option for both views
-        select.append('option')
-            .attr('value', '')
-            .property('selected', !selectedPlayer)
-            .text('No player selected');
-
-        // Sort players alphabetically and add as options
-        const sortedPlayers = [...data.players].sort((a, b) => a.localeCompare(b));
-        sortedPlayers.forEach(player => {
-            select.append('option')
-                .attr('value', player)
-                .property('selected', player === selectedPlayer)
-                .text(player);
-        });
-    }
-
-    // Game status filter for all views
     const gameGroup = filtersDiv.append('div')
         .attr('class', 'matrix-filter-group');
 
@@ -276,6 +243,42 @@ function renderFilters(container, viewType, data) {
             .property('selected', opt.value === gameStatusFilter)
             .text(opt.label);
     });
+
+    return filtersDiv;
+}
+
+/**
+ * Render player filter for Player Focus view only
+ */
+function renderPlayerFilter(filtersDiv, data) {
+    const playerGroup = filtersDiv.append('div')
+        .attr('class', 'matrix-filter-group');
+
+    playerGroup.append('label')
+        .attr('for', 'similarityPlayerSelect')
+        .text('Player:');
+
+    const select = playerGroup.append('select')
+        .attr('id', 'similarityPlayerSelect')
+        .on('change', function() {
+            selectedPlayer = this.value;
+            renderSimilarityMatrix();
+        });
+
+    // Add "Select player" option
+    select.append('option')
+        .attr('value', '')
+        .property('selected', !selectedPlayer)
+        .text('Select a player...');
+
+    // Sort players alphabetically and add as options
+    const sortedPlayers = [...data.players].sort((a, b) => a.localeCompare(b));
+    sortedPlayers.forEach(player => {
+        select.append('option')
+            .attr('value', player)
+            .property('selected', player === selectedPlayer)
+            .text(player);
+    });
 }
 
 /**
@@ -284,8 +287,9 @@ function renderFilters(container, viewType, data) {
 function renderPlayerFocusView(container, data) {
     const playerColors = getPlayerColors();
 
-    // Render filters
-    renderFilters(container, 'player', data);
+    // Render filters - both game and player selectors
+    const filtersDiv = renderGameFilter(container);
+    renderPlayerFilter(filtersDiv, data);
 
     // Add description
     container.append('div')
@@ -370,8 +374,8 @@ function renderPlayerFocusView(container, data) {
 function renderHighlightsView(container, data) {
     const playerColors = getPlayerColors();
 
-    // Render filters
-    renderFilters(container, 'highlights', data);
+    // Render filters - game selector only
+    renderGameFilter(container);
 
     // Add description
     container.append('div')
@@ -498,6 +502,9 @@ function renderHighlightSection(container, pairs, title, icon, playerColors) {
  */
 function renderFullMatrixView(container, data) {
     const playerColors = getPlayerColors();
+
+    // Render filters - game selector only
+    renderGameFilter(container);
 
     // Sort players alphabetically for the full matrix view
     const sortedPlayers = [...data.players].sort((a, b) => a.localeCompare(b));
