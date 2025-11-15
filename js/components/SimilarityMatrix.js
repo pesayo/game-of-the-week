@@ -693,13 +693,30 @@ function renderFullMatrixView(container, data) {
                         const colPlayer = sortedPlayers[colIndex];
                         const tableTopInContainer = tableRect.top - containerRect.top + scrollTop;
                         const colCenterX = cellRect.left - containerRect.left + scrollLeft + cellRect.width / 2;
+
+                        // Set text and styling first, then measure for positioning
                         colHeaderOverlay
                             .style('display', 'block')
-                            .style('left', colCenterX + 'px')
-                            .style('top', tableTopInContainer + 'px')
                             .style('color', playerColors[colPlayer] || '#333')
                             .style('font-weight', colPlayer === focusedPlayer ? 'bold' : 'normal')
                             .text(colPlayer);
+
+                        // Measure element dimensions (after rotation - getBoundingClientRect returns rotated dimensions)
+                        const overlayRect = colHeaderOverlay.node().getBoundingClientRect();
+                        // After -90deg rotation: width=originalHeight, height=originalWidth
+                        const rotatedWidth = overlayRect.width;
+                        const rotatedHeight = overlayRect.height;
+
+                        // With center center origin and -90deg rotation:
+                        // Original dimensions: W (width) = rotatedHeight, H (height) = rotatedWidth
+                        // We want center at (colCenterX, Y) and bottom-center at tableTopInContainer
+                        // Center is at (left + W/2, top + H/2)
+                        // Bottom-center after rotation is at (left + W/2, top + H/2 + W/2)
+                        // So: left = colCenterX - W/2 = colCenterX - rotatedHeight/2
+                        // And: top = tableTopInContainer - H/2 - W/2 = tableTopInContainer - rotatedWidth/2 - rotatedHeight/2
+                        colHeaderOverlay
+                            .style('left', (colCenterX - rotatedHeight / 2) + 'px')
+                            .style('top', (tableTopInContainer - rotatedWidth / 2 - rotatedHeight / 2) + 'px');
 
                         showTooltip(event, cellData);
                     })
