@@ -7,7 +7,7 @@ import { getRawPicksData, getMatchupsData, getPlayerColors, getFocusedPlayer } f
 import { parseGameColumn, createGameKey } from '../utils/parsers.js';
 
 // Track current view and filters
-let currentView = 'player'; // 'player', 'highlights', or 'matrix'
+let currentView = 'highlights'; // 'highlights', 'player', or 'matrix'
 let selectedPlayer = null;
 let gameStatusFilter = 'all'; // 'all', 'played', or 'upcoming'
 
@@ -188,8 +188,8 @@ function renderViewToggleInHeader() {
     if (!toggleContainer) return;
 
     const buttons = [
+        { view: 'highlights', icon: 'fa-list', label: 'Similarity' },
         { view: 'player', icon: 'fa-user', label: 'Player Focus' },
-        { view: 'highlights', icon: 'fa-star', label: 'Highlights' },
         { view: 'matrix', icon: 'fa-th', label: 'Matrix' }
     ];
 
@@ -306,11 +306,16 @@ function renderPlayerFocusView(container, data) {
         .filter(d => !d.isSelf)
         .sort((a, b) => b.similarity - a.similarity);
 
+    // Wrap visualization in scrollable container
+    const vizContainer = container.append('div')
+        .attr('class', 'similarity-viz-container');
+
     // Set up dimensions
     const rowHeight = 35;
     const cellWidth = 200;
     const labelWidth = 150;
-    const margin = { top: 20, right: 20, bottom: 20, left: labelWidth };
+    const headerHeight = 50;
+    const margin = { top: headerHeight, right: 20, bottom: 20, left: labelWidth };
     const width = cellWidth;
     const height = rowHeight * similarities.length;
 
@@ -320,13 +325,30 @@ function renderPlayerFocusView(container, data) {
         .range(['#f0f0f0', '#6baed6', '#08519c']);
 
     // Create SVG
-    const svg = container.append('svg')
+    const svg = vizContainer.append('svg')
         .attr('class', 'similarity-matrix-svg')
         .attr('width', width + margin.left + margin.right)
         .attr('height', height + margin.top + margin.bottom);
 
     const g = svg.append('g')
         .attr('transform', `translate(${margin.left},${margin.top})`);
+
+    // Add sticky header group
+    const headerGroup = svg.append('g')
+        .attr('class', 'similarity-header-group')
+        .attr('transform', `translate(${margin.left},0)`);
+
+    // Add column header with selected player's name
+    headerGroup.append('text')
+        .attr('class', 'similarity-column-header')
+        .attr('x', cellWidth / 2)
+        .attr('y', 25)
+        .attr('text-anchor', 'middle')
+        .attr('dominant-baseline', 'middle')
+        .style('font-size', '16px')
+        .style('font-weight', 'bold')
+        .style('fill', playerColors[selectedPlayer] || '#333')
+        .text(selectedPlayer);
 
     // Create rows
     const rows = g.selectAll('.similarity-row')
@@ -336,9 +358,10 @@ function renderPlayerFocusView(container, data) {
         .attr('class', 'similarity-row')
         .attr('transform', (d, i) => `translate(0,${i * rowHeight})`);
 
-    // Add player labels
-    rows.append('text')
+    // Add player labels (store references for hover highlighting)
+    const rowLabels = rows.append('text')
         .attr('class', 'player-focus-label')
+        .attr('data-player', d => d.player2)
         .attr('x', -10)
         .attr('y', rowHeight / 2)
         .attr('text-anchor', 'end')
@@ -348,7 +371,7 @@ function renderPlayerFocusView(container, data) {
         .style('fill', d => playerColors[d.player2] || '#333')
         .text(d => d.player2);
 
-    // Add colored cells
+    // Add colored cells with hover highlighting
     rows.append('rect')
         .attr('class', 'similarity-cell')
         .attr('x', 0)
@@ -361,10 +384,26 @@ function renderPlayerFocusView(container, data) {
         .style('cursor', 'pointer')
         .on('mouseover', function(event, d) {
             d3.select(this).attr('stroke', '#333').attr('stroke-width', 2);
+            // Highlight the column header (selected player)
+            svg.select('.similarity-column-header')
+                .style('font-weight', 'bold')
+                .style('text-decoration', 'underline');
+            // Highlight the row label
+            svg.select(`.player-focus-label[data-player="${d.player2}"]`)
+                .style('font-weight', 'bold')
+                .style('text-decoration', 'underline');
             showTooltip(event, d);
         })
-        .on('mouseout', function() {
+        .on('mouseout', function(event, d) {
             d3.select(this).attr('stroke', '#fff').attr('stroke-width', 2);
+            // Remove highlight from column header
+            svg.select('.similarity-column-header')
+                .style('font-weight', 'bold')
+                .style('text-decoration', 'none');
+            // Remove highlight from row label
+            svg.select(`.player-focus-label[data-player="${d.player2}"]`)
+                .style('font-weight', '500')
+                .style('text-decoration', 'none');
             hideTooltip();
         })
         .on('click', function(event, d) {
@@ -394,10 +433,17 @@ function renderPlayerFocusView(container, data) {
         .style('font-size', '12px')
         .style('fill', '#666')
         .text(d => `${d.matchingGames}/${d.totalGames}`);
+
+    // Make header sticky on scroll
+    const vizContainerNode = vizContainer.node();
+    vizContainerNode.addEventListener('scroll', function() {
+        const scrollTop = this.scrollTop;
+        headerGroup.attr('transform', `translate(${margin.left},${scrollTop})`);
+    });
 }
 
 /**
- * Render Highlights View - top and bottom 5 pairs
+ * Render Highlights View - all pairs sorted by similarity
  */
 function renderHighlightsView(container, data) {
     const playerColors = getPlayerColors();
@@ -408,7 +454,7 @@ function renderHighlightsView(container, data) {
     // Add description
     container.append('div')
         .attr('class', 'similarity-description')
-        .html('<p>The most and least similar player pairs based on pick agreement.</p>');
+        .html('<p>All player pairs ranked by pick agreement, from most to least similar.</p>');
 
     // Get all pairs (excluding self-comparisons and duplicates)
     const allPairs = [];
@@ -420,21 +466,55 @@ function renderHighlightsView(container, data) {
         }
     }
 
-    // Sort by similarity
+    // Sort by similarity (most to least)
     allPairs.sort((a, b) => b.similarity - a.similarity);
 
-    // Top 5 and bottom 5
-    const top5 = allPairs.slice(0, 5);
-    const bottom5 = allPairs.slice(-5).reverse();
+    // Wrap in scrollable container
+    const vizContainer = container.append('div')
+        .attr('class', 'similarity-viz-container');
 
-    const highlightsGrid = container.append('div')
-        .attr('class', 'highlights-grid');
+    const list = vizContainer.append('div')
+        .attr('class', 'highlight-list');
 
-    // Top 5 section
-    renderHighlightSection(highlightsGrid, top5, 'Most Similar Pairs', 'fire', playerColors);
+    // Render all pairs
+    allPairs.forEach((pair, index) => {
+        const item = list.append('div')
+            .attr('class', 'highlight-item')
+            .on('click', () => showSimilarityModal(pair));
 
-    // Bottom 5 section
-    renderHighlightSection(highlightsGrid, bottom5, 'Most Different Pairs', 'snowflake', playerColors);
+        item.append('div')
+            .attr('class', 'highlight-rank')
+            .text(`${index + 1}`);
+
+        const players = item.append('div')
+            .attr('class', 'highlight-players');
+
+        players.append('span')
+            .attr('class', 'highlight-player-name')
+            .style('color', playerColors[pair.player1] || '#333')
+            .text(pair.player1);
+
+        players.append('span')
+            .attr('class', 'highlight-vs')
+            .text(' vs ');
+
+        players.append('span')
+            .attr('class', 'highlight-player-name')
+            .style('color', playerColors[pair.player2] || '#333')
+            .text(pair.player2);
+
+        const stats = item.append('div')
+            .attr('class', 'highlight-stats');
+
+        stats.append('div')
+            .attr('class', 'highlight-percentage')
+            .style('color', getSimilarityColor(pair.similarity))
+            .text(`${pair.similarity}%`);
+
+        stats.append('div')
+            .attr('class', 'highlight-games')
+            .text(`${pair.matchingGames}/${pair.totalGames}`);
+    });
 }
 
 /**
@@ -522,6 +602,10 @@ function renderFullMatrixView(container, data) {
         .attr('class', 'similarity-description')
         .html('<p>Complete matrix showing pick agreement between all player pairs (alphabetically ordered). Darker colors indicate higher agreement. Click any cell for details.</p>');
 
+    // Wrap visualization in scrollable container
+    const vizContainer = container.append('div')
+        .attr('class', 'similarity-viz-container');
+
     // Set up dimensions
     const containerWidth = document.getElementById('similarityMatrixContent').offsetWidth;
     const cellSize = Math.max(20, Math.min(50, (containerWidth - 200) / sortedPlayers.length));
@@ -530,13 +614,41 @@ function renderFullMatrixView(container, data) {
     const height = cellSize * sortedPlayers.length;
 
     // Create SVG
-    const svg = container.append('svg')
+    const svg = vizContainer.append('svg')
         .attr('class', 'similarity-matrix-svg')
         .attr('width', width + margin.left + margin.right)
         .attr('height', height + margin.top + margin.bottom);
 
     const g = svg.append('g')
         .attr('transform', `translate(${margin.left},${margin.top})`);
+
+    // Create separate groups for sticky headers
+    const colLabelsGroup = svg.append('g')
+        .attr('class', 'similarity-col-labels-group')
+        .attr('transform', `translate(${margin.left},${margin.top})`);
+
+    const rowLabelsGroup = svg.append('g')
+        .attr('class', 'similarity-row-labels-group')
+        .attr('transform', `translate(${margin.left},${margin.top})`);
+
+    // Add background rectangles for sticky labels
+    colLabelsGroup.append('rect')
+        .attr('class', 'col-labels-bg')
+        .attr('x', 0)
+        .attr('y', -margin.top)
+        .attr('width', width)
+        .attr('height', margin.top)
+        .attr('fill', 'white')
+        .attr('opacity', 0.95);
+
+    rowLabelsGroup.append('rect')
+        .attr('class', 'row-labels-bg')
+        .attr('x', -margin.left)
+        .attr('y', 0)
+        .attr('width', margin.left)
+        .attr('height', height)
+        .attr('fill', 'white')
+        .attr('opacity', 0.95);
 
     // Color scale - white (low similarity) to dark blue (high similarity)
     const colorScale = d3.scaleLinear()
@@ -573,10 +685,29 @@ function renderFullMatrixView(container, data) {
 
             d3.select(this).attr('stroke', '#333').attr('stroke-width', 2);
 
+            // Highlight the corresponding row and column labels
+            svg.selectAll('.col-label').filter(player => player === d.player2)
+                .style('font-weight', 'bold')
+                .style('text-decoration', 'underline');
+
+            svg.selectAll('.row-label').filter(player => player === d.player1)
+                .style('font-weight', 'bold')
+                .style('text-decoration', 'underline');
+
             showTooltip(event, d);
         })
         .on('mouseout', function(event, d) {
             d3.select(this).attr('stroke', '#fff').attr('stroke-width', 1);
+
+            // Remove highlight from row and column labels
+            svg.selectAll('.col-label').filter(player => player === d.player2)
+                .style('font-weight', player => player === focusedPlayer ? 'bold' : 'normal')
+                .style('text-decoration', 'none');
+
+            svg.selectAll('.row-label').filter(player => player === d.player1)
+                .style('font-weight', player => player === focusedPlayer ? 'bold' : 'normal')
+                .style('text-decoration', 'none');
+
             hideTooltip();
         })
         .on('click', (event, d) => {
@@ -599,8 +730,8 @@ function renderFullMatrixView(container, data) {
             .text(d => d.isSelf ? '' : `${d.similarity}%`);
     }
 
-    // Add column labels (top) - alphabetically sorted
-    g.selectAll('.col-label')
+    // Add column labels (top) - alphabetically sorted - in sticky group
+    colLabelsGroup.selectAll('.col-label')
         .data(sortedPlayers)
         .enter()
         .append('text')
@@ -618,8 +749,8 @@ function renderFullMatrixView(container, data) {
         .style('font-weight', d => d === focusedPlayer ? 'bold' : 'normal')
         .text(d => d);
 
-    // Add row labels (left) - alphabetically sorted
-    g.selectAll('.row-label')
+    // Add row labels (left) - alphabetically sorted - in sticky group
+    rowLabelsGroup.selectAll('.row-label')
         .data(sortedPlayers)
         .enter()
         .append('text')
@@ -636,6 +767,19 @@ function renderFullMatrixView(container, data) {
         .style('fill', d => playerColors[d] || '#333')
         .style('font-weight', d => d === focusedPlayer ? 'bold' : 'normal')
         .text(d => d);
+
+    // Make headers sticky on scroll
+    const vizContainerNode = vizContainer.node();
+    vizContainerNode.addEventListener('scroll', function() {
+        const scrollTop = this.scrollTop;
+        const scrollLeft = this.scrollLeft;
+
+        // Update column labels to stick to top
+        colLabelsGroup.attr('transform', `translate(${margin.left + scrollLeft},${margin.top + scrollTop})`);
+
+        // Update row labels to stick to left
+        rowLabelsGroup.attr('transform', `translate(${margin.left + scrollLeft},${margin.top + scrollTop})`);
+    });
 
     // Add legend
     addLegend(container, colorScale);

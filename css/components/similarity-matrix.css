@@ -6,9 +6,19 @@
 }
 
 #similarityMatrixContent {
-    max-height: 700px;
+    min-width: 0;
+    max-width: 100%;
+}
+
+/* Scrollable visualization container */
+.similarity-viz-container {
+    max-height: 550px;
     overflow-x: auto;
     overflow-y: auto;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    padding: 15px;
     /* Force scrollbars to always be visible */
     scrollbar-width: thin;
     scrollbar-color: var(--border-color) var(--bg-light);
@@ -364,8 +374,8 @@
 
 /* Responsive adjustments */
 @media (max-width: 768px) {
-    #similarityMatrixContent {
-        max-height: 600px;
+    .similarity-viz-container {
+        max-height: 450px;
     }
 
     .highlights-grid {
@@ -393,31 +403,31 @@
     }
 }
 
-/* Scrollbar styling for similarity content - WebKit browsers */
-#similarityMatrixContent::-webkit-scrollbar {
+/* Scrollbar styling for similarity visualization - WebKit browsers */
+.similarity-viz-container::-webkit-scrollbar {
     width: 10px;
     height: 10px;
     -webkit-appearance: none;
 }
 
-#similarityMatrixContent::-webkit-scrollbar-track {
+.similarity-viz-container::-webkit-scrollbar-track {
     background: var(--bg-light);
     border-radius: 4px;
     border: 1px solid #ddd;
 }
 
-#similarityMatrixContent::-webkit-scrollbar-thumb {
+.similarity-viz-container::-webkit-scrollbar-thumb {
     background: var(--border-color);
     border-radius: 4px;
     border: 1px solid #ccc;
 }
 
-#similarityMatrixContent::-webkit-scrollbar-thumb:hover {
+.similarity-viz-container::-webkit-scrollbar-thumb:hover {
     background: #999;
     border-color: #999;
 }
 
-#similarityMatrixContent::-webkit-scrollbar-corner {
+.similarity-viz-container::-webkit-scrollbar-corner {
     background: var(--bg-light);
 }
 
