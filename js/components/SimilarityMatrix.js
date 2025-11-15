@@ -560,9 +560,9 @@ function renderFullMatrixView(container, data) {
         .attr('class', 'similarity-description')
         .html('<p>Complete matrix showing pick agreement between all player pairs (alphabetically ordered). Darker colors indicate higher agreement. Click any cell for details.</p>');
 
-    // Wrap in scrollable container (like picks matrix)
+    // Wrap in scrollable container with matrix-specific styling
     const vizContainer = container.append('div')
-        .attr('class', 'similarity-viz-container')
+        .attr('class', 'similarity-viz-container similarity-matrix-viz-container')
         .style('position', 'relative');
 
     // Create hover overlays
