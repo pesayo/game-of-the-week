@@ -631,6 +631,10 @@ function renderFullMatrixView(container, data) {
     // Track initial highlight state
     let initialHighlightActive = true;
 
+    // Find focused player's row and column indices
+    const focusedPlayerRowIndex = sortedPlayers.indexOf(focusedPlayer);
+    const focusedPlayerColIndex = sortedPlayers.indexOf(focusedPlayer);
+
     // Create rows (no row headers - using overlays)
     alphabeticalMatrix.forEach((row, rowIndex) => {
         const tr = tbody.append('tr')
@@ -643,6 +647,14 @@ function renderFullMatrixView(container, data) {
                 .attr('data-row', rowIndex)
                 .attr('data-col', colIndex);
 
+            // Add crosshair borders for focused player's row and column
+            if (focusedPlayer && rowIndex === focusedPlayerRowIndex) {
+                td.classed('cell-row-highlight', true);
+            }
+            if (focusedPlayer && colIndex === focusedPlayerColIndex) {
+                td.classed('cell-col-highlight', true);
+            }
+
             // Inner wrapper for square sizing with colored background
             const wrapper = td.append('div')
                 .attr('class', 'cell-square-wrapper')
@@ -650,8 +662,6 @@ function renderFullMatrixView(container, data) {
 
             if (cellData.isSelf) {
                 wrapper.style('opacity', '0.5');
-            } else if (cellData.player1 === focusedPlayer || cellData.player2 === focusedPlayer) {
-                td.style('border', '2px solid var(--primary-color)');
             }
 
             if (!cellData.isSelf) {
@@ -664,25 +674,7 @@ function renderFullMatrixView(container, data) {
                         // Clear initial highlight on first real hover
                         if (initialHighlightActive) {
                             initialHighlightActive = false;
-                            // Clear any existing highlights from initial state
-                            tbody.selectAll('td')
-                                .classed('cell-row-highlight', false)
-                                .classed('cell-col-highlight', false);
                         }
-
-                        // Add border highlights to entire row and column
-                        tbody.selectAll('tr').each(function(d, i) {
-                            const row = d3.select(this);
-                            row.selectAll('td').each(function(d, j) {
-                                const cell = d3.select(this);
-                                if (i === rowIndex) {
-                                    cell.classed('cell-row-highlight', true);
-                                }
-                                if (j === colIndex) {
-                                    cell.classed('cell-col-highlight', true);
-                                }
-                            });
-                        });
 
                         const cell = this;
                         const cellRect = cell.getBoundingClientRect();
@@ -747,11 +739,6 @@ function renderFullMatrixView(container, data) {
                         showTooltip(event, cellData);
                     })
                     .on('mouseleave', function() {
-                        // Remove border highlights from all cells
-                        tbody.selectAll('td')
-                            .classed('cell-row-highlight', false)
-                            .classed('cell-col-highlight', false);
-
                         // Hide all overlays
                         cellOverlay.style('display', 'none');
                         rowHeaderOverlay.style('display', 'none');
@@ -780,20 +767,6 @@ function renderFullMatrixView(container, data) {
         // Pick a random non-self cell
         const randomCell = nonSelfCells[Math.floor(Math.random() * nonSelfCells.length)];
         const { rowIndex, colIndex, cellData } = randomCell;
-
-        // Add border highlights to entire row and column for initial highlight
-        tbody.selectAll('tr').each(function(d, i) {
-            const row = d3.select(this);
-            row.selectAll('td').each(function(d, j) {
-                const cell = d3.select(this);
-                if (i === rowIndex) {
-                    cell.classed('cell-row-highlight', true);
-                }
-                if (j === colIndex) {
-                    cell.classed('cell-col-highlight', true);
-                }
-            });
-        });
 
         // Find the DOM element
         const cellElement = tbody.selectAll('tr').nodes()[rowIndex]
