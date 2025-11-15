@@ -308,7 +308,8 @@ function renderPlayerFocusView(container, data) {
 
     // Wrap visualization in scrollable container
     const vizContainer = container.append('div')
-        .attr('class', 'similarity-viz-container');
+        .attr('class', 'similarity-viz-container')
+        .style('position', 'relative');
 
     // Set up dimensions
     const rowHeight = 35;
@@ -324,11 +325,30 @@ function renderPlayerFocusView(container, data) {
         .domain([0, 50, 100])
         .range(['#f0f0f0', '#6baed6', '#08519c']);
 
+    // Add sticky header using HTML (positioned with CSS)
+    const stickyHeader = vizContainer.append('div')
+        .attr('class', 'similarity-sticky-header')
+        .style('position', 'sticky')
+        .style('top', '0')
+        .style('left', `${labelWidth}px`)
+        .style('width', `${cellWidth}px`)
+        .style('height', `${headerHeight}px`)
+        .style('background', 'white')
+        .style('z-index', '10')
+        .style('display', 'flex')
+        .style('align-items', 'center')
+        .style('justify-content', 'center')
+        .style('font-size', '16px')
+        .style('font-weight', 'bold')
+        .style('color', playerColors[selectedPlayer] || '#333')
+        .text(selectedPlayer);
+
     // Create SVG
     const svg = vizContainer.append('svg')
         .attr('class', 'similarity-matrix-svg')
         .attr('width', width + margin.left + margin.right)
-        .attr('height', height + margin.top + margin.bottom);
+        .attr('height', height + margin.top + margin.bottom)
+        .style('display', 'block');
 
     const g = svg.append('g')
         .attr('transform', `translate(${margin.left},${margin.top})`);
@@ -354,7 +374,7 @@ function renderPlayerFocusView(container, data) {
         .style('fill', d => playerColors[d.player2] || '#333')
         .text(d => d.player2);
 
-    // Add colored cells with hover highlighting
+    // Add colored cells
     rows.append('rect')
         .attr('class', 'similarity-cell')
         .attr('x', 0)
@@ -365,30 +385,6 @@ function renderPlayerFocusView(container, data) {
         .attr('stroke', '#fff')
         .attr('stroke-width', 2)
         .style('cursor', 'pointer')
-        .on('mouseover', function(event, d) {
-            d3.select(this).attr('stroke', '#333').attr('stroke-width', 2);
-            // Highlight the column header (selected player)
-            svg.select('.similarity-column-header')
-                .style('font-weight', 'bold')
-                .style('text-decoration', 'underline');
-            // Highlight the row label
-            svg.select(`.player-focus-label[data-player="${d.player2}"]`)
-                .style('font-weight', 'bold')
-                .style('text-decoration', 'underline');
-            showTooltip(event, d);
-        })
-        .on('mouseout', function(event, d) {
-            d3.select(this).attr('stroke', '#fff').attr('stroke-width', 2);
-            // Remove highlight from column header
-            svg.select('.similarity-column-header')
-                .style('font-weight', 'bold')
-                .style('text-decoration', 'none');
-            // Remove highlight from row label
-            svg.select(`.player-focus-label[data-player="${d.player2}"]`)
-                .style('font-weight', '500')
-                .style('text-decoration', 'none');
-            hideTooltip();
-        })
         .on('click', function(event, d) {
             showSimilarityModal(d);
         });
@@ -417,47 +413,29 @@ function renderPlayerFocusView(container, data) {
         .style('fill', '#666')
         .text(d => `${d.matchingGames}/${d.totalGames}`);
 
-    // Add sticky header group AFTER content so it renders on top
-    const headerGroup = svg.append('g')
-        .attr('class', 'similarity-header-group')
-        .attr('transform', `translate(${margin.left},0)`);
-
-    // Add background for sticky header (with 1px overlap to prevent peeking)
-    headerGroup.append('rect')
-        .attr('class', 'header-bg')
-        .attr('x', -margin.left - 1)
-        .attr('y', -1)
-        .attr('width', width + margin.left + margin.right + 2)
-        .attr('height', headerHeight + 2)
-        .attr('fill', 'white');
-
-    // Add column header with selected player's name
-    headerGroup.append('text')
-        .attr('class', 'similarity-column-header')
-        .attr('x', cellWidth / 2)
-        .attr('y', 25)
-        .attr('text-anchor', 'middle')
-        .attr('dominant-baseline', 'middle')
-        .style('font-size', '16px')
-        .style('font-weight', 'bold')
-        .style('fill', playerColors[selectedPlayer] || '#333')
-        .text(selectedPlayer);
-
-    // Make header sticky on scroll with smooth RAF updates
-    const vizContainerNode = vizContainer.node();
-    let rafId = null;
-
-    vizContainerNode.addEventListener('scroll', function() {
-        if (rafId) {
-            cancelAnimationFrame(rafId);
-        }
-
-        rafId = requestAnimationFrame(() => {
-            const scrollTop = this.scrollTop;
-            headerGroup.attr('transform', `translate(${margin.left},${scrollTop})`);
-            rafId = null;
+    // Add hover highlighting for the sticky header
+    const stickyHeaderNode = stickyHeader.node();
+    rows.selectAll('.similarity-cell')
+        .on('mouseover', function(event, d) {
+            d3.select(this).attr('stroke', '#333').attr('stroke-width', 2);
+            // Highlight the sticky header
+            stickyHeaderNode.style.textDecoration = 'underline';
+            // Highlight the row label
+            svg.select(`.player-focus-label[data-player="${d.player2}"]`)
+                .style('font-weight', 'bold')
+                .style('text-decoration', 'underline');
+            showTooltip(event, d);
+        })
+        .on('mouseout', function(event, d) {
+            d3.select(this).attr('stroke', '#fff').attr('stroke-width', 2);
+            // Remove highlight from sticky header
+            stickyHeaderNode.style.textDecoration = 'none';
+            // Remove highlight from row label
+            svg.select(`.player-focus-label[data-player="${d.player2}"]`)
+                .style('font-weight', '500')
+                .style('text-decoration', 'none');
+            hideTooltip();
         });
-    }, { passive: true });
 }
 
 /**
