@@ -620,9 +620,10 @@ function renderFullMatrixView(container, data) {
         .attr('class', 'player-col corner-cell');
 
     // Column headers (player names) - rotated
-    sortedPlayers.forEach(player => {
+    sortedPlayers.forEach((player, colIndex) => {
         const th = headerRow.append('th')
-            .attr('class', 'rotated-header');
+            .attr('class', 'rotated-header')
+            .attr('data-col', colIndex);
 
         const div = th.append('div')
             .style('color', playerColors[player] || '#333')
@@ -638,7 +639,8 @@ function renderFullMatrixView(container, data) {
 
     // Create rows
     alphabeticalMatrix.forEach((row, rowIndex) => {
-        const tr = tbody.append('tr');
+        const tr = tbody.append('tr')
+            .attr('data-row', rowIndex);
 
         // Row header (sticky player name)
         const rowPlayer = sortedPlayers[rowIndex];
@@ -655,6 +657,8 @@ function renderFullMatrixView(container, data) {
         row.forEach((cellData, colIndex) => {
             const td = tr.append('td')
                 .attr('class', cellData.isSelf ? 'self-cell' : 'similarity-cell')
+                .attr('data-row', rowIndex)
+                .attr('data-col', colIndex)
                 .style('background-color', cellData.isSelf ? '#e0e0e0' : colorScale(cellData.similarity))
                 .style('cursor', cellData.isSelf ? 'default' : 'pointer');
 
@@ -671,6 +675,10 @@ function renderFullMatrixView(container, data) {
                             .style('filter', 'brightness(0.9)')
                             .style('border', '2px solid #333');
 
+                        // Add hover classes to expand row/column
+                        table.classed(`hover-row-${rowIndex}`, true);
+                        table.classed(`hover-col-${colIndex}`, true);
+
                         showTooltip(event, cellData);
                     })
                     .on('mouseleave', function() {
@@ -678,6 +686,10 @@ function renderFullMatrixView(container, data) {
                             .style('filter', null)
                             .style('border', cellData.player1 === focusedPlayer || cellData.player2 === focusedPlayer ?
                                 '2px solid var(--primary-color)' : null);
+
+                        // Remove hover classes
+                        table.classed(`hover-row-${rowIndex}`, false);
+                        table.classed(`hover-col-${colIndex}`, false);
 
                         hideTooltip();
                     })
