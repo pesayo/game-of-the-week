@@ -1,6 +1,10 @@
 // Main entry point for Form Responses page
 import { picksUrl } from './config/constants.js';
 
+// Global state
+let allResponses = [];
+let currentFilter = 'all';
+
 /**
  * Fetches form responses data from Google Sheets CSV
  */
@@ -19,19 +23,22 @@ async function fetchFormResponses() {
  */
 function processResponses(data) {
     const MONEY_COLUMN = "What should we do with the money? (optional)";
+    const CATEGORY_COLUMN = "Money Response Category"; // New column for silly/serious
     const responses = [];
 
     data.forEach(row => {
         const moneyResponse = row[MONEY_COLUMN];
         const playerName = row["Your Name"];
         const timestamp = row["Timestamp"];
+        const category = row[CATEGORY_COLUMN];
 
         // Only include rows with a non-empty response
         if (moneyResponse && moneyResponse.trim() !== '') {
             responses.push({
                 playerName: playerName || "Unknown",
                 timestamp: timestamp || "",
-                response: moneyResponse.trim()
+                response: moneyResponse.trim(),
+                category: (category && category.trim().toLowerCase()) || "uncategorized"
             });
         }
     });
@@ -67,6 +74,8 @@ function renderSummary(responses) {
 
     const totalResponses = responses.length;
     const uniquePlayers = new Set(responses.map(r => r.playerName)).size;
+    const sillyCount = responses.filter(r => r.category === 'silly').length;
+    const seriousCount = responses.filter(r => r.category === 'serious').length;
 
     summaryContainer.innerHTML = `
         <div class="summary-card">
@@ -87,7 +96,37 @@ function renderSummary(responses) {
                 <div class="summary-label">Players</div>
             </div>
         </div>
+        <div class="summary-card">
+            <div class="summary-icon">
+                <i class="fas fa-laugh"></i>
+            </div>
+            <div class="summary-details">
+                <div class="summary-value">${sillyCount}</div>
+                <div class="summary-label">Silly</div>
+            </div>
+        </div>
+        <div class="summary-card">
+            <div class="summary-icon">
+                <i class="fas fa-lightbulb"></i>
+            </div>
+            <div class="summary-details">
+                <div class="summary-value">${seriousCount}</div>
+                <div class="summary-label">Serious</div>
+            </div>
+        </div>
     `;
+}
+
+/**
+ * Gets the category badge HTML
+ */
+function getCategoryBadge(category) {
+    const badges = {
+        'silly': '<span class="category-badge silly"><i class="fas fa-laugh"></i> Silly</span>',
+        'serious': '<span class="category-badge serious"><i class="fas fa-lightbulb"></i> Serious</span>',
+        'uncategorized': '<span class="category-badge uncategorized"><i class="fas fa-question"></i> Uncategorized</span>'
+    };
+    return badges[category] || badges['uncategorized'];
 }
 
 /**
@@ -96,18 +135,27 @@ function renderSummary(responses) {
 function renderResponses(responses) {
     const listContainer = document.getElementById('responsesList');
 
-    if (responses.length === 0) {
+    // Filter responses based on current filter
+    let filteredResponses = responses;
+    if (currentFilter !== 'all') {
+        filteredResponses = responses.filter(r => r.category === currentFilter);
+    }
+
+    if (filteredResponses.length === 0) {
+        const message = currentFilter === 'all'
+            ? 'No responses yet!'
+            : `No ${currentFilter} responses yet!`;
         listContainer.innerHTML = `
             <div class="no-responses">
                 <i class="fas fa-inbox"></i>
-                <p>No responses yet!</p>
+                <p>${message}</p>
             </div>
         `;
         return;
     }
 
     // Sort by timestamp (most recent first)
-    const sortedResponses = [...responses].sort((a, b) => {
+    const sortedResponses = [...filteredResponses].sort((a, b) => {
         return new Date(b.timestamp) - new Date(a.timestamp);
     });
 
@@ -118,9 +166,12 @@ function renderResponses(responses) {
                     <i class="fas fa-user"></i>
                     <strong>${item.playerName}</strong>
                 </div>
-                <div class="response-timestamp">
-                    <i class="fas fa-clock"></i>
-                    ${formatTimestamp(item.timestamp)}
+                <div class="response-meta">
+                    ${getCategoryBadge(item.category)}
+                    <div class="response-timestamp">
+                        <i class="fas fa-clock"></i>
+                        ${formatTimestamp(item.timestamp)}
+                    </div>
                 </div>
             </div>
             <div class="response-content">
@@ -130,6 +181,26 @@ function renderResponses(responses) {
     `).join('');
 
     listContainer.innerHTML = responsesHTML;
+}
+
+/**
+ * Sets up filter button event listeners
+ */
+function setupFilters() {
+    const filterButtons = document.querySelectorAll('.filter-btn');
+    filterButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            // Update active state
+            filterButtons.forEach(btn => btn.classList.remove('active'));
+            button.classList.add('active');
+
+            // Update current filter
+            currentFilter = button.dataset.filter;
+
+            // Re-render responses
+            renderResponses(allResponses);
+        });
+    });
 }
 
 /**
@@ -171,11 +242,14 @@ async function init() {
         const data = await fetchFormResponses();
 
         // Process the responses
-        const responses = processResponses(data);
+        allResponses = processResponses(data);
 
         // Render the page
-        renderSummary(responses);
-        renderResponses(responses);
+        renderSummary(allResponses);
+        renderResponses(allResponses);
+
+        // Setup filter buttons
+        setupFilters();
 
         // Show the content
         showContent();
