@@ -11,6 +11,23 @@ let currentView = 'highlights'; // 'highlights', 'player', or 'matrix'
 let selectedPlayer = null;
 let gameStatusFilter = 'all'; // 'all', 'played', or 'upcoming'
 
+// Handle window resize to switch away from matrix view on mobile
+let resizeTimeout;
+window.addEventListener('resize', () => {
+    clearTimeout(resizeTimeout);
+    resizeTimeout = setTimeout(() => {
+        const isMobile = window.innerWidth <= 768;
+        if (isMobile && currentView === 'matrix') {
+            currentView = 'highlights';
+            renderViewToggleInHeader();
+            renderSimilarityMatrix();
+        } else if (!isMobile) {
+            // Re-render toggle to show Matrix button when switching back to desktop
+            renderViewToggleInHeader();
+        }
+    }, 250);
+});
+
 /**
  * Calculate pick similarity between all pairs of players
  * @returns {Object} Similarity matrix data structure
@@ -163,6 +180,15 @@ export function renderSimilarityMatrix() {
     const container = d3.select('#similarityMatrixContent');
     container.html(''); // Clear previous content
 
+    // Check if mobile (width <= 768px)
+    const isMobile = window.innerWidth <= 768;
+
+    // Don't allow matrix view on mobile - default to highlights
+    if (isMobile && currentView === 'matrix') {
+        currentView = 'highlights';
+        renderViewToggleInHeader(); // Update button states
+    }
+
     // Render appropriate view
     if (currentView === 'player') {
         renderPlayerFocusView(container, data);
@@ -187,13 +213,21 @@ function renderViewToggleInHeader() {
     const toggleContainer = document.getElementById('similarityViewToggle');
     if (!toggleContainer) return;
 
+    // Check if mobile (width <= 768px)
+    const isMobile = window.innerWidth <= 768;
+
     const buttons = [
         { view: 'highlights', icon: 'fa-list', label: 'Similarity' },
         { view: 'player', icon: 'fa-user', label: 'Player Focus' },
-        { view: 'matrix', icon: 'fa-th', label: 'Matrix' }
+        { view: 'matrix', icon: 'fa-th', label: 'Matrix', hideOnMobile: true }
     ];
 
-    toggleContainer.innerHTML = buttons.map(btn => `
+    // Filter out Matrix button on mobile
+    const visibleButtons = isMobile
+        ? buttons.filter(btn => !btn.hideOnMobile)
+        : buttons;
+
+    toggleContainer.innerHTML = visibleButtons.map(btn => `
         <button class="picks-toggle-btn ${currentView === btn.view ? 'active' : ''}"
                 data-view="${btn.view}">
             <i class="fas ${btn.icon}"></i> ${btn.label}
