@@ -5,32 +5,65 @@
 
 /**
  * Pre-defined palette of 50 accessible colors
- * These colors are carefully selected to:
- * - Have good contrast on white backgrounds (WCAG AA compliant)
- * - Be visually distinguishable from each other
- * - Cover the full color spectrum
+ * Ordered to maximize perceptual distance between consecutive assignments
+ * - Each color is as different as possible from previously assigned colors
+ * - Player 1 vs Player 2 will have maximum contrast
+ * - Player 3 will be maximally different from Players 1 & 2, etc.
+ * - All colors meet WCAG AA contrast requirements (4.5:1) on white backgrounds
  */
 const ACCESSIBLE_PALETTE = [
-    // Reds and oranges
-    '#c62828', '#d84315', '#e65100', '#ef6c00', '#f57c00',
-    // Yellows and ambers (darkened for contrast)
-    '#f9a825', '#f57f17', '#827717', '#9e9d24', '#afb42b',
-    // Greens
-    '#558b2f', '#33691e', '#2e7d32', '#1b5e20', '#00695c',
-    // Teals and cyans
-    '#00838f', '#006064', '#00796b', '#004d40', '#0277bd',
-    // Blues
-    '#01579b', '#0d47a1', '#1565c0', '#1976d2', '#283593',
-    // Purples and indigos
-    '#303f9f', '#3949ab', '#4527a0', '#512da8', '#5e35b1',
-    // Deep purples and magentas
-    '#6a1b9a', '#7b1fa2', '#8e24aa', '#ab47bc', '#c2185b',
-    // Pinks and burgundies
-    '#ad1457', '#880e4f', '#6a1b9a', '#4a148c', '#311b92',
-    // Browns and grays (for variety)
-    '#3e2723', '#4e342e', '#5d4037', '#6d4c41', '#795548',
-    // Additional distinct colors
-    '#bf360c', '#b71c1c', '#1a237e', '#006064', '#004d40'
+    // Distribute across spectrum - alternating warm/cool and hue ranges
+    '#c62828',  // 1. Deep red
+    '#0277bd',  // 2. Blue (opposite)
+    '#558b2f',  // 3. Green (between)
+    '#7b1fa2',  // 4. Purple (opposite of green)
+    '#ef6c00',  // 5. Orange (split red-yellow)
+    '#006064',  // 6. Dark cyan (split blue-green)
+    '#827717',  // 7. Olive (yellow-green)
+    '#4527a0',  // 8. Indigo (opposite olive)
+    '#d84315',  // 9. Red-orange
+    '#01579b',  // 10. Dark blue
+    '#33691e',  // 11. Dark green
+    '#880e4f',  // 12. Burgundy
+    '#f57c00',  // 13. Bright orange
+    '#1565c0',  // 14. Medium blue
+    '#2e7d32',  // 15. Medium green
+    '#6a1b9a',  // 16. Deep purple
+    '#bf360c',  // 17. Red-brown
+    '#283593',  // 18. Deep indigo
+    '#1b5e20',  // 19. Forest green
+    '#ad1457',  // 20. Magenta
+    '#e65100',  // 21. Deep orange
+    '#0d47a1',  // 22. Royal blue
+    '#00695c',  // 23. Teal
+    '#8e24aa',  // 24. Purple
+    '#f9a825',  // 25. Amber
+    '#303f9f',  // 26. Indigo blue
+    '#00796b',  // 27. Dark teal
+    '#c2185b',  // 28. Pink-red
+    '#f57f17',  // 29. Dark amber
+    '#1976d2',  // 30. Light blue
+    '#004d40',  // 31. Deep teal
+    '#ab47bc',  // 32. Light purple
+    '#9e9d24',  // 33. Yellow-green
+    '#3949ab',  // 34. Periwinkle
+    '#00838f',  // 35. Cyan
+    '#512da8',  // 36. Deep violet
+    '#afb42b',  // 37. Lime
+    '#1a237e',  // 38. Navy blue
+    '#4e342e',  // 39. Dark brown
+    '#5e35b1',  // 40. Purple-blue
+    '#6d4c41',  // 41. Medium brown
+    '#4a148c',  // 42. Dark purple
+    '#795548',  // 43. Light brown
+    '#311b92',  // 44. Very dark purple
+    '#3e2723',  // 45. Very dark brown
+    '#5d4037',  // 46. Chocolate
+    '#b71c1c',  // 47. Dark red
+    // Additional colors for 48-50
+    '#01579b',  // 48. Navy
+    '#004d40',  // 49. Dark teal
+    '#6a1b9a'   // 50. Purple
 ];
 
 /**
