@@ -164,8 +164,7 @@
 /* Data cells - responsive container */
 .similarity-matrix-table td {
     padding: 0;
-    border-right: 1px solid var(--gray-300);
-    border-bottom: 1px solid var(--gray-300);
+    border: none;
     box-sizing: border-box;
     position: relative;
 }
