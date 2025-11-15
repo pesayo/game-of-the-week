@@ -583,10 +583,11 @@ function renderFullMatrixView(container, data) {
         .attr('class', 'similarity-matrix-grid')
         .style('grid-template-columns', `repeat(${sortedPlayers.length}, 1fr)`);
 
-    // Color scale - red (low) to green (high) matching Highlights view
+    // Color scale - blue gradient with 20% as low cutoff
     const colorScale = d3.scaleLinear()
-        .domain([0, 30, 45, 60, 75, 100])
-        .range(['#c62828', '#ef5350', '#ffa726', '#66bb6a', '#2e7d32', '#1b5e20']);
+        .domain([20, 40, 60, 80, 100])
+        .range(['#f7fbff', '#c6dbef', '#6baed6', '#2171b5', '#08306b'])
+        .clamp(true); // Values below 20% use the lowest color
 
     // Track initial highlight state
     let initialHighlightActive = true;
