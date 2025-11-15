@@ -661,6 +661,7 @@ function renderFullMatrixView(container, data) {
                         const cell = this;
                         const cellRect = cell.getBoundingClientRect();
                         const containerRect = vizContainer.node().getBoundingClientRect();
+                        const tableRect = table.node().getBoundingClientRect();
                         const scrollTop = vizContainer.node().scrollTop;
                         const scrollLeft = vizContainer.node().scrollLeft;
 
@@ -675,23 +676,26 @@ function renderFullMatrixView(container, data) {
                             .style('background-color', wrapperBgColor)
                             .style('border', '2px solid #333');
 
-                        // Position and show row header overlay
+                        // Position and show row header overlay - right edge aligns with table left
                         const rowPlayer = sortedPlayers[rowIndex];
+                        const tableLeftInContainer = tableRect.left - containerRect.left + scrollLeft;
                         rowHeaderOverlay
                             .style('display', 'block')
-                            .style('left', (scrollLeft + 5) + 'px')
+                            .style('left', null)
+                            .style('right', `calc(100% - ${tableLeftInContainer}px)`)
                             .style('top', (cellRect.top - containerRect.top + scrollTop) + 'px')
                             .style('height', cellRect.height + 'px')
                             .style('color', playerColors[rowPlayer] || '#333')
                             .style('font-weight', rowPlayer === focusedPlayer ? 'bold' : 'normal')
                             .text(rowPlayer);
 
-                        // Position and show column header overlay (rotated -90deg)
+                        // Position and show column header overlay - bottom aligns with table top
                         const colPlayer = sortedPlayers[colIndex];
+                        const tableTopInContainer = tableRect.top - containerRect.top + scrollTop;
                         colHeaderOverlay
                             .style('display', 'block')
                             .style('left', (cellRect.left - containerRect.left + scrollLeft + cellRect.width / 2) + 'px')
-                            .style('top', (scrollTop + 20) + 'px')
+                            .style('top', tableTopInContainer + 'px')
                             .style('color', playerColors[colPlayer] || '#333')
                             .style('font-weight', colPlayer === focusedPlayer ? 'bold' : 'normal')
                             .text(colPlayer);
