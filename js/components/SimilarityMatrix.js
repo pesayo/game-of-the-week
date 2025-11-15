@@ -625,47 +625,13 @@ function renderFullMatrixView(container, data) {
         .domain([0, 50, 100])
         .range(['#f0f0f0', '#6baed6', '#08519c']);
 
-    // Create thead with sticky headers
-    const thead = table.append('thead');
-    const headerRow = thead.append('tr');
-
-    // Corner cell (empty)
-    headerRow.append('th')
-        .attr('class', 'player-col corner-cell');
-
-    // Column headers (player names) - rotated
-    sortedPlayers.forEach((player, colIndex) => {
-        const th = headerRow.append('th')
-            .attr('class', 'rotated-header')
-            .attr('data-col', colIndex);
-
-        const div = th.append('div')
-            .style('color', playerColors[player] || '#333')
-            .text(player);
-
-        if (player === focusedPlayer) {
-            div.style('font-weight', 'bold');
-        }
-    });
-
-    // Create tbody
+    // Create tbody (no thead needed - using overlays for headers)
     const tbody = table.append('tbody');
 
-    // Create rows
+    // Create rows (no row headers - using overlays)
     alphabeticalMatrix.forEach((row, rowIndex) => {
         const tr = tbody.append('tr')
             .attr('data-row', rowIndex);
-
-        // Row header (sticky player name)
-        const rowPlayer = sortedPlayers[rowIndex];
-        const th = tr.append('th')
-            .attr('class', 'player-col')
-            .style('color', playerColors[rowPlayer] || '#333')
-            .text(rowPlayer);
-
-        if (rowPlayer === focusedPlayer) {
-            th.style('font-weight', 'bold');
-        }
 
         // Data cells - color only, no text
         row.forEach((cellData, colIndex) => {
