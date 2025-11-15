@@ -705,7 +705,7 @@ function renderFullMatrixView(container, data) {
                         const rowPlayer = sortedPlayers[rowIndex];
                         rowHeaderOverlay
                             .style('display', 'block')
-                            .style('left', scrollLeft + 'px')
+                            .style('left', (scrollLeft + 5) + 'px')
                             .style('top', (cellRect.top - containerRect.top + scrollTop) + 'px')
                             .style('height', cellRect.height + 'px')
                             .style('color', playerColors[rowPlayer] || '#333')
@@ -717,7 +717,7 @@ function renderFullMatrixView(container, data) {
                         colHeaderOverlay
                             .style('display', 'block')
                             .style('left', (cellRect.left - containerRect.left + scrollLeft + cellRect.width / 2) + 'px')
-                            .style('top', (scrollTop + 5) + 'px')
+                            .style('top', (scrollTop + 20) + 'px')
                             .style('color', playerColors[colPlayer] || '#333')
                             .style('font-weight', colPlayer === focusedPlayer ? 'bold' : 'normal')
                             .text(colPlayer);
