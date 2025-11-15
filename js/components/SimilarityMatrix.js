@@ -676,25 +676,26 @@ function renderFullMatrixView(container, data) {
                             .style('background-color', wrapperBgColor)
                             .style('border', '2px solid #333');
 
-                        // Position and show row header overlay - right edge aligns with table left
+                        // Position and show row header overlay - centered on row, right edge at table left
                         const rowPlayer = sortedPlayers[rowIndex];
                         const tableLeftInContainer = tableRect.left - containerRect.left + scrollLeft;
+                        const rowCenterY = cellRect.top - containerRect.top + scrollTop + cellRect.height / 2;
                         rowHeaderOverlay
                             .style('display', 'block')
                             .style('left', null)
                             .style('right', `calc(100% - ${tableLeftInContainer}px)`)
-                            .style('top', (cellRect.top - containerRect.top + scrollTop) + 'px')
-                            .style('height', cellRect.height + 'px')
+                            .style('top', rowCenterY + 'px')
                             .style('color', playerColors[rowPlayer] || '#333')
                             .style('font-weight', rowPlayer === focusedPlayer ? 'bold' : 'normal')
                             .text(rowPlayer);
 
-                        // Position and show column header overlay - bottom aligns with table top
+                        // Position and show column header overlay - centered on column
                         const colPlayer = sortedPlayers[colIndex];
                         const tableTopInContainer = tableRect.top - containerRect.top + scrollTop;
+                        const colCenterX = cellRect.left - containerRect.left + scrollLeft + cellRect.width / 2;
                         colHeaderOverlay
                             .style('display', 'block')
-                            .style('left', (cellRect.left - containerRect.left + scrollLeft + cellRect.width / 2) + 'px')
+                            .style('left', colCenterX + 'px')
                             .style('top', tableTopInContainer + 'px')
                             .style('color', playerColors[colPlayer] || '#333')
                             .style('font-weight', colPlayer === focusedPlayer ? 'bold' : 'normal')
