@@ -233,16 +233,15 @@ function renderFilters(container, viewType, data) {
                 renderSimilarityMatrix();
             });
 
-        // Add "None" option for matrix view
-        if (viewType === 'matrix') {
-            select.append('option')
-                .attr('value', '')
-                .property('selected', !selectedPlayer)
-                .text('None');
-        }
+        // Add "None" option for both views
+        select.append('option')
+            .attr('value', '')
+            .property('selected', !selectedPlayer)
+            .text('No player selected');
 
-        // Add player options
-        data.players.forEach(player => {
+        // Sort players alphabetically and add as options
+        const sortedPlayers = [...data.players].sort((a, b) => a.localeCompare(b));
+        sortedPlayers.forEach(player => {
             select.append('option')
                 .attr('value', player)
                 .property('selected', player === selectedPlayer)
@@ -295,7 +294,13 @@ function renderPlayerFocusView(container, data) {
 
     // Get similarities for selected player
     const playerIndex = data.players.indexOf(selectedPlayer);
-    if (playerIndex === -1) return;
+    if (playerIndex === -1) {
+        // No player selected - show message
+        container.append('div')
+            .attr('class', 'no-data')
+            .html('<i class="fas fa-info-circle"></i> Please select a player to compare.');
+        return;
+    }
 
     const similarities = data.matrix[playerIndex]
         .filter(d => !d.isSelf)
