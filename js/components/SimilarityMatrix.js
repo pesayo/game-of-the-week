@@ -573,9 +573,6 @@ function renderHighlightSection(container, pairs, title, icon, playerColors) {
 function renderFullMatrixView(container, data) {
     const playerColors = getPlayerColors();
 
-    // Render filters
-    renderFilters(container, 'matrix', data);
-
     // Sort players alphabetically for the full matrix view
     const sortedPlayers = [...data.players].sort((a, b) => a.localeCompare(b));
 
