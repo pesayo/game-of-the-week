@@ -50,6 +50,56 @@
     color: white;
 }
 
+/* Game Status Filter */
+.game-status-filter {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 25px;
+    padding: 15px;
+    background: white;
+    border-radius: var(--border-radius);
+    border: 2px solid var(--border-color);
+    flex-wrap: wrap;
+}
+
+.filter-label {
+    font-weight: 600;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-right: 5px;
+}
+
+.filter-label i {
+    color: var(--primary-color);
+}
+
+.game-status-btn {
+    padding: 8px 16px;
+    background: var(--bg-light);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    transition: all 0.2s ease;
+}
+
+.game-status-btn:hover {
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+    background: rgba(33, 150, 243, 0.05);
+}
+
+.game-status-btn.active {
+    background: var(--primary-color);
+    border-color: var(--primary-color);
+    color: white;
+}
+
 /* Description */
 .similarity-description {
     margin-bottom: 20px;
@@ -523,6 +573,20 @@
     .similarity-toggle-btn {
         width: 100%;
         justify-content: center;
+    }
+
+    .game-status-filter {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .filter-label {
+        justify-content: center;
+    }
+
+    .game-status-btn {
+        width: 100%;
+        text-align: center;
     }
 
     .player-selector {

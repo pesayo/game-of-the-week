@@ -6,9 +6,10 @@
 import { getRawPicksData, getMatchupsData, getPlayerColors, getFocusedPlayer } from '../state/app-state.js';
 import { parseGameColumn, createGameKey } from '../utils/parsers.js';
 
-// Track current view
+// Track current view and filters
 let currentView = 'player'; // 'player', 'highlights', or 'matrix'
 let selectedPlayer = null;
+let gameStatusFilter = 'all'; // 'all', 'played', or 'upcoming'
 
 /**
  * Calculate pick similarity between all pairs of players
@@ -94,6 +95,18 @@ function calculatePairSimilarity(player1Row, player2Row, gameHeaders, gameMap, p
         const pick1 = player1Row[gameHeader];
         const pick2 = player2Row[gameHeader];
 
+        // Parse game info first to check filter
+        const gameInfo = parseGameColumn(gameHeader);
+        if (!gameInfo) return;
+
+        const gameKey = createGameKey(gameInfo.week, gameInfo.date, gameInfo.time, gameInfo.sheet);
+        const game = gameMap[gameKey];
+        if (!game) return;
+
+        // Apply game status filter
+        if (gameStatusFilter === 'played' && !game.winner) return;
+        if (gameStatusFilter === 'upcoming' && game.winner) return;
+
         // Only count games where both players made picks
         if (pick1 && pick2) {
             totalGames++;
@@ -102,21 +115,14 @@ function calculatePairSimilarity(player1Row, player2Row, gameHeaders, gameMap, p
                 matchingGames++;
             } else {
                 // Track differences for detailed comparison
-                const gameInfo = parseGameColumn(gameHeader);
-                if (gameInfo) {
-                    const gameKey = createGameKey(gameInfo.week, gameInfo.date, gameInfo.time, gameInfo.sheet);
-                    const game = gameMap[gameKey];
-                    if (game) {
-                        differences.push({
-                            gameNumber: game.gameNumber,
-                            week: game.week,
-                            date: game.date,
-                            pick1: pick1,
-                            pick2: pick2,
-                            winner: game.winner
-                        });
-                    }
-                }
+                differences.push({
+                    gameNumber: game.gameNumber,
+                    week: game.week,
+                    date: game.date,
+                    pick1: pick1,
+                    pick2: pick2,
+                    winner: game.winner
+                });
             }
         }
     });
@@ -160,6 +166,9 @@ export function renderSimilarityMatrix() {
     // Add view toggle
     renderViewToggle(container);
 
+    // Add game status filter
+    renderGameStatusFilter(container);
+
     // Render appropriate view
     if (currentView === 'player') {
         renderPlayerFocusView(container, data);
@@ -190,6 +199,35 @@ function renderViewToggle(container) {
             .html(`<i class="fas ${btn.icon}"></i> ${btn.label}`)
             .on('click', function() {
                 currentView = btn.view;
+                renderSimilarityMatrix();
+            });
+    });
+}
+
+/**
+ * Render game status filter buttons
+ */
+function renderGameStatusFilter(container) {
+    const filterDiv = container.append('div')
+        .attr('class', 'game-status-filter');
+
+    filterDiv.append('span')
+        .attr('class', 'filter-label')
+        .html('<i class="fas fa-filter"></i> Include:');
+
+    const buttons = [
+        { filter: 'all', label: 'All Games' },
+        { filter: 'played', label: 'Played Only' },
+        { filter: 'upcoming', label: 'Upcoming Only' }
+    ];
+
+    buttons.forEach(btn => {
+        filterDiv.append('button')
+            .attr('class', `game-status-btn ${gameStatusFilter === btn.filter ? 'active' : ''}`)
+            .attr('data-filter', btn.filter)
+            .text(btn.label)
+            .on('click', function() {
+                gameStatusFilter = btn.filter;
                 renderSimilarityMatrix();
             });
     });
