@@ -153,29 +153,17 @@
     margin: 0 auto;
 }
 
-/* Similarity Matrix Table (similar to picks matrix) */
-.similarity-matrix-table {
-    border-collapse: collapse;
-    font-size: 12px;
-    table-layout: fixed;
+/* Similarity Matrix Grid */
+.similarity-matrix-grid {
+    display: grid;
     width: 100%;
+    gap: 0;
 }
 
-.similarity-matrix-table tr {
-    height: 0;
-    line-height: 0;
-}
-
-/* Data cells - responsive container */
-.similarity-matrix-table td {
-    padding: 0;
-    border: none;
-    box-sizing: border-box;
+/* Grid cells - responsive container */
+.grid-cell {
     position: relative;
-    vertical-align: top;
-    line-height: 0;
-    font-size: 0;
-    height: 0;
+    overflow: hidden;
 }
 
 /* Square wrapper using padding-bottom technique */

@@ -614,35 +614,29 @@ function renderFullMatrixView(container, data) {
         .attr('class', 'matrix-cell-overlay')
         .style('display', 'none');
 
-    // Create table similar to picks matrix
-    const table = vizContainer.append('table')
-        .attr('class', 'similarity-matrix-table');
+    // Create grid container instead of table
+    const grid = vizContainer.append('div')
+        .attr('class', 'similarity-matrix-grid')
+        .style('grid-template-columns', `repeat(${sortedPlayers.length}, 1fr)`);
 
     // Color scale - white (low similarity) to dark blue (high similarity)
     const colorScale = d3.scaleLinear()
         .domain([0, 50, 100])
         .range(['#f0f0f0', '#6baed6', '#08519c']);
 
-    // Create tbody (no thead needed - using overlays for headers)
-    const tbody = table.append('tbody');
-
     // Track initial highlight state
     let initialHighlightActive = true;
 
-    // Create rows (no row headers - using overlays)
+    // Create grid cells (grid handles rows automatically)
     alphabeticalMatrix.forEach((row, rowIndex) => {
-        const tr = tbody.append('tr')
-            .attr('data-row', rowIndex);
-
-        // Data cells - wrapper div creates square aspect ratio
         row.forEach((cellData, colIndex) => {
-            const td = tr.append('td')
-                .attr('class', cellData.isSelf ? 'self-cell' : 'similarity-cell')
+            const cell = grid.append('div')
+                .attr('class', cellData.isSelf ? 'self-cell grid-cell' : 'similarity-cell grid-cell')
                 .attr('data-row', rowIndex)
                 .attr('data-col', colIndex);
 
             // Inner wrapper for square sizing with colored background
-            const wrapper = td.append('div')
+            const wrapper = cell.append('div')
                 .attr('class', 'cell-square-wrapper')
                 .style('background-color', cellData.isSelf ? '#e0e0e0' : colorScale(cellData.similarity));
 
@@ -651,44 +645,43 @@ function renderFullMatrixView(container, data) {
             }
 
             if (!cellData.isSelf) {
-                td.style('cursor', 'pointer');
+                cell.style('cursor', 'pointer');
             }
 
             // Add hover and click interactions
             if (!cellData.isSelf) {
-                td.on('mouseenter', function(event) {
+                cell.on('mouseenter', function(event) {
                         // Clear initial highlight on first real hover
                         if (initialHighlightActive) {
                             initialHighlightActive = false;
                             // Clear any existing highlights from initial state
-                            tbody.selectAll('td')
+                            grid.selectAll('.grid-cell')
                                 .classed('cell-row-highlight', false)
                                 .classed('cell-col-highlight', false);
                         }
 
                         // Add border highlights to entire row and column
-                        tbody.selectAll('tr').each(function(d, i) {
-                            const row = d3.select(this);
-                            row.selectAll('td').each(function(d, j) {
-                                const cell = d3.select(this);
-                                if (i === rowIndex) {
-                                    cell.classed('cell-row-highlight', true);
-                                }
-                                if (j === colIndex) {
-                                    cell.classed('cell-col-highlight', true);
-                                }
-                            });
+                        grid.selectAll('.grid-cell').each(function() {
+                            const gridCell = d3.select(this);
+                            const r = +gridCell.attr('data-row');
+                            const c = +gridCell.attr('data-col');
+                            if (r === rowIndex) {
+                                gridCell.classed('cell-row-highlight', true);
+                            }
+                            if (c === colIndex) {
+                                gridCell.classed('cell-col-highlight', true);
+                            }
                         });
 
-                        const cell = this;
-                        const cellRect = cell.getBoundingClientRect();
+                        const cellElement = this;
+                        const cellRect = cellElement.getBoundingClientRect();
                         const containerRect = vizContainer.node().getBoundingClientRect();
-                        const tableRect = table.node().getBoundingClientRect();
+                        const gridRect = grid.node().getBoundingClientRect();
                         const scrollTop = vizContainer.node().scrollTop;
                         const scrollLeft = vizContainer.node().scrollLeft;
 
                         // Position and show cell overlay (slightly larger)
-                        const wrapperBgColor = d3.select(cell).select('.cell-square-wrapper').style('background-color');
+                        const wrapperBgColor = d3.select(cellElement).select('.cell-square-wrapper').style('background-color');
                         cellOverlay
                             .style('display', 'block')
                             .style('left', (cellRect.left - containerRect.left + scrollLeft - 2) + 'px')
@@ -698,21 +691,21 @@ function renderFullMatrixView(container, data) {
                             .style('background-color', wrapperBgColor)
                             .style('border', '2px solid #333');
 
-                        // Position and show row header overlay - centered on row, right edge at table left
+                        // Position and show row header overlay - centered on row, right edge at grid left
                         const rowPlayer = sortedPlayers[rowIndex];
-                        const tableLeftInContainer = tableRect.left - containerRect.left + scrollLeft;
+                        const gridLeftInContainer = gridRect.left - containerRect.left + scrollLeft;
                         const rowCenterY = cellRect.top - containerRect.top + scrollTop + cellRect.height / 2;
                         rowHeaderOverlay
                             .style('display', 'block')
                             .style('left', null)
-                            .style('right', `calc(100% - ${tableLeftInContainer}px)`)
+                            .style('right', `calc(100% - ${gridLeftInContainer}px)`)
                             .style('top', rowCenterY + 'px')
                             .style('color', playerColors[rowPlayer] || '#333')
                             .text(rowPlayer);
 
                         // Position and show column header overlay - centered on column
                         const colPlayer = sortedPlayers[colIndex];
-                        const tableTopInContainer = tableRect.top - containerRect.top + scrollTop;
+                        const gridTopInContainer = gridRect.top - containerRect.top + scrollTop;
                         const colCenterX = cellRect.left - containerRect.left + scrollLeft + cellRect.width / 2;
 
                         // Set text and styling first, then measure for positioning
@@ -736,13 +729,13 @@ function renderFullMatrixView(container, data) {
                         // And: top = tableTopInContainer - H/2 - W/2 = tableTopInContainer - rotatedWidth/2 - rotatedHeight/2
                         colHeaderOverlay
                             .style('left', (colCenterX - rotatedHeight / 2) + 'px')
-                            .style('top', (tableTopInContainer - rotatedWidth / 2 - rotatedHeight / 2) + 'px');
+                            .style('top', (gridTopInContainer - rotatedWidth / 2 - rotatedHeight / 2) + 'px');
 
                         showTooltip(event, cellData);
                     })
                     .on('mouseleave', function() {
                         // Remove border highlights from all cells
-                        tbody.selectAll('td')
+                        grid.selectAll('.grid-cell')
                             .classed('cell-row-highlight', false)
                             .classed('cell-col-highlight', false);
 
@@ -776,25 +769,28 @@ function renderFullMatrixView(container, data) {
         const { rowIndex, colIndex, cellData } = randomCell;
 
         // Add border highlights to entire row and column for initial highlight
-        tbody.selectAll('tr').each(function(d, i) {
-            const row = d3.select(this);
-            row.selectAll('td').each(function(d, j) {
-                const cell = d3.select(this);
-                if (i === rowIndex) {
-                    cell.classed('cell-row-highlight', true);
-                }
-                if (j === colIndex) {
-                    cell.classed('cell-col-highlight', true);
-                }
-            });
+        grid.selectAll('.grid-cell').each(function() {
+            const gridCell = d3.select(this);
+            const r = +gridCell.attr('data-row');
+            const c = +gridCell.attr('data-col');
+            if (r === rowIndex) {
+                gridCell.classed('cell-row-highlight', true);
+            }
+            if (c === colIndex) {
+                gridCell.classed('cell-col-highlight', true);
+            }
         });
 
         // Find the DOM element
-        const cellElement = tbody.selectAll('tr').nodes()[rowIndex]
-            .querySelectorAll('td')[colIndex];
+        const cellElement = grid.selectAll('.grid-cell')
+            .filter(function() {
+                const gridCell = d3.select(this);
+                return +gridCell.attr('data-row') === rowIndex && +gridCell.attr('data-col') === colIndex;
+            })
+            .node();
         const cellRect = cellElement.getBoundingClientRect();
         const containerRect = vizContainer.node().getBoundingClientRect();
-        const tableRect = table.node().getBoundingClientRect();
+        const gridRect = grid.node().getBoundingClientRect();
         const scrollTop = vizContainer.node().scrollTop;
         const scrollLeft = vizContainer.node().scrollLeft;
 
@@ -811,19 +807,19 @@ function renderFullMatrixView(container, data) {
 
         // Show row header overlay
         const rowPlayer = sortedPlayers[rowIndex];
-        const tableLeftInContainer = tableRect.left - containerRect.left + scrollLeft;
+        const gridLeftInContainer = gridRect.left - containerRect.left + scrollLeft;
         const rowCenterY = cellRect.top - containerRect.top + scrollTop + cellRect.height / 2;
         rowHeaderOverlay
             .style('display', 'block')
             .style('left', null)
-            .style('right', `calc(100% - ${tableLeftInContainer}px)`)
+            .style('right', `calc(100% - ${gridLeftInContainer}px)`)
             .style('top', rowCenterY + 'px')
             .style('color', playerColors[rowPlayer] || '#333')
             .text(rowPlayer);
 
         // Show column header overlay
         const colPlayer = sortedPlayers[colIndex];
-        const tableTopInContainer = tableRect.top - containerRect.top + scrollTop;
+        const gridTopInContainer = gridRect.top - containerRect.top + scrollTop;
         const colCenterX = cellRect.left - containerRect.left + scrollLeft + cellRect.width / 2;
 
         colHeaderOverlay
@@ -837,7 +833,7 @@ function renderFullMatrixView(container, data) {
 
         colHeaderOverlay
             .style('left', (colCenterX - rotatedHeight / 2) + 'px')
-            .style('top', (tableTopInContainer - rotatedWidth / 2 - rotatedHeight / 2) + 'px');
+            .style('top', (gridTopInContainer - rotatedWidth / 2 - rotatedHeight / 2) + 'px');
     }
 
     // Add legend
