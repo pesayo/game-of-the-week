@@ -153,6 +153,21 @@
     margin: 0 auto;
 }
 
+/* Sticky header groups - ensure they appear above content */
+.similarity-header-group,
+.similarity-col-labels-group,
+.similarity-row-labels-group,
+.similarity-corner-group {
+    pointer-events: none;
+}
+
+/* Make text in headers interactive */
+.similarity-header-group text,
+.similarity-col-labels-group text,
+.similarity-row-labels-group text {
+    pointer-events: auto;
+}
+
 .similarity-cell {
     transition: all 0.2s ease;
 }

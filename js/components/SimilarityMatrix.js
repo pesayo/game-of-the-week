@@ -333,23 +333,6 @@ function renderPlayerFocusView(container, data) {
     const g = svg.append('g')
         .attr('transform', `translate(${margin.left},${margin.top})`);
 
-    // Add sticky header group
-    const headerGroup = svg.append('g')
-        .attr('class', 'similarity-header-group')
-        .attr('transform', `translate(${margin.left},0)`);
-
-    // Add column header with selected player's name
-    headerGroup.append('text')
-        .attr('class', 'similarity-column-header')
-        .attr('x', cellWidth / 2)
-        .attr('y', 25)
-        .attr('text-anchor', 'middle')
-        .attr('dominant-baseline', 'middle')
-        .style('font-size', '16px')
-        .style('font-weight', 'bold')
-        .style('fill', playerColors[selectedPlayer] || '#333')
-        .text(selectedPlayer);
-
     // Create rows
     const rows = g.selectAll('.similarity-row')
         .data(similarities)
@@ -433,6 +416,32 @@ function renderPlayerFocusView(container, data) {
         .style('font-size', '12px')
         .style('fill', '#666')
         .text(d => `${d.matchingGames}/${d.totalGames}`);
+
+    // Add sticky header group AFTER content so it renders on top
+    const headerGroup = svg.append('g')
+        .attr('class', 'similarity-header-group')
+        .attr('transform', `translate(${margin.left},0)`);
+
+    // Add background for sticky header
+    headerGroup.append('rect')
+        .attr('class', 'header-bg')
+        .attr('x', -margin.left)
+        .attr('y', 0)
+        .attr('width', width + margin.left + margin.right)
+        .attr('height', headerHeight)
+        .attr('fill', 'white');
+
+    // Add column header with selected player's name
+    headerGroup.append('text')
+        .attr('class', 'similarity-column-header')
+        .attr('x', cellWidth / 2)
+        .attr('y', 25)
+        .attr('text-anchor', 'middle')
+        .attr('dominant-baseline', 'middle')
+        .style('font-size', '16px')
+        .style('font-weight', 'bold')
+        .style('fill', playerColors[selectedPlayer] || '#333')
+        .text(selectedPlayer);
 
     // Make header sticky on scroll
     const vizContainerNode = vizContainer.node();
@@ -622,34 +631,6 @@ function renderFullMatrixView(container, data) {
     const g = svg.append('g')
         .attr('transform', `translate(${margin.left},${margin.top})`);
 
-    // Create separate groups for sticky headers
-    const colLabelsGroup = svg.append('g')
-        .attr('class', 'similarity-col-labels-group')
-        .attr('transform', `translate(${margin.left},${margin.top})`);
-
-    const rowLabelsGroup = svg.append('g')
-        .attr('class', 'similarity-row-labels-group')
-        .attr('transform', `translate(${margin.left},${margin.top})`);
-
-    // Add background rectangles for sticky labels
-    colLabelsGroup.append('rect')
-        .attr('class', 'col-labels-bg')
-        .attr('x', 0)
-        .attr('y', -margin.top)
-        .attr('width', width)
-        .attr('height', margin.top)
-        .attr('fill', 'white')
-        .attr('opacity', 0.95);
-
-    rowLabelsGroup.append('rect')
-        .attr('class', 'row-labels-bg')
-        .attr('x', -margin.left)
-        .attr('y', 0)
-        .attr('width', margin.left)
-        .attr('height', height)
-        .attr('fill', 'white')
-        .attr('opacity', 0.95);
-
     // Color scale - white (low similarity) to dark blue (high similarity)
     const colorScale = d3.scaleLinear()
         .domain([0, 50, 100])
@@ -730,6 +711,44 @@ function renderFullMatrixView(container, data) {
             .text(d => d.isSelf ? '' : `${d.similarity}%`);
     }
 
+    // Create sticky header groups AFTER main content so they render on top
+    const colLabelsGroup = svg.append('g')
+        .attr('class', 'similarity-col-labels-group')
+        .attr('transform', `translate(${margin.left},${margin.top})`);
+
+    const rowLabelsGroup = svg.append('g')
+        .attr('class', 'similarity-row-labels-group')
+        .attr('transform', `translate(${margin.left},${margin.top})`);
+
+    const cornerGroup = svg.append('g')
+        .attr('class', 'similarity-corner-group')
+        .attr('transform', `translate(${margin.left},${margin.top})`);
+
+    // Add background rectangles for sticky labels
+    colLabelsGroup.append('rect')
+        .attr('class', 'col-labels-bg')
+        .attr('x', 0)
+        .attr('y', -margin.top)
+        .attr('width', width)
+        .attr('height', margin.top)
+        .attr('fill', 'white');
+
+    rowLabelsGroup.append('rect')
+        .attr('class', 'row-labels-bg')
+        .attr('x', -margin.left)
+        .attr('y', 0)
+        .attr('width', margin.left)
+        .attr('height', height)
+        .attr('fill', 'white');
+
+    cornerGroup.append('rect')
+        .attr('class', 'corner-bg')
+        .attr('x', -margin.left)
+        .attr('y', -margin.top)
+        .attr('width', margin.left)
+        .attr('height', margin.top)
+        .attr('fill', 'white');
+
     // Add column labels (top) - alphabetically sorted - in sticky group
     colLabelsGroup.selectAll('.col-label')
         .data(sortedPlayers)
@@ -774,11 +793,14 @@ function renderFullMatrixView(container, data) {
         const scrollTop = this.scrollTop;
         const scrollLeft = this.scrollLeft;
 
-        // Update column labels to stick to top
-        colLabelsGroup.attr('transform', `translate(${margin.left + scrollLeft},${margin.top + scrollTop})`);
+        // Update column labels to stick to top (only move with vertical scroll)
+        colLabelsGroup.attr('transform', `translate(${margin.left},${margin.top + scrollTop})`);
 
-        // Update row labels to stick to left
-        rowLabelsGroup.attr('transform', `translate(${margin.left + scrollLeft},${margin.top + scrollTop})`);
+        // Update row labels to stick to left (only move with horizontal scroll)
+        rowLabelsGroup.attr('transform', `translate(${margin.left + scrollLeft},${margin.top})`);
+
+        // Update corner to stick to both top-left (move with both scrolls)
+        cornerGroup.attr('transform', `translate(${margin.left + scrollLeft},${margin.top + scrollTop})`);
     });
 
     // Add legend
