@@ -712,13 +712,12 @@ function renderFullMatrixView(container, data) {
                             .style('font-weight', rowPlayer === focusedPlayer ? 'bold' : 'normal')
                             .text(rowPlayer);
 
-                        // Position and show column header overlay
+                        // Position and show column header overlay (rotated -90deg)
                         const colPlayer = sortedPlayers[colIndex];
                         colHeaderOverlay
                             .style('display', 'block')
-                            .style('left', (cellRect.left - containerRect.left + scrollLeft) + 'px')
-                            .style('top', scrollTop + 'px')
-                            .style('width', cellRect.width + 'px')
+                            .style('left', (cellRect.left - containerRect.left + scrollLeft + cellRect.width / 2) + 'px')
+                            .style('top', (scrollTop + 5) + 'px')
                             .style('color', playerColors[colPlayer] || '#333')
                             .style('font-weight', colPlayer === focusedPlayer ? 'bold' : 'normal')
                             .text(colPlayer);
