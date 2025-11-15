@@ -116,6 +116,36 @@
     background-color: rgba(255, 255, 255, 1);
 }
 
+/* Form Responses Link */
+.form-responses-link {
+    position: absolute;
+    top: 60px;
+    right: 20px;
+    font-size: 14px;
+    z-index: 1000;
+    display: flex;
+    gap: 10px;
+}
+
+.form-responses-link a {
+    color: var(--mcc-blue-gray);
+    text-decoration: none;
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    background-color: rgba(255, 255, 255, 0.95);
+    border-radius: 6px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.form-responses-link a:hover {
+    color: var(--mcc-dark-2);
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.15);
+    background-color: rgba(255, 255, 255, 1);
+}
+
 /* Header Stats */
 .header-stats {
     display: flex;
@@ -272,6 +302,10 @@
     }
 
     .league-link {
+        display: none;
+    }
+
+    .form-responses-link {
         display: none;
     }
 
