@@ -1,10 +1,14 @@
 /**
  * SimilarityMatrix component - visualizes how similarly players pick games
- * Shows a heatmap where darker colors indicate higher agreement between player pairs
+ * Provides multiple views: Player Focus, Highlights, and Full Matrix
  */
 
 import { getRawPicksData, getMatchupsData, getPlayerColors, getFocusedPlayer } from '../state/app-state.js';
 import { parseGameColumn, createGameKey } from '../utils/parsers.js';
+
+// Track current view
+let currentView = 'player'; // 'player', 'highlights', or 'matrix'
+let selectedPlayer = null;
 
 /**
  * Calculate pick similarity between all pairs of players
@@ -131,11 +135,10 @@ function calculatePairSimilarity(player1Row, player2Row, gameHeaders, gameMap, p
 }
 
 /**
- * Render the similarity matrix as a D3 heatmap
+ * Main render function - renders the appropriate view
  */
 export function renderSimilarityMatrix() {
     const data = calculateSimilarityMatrix();
-    const playerColors = getPlayerColors();
     const focusedPlayer = getFocusedPlayer();
 
     if (!data.players || data.players.length === 0) {
@@ -144,15 +147,244 @@ export function renderSimilarityMatrix() {
         return;
     }
 
+    // Set default selected player to focused player if not already set
+    if (!selectedPlayer && focusedPlayer) {
+        selectedPlayer = focusedPlayer;
+    } else if (!selectedPlayer) {
+        selectedPlayer = data.players[0]; // Default to first player
+    }
+
     const container = d3.select('#similarityMatrixContent');
     container.html(''); // Clear previous content
 
-    // Add description
-    const description = container.append('div')
-        .attr('class', 'similarity-description');
+    // Add view toggle
+    renderViewToggle(container);
 
-    description.append('p')
-        .html('This matrix shows how similarly each pair of players picks games. Darker cells indicate higher agreement. Click any cell to see detailed pick differences.');
+    // Render appropriate view
+    if (currentView === 'player') {
+        renderPlayerFocusView(container, data);
+    } else if (currentView === 'highlights') {
+        renderHighlightsView(container, data);
+    } else {
+        renderFullMatrixView(container, data);
+    }
+}
+
+/**
+ * Render view toggle buttons
+ */
+function renderViewToggle(container) {
+    const toggleDiv = container.append('div')
+        .attr('class', 'similarity-view-toggle');
+
+    const buttons = [
+        { view: 'player', icon: 'fa-user', label: 'Player Focus' },
+        { view: 'highlights', icon: 'fa-star', label: 'Highlights' },
+        { view: 'matrix', icon: 'fa-th', label: 'Full Matrix' }
+    ];
+
+    buttons.forEach(btn => {
+        toggleDiv.append('button')
+            .attr('class', `similarity-toggle-btn ${currentView === btn.view ? 'active' : ''}`)
+            .attr('data-view', btn.view)
+            .html(`<i class="fas ${btn.icon}"></i> ${btn.label}`)
+            .on('click', function() {
+                currentView = btn.view;
+                renderSimilarityMatrix();
+            });
+    });
+}
+
+/**
+ * Render Player Focus View - one player compared to all others
+ */
+function renderPlayerFocusView(container, data) {
+    const playerColors = getPlayerColors();
+
+    // Add description
+    container.append('div')
+        .attr('class', 'similarity-description')
+        .html('<p>Select a player to see how their picks compare to everyone else, sorted from most to least similar.</p>');
+
+    // Player selector
+    const selectorDiv = container.append('div')
+        .attr('class', 'player-selector');
+
+    selectorDiv.append('label')
+        .attr('for', 'similarityPlayerSelect')
+        .html('<i class="fas fa-user"></i> Compare:');
+
+    const select = selectorDiv.append('select')
+        .attr('id', 'similarityPlayerSelect')
+        .attr('class', 'player-select-dropdown')
+        .on('change', function() {
+            selectedPlayer = this.value;
+            renderSimilarityMatrix();
+        });
+
+    // Add player options
+    data.players.forEach(player => {
+        select.append('option')
+            .attr('value', player)
+            .property('selected', player === selectedPlayer)
+            .text(player);
+    });
+
+    // Get similarities for selected player
+    const playerIndex = data.players.indexOf(selectedPlayer);
+    if (playerIndex === -1) return;
+
+    const similarities = data.matrix[playerIndex]
+        .filter(d => !d.isSelf)
+        .sort((a, b) => b.similarity - a.similarity);
+
+    // Render similarity cards
+    const cardsContainer = container.append('div')
+        .attr('class', 'similarity-cards-container');
+
+    similarities.forEach((sim, index) => {
+        const card = cardsContainer.append('div')
+            .attr('class', 'similarity-card')
+            .on('click', () => showSimilarityModal(sim));
+
+        // Rank badge
+        card.append('div')
+            .attr('class', 'similarity-rank')
+            .text(`#${index + 1}`);
+
+        // Player info
+        const info = card.append('div')
+            .attr('class', 'similarity-card-info');
+
+        info.append('div')
+            .attr('class', 'similarity-player-name')
+            .style('color', playerColors[sim.player2] || '#333')
+            .text(sim.player2);
+
+        info.append('div')
+            .attr('class', 'similarity-games-count')
+            .text(`${sim.matchingGames} of ${sim.totalGames} games`);
+
+        // Similarity percentage and bar
+        const percentDiv = card.append('div')
+            .attr('class', 'similarity-percentage-container');
+
+        percentDiv.append('div')
+            .attr('class', 'similarity-bar-bg')
+            .append('div')
+            .attr('class', 'similarity-bar-fill')
+            .style('width', `${sim.similarity}%`)
+            .style('background-color', getSimilarityColor(sim.similarity));
+
+        percentDiv.append('div')
+            .attr('class', 'similarity-percentage-text')
+            .text(`${sim.similarity}%`);
+    });
+}
+
+/**
+ * Render Highlights View - top and bottom 5 pairs
+ */
+function renderHighlightsView(container, data) {
+    const playerColors = getPlayerColors();
+
+    // Add description
+    container.append('div')
+        .attr('class', 'similarity-description')
+        .html('<p>The most and least similar player pairs based on pick agreement.</p>');
+
+    // Get all pairs (excluding self-comparisons and duplicates)
+    const allPairs = [];
+    for (let i = 0; i < data.matrix.length; i++) {
+        for (let j = i + 1; j < data.matrix[i].length; j++) {
+            if (!data.matrix[i][j].isSelf) {
+                allPairs.push(data.matrix[i][j]);
+            }
+        }
+    }
+
+    // Sort by similarity
+    allPairs.sort((a, b) => b.similarity - a.similarity);
+
+    // Top 5 and bottom 5
+    const top5 = allPairs.slice(0, 5);
+    const bottom5 = allPairs.slice(-5).reverse();
+
+    const highlightsGrid = container.append('div')
+        .attr('class', 'highlights-grid');
+
+    // Top 5 section
+    renderHighlightSection(highlightsGrid, top5, 'Most Similar Pairs', 'fire', playerColors);
+
+    // Bottom 5 section
+    renderHighlightSection(highlightsGrid, bottom5, 'Most Different Pairs', 'snowflake', playerColors);
+}
+
+/**
+ * Render a highlight section (top or bottom 5)
+ */
+function renderHighlightSection(container, pairs, title, icon, playerColors) {
+    const section = container.append('div')
+        .attr('class', 'highlight-section');
+
+    section.append('h3')
+        .attr('class', 'highlight-title')
+        .html(`<i class="fas fa-${icon}"></i> ${title}`);
+
+    const list = section.append('div')
+        .attr('class', 'highlight-list');
+
+    pairs.forEach((pair, index) => {
+        const item = list.append('div')
+            .attr('class', 'highlight-item')
+            .on('click', () => showSimilarityModal(pair));
+
+        item.append('div')
+            .attr('class', 'highlight-rank')
+            .text(`${index + 1}`);
+
+        const players = item.append('div')
+            .attr('class', 'highlight-players');
+
+        players.append('span')
+            .attr('class', 'highlight-player-name')
+            .style('color', playerColors[pair.player1] || '#333')
+            .text(pair.player1);
+
+        players.append('span')
+            .attr('class', 'highlight-vs')
+            .text(' vs ');
+
+        players.append('span')
+            .attr('class', 'highlight-player-name')
+            .style('color', playerColors[pair.player2] || '#333')
+            .text(pair.player2);
+
+        const stats = item.append('div')
+            .attr('class', 'highlight-stats');
+
+        stats.append('div')
+            .attr('class', 'highlight-percentage')
+            .style('color', getSimilarityColor(pair.similarity))
+            .text(`${pair.similarity}%`);
+
+        stats.append('div')
+            .attr('class', 'highlight-games')
+            .text(`${pair.matchingGames}/${pair.totalGames}`);
+    });
+}
+
+/**
+ * Render Full Matrix View - complete heatmap
+ */
+function renderFullMatrixView(container, data) {
+    const playerColors = getPlayerColors();
+    const focusedPlayer = getFocusedPlayer();
+
+    // Add description
+    container.append('div')
+        .attr('class', 'similarity-description')
+        .html('<p>Complete matrix showing pick agreement between all player pairs. Darker colors indicate higher agreement. Click any cell for details.</p>');
 
     // Set up dimensions
     const containerWidth = document.getElementById('similarityMatrixContent').offsetWidth;
@@ -271,6 +503,17 @@ export function renderSimilarityMatrix() {
 
     // Add legend
     addLegend(container, colorScale);
+}
+
+/**
+ * Get color based on similarity percentage
+ */
+function getSimilarityColor(similarity) {
+    if (similarity >= 75) return '#2e7d32'; // Dark green
+    if (similarity >= 60) return '#66bb6a'; // Green
+    if (similarity >= 45) return '#ffa726'; // Orange
+    if (similarity >= 30) return '#ef5350'; // Red
+    return '#c62828'; // Dark red
 }
 
 /**
