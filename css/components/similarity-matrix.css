@@ -253,6 +253,22 @@
     cursor: pointer;
 }
 
+/* Highlight borders for hovered row and column */
+.cell-row-highlight {
+    border-top: 2px solid #333 !important;
+    border-bottom: 2px solid #333 !important;
+}
+
+.cell-col-highlight {
+    border-left: 2px solid #333 !important;
+    border-right: 2px solid #333 !important;
+}
+
+.cell-row-highlight.cell-col-highlight {
+    /* Intersection cell gets all four borders */
+    border: 2px solid #333 !important;
+}
+
 .self-cell {
     opacity: 0.3;
     cursor: default;
