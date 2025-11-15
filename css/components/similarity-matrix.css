@@ -9,6 +9,9 @@
     max-height: 700px;
     overflow-x: auto;
     overflow-y: auto;
+    /* Force scrollbars to always be visible */
+    scrollbar-width: thin;
+    scrollbar-color: var(--border-color) var(--bg-light);
 }
 
 /* Description */
@@ -390,24 +393,32 @@
     }
 }
 
-/* Scrollbar styling for similarity content */
+/* Scrollbar styling for similarity content - WebKit browsers */
 #similarityMatrixContent::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
+    width: 10px;
+    height: 10px;
+    -webkit-appearance: none;
 }
 
 #similarityMatrixContent::-webkit-scrollbar-track {
     background: var(--bg-light);
     border-radius: 4px;
+    border: 1px solid #ddd;
 }
 
 #similarityMatrixContent::-webkit-scrollbar-thumb {
     background: var(--border-color);
     border-radius: 4px;
+    border: 1px solid #ccc;
 }
 
 #similarityMatrixContent::-webkit-scrollbar-thumb:hover {
     background: #999;
+    border-color: #999;
+}
+
+#similarityMatrixContent::-webkit-scrollbar-corner {
+    background: var(--bg-light);
 }
 
 /* Scrollbar styling for differences list */
