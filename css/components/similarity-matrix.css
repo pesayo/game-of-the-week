@@ -246,6 +246,7 @@
     pointer-events: none;
     border-radius: 2px;
     filter: brightness(0.9);
+    box-sizing: border-box;
 }
 
 .similarity-cell {
