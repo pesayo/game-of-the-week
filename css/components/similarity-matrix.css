@@ -155,8 +155,7 @@
 
 /* Similarity Matrix Table (similar to picks matrix) */
 .similarity-matrix-table {
-    border-collapse: separate;
-    border-spacing: 0;
+    border-collapse: collapse;
     font-size: 12px;
     table-layout: fixed;
     width: 100%;
