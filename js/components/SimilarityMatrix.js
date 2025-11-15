@@ -422,13 +422,13 @@ function renderPlayerFocusView(container, data) {
         .attr('class', 'similarity-header-group')
         .attr('transform', `translate(${margin.left},0)`);
 
-    // Add background for sticky header
+    // Add background for sticky header (with 1px overlap to prevent peeking)
     headerGroup.append('rect')
         .attr('class', 'header-bg')
-        .attr('x', -margin.left)
-        .attr('y', 0)
-        .attr('width', width + margin.left + margin.right)
-        .attr('height', headerHeight)
+        .attr('x', -margin.left - 1)
+        .attr('y', -1)
+        .attr('width', width + margin.left + margin.right + 2)
+        .attr('height', headerHeight + 2)
         .attr('fill', 'white');
 
     // Add column header with selected player's name
@@ -443,12 +443,21 @@ function renderPlayerFocusView(container, data) {
         .style('fill', playerColors[selectedPlayer] || '#333')
         .text(selectedPlayer);
 
-    // Make header sticky on scroll
+    // Make header sticky on scroll with smooth RAF updates
     const vizContainerNode = vizContainer.node();
+    let rafId = null;
+
     vizContainerNode.addEventListener('scroll', function() {
-        const scrollTop = this.scrollTop;
-        headerGroup.attr('transform', `translate(${margin.left},${scrollTop})`);
-    });
+        if (rafId) {
+            cancelAnimationFrame(rafId);
+        }
+
+        rafId = requestAnimationFrame(() => {
+            const scrollTop = this.scrollTop;
+            headerGroup.attr('transform', `translate(${margin.left},${scrollTop})`);
+            rafId = null;
+        });
+    }, { passive: true });
 }
 
 /**
@@ -724,29 +733,29 @@ function renderFullMatrixView(container, data) {
         .attr('class', 'similarity-corner-group')
         .attr('transform', `translate(${margin.left},${margin.top})`);
 
-    // Add background rectangles for sticky labels
+    // Add background rectangles for sticky labels (with 1px overlap to prevent peeking)
     colLabelsGroup.append('rect')
         .attr('class', 'col-labels-bg')
-        .attr('x', 0)
-        .attr('y', -margin.top)
-        .attr('width', width)
-        .attr('height', margin.top)
+        .attr('x', -1)
+        .attr('y', -margin.top - 1)
+        .attr('width', width + 2)
+        .attr('height', margin.top + 2)
         .attr('fill', 'white');
 
     rowLabelsGroup.append('rect')
         .attr('class', 'row-labels-bg')
-        .attr('x', -margin.left)
-        .attr('y', 0)
-        .attr('width', margin.left)
-        .attr('height', height)
+        .attr('x', -margin.left - 1)
+        .attr('y', -1)
+        .attr('width', margin.left + 2)
+        .attr('height', height + 2)
         .attr('fill', 'white');
 
     cornerGroup.append('rect')
         .attr('class', 'corner-bg')
-        .attr('x', -margin.left)
-        .attr('y', -margin.top)
-        .attr('width', margin.left)
-        .attr('height', margin.top)
+        .attr('x', -margin.left - 1)
+        .attr('y', -margin.top - 1)
+        .attr('width', margin.left + 2)
+        .attr('height', margin.top + 2)
         .attr('fill', 'white');
 
     // Add column labels (top) - alphabetically sorted - in sticky group
@@ -787,21 +796,32 @@ function renderFullMatrixView(container, data) {
         .style('font-weight', d => d === focusedPlayer ? 'bold' : 'normal')
         .text(d => d);
 
-    // Make headers sticky on scroll
+    // Make headers sticky on scroll with smooth RAF updates
     const vizContainerNode = vizContainer.node();
+    let rafId = null;
+
     vizContainerNode.addEventListener('scroll', function() {
-        const scrollTop = this.scrollTop;
-        const scrollLeft = this.scrollLeft;
+        if (rafId) {
+            cancelAnimationFrame(rafId);
+        }
 
-        // Update column labels to stick to top (only move with vertical scroll)
-        colLabelsGroup.attr('transform', `translate(${margin.left},${margin.top + scrollTop})`);
+        rafId = requestAnimationFrame(() => {
+            const scrollTop = this.scrollTop;
+            const scrollLeft = this.scrollLeft;
 
-        // Update row labels to stick to left (only move with horizontal scroll)
-        rowLabelsGroup.attr('transform', `translate(${margin.left + scrollLeft},${margin.top})`);
+            // Update column labels to stick to top (only move with vertical scroll)
+            colLabelsGroup.attr('transform', `translate(${margin.left},${margin.top + scrollTop})`);
 
-        // Update corner to stick to both top-left (move with both scrolls)
-        cornerGroup.attr('transform', `translate(${margin.left + scrollLeft},${margin.top + scrollTop})`);
-    });
+            // Update row labels to stick to left (only move with horizontal scroll)
+            rowLabelsGroup.attr('transform', `translate(${margin.left + scrollLeft},${margin.top})`);
+
+            // Update corner to stick to both top-left (move with both scrolls)
+            cornerGroup.attr('transform', `translate(${margin.left + scrollLeft},${margin.top + scrollTop})`);
+
+            rafId = null;
+        });
+    }, { passive: true });
+
 
     // Add legend
     addLegend(container, colorScale);
