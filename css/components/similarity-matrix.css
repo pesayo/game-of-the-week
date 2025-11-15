@@ -168,15 +168,37 @@
 }
 
 .similarity-matrix-table th {
-    padding: 10px 8px;
+    padding: 0;
     text-align: center;
     font-weight: 600;
     color: var(--gray-600);
     border: 1px solid var(--gray-300);
     font-size: 11px;
-    min-width: 60px;
-    vertical-align: middle;
+    vertical-align: bottom;
     background-color: var(--gray-50);
+}
+
+/* Rotated column headers */
+.similarity-matrix-table th.rotated-header {
+    height: 120px;
+    width: 40px;
+    min-width: 40px;
+    max-width: 40px;
+    white-space: nowrap;
+    vertical-align: bottom;
+    padding: 0;
+}
+
+.similarity-matrix-table th.rotated-header > div {
+    transform: rotate(-45deg);
+    transform-origin: left bottom;
+    width: 40px;
+    height: 100%;
+    display: flex;
+    align-items: flex-end;
+    justify-content: flex-start;
+    padding-left: 8px;
+    padding-bottom: 8px;
 }
 
 .similarity-matrix-table th.player-col {
@@ -186,6 +208,7 @@
     z-index: 11;
     min-width: 120px;
     text-align: left;
+    padding: 8px 10px;
 }
 
 .similarity-matrix-table th.player-col::after {
@@ -200,12 +223,16 @@
 }
 
 .similarity-matrix-table td {
-    padding: 10px 8px;
+    padding: 0;
     text-align: center;
     border: 1px solid var(--gray-300);
     font-size: 11px;
     font-weight: 600;
     transition: all 0.2s ease;
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
+    max-width: 40px;
 }
 
 .similarity-cell {

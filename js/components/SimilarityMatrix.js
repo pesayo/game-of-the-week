@@ -619,14 +619,17 @@ function renderFullMatrixView(container, data) {
     headerRow.append('th')
         .attr('class', 'player-col corner-cell');
 
-    // Column headers (player names)
+    // Column headers (player names) - rotated
     sortedPlayers.forEach(player => {
         const th = headerRow.append('th')
+            .attr('class', 'rotated-header');
+
+        const div = th.append('div')
             .style('color', playerColors[player] || '#333')
             .text(player);
 
         if (player === focusedPlayer) {
-            th.style('font-weight', 'bold');
+            div.style('font-weight', 'bold');
         }
     });
 
@@ -648,12 +651,12 @@ function renderFullMatrixView(container, data) {
             th.style('font-weight', 'bold');
         }
 
-        // Data cells
+        // Data cells - color only, no text
         row.forEach((cellData, colIndex) => {
             const td = tr.append('td')
+                .attr('class', cellData.isSelf ? 'self-cell' : 'similarity-cell')
                 .style('background-color', cellData.isSelf ? '#e0e0e0' : colorScale(cellData.similarity))
-                .style('cursor', cellData.isSelf ? 'default' : 'pointer')
-                .text(cellData.isSelf ? '' : `${cellData.similarity}%`);
+                .style('cursor', cellData.isSelf ? 'default' : 'pointer');
 
             if (cellData.isSelf) {
                 td.style('opacity', '0.5');
