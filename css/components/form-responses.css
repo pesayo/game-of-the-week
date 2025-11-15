@@ -126,6 +126,38 @@
     letter-spacing: 0.05em;
 }
 
+/* Info Message */
+.info-message {
+    background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+    border-left: 4px solid #2196f3;
+    border-radius: 8px;
+    padding: 1rem 1.5rem;
+    margin: 2rem 0;
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.info-message i {
+    color: #1976d2;
+    font-size: 1.25rem;
+    margin-top: 0.1rem;
+    flex-shrink: 0;
+}
+
+.info-message p {
+    color: #0d47a1;
+    font-size: 0.95rem;
+    line-height: 1.5;
+    margin: 0;
+}
+
+.info-message strong {
+    color: #0d47a1;
+    font-weight: 700;
+}
+
 /* Responses Section */
 .responses-section {
     margin: 3rem 0;
@@ -371,7 +403,7 @@
     }
 
     .responses-summary {
-        grid-template-columns: repeat(2, 1fr);
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
         gap: 1rem;
         margin: 1.5rem 0;
     }
@@ -390,6 +422,20 @@
 
     .summary-label {
         font-size: 0.75rem;
+    }
+
+    .info-message {
+        padding: 0.875rem 1.25rem;
+        margin: 1.5rem 0;
+        gap: 0.875rem;
+    }
+
+    .info-message i {
+        font-size: 1.1rem;
+    }
+
+    .info-message p {
+        font-size: 0.875rem;
     }
 
     .responses-header {
@@ -457,7 +503,7 @@
     }
 
     .responses-summary {
-        grid-template-columns: 1fr;
+        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
         margin: 1rem 0;
         gap: 0.75rem;
     }
@@ -477,6 +523,26 @@
 
     .summary-label {
         font-size: 0.7rem;
+    }
+
+    .info-message {
+        padding: 0.75rem 1rem;
+        margin: 1rem 0;
+        gap: 0.75rem;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        border-left: none;
+        border-top: 3px solid #2196f3;
+    }
+
+    .info-message i {
+        font-size: 1rem;
+        margin-top: 0;
+    }
+
+    .info-message p {
+        font-size: 0.8rem;
     }
 
     .responses-section {

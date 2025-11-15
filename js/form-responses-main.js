@@ -73,7 +73,6 @@ function renderSummary(responses) {
     const summaryContainer = document.getElementById('responsesSummary');
 
     const totalResponses = responses.length;
-    const uniquePlayers = new Set(responses.map(r => r.playerName)).size;
     const sillyCount = responses.filter(r => r.category === 'silly').length;
     const seriousCount = responses.filter(r => r.category === 'serious').length;
 
@@ -85,15 +84,6 @@ function renderSummary(responses) {
             <div class="summary-details">
                 <div class="summary-value">${totalResponses}</div>
                 <div class="summary-label">Total Responses</div>
-            </div>
-        </div>
-        <div class="summary-card">
-            <div class="summary-icon">
-                <i class="fas fa-users"></i>
-            </div>
-            <div class="summary-details">
-                <div class="summary-value">${uniquePlayers}</div>
-                <div class="summary-label">Players</div>
             </div>
         </div>
         <div class="summary-card">
