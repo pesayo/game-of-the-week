@@ -22,6 +22,10 @@
     /* Force scrollbars to always be visible */
     scrollbar-width: thin;
     scrollbar-color: var(--border-color) var(--bg-light);
+    /* Subtle background for header areas */
+    background:
+        linear-gradient(to right, var(--gray-50) 120px, white 120px),
+        linear-gradient(to bottom, var(--gray-50) 120px, white 120px);
 }
 
 /* Description */
