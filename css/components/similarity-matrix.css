@@ -22,10 +22,14 @@
     /* Force scrollbars to always be visible */
     scrollbar-width: thin;
     scrollbar-color: var(--border-color) var(--bg-light);
-    /* Subtle background for header areas */
+    /* Subtle background for header areas - top strip and left strip */
     background:
-        linear-gradient(to right, var(--gray-50) 120px, white 120px),
-        linear-gradient(to bottom, var(--gray-50) 120px, white 120px);
+        /* Top horizontal strip for column headers */
+        linear-gradient(var(--gray-50), var(--gray-50)) top left / 100% 120px no-repeat,
+        /* Left vertical strip for row headers */
+        linear-gradient(var(--gray-50), var(--gray-50)) top left / 120px 100% no-repeat,
+        /* White background for the rest */
+        white;
 }
 
 /* Description */
