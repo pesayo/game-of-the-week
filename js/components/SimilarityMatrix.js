@@ -619,10 +619,10 @@ function renderFullMatrixView(container, data) {
         .attr('class', 'similarity-matrix-grid')
         .style('grid-template-columns', `repeat(${sortedPlayers.length}, 1fr)`);
 
-    // Color scale - light blue to dark blue to dark gold to gold
+    // Color scale - white to navy blue gradient for clean heatmap
     const colorScale = d3.scaleLinear()
-        .domain([0, 33, 67, 100])
-        .range(['#87CEEB', '#08519c', '#B8860B', '#FFD700']);
+        .domain([0, 25, 50, 75, 100])
+        .range(['#f7fbff', '#c6dbef', '#6baed6', '#2171b5', '#08306b']);
 
     // Track initial highlight state
     let initialHighlightActive = true;
