@@ -280,7 +280,7 @@ function renderFilters(container, viewType, data) {
 }
 
 /**
- * Render Player Focus View - one player compared to all others
+ * Render Player Focus View - one player compared to all others as a single column matrix
  */
 function renderPlayerFocusView(container, data) {
     const playerColors = getPlayerColors();
@@ -301,48 +301,94 @@ function renderPlayerFocusView(container, data) {
         .filter(d => !d.isSelf)
         .sort((a, b) => b.similarity - a.similarity);
 
-    // Render similarity cards
-    const cardsContainer = container.append('div')
-        .attr('class', 'similarity-cards-container');
+    // Set up dimensions
+    const rowHeight = 35;
+    const cellWidth = 200;
+    const labelWidth = 150;
+    const margin = { top: 20, right: 20, bottom: 20, left: labelWidth };
+    const width = cellWidth;
+    const height = rowHeight * similarities.length;
 
-    similarities.forEach((sim, index) => {
-        const card = cardsContainer.append('div')
-            .attr('class', 'similarity-card')
-            .on('click', () => showSimilarityModal(sim));
+    // Color scale - same as full matrix
+    const colorScale = d3.scaleLinear()
+        .domain([0, 50, 100])
+        .range(['#f0f0f0', '#6baed6', '#08519c']);
 
-        // Rank badge
-        card.append('div')
-            .attr('class', 'similarity-rank')
-            .text(`#${index + 1}`);
+    // Create SVG
+    const svg = container.append('svg')
+        .attr('class', 'similarity-matrix-svg')
+        .attr('width', width + margin.left + margin.right)
+        .attr('height', height + margin.top + margin.bottom);
 
-        // Player info
-        const info = card.append('div')
-            .attr('class', 'similarity-card-info');
+    const g = svg.append('g')
+        .attr('transform', `translate(${margin.left},${margin.top})`);
 
-        info.append('div')
-            .attr('class', 'similarity-player-name')
-            .style('color', playerColors[sim.player2] || '#333')
-            .text(sim.player2);
+    // Create rows
+    const rows = g.selectAll('.similarity-row')
+        .data(similarities)
+        .enter()
+        .append('g')
+        .attr('class', 'similarity-row')
+        .attr('transform', (d, i) => `translate(0,${i * rowHeight})`);
 
-        info.append('div')
-            .attr('class', 'similarity-games-count')
-            .text(`${sim.matchingGames} of ${sim.totalGames} games`);
+    // Add player labels
+    rows.append('text')
+        .attr('class', 'player-focus-label')
+        .attr('x', -10)
+        .attr('y', rowHeight / 2)
+        .attr('text-anchor', 'end')
+        .attr('dominant-baseline', 'middle')
+        .style('font-size', '13px')
+        .style('font-weight', '500')
+        .style('fill', d => playerColors[d.player2] || '#333')
+        .text(d => d.player2);
 
-        // Similarity percentage and bar
-        const percentDiv = card.append('div')
-            .attr('class', 'similarity-percentage-container');
+    // Add colored cells
+    rows.append('rect')
+        .attr('class', 'similarity-cell')
+        .attr('x', 0)
+        .attr('y', 0)
+        .attr('width', cellWidth)
+        .attr('height', rowHeight - 2)
+        .attr('fill', d => colorScale(d.similarity))
+        .attr('stroke', '#fff')
+        .attr('stroke-width', 2)
+        .style('cursor', 'pointer')
+        .on('mouseover', function(event, d) {
+            d3.select(this).attr('stroke', '#333').attr('stroke-width', 2);
+            showTooltip(event, d);
+        })
+        .on('mouseout', function() {
+            d3.select(this).attr('stroke', '#fff').attr('stroke-width', 2);
+            hideTooltip();
+        })
+        .on('click', function(event, d) {
+            showSimilarityModal(d);
+        });
 
-        percentDiv.append('div')
-            .attr('class', 'similarity-bar-bg')
-            .append('div')
-            .attr('class', 'similarity-bar-fill')
-            .style('width', `${sim.similarity}%`)
-            .style('background-color', getSimilarityColor(sim.similarity));
+    // Add percentage text
+    rows.append('text')
+        .attr('class', 'similarity-percentage-label')
+        .attr('x', cellWidth / 2)
+        .attr('y', rowHeight / 2)
+        .attr('text-anchor', 'middle')
+        .attr('dominant-baseline', 'middle')
+        .style('font-size', '14px')
+        .style('font-weight', 'bold')
+        .style('fill', d => d.similarity > 60 ? '#fff' : '#333')
+        .style('pointer-events', 'none')
+        .text(d => `${d.similarity}%`);
 
-        percentDiv.append('div')
-            .attr('class', 'similarity-percentage-text')
-            .text(`${sim.similarity}%`);
-    });
+    // Add games count on the right
+    rows.append('text')
+        .attr('class', 'similarity-games-label')
+        .attr('x', cellWidth + 10)
+        .attr('y', rowHeight / 2)
+        .attr('text-anchor', 'start')
+        .attr('dominant-baseline', 'middle')
+        .style('font-size', '12px')
+        .style('fill', '#666')
+        .text(d => `${d.matchingGames}/${d.totalGames}`);
 }
 
 /**
