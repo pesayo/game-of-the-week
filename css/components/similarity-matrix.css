@@ -254,21 +254,21 @@
 }
 
 /* Highlight borders for hovered row and column */
-.cell-row-highlight {
+.cell-row-highlight .cell-square-wrapper {
     box-shadow:
         inset 0 2px 0 0 #333,     /* top border */
         inset 0 -2px 0 0 #333     /* bottom border */
     !important;
 }
 
-.cell-col-highlight {
+.cell-col-highlight .cell-square-wrapper {
     box-shadow:
         inset 2px 0 0 0 #333,     /* left border */
         inset -2px 0 0 0 #333     /* right border */
     !important;
 }
 
-.cell-row-highlight.cell-col-highlight {
+.cell-row-highlight.cell-col-highlight .cell-square-wrapper {
     /* Intersection cell gets all four borders */
     box-shadow:
         inset 0 2px 0 0 #333,     /* top */
