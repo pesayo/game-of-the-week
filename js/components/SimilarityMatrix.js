@@ -600,7 +600,21 @@ function renderFullMatrixView(container, data) {
 
     // Wrap in scrollable container (like picks matrix)
     const vizContainer = container.append('div')
-        .attr('class', 'similarity-viz-container');
+        .attr('class', 'similarity-viz-container')
+        .style('position', 'relative');
+
+    // Create hover overlays
+    const rowHeaderOverlay = vizContainer.append('div')
+        .attr('class', 'matrix-row-header-overlay')
+        .style('display', 'none');
+
+    const colHeaderOverlay = vizContainer.append('div')
+        .attr('class', 'matrix-col-header-overlay')
+        .style('display', 'none');
+
+    const cellOverlay = vizContainer.append('div')
+        .attr('class', 'matrix-cell-overlay')
+        .style('display', 'none');
 
     // Create table similar to picks matrix
     const table = vizContainer.append('table')
@@ -671,25 +685,51 @@ function renderFullMatrixView(container, data) {
             // Add hover and click interactions
             if (!cellData.isSelf) {
                 td.on('mouseenter', function(event) {
-                        d3.select(this)
-                            .style('filter', 'brightness(0.9)')
+                        const cell = this;
+                        const cellRect = cell.getBoundingClientRect();
+                        const containerRect = vizContainer.node().getBoundingClientRect();
+                        const scrollTop = vizContainer.node().scrollTop;
+                        const scrollLeft = vizContainer.node().scrollLeft;
+
+                        // Position and show cell overlay (slightly larger)
+                        cellOverlay
+                            .style('display', 'block')
+                            .style('left', (cellRect.left - containerRect.left + scrollLeft - 2) + 'px')
+                            .style('top', (cellRect.top - containerRect.top + scrollTop - 2) + 'px')
+                            .style('width', (cellRect.width + 4) + 'px')
+                            .style('height', (cellRect.height + 4) + 'px')
+                            .style('background-color', d3.select(cell).style('background-color'))
                             .style('border', '2px solid #333');
 
-                        // Add hover classes to expand row/column
-                        table.classed(`hover-row-${rowIndex}`, true);
-                        table.classed(`hover-col-${colIndex}`, true);
+                        // Position and show row header overlay
+                        const rowPlayer = sortedPlayers[rowIndex];
+                        rowHeaderOverlay
+                            .style('display', 'block')
+                            .style('left', scrollLeft + 'px')
+                            .style('top', (cellRect.top - containerRect.top + scrollTop) + 'px')
+                            .style('height', cellRect.height + 'px')
+                            .style('color', playerColors[rowPlayer] || '#333')
+                            .style('font-weight', rowPlayer === focusedPlayer ? 'bold' : 'normal')
+                            .text(rowPlayer);
+
+                        // Position and show column header overlay
+                        const colPlayer = sortedPlayers[colIndex];
+                        colHeaderOverlay
+                            .style('display', 'block')
+                            .style('left', (cellRect.left - containerRect.left + scrollLeft) + 'px')
+                            .style('top', scrollTop + 'px')
+                            .style('width', cellRect.width + 'px')
+                            .style('color', playerColors[colPlayer] || '#333')
+                            .style('font-weight', colPlayer === focusedPlayer ? 'bold' : 'normal')
+                            .text(colPlayer);
 
                         showTooltip(event, cellData);
                     })
                     .on('mouseleave', function() {
-                        d3.select(this)
-                            .style('filter', null)
-                            .style('border', cellData.player1 === focusedPlayer || cellData.player2 === focusedPlayer ?
-                                '2px solid var(--primary-color)' : null);
-
-                        // Remove hover classes
-                        table.classed(`hover-row-${rowIndex}`, false);
-                        table.classed(`hover-col-${colIndex}`, false);
+                        // Hide all overlays
+                        cellOverlay.style('display', 'none');
+                        rowHeaderOverlay.style('display', 'none');
+                        colHeaderOverlay.style('display', 'none');
 
                         hideTooltip();
                     })

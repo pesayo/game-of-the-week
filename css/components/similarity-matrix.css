@@ -178,225 +178,97 @@
     background-color: var(--gray-50);
 }
 
-/* Rotated column headers - compact by default */
+/* Column headers - tiny, hidden text */
 .similarity-matrix-table th.rotated-header {
     height: 5px;
     width: 5px;
     min-width: 5px;
     max-width: 5px;
-    white-space: nowrap;
-    vertical-align: bottom;
     padding: 0;
-    position: relative;
     background-color: var(--gray-50);
-    transition: all 0.15s ease;
-    overflow: visible;
+    border: 1px solid var(--gray-300);
+    overflow: hidden;
 }
 
 .similarity-matrix-table th.rotated-header > div {
-    transform: rotate(-90deg);
-    transform-origin: left top;
-    position: absolute;
-    left: 50%;
-    bottom: 0;
-    width: 150px;
-    height: 40px;
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
-    padding-left: 8px;
-    margin-left: -20px;
-    opacity: 0;
-    transition: opacity 0.15s ease;
-    pointer-events: none;
+    display: none;
 }
 
-/* Row headers - compact by default */
+/* Row headers - tiny, hidden text */
 .similarity-matrix-table th.player-col {
     position: sticky;
     left: 0;
     background-color: var(--gray-50);
     z-index: 11;
+    width: 5px;
     min-width: 5px;
     max-width: 5px;
-    width: 5px;
-    text-align: left;
+    height: 5px;
     padding: 0;
-    transition: all 0.15s ease;
     overflow: hidden;
-    white-space: nowrap;
-    font-size: 11px;
-    text-indent: -9999px;
+    font-size: 0;
+    border: 1px solid var(--gray-300);
 }
 
 .similarity-matrix-table th.player-col.corner-cell {
     z-index: 12;
 }
 
-.similarity-matrix-table th.player-col::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    width: 2px;
-    background: var(--gray-300);
-    z-index: 20;
-}
-
-/* Data cells - tiny by default */
+/* Data cells - tiny, always 5x5 */
 .similarity-matrix-table td {
     padding: 0;
-    text-align: center;
     border: 1px solid var(--gray-300);
-    font-size: 11px;
-    font-weight: 600;
-    transition: all 0.15s ease;
     width: 5px;
     height: 5px;
     min-width: 5px;
     max-width: 5px;
 }
 
-/* Expand column header when hovering over any cell in that column */
-.similarity-matrix-table[class*="hover-col-"] th.rotated-header {
-    height: 5px;
+/* Hover overlays - positioned absolutely */
+.matrix-row-header-overlay {
+    position: absolute;
+    background-color: var(--gray-50);
+    border: 2px solid var(--primary-color);
+    border-radius: 4px;
+    padding: 4px 8px;
+    font-size: 11px;
+    font-weight: 600;
+    z-index: 100;
+    pointer-events: none;
+    white-space: nowrap;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
-.similarity-matrix-table.hover-col-0 th.rotated-header[data-col="0"],
-.similarity-matrix-table.hover-col-1 th.rotated-header[data-col="1"],
-.similarity-matrix-table.hover-col-2 th.rotated-header[data-col="2"],
-.similarity-matrix-table.hover-col-3 th.rotated-header[data-col="3"],
-.similarity-matrix-table.hover-col-4 th.rotated-header[data-col="4"],
-.similarity-matrix-table.hover-col-5 th.rotated-header[data-col="5"],
-.similarity-matrix-table.hover-col-6 th.rotated-header[data-col="6"],
-.similarity-matrix-table.hover-col-7 th.rotated-header[data-col="7"],
-.similarity-matrix-table.hover-col-8 th.rotated-header[data-col="8"],
-.similarity-matrix-table.hover-col-9 th.rotated-header[data-col="9"],
-.similarity-matrix-table.hover-col-10 th.rotated-header[data-col="10"],
-.similarity-matrix-table.hover-col-11 th.rotated-header[data-col="11"],
-.similarity-matrix-table.hover-col-12 th.rotated-header[data-col="12"],
-.similarity-matrix-table.hover-col-13 th.rotated-header[data-col="13"],
-.similarity-matrix-table.hover-col-14 th.rotated-header[data-col="14"],
-.similarity-matrix-table.hover-col-15 th.rotated-header[data-col="15"],
-.similarity-matrix-table.hover-col-16 th.rotated-header[data-col="16"],
-.similarity-matrix-table.hover-col-17 th.rotated-header[data-col="17"],
-.similarity-matrix-table.hover-col-18 th.rotated-header[data-col="18"],
-.similarity-matrix-table.hover-col-19 th.rotated-header[data-col="19"] {
-    height: 150px;
+.matrix-col-header-overlay {
+    position: absolute;
+    background-color: var(--gray-50);
+    border: 2px solid var(--primary-color);
+    border-radius: 4px;
+    padding: 4px 8px;
+    font-size: 11px;
+    font-weight: 600;
+    z-index: 100;
+    pointer-events: none;
+    white-space: nowrap;
+    text-align: center;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
-.similarity-matrix-table.hover-col-0 th.rotated-header[data-col="0"] > div,
-.similarity-matrix-table.hover-col-1 th.rotated-header[data-col="1"] > div,
-.similarity-matrix-table.hover-col-2 th.rotated-header[data-col="2"] > div,
-.similarity-matrix-table.hover-col-3 th.rotated-header[data-col="3"] > div,
-.similarity-matrix-table.hover-col-4 th.rotated-header[data-col="4"] > div,
-.similarity-matrix-table.hover-col-5 th.rotated-header[data-col="5"] > div,
-.similarity-matrix-table.hover-col-6 th.rotated-header[data-col="6"] > div,
-.similarity-matrix-table.hover-col-7 th.rotated-header[data-col="7"] > div,
-.similarity-matrix-table.hover-col-8 th.rotated-header[data-col="8"] > div,
-.similarity-matrix-table.hover-col-9 th.rotated-header[data-col="9"] > div,
-.similarity-matrix-table.hover-col-10 th.rotated-header[data-col="10"] > div,
-.similarity-matrix-table.hover-col-11 th.rotated-header[data-col="11"] > div,
-.similarity-matrix-table.hover-col-12 th.rotated-header[data-col="12"] > div,
-.similarity-matrix-table.hover-col-13 th.rotated-header[data-col="13"] > div,
-.similarity-matrix-table.hover-col-14 th.rotated-header[data-col="14"] > div,
-.similarity-matrix-table.hover-col-15 th.rotated-header[data-col="15"] > div,
-.similarity-matrix-table.hover-col-16 th.rotated-header[data-col="16"] > div,
-.similarity-matrix-table.hover-col-17 th.rotated-header[data-col="17"] > div,
-.similarity-matrix-table.hover-col-18 th.rotated-header[data-col="18"] > div,
-.similarity-matrix-table.hover-col-19 th.rotated-header[data-col="19"] > div {
-    opacity: 1;
-}
-
-/* Expand cells in hovered column */
-.similarity-matrix-table.hover-col-0 td[data-col="0"],
-.similarity-matrix-table.hover-col-1 td[data-col="1"],
-.similarity-matrix-table.hover-col-2 td[data-col="2"],
-.similarity-matrix-table.hover-col-3 td[data-col="3"],
-.similarity-matrix-table.hover-col-4 td[data-col="4"],
-.similarity-matrix-table.hover-col-5 td[data-col="5"],
-.similarity-matrix-table.hover-col-6 td[data-col="6"],
-.similarity-matrix-table.hover-col-7 td[data-col="7"],
-.similarity-matrix-table.hover-col-8 td[data-col="8"],
-.similarity-matrix-table.hover-col-9 td[data-col="9"],
-.similarity-matrix-table.hover-col-10 td[data-col="10"],
-.similarity-matrix-table.hover-col-11 td[data-col="11"],
-.similarity-matrix-table.hover-col-12 td[data-col="12"],
-.similarity-matrix-table.hover-col-13 td[data-col="13"],
-.similarity-matrix-table.hover-col-14 td[data-col="14"],
-.similarity-matrix-table.hover-col-15 td[data-col="15"],
-.similarity-matrix-table.hover-col-16 td[data-col="16"],
-.similarity-matrix-table.hover-col-17 td[data-col="17"],
-.similarity-matrix-table.hover-col-18 td[data-col="18"],
-.similarity-matrix-table.hover-col-19 td[data-col="19"] {
-    width: 40px;
-    min-width: 40px;
-    max-width: 40px;
-}
-
-/* Expand row header when hovering over any cell in that row */
-.similarity-matrix-table.hover-row-0 tr[data-row="0"] th.player-col,
-.similarity-matrix-table.hover-row-1 tr[data-row="1"] th.player-col,
-.similarity-matrix-table.hover-row-2 tr[data-row="2"] th.player-col,
-.similarity-matrix-table.hover-row-3 tr[data-row="3"] th.player-col,
-.similarity-matrix-table.hover-row-4 tr[data-row="4"] th.player-col,
-.similarity-matrix-table.hover-row-5 tr[data-row="5"] th.player-col,
-.similarity-matrix-table.hover-row-6 tr[data-row="6"] th.player-col,
-.similarity-matrix-table.hover-row-7 tr[data-row="7"] th.player-col,
-.similarity-matrix-table.hover-row-8 tr[data-row="8"] th.player-col,
-.similarity-matrix-table.hover-row-9 tr[data-row="9"] th.player-col,
-.similarity-matrix-table.hover-row-10 tr[data-row="10"] th.player-col,
-.similarity-matrix-table.hover-row-11 tr[data-row="11"] th.player-col,
-.similarity-matrix-table.hover-row-12 tr[data-row="12"] th.player-col,
-.similarity-matrix-table.hover-row-13 tr[data-row="13"] th.player-col,
-.similarity-matrix-table.hover-row-14 tr[data-row="14"] th.player-col,
-.similarity-matrix-table.hover-row-15 tr[data-row="15"] th.player-col,
-.similarity-matrix-table.hover-row-16 tr[data-row="16"] th.player-col,
-.similarity-matrix-table.hover-row-17 tr[data-row="17"] th.player-col,
-.similarity-matrix-table.hover-row-18 tr[data-row="18"] th.player-col,
-.similarity-matrix-table.hover-row-19 tr[data-row="19"] th.player-col {
-    min-width: 120px;
-    max-width: 120px;
-    width: 120px;
-    text-indent: 0;
-    padding: 8px 10px;
-}
-
-/* Expand cells in hovered row */
-.similarity-matrix-table.hover-row-0 tr[data-row="0"] td,
-.similarity-matrix-table.hover-row-1 tr[data-row="1"] td,
-.similarity-matrix-table.hover-row-2 tr[data-row="2"] td,
-.similarity-matrix-table.hover-row-3 tr[data-row="3"] td,
-.similarity-matrix-table.hover-row-4 tr[data-row="4"] td,
-.similarity-matrix-table.hover-row-5 tr[data-row="5"] td,
-.similarity-matrix-table.hover-row-6 tr[data-row="6"] td,
-.similarity-matrix-table.hover-row-7 tr[data-row="7"] td,
-.similarity-matrix-table.hover-row-8 tr[data-row="8"] td,
-.similarity-matrix-table.hover-row-9 tr[data-row="9"] td,
-.similarity-matrix-table.hover-row-10 tr[data-row="10"] td,
-.similarity-matrix-table.hover-row-11 tr[data-row="11"] td,
-.similarity-matrix-table.hover-row-12 tr[data-row="12"] td,
-.similarity-matrix-table.hover-row-13 tr[data-row="13"] td,
-.similarity-matrix-table.hover-row-14 tr[data-row="14"] td,
-.similarity-matrix-table.hover-row-15 tr[data-row="15"] td,
-.similarity-matrix-table.hover-row-16 tr[data-row="16"] td,
-.similarity-matrix-table.hover-row-17 tr[data-row="17"] td,
-.similarity-matrix-table.hover-row-18 tr[data-row="18"] td,
-.similarity-matrix-table.hover-row-19 tr[data-row="19"] td {
-    height: 40px;
+.matrix-cell-overlay {
+    position: absolute;
+    z-index: 99;
+    pointer-events: none;
+    border-radius: 2px;
+    filter: brightness(0.9);
 }
 
 .similarity-cell {
-    transition: all 0.2s ease;
-}
-
-.similarity-cell:hover:not(.self-cell) {
-    filter: brightness(0.9);
+    cursor: pointer;
 }
 
 .self-cell {
     opacity: 0.3;
+    cursor: default;
 }
 
 .focused-player-cell {
