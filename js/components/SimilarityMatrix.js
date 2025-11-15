@@ -572,8 +572,6 @@ function renderHighlightSection(container, pairs, title, icon, playerColors) {
  */
 function renderFullMatrixView(container, data) {
     const playerColors = getPlayerColors();
-    // Use selected player if set, otherwise fall back to globally focused player
-    const focusedPlayer = selectedPlayer || getFocusedPlayer();
 
     // Render filters
     renderFilters(container, 'matrix', data);
@@ -631,10 +629,6 @@ function renderFullMatrixView(container, data) {
     // Track initial highlight state
     let initialHighlightActive = true;
 
-    // Find focused player's row and column indices
-    const focusedPlayerRowIndex = sortedPlayers.indexOf(focusedPlayer);
-    const focusedPlayerColIndex = sortedPlayers.indexOf(focusedPlayer);
-
     // Create rows (no row headers - using overlays)
     alphabeticalMatrix.forEach((row, rowIndex) => {
         const tr = tbody.append('tr')
@@ -646,14 +640,6 @@ function renderFullMatrixView(container, data) {
                 .attr('class', cellData.isSelf ? 'self-cell' : 'similarity-cell')
                 .attr('data-row', rowIndex)
                 .attr('data-col', colIndex);
-
-            // Add crosshair borders for focused player's row and column
-            if (focusedPlayer && rowIndex === focusedPlayerRowIndex) {
-                td.classed('cell-row-highlight', true);
-            }
-            if (focusedPlayer && colIndex === focusedPlayerColIndex) {
-                td.classed('cell-col-highlight', true);
-            }
 
             // Inner wrapper for square sizing with colored background
             const wrapper = td.append('div')
@@ -674,7 +660,25 @@ function renderFullMatrixView(container, data) {
                         // Clear initial highlight on first real hover
                         if (initialHighlightActive) {
                             initialHighlightActive = false;
+                            // Clear any existing highlights from initial state
+                            tbody.selectAll('td')
+                                .classed('cell-row-highlight', false)
+                                .classed('cell-col-highlight', false);
                         }
+
+                        // Add border highlights to entire row and column
+                        tbody.selectAll('tr').each(function(d, i) {
+                            const row = d3.select(this);
+                            row.selectAll('td').each(function(d, j) {
+                                const cell = d3.select(this);
+                                if (i === rowIndex) {
+                                    cell.classed('cell-row-highlight', true);
+                                }
+                                if (j === colIndex) {
+                                    cell.classed('cell-col-highlight', true);
+                                }
+                            });
+                        });
 
                         const cell = this;
                         const cellRect = cell.getBoundingClientRect();
@@ -704,7 +708,6 @@ function renderFullMatrixView(container, data) {
                             .style('right', `calc(100% - ${tableLeftInContainer}px)`)
                             .style('top', rowCenterY + 'px')
                             .style('color', playerColors[rowPlayer] || '#333')
-                            .style('font-weight', rowPlayer === focusedPlayer ? 'bold' : 'normal')
                             .text(rowPlayer);
 
                         // Position and show column header overlay - centered on column
@@ -716,7 +719,6 @@ function renderFullMatrixView(container, data) {
                         colHeaderOverlay
                             .style('display', 'block')
                             .style('color', playerColors[colPlayer] || '#333')
-                            .style('font-weight', colPlayer === focusedPlayer ? 'bold' : 'normal')
                             .text(colPlayer);
 
                         // Measure element dimensions (after rotation - getBoundingClientRect returns rotated dimensions)
@@ -739,6 +741,11 @@ function renderFullMatrixView(container, data) {
                         showTooltip(event, cellData);
                     })
                     .on('mouseleave', function() {
+                        // Remove border highlights from all cells
+                        tbody.selectAll('td')
+                            .classed('cell-row-highlight', false)
+                            .classed('cell-col-highlight', false);
+
                         // Hide all overlays
                         cellOverlay.style('display', 'none');
                         rowHeaderOverlay.style('display', 'none');
@@ -767,6 +774,20 @@ function renderFullMatrixView(container, data) {
         // Pick a random non-self cell
         const randomCell = nonSelfCells[Math.floor(Math.random() * nonSelfCells.length)];
         const { rowIndex, colIndex, cellData } = randomCell;
+
+        // Add border highlights to entire row and column for initial highlight
+        tbody.selectAll('tr').each(function(d, i) {
+            const row = d3.select(this);
+            row.selectAll('td').each(function(d, j) {
+                const cell = d3.select(this);
+                if (i === rowIndex) {
+                    cell.classed('cell-row-highlight', true);
+                }
+                if (j === colIndex) {
+                    cell.classed('cell-col-highlight', true);
+                }
+            });
+        });
 
         // Find the DOM element
         const cellElement = tbody.selectAll('tr').nodes()[rowIndex]
@@ -798,7 +819,6 @@ function renderFullMatrixView(container, data) {
             .style('right', `calc(100% - ${tableLeftInContainer}px)`)
             .style('top', rowCenterY + 'px')
             .style('color', playerColors[rowPlayer] || '#333')
-            .style('font-weight', rowPlayer === focusedPlayer ? 'bold' : 'normal')
             .text(rowPlayer);
 
         // Show column header overlay
@@ -809,7 +829,6 @@ function renderFullMatrixView(container, data) {
         colHeaderOverlay
             .style('display', 'block')
             .style('color', playerColors[colPlayer] || '#333')
-            .style('font-weight', colPlayer === focusedPlayer ? 'bold' : 'normal')
             .text(colPlayer);
 
         const overlayRect = colHeaderOverlay.node().getBoundingClientRect();
