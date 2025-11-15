@@ -161,6 +161,11 @@
     width: 100%;
 }
 
+.similarity-matrix-table tr {
+    height: 0;
+    line-height: 0;
+}
+
 /* Data cells - responsive container */
 .similarity-matrix-table td {
     padding: 0;
@@ -170,6 +175,7 @@
     vertical-align: top;
     line-height: 0;
     font-size: 0;
+    height: 0;
 }
 
 /* Square wrapper using padding-bottom technique */
@@ -179,6 +185,8 @@
     position: relative;
     overflow: hidden;
     display: block;
+    margin: 0;
+    vertical-align: top;
 }
 
 /* Hover overlays - positioned absolutely */
