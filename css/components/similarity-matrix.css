@@ -159,7 +159,7 @@
     border-spacing: 0;
     font-size: 12px;
     table-layout: fixed;
-    width: auto;
+    width: 100%;
 }
 
 .similarity-matrix-table thead {
@@ -180,56 +180,50 @@
     background-color: var(--gray-50);
 }
 
-/* Column headers - tiny, hidden text */
+/* Column headers - responsive squares */
 .similarity-matrix-table th.rotated-header {
-    height: 5px;
-    width: 5px;
-    min-width: 5px;
-    max-width: 5px;
     padding: 0;
     background-color: var(--gray-50);
     border-right: 1px solid var(--gray-300);
     border-bottom: 1px solid var(--gray-300);
     overflow: hidden;
     box-sizing: border-box;
+    aspect-ratio: 1 / 1;
+    width: 100%;
 }
 
 .similarity-matrix-table th.rotated-header > div {
     display: none;
 }
 
-/* Row headers - tiny, hidden text */
+/* Row headers - responsive squares */
 .similarity-matrix-table th.player-col {
     position: sticky;
     left: 0;
     background-color: var(--gray-50);
     z-index: 11;
-    width: 5px;
-    min-width: 5px;
-    max-width: 5px;
-    height: 5px;
     padding: 0;
     overflow: hidden;
     font-size: 0;
     border-right: 1px solid var(--gray-300);
     border-bottom: 1px solid var(--gray-300);
     box-sizing: border-box;
+    aspect-ratio: 1 / 1;
+    width: 100%;
 }
 
 .similarity-matrix-table th.player-col.corner-cell {
     z-index: 12;
 }
 
-/* Data cells - tiny, always 5x5 */
+/* Data cells - responsive squares */
 .similarity-matrix-table td {
     padding: 0;
     border-right: 1px solid var(--gray-300);
     border-bottom: 1px solid var(--gray-300);
-    width: 5px;
-    height: 5px;
-    min-width: 5px;
-    max-width: 5px;
     box-sizing: border-box;
+    aspect-ratio: 1 / 1;
+    width: 100%;
 }
 
 /* Hover overlays - positioned absolutely */
