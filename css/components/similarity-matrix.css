@@ -255,20 +255,27 @@
 
 /* Highlight borders for hovered row and column */
 .cell-row-highlight {
-    border-top: 2px solid #333 !important;
-    border-bottom: 2px solid #333 !important;
+    box-shadow:
+        inset 0 2px 0 0 #333,     /* top border */
+        inset 0 -2px 0 0 #333     /* bottom border */
+    !important;
 }
 
 .cell-col-highlight {
-    border-left: 2px solid #333 !important;
-    border-right: 2px solid #333 !important;
-    border-top: 0 !important;
-    border-bottom: 0 !important;
+    box-shadow:
+        inset 2px 0 0 0 #333,     /* left border */
+        inset -2px 0 0 0 #333     /* right border */
+    !important;
 }
 
 .cell-row-highlight.cell-col-highlight {
     /* Intersection cell gets all four borders */
-    border: 2px solid #333 !important;
+    box-shadow:
+        inset 0 2px 0 0 #333,     /* top */
+        inset 0 -2px 0 0 #333,    /* bottom */
+        inset 2px 0 0 0 #333,     /* left */
+        inset -2px 0 0 0 #333     /* right */
+    !important;
 }
 
 .self-cell {
