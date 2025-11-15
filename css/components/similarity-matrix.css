@@ -162,14 +162,21 @@
     width: 100%;
 }
 
-/* Data cells - responsive squares */
+/* Data cells - responsive container */
 .similarity-matrix-table td {
     padding: 0;
     border-right: 1px solid var(--gray-300);
     border-bottom: 1px solid var(--gray-300);
     box-sizing: border-box;
-    aspect-ratio: 1 / 1;
+    position: relative;
+}
+
+/* Square wrapper using padding-bottom technique */
+.cell-square-wrapper {
     width: 100%;
+    padding-bottom: 100%; /* Creates square: height = width */
+    position: relative;
+    overflow: hidden;
 }
 
 /* Hover overlays - positioned absolutely */

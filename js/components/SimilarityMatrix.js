@@ -633,19 +633,26 @@ function renderFullMatrixView(container, data) {
         const tr = tbody.append('tr')
             .attr('data-row', rowIndex);
 
-        // Data cells - color only, no text
+        // Data cells - wrapper div creates square aspect ratio
         row.forEach((cellData, colIndex) => {
             const td = tr.append('td')
                 .attr('class', cellData.isSelf ? 'self-cell' : 'similarity-cell')
                 .attr('data-row', rowIndex)
-                .attr('data-col', colIndex)
-                .style('background-color', cellData.isSelf ? '#e0e0e0' : colorScale(cellData.similarity))
-                .style('cursor', cellData.isSelf ? 'default' : 'pointer');
+                .attr('data-col', colIndex);
+
+            // Inner wrapper for square sizing with colored background
+            const wrapper = td.append('div')
+                .attr('class', 'cell-square-wrapper')
+                .style('background-color', cellData.isSelf ? '#e0e0e0' : colorScale(cellData.similarity));
 
             if (cellData.isSelf) {
-                td.style('opacity', '0.5');
+                wrapper.style('opacity', '0.5');
             } else if (cellData.player1 === focusedPlayer || cellData.player2 === focusedPlayer) {
                 td.style('border', '2px solid var(--primary-color)');
+            }
+
+            if (!cellData.isSelf) {
+                td.style('cursor', 'pointer');
             }
 
             // Add hover and click interactions
@@ -658,13 +665,14 @@ function renderFullMatrixView(container, data) {
                         const scrollLeft = vizContainer.node().scrollLeft;
 
                         // Position and show cell overlay (slightly larger)
+                        const wrapperBgColor = d3.select(cell).select('.cell-square-wrapper').style('background-color');
                         cellOverlay
                             .style('display', 'block')
                             .style('left', (cellRect.left - containerRect.left + scrollLeft - 2) + 'px')
                             .style('top', (cellRect.top - containerRect.top + scrollTop - 2) + 'px')
                             .style('width', (cellRect.width + 4) + 'px')
                             .style('height', (cellRect.height + 4) + 'px')
-                            .style('background-color', d3.select(cell).style('background-color'))
+                            .style('background-color', wrapperBgColor)
                             .style('border', '2px solid #333');
 
                         // Position and show row header overlay
