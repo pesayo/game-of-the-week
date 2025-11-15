@@ -348,10 +348,10 @@ function renderPlayerFocusView(container, data) {
     const vizContainer = container.append('div')
         .attr('class', 'similarity-player-focus-container');
 
-    // Color scale - same as grid matrix
+    // Color scale - red (low) to green (high) matching Highlights view
     const colorScale = d3.scaleLinear()
-        .domain([0, 25, 50, 75, 100])
-        .range(['#f7fbff', '#c6dbef', '#6baed6', '#2171b5', '#08306b']);
+        .domain([0, 30, 45, 60, 75, 100])
+        .range(['#c62828', '#ef5350', '#ffa726', '#66bb6a', '#2e7d32', '#1b5e20']);
 
     // Add sticky header
     vizContainer.append('div')
@@ -583,10 +583,10 @@ function renderFullMatrixView(container, data) {
         .attr('class', 'similarity-matrix-grid')
         .style('grid-template-columns', `repeat(${sortedPlayers.length}, 1fr)`);
 
-    // Color scale - white to navy blue gradient for clean heatmap
+    // Color scale - red (low) to green (high) matching Highlights view
     const colorScale = d3.scaleLinear()
-        .domain([0, 25, 50, 75, 100])
-        .range(['#f7fbff', '#c6dbef', '#6baed6', '#2171b5', '#08306b']);
+        .domain([0, 30, 45, 60, 75, 100])
+        .range(['#c62828', '#ef5350', '#ffa726', '#66bb6a', '#2e7d32', '#1b5e20']);
 
     // Track initial highlight state
     let initialHighlightActive = true;
