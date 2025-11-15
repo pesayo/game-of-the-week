@@ -223,7 +223,7 @@
     white-space: nowrap;
     text-align: center;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-    transform: rotate(-90deg);
+    transform: rotate(-90deg) translateY(-50%);
     transform-origin: left center;
 }
 
