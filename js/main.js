@@ -83,6 +83,7 @@ import {
 
 import {
     renderSimilarityMatrix,
+    renderSimilarityControls,
     setupSimilarityModal
 } from './components/SimilarityMatrix.js';
 
@@ -173,7 +174,8 @@ async function init() {
         renderCurrentHolders();
         setupPantheonModal();
 
-        // Render similarity matrix and setup modal
+        // Render similarity matrix controls and setup modal
+        renderSimilarityControls();
         renderSimilarityMatrix();
         setupSimilarityModal();
 

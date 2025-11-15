@@ -3,39 +3,54 @@
 .similarity-matrix-section {
     background: var(--card-bg);
     border-radius: var(--border-radius);
-    padding: var(--spacing-lg);
+    padding: 0;
     box-shadow: var(--shadow-card);
+}
+
+/* Header with controls */
+.similarity-header {
+    padding: var(--spacing-lg);
+    padding-bottom: var(--spacing-md);
+    background: linear-gradient(135deg, rgba(33, 150, 243, 0.05) 0%, rgba(33, 150, 243, 0.02) 100%);
+    border-bottom: 2px solid var(--border-color);
+    border-radius: var(--border-radius) var(--border-radius) 0 0;
+}
+
+.similarity-header .section-title {
+    margin-bottom: 15px;
+}
+
+.similarity-controls-row {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+    align-items: center;
 }
 
 /* View Toggle */
 .similarity-view-toggle {
     display: flex;
-    gap: 10px;
-    margin-bottom: 25px;
-    padding: 15px;
-    background: var(--bg-light);
-    border-radius: var(--border-radius);
-    justify-content: center;
+    gap: 8px;
     flex-wrap: wrap;
 }
 
 .similarity-toggle-btn {
-    padding: 10px 20px;
+    padding: 8px 16px;
     background: white;
     border: 2px solid var(--border-color);
     border-radius: 6px;
     cursor: pointer;
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 500;
     color: var(--text-secondary);
     transition: all 0.2s ease;
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 6px;
 }
 
 .similarity-toggle-btn i {
-    font-size: 16px;
+    font-size: 14px;
 }
 
 .similarity-toggle-btn:hover {
@@ -51,35 +66,31 @@
 }
 
 /* Game Status Filter */
-.game-status-filter {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 25px;
-    padding: 15px;
-    background: white;
-    border-radius: var(--border-radius);
-    border: 2px solid var(--border-color);
-    flex-wrap: wrap;
-}
-
-.filter-label {
-    font-weight: 600;
-    color: var(--text-primary);
+.similarity-game-filter {
     display: flex;
     align-items: center;
     gap: 8px;
-    margin-right: 5px;
+    flex-wrap: wrap;
 }
 
-.filter-label i {
+.similarity-game-filter .filter-label {
+    font-weight: 600;
+    font-size: 13px;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+}
+
+.similarity-game-filter .filter-label i {
     color: var(--primary-color);
 }
 
 .game-status-btn {
-    padding: 8px 16px;
-    background: var(--bg-light);
-    border: 1px solid var(--border-color);
+    padding: 7px 14px;
+    background: white;
+    border: 2px solid var(--border-color);
     border-radius: 6px;
     cursor: pointer;
     font-size: 13px;
@@ -98,6 +109,11 @@
     background: var(--primary-color);
     border-color: var(--primary-color);
     color: white;
+}
+
+/* Content area */
+#similarityMatrixContent {
+    padding: var(--spacing-lg);
 }
 
 /* Description */
@@ -330,11 +346,6 @@
     color: var(--text-secondary);
 }
 
-#similarityMatrixContent {
-    overflow-x: auto;
-    overflow-y: visible;
-    padding: 20px 0;
-}
 
 .similarity-matrix-svg {
     display: block;
@@ -562,12 +573,24 @@
 
 /* Responsive adjustments */
 @media (max-width: 768px) {
-    .similarity-matrix-section {
+    .similarity-header {
         padding: var(--spacing-md);
+    }
+
+    #similarityMatrixContent {
+        padding: var(--spacing-md);
+        overflow-x: scroll;
+    }
+
+    .similarity-controls-row {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
     }
 
     .similarity-view-toggle {
         flex-direction: column;
+        width: 100%;
     }
 
     .similarity-toggle-btn {
@@ -575,12 +598,13 @@
         justify-content: center;
     }
 
-    .game-status-filter {
+    .similarity-game-filter {
         flex-direction: column;
         align-items: stretch;
+        width: 100%;
     }
 
-    .filter-label {
+    .similarity-game-filter .filter-label {
         justify-content: center;
     }
 
@@ -604,10 +628,6 @@
 
     .highlights-grid {
         grid-template-columns: 1fr;
-    }
-
-    #similarityMatrixContent {
-        overflow-x: scroll;
     }
 
     .similarity-modal-content {

@@ -163,12 +163,6 @@ export function renderSimilarityMatrix() {
     const container = d3.select('#similarityMatrixContent');
     container.html(''); // Clear previous content
 
-    // Add view toggle
-    renderViewToggle(container);
-
-    // Add game status filter
-    renderGameStatusFilter(container);
-
     // Render appropriate view
     if (currentView === 'player') {
         renderPlayerFocusView(container, data);
@@ -180,11 +174,19 @@ export function renderSimilarityMatrix() {
 }
 
 /**
- * Render view toggle buttons
+ * Render controls into the header (called from HTML)
  */
-function renderViewToggle(container) {
-    const toggleDiv = container.append('div')
-        .attr('class', 'similarity-view-toggle');
+export function renderSimilarityControls() {
+    renderViewToggleInHeader();
+    renderGameStatusFilterInHeader();
+}
+
+/**
+ * Render view toggle buttons in header
+ */
+function renderViewToggleInHeader() {
+    const toggleContainer = document.getElementById('similarityViewToggle');
+    if (!toggleContainer) return;
 
     const buttons = [
         { view: 'player', icon: 'fa-user', label: 'Player Focus' },
@@ -192,44 +194,57 @@ function renderViewToggle(container) {
         { view: 'matrix', icon: 'fa-th', label: 'Full Matrix' }
     ];
 
-    buttons.forEach(btn => {
-        toggleDiv.append('button')
-            .attr('class', `similarity-toggle-btn ${currentView === btn.view ? 'active' : ''}`)
-            .attr('data-view', btn.view)
-            .html(`<i class="fas ${btn.icon}"></i> ${btn.label}`)
-            .on('click', function() {
-                currentView = btn.view;
-                renderSimilarityMatrix();
-            });
+    toggleContainer.innerHTML = buttons.map(btn => `
+        <button class="similarity-toggle-btn ${currentView === btn.view ? 'active' : ''}"
+                data-view="${btn.view}">
+            <i class="fas ${btn.icon}"></i> ${btn.label}
+        </button>
+    `).join('');
+
+    // Add click handlers
+    toggleContainer.querySelectorAll('.similarity-toggle-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            currentView = this.getAttribute('data-view');
+            renderViewToggleInHeader(); // Update button states
+            renderGameStatusFilterInHeader(); // Update filter states
+            renderSimilarityMatrix();
+        });
     });
 }
 
 /**
- * Render game status filter buttons
+ * Render game status filter buttons in header
  */
-function renderGameStatusFilter(container) {
-    const filterDiv = container.append('div')
-        .attr('class', 'game-status-filter');
-
-    filterDiv.append('span')
-        .attr('class', 'filter-label')
-        .html('<i class="fas fa-filter"></i> Include:');
+function renderGameStatusFilterInHeader() {
+    const filterContainer = document.getElementById('similarityGameFilter');
+    if (!filterContainer) return;
 
     const buttons = [
-        { filter: 'all', label: 'All Games' },
-        { filter: 'played', label: 'Played Only' },
-        { filter: 'upcoming', label: 'Upcoming Only' }
+        { filter: 'all', label: 'All' },
+        { filter: 'played', label: 'Played' },
+        { filter: 'upcoming', label: 'Upcoming' }
     ];
 
-    buttons.forEach(btn => {
-        filterDiv.append('button')
-            .attr('class', `game-status-btn ${gameStatusFilter === btn.filter ? 'active' : ''}`)
-            .attr('data-filter', btn.filter)
-            .text(btn.label)
-            .on('click', function() {
-                gameStatusFilter = btn.filter;
-                renderSimilarityMatrix();
-            });
+    filterContainer.innerHTML = `
+        <span class="filter-label">
+            <i class="fas fa-filter"></i> Games:
+        </span>
+        ${buttons.map(btn => `
+            <button class="game-status-btn ${gameStatusFilter === btn.filter ? 'active' : ''}"
+                    data-filter="${btn.filter}">
+                ${btn.label}
+            </button>
+        `).join('')}
+    `;
+
+    // Add click handlers
+    filterContainer.querySelectorAll('.game-status-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            gameStatusFilter = this.getAttribute('data-filter');
+            renderViewToggleInHeader(); // Update button states
+            renderGameStatusFilterInHeader(); // Update filter states
+            renderSimilarityMatrix();
+        });
     });
 }
 
@@ -419,17 +434,32 @@ function renderFullMatrixView(container, data) {
     const playerColors = getPlayerColors();
     const focusedPlayer = getFocusedPlayer();
 
+    // Sort players alphabetically for the full matrix view
+    const sortedPlayers = [...data.players].sort((a, b) => a.localeCompare(b));
+
+    // Rebuild matrix with alphabetical ordering
+    const alphabeticalMatrix = [];
+    sortedPlayers.forEach(player1 => {
+        const row = [];
+        sortedPlayers.forEach(player2 => {
+            const originalIndex1 = data.players.indexOf(player1);
+            const originalIndex2 = data.players.indexOf(player2);
+            row.push(data.matrix[originalIndex1][originalIndex2]);
+        });
+        alphabeticalMatrix.push(row);
+    });
+
     // Add description
     container.append('div')
         .attr('class', 'similarity-description')
-        .html('<p>Complete matrix showing pick agreement between all player pairs. Darker colors indicate higher agreement. Click any cell for details.</p>');
+        .html('<p>Complete matrix showing pick agreement between all player pairs (alphabetically ordered). Darker colors indicate higher agreement. Click any cell for details.</p>');
 
     // Set up dimensions
     const containerWidth = document.getElementById('similarityMatrixContent').offsetWidth;
-    const cellSize = Math.max(20, Math.min(50, (containerWidth - 200) / data.players.length));
+    const cellSize = Math.max(20, Math.min(50, (containerWidth - 200) / sortedPlayers.length));
     const margin = { top: 150, right: 20, bottom: 20, left: 150 };
-    const width = cellSize * data.players.length;
-    const height = cellSize * data.players.length;
+    const width = cellSize * sortedPlayers.length;
+    const height = cellSize * sortedPlayers.length;
 
     // Create SVG
     const svg = container.append('svg')
@@ -447,7 +477,7 @@ function renderFullMatrixView(container, data) {
 
     // Create cells
     const cells = g.selectAll('.similarity-cell')
-        .data(data.matrix.flat())
+        .data(alphabeticalMatrix.flat())
         .enter()
         .append('g')
         .attr('class', 'similarity-cell-group');
@@ -462,8 +492,8 @@ function renderFullMatrixView(container, data) {
             }
             return classes.join(' ');
         })
-        .attr('x', (d, i) => (i % data.players.length) * cellSize)
-        .attr('y', (d, i) => Math.floor(i / data.players.length) * cellSize)
+        .attr('x', (d, i) => (i % sortedPlayers.length) * cellSize)
+        .attr('y', (d, i) => Math.floor(i / sortedPlayers.length) * cellSize)
         .attr('width', cellSize)
         .attr('height', cellSize)
         .attr('fill', d => d.isSelf ? '#e0e0e0' : colorScale(d.similarity))
@@ -491,8 +521,8 @@ function renderFullMatrixView(container, data) {
     if (cellSize > 30) {
         cells.append('text')
             .attr('class', 'similarity-text')
-            .attr('x', (d, i) => (i % data.players.length) * cellSize + cellSize / 2)
-            .attr('y', (d, i) => Math.floor(i / data.players.length) * cellSize + cellSize / 2)
+            .attr('x', (d, i) => (i % sortedPlayers.length) * cellSize + cellSize / 2)
+            .attr('y', (d, i) => Math.floor(i / sortedPlayers.length) * cellSize + cellSize / 2)
             .attr('text-anchor', 'middle')
             .attr('dominant-baseline', 'middle')
             .attr('font-size', `${Math.min(12, cellSize / 3)}px`)
@@ -501,9 +531,9 @@ function renderFullMatrixView(container, data) {
             .text(d => d.isSelf ? '' : `${d.similarity}%`);
     }
 
-    // Add column labels (top)
+    // Add column labels (top) - alphabetically sorted
     g.selectAll('.col-label')
-        .data(data.players)
+        .data(sortedPlayers)
         .enter()
         .append('text')
         .attr('class', d => {
@@ -520,9 +550,9 @@ function renderFullMatrixView(container, data) {
         .style('font-weight', d => d === focusedPlayer ? 'bold' : 'normal')
         .text(d => d);
 
-    // Add row labels (left)
+    // Add row labels (left) - alphabetically sorted
     g.selectAll('.row-label')
-        .data(data.players)
+        .data(sortedPlayers)
         .enter()
         .append('text')
         .attr('class', d => {
