@@ -190,7 +190,7 @@ function renderViewToggleInHeader() {
     const buttons = [
         { view: 'player', icon: 'fa-user', label: 'Player Focus' },
         { view: 'highlights', icon: 'fa-star', label: 'Highlights' },
-        { view: 'matrix', icon: 'fa-th', label: 'Full Matrix' }
+        { view: 'matrix', icon: 'fa-th', label: 'Matrix' }
     ];
 
     toggleContainer.innerHTML = buttons.map(btn => `
@@ -217,14 +217,14 @@ function renderFilters(container, viewType, data) {
     const filtersDiv = container.append('div')
         .attr('class', 'matrix-filters');
 
-    // Player selector for Player Focus view
-    if (viewType === 'player') {
+    // Player selector for Player Focus and Matrix views
+    if (viewType === 'player' || viewType === 'matrix') {
         const playerGroup = filtersDiv.append('div')
             .attr('class', 'matrix-filter-group');
 
         playerGroup.append('label')
             .attr('for', 'similarityPlayerSelect')
-            .text('Compare:');
+            .text(viewType === 'player' ? 'Compare:' : 'Focus:');
 
         const select = playerGroup.append('select')
             .attr('id', 'similarityPlayerSelect')
@@ -232,6 +232,14 @@ function renderFilters(container, viewType, data) {
                 selectedPlayer = this.value;
                 renderSimilarityMatrix();
             });
+
+        // Add "None" option for matrix view
+        if (viewType === 'matrix') {
+            select.append('option')
+                .attr('value', '')
+                .property('selected', !selectedPlayer)
+                .text('None');
+        }
 
         // Add player options
         data.players.forEach(player => {
@@ -433,11 +441,12 @@ function renderHighlightSection(container, pairs, title, icon, playerColors) {
 }
 
 /**
- * Render Full Matrix View - complete heatmap
+ * Render Matrix View - complete heatmap with optional player focus
  */
 function renderFullMatrixView(container, data) {
     const playerColors = getPlayerColors();
-    const focusedPlayer = getFocusedPlayer();
+    // Use selected player if set, otherwise fall back to globally focused player
+    const focusedPlayer = selectedPlayer || getFocusedPlayer();
 
     // Render filters
     renderFilters(container, 'matrix', data);
