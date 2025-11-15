@@ -598,208 +598,90 @@ function renderFullMatrixView(container, data) {
         .attr('class', 'similarity-description')
         .html('<p>Complete matrix showing pick agreement between all player pairs (alphabetically ordered). Darker colors indicate higher agreement. Click any cell for details.</p>');
 
-    // Wrap visualization in scrollable container
+    // Wrap in scrollable container (like picks matrix)
     const vizContainer = container.append('div')
         .attr('class', 'similarity-viz-container');
 
-    // Set up dimensions
-    const containerWidth = document.getElementById('similarityMatrixContent').offsetWidth;
-    const cellSize = Math.max(20, Math.min(50, (containerWidth - 200) / sortedPlayers.length));
-    const margin = { top: 150, right: 20, bottom: 20, left: 150 };
-    const width = cellSize * sortedPlayers.length;
-    const height = cellSize * sortedPlayers.length;
-
-    // Create SVG
-    const svg = vizContainer.append('svg')
-        .attr('class', 'similarity-matrix-svg')
-        .attr('width', width + margin.left + margin.right)
-        .attr('height', height + margin.top + margin.bottom);
-
-    const g = svg.append('g')
-        .attr('transform', `translate(${margin.left},${margin.top})`);
+    // Create table similar to picks matrix
+    const table = vizContainer.append('table')
+        .attr('class', 'similarity-matrix-table');
 
     // Color scale - white (low similarity) to dark blue (high similarity)
     const colorScale = d3.scaleLinear()
         .domain([0, 50, 100])
         .range(['#f0f0f0', '#6baed6', '#08519c']);
 
-    // Create cells
-    const cells = g.selectAll('.similarity-cell')
-        .data(alphabeticalMatrix.flat())
-        .enter()
-        .append('g')
-        .attr('class', 'similarity-cell-group');
+    // Create thead with sticky headers
+    const thead = table.append('thead');
+    const headerRow = thead.append('tr');
 
-    // Add rectangles
-    cells.append('rect')
-        .attr('class', d => {
-            const classes = ['similarity-cell'];
-            if (d.isSelf) classes.push('self-cell');
-            if (d.player1 === focusedPlayer || d.player2 === focusedPlayer) {
-                classes.push('focused-player-cell');
-            }
-            return classes.join(' ');
-        })
-        .attr('x', (d, i) => (i % sortedPlayers.length) * cellSize)
-        .attr('y', (d, i) => Math.floor(i / sortedPlayers.length) * cellSize)
-        .attr('width', cellSize)
-        .attr('height', cellSize)
-        .attr('fill', d => d.isSelf ? '#e0e0e0' : colorScale(d.similarity))
-        .attr('stroke', '#fff')
-        .attr('stroke-width', 1)
-        .style('cursor', d => d.isSelf ? 'default' : 'pointer')
-        .on('mouseover', function(event, d) {
-            if (d.isSelf) return;
+    // Corner cell (empty)
+    headerRow.append('th')
+        .attr('class', 'player-col corner-cell');
 
-            d3.select(this).attr('stroke', '#333').attr('stroke-width', 2);
+    // Column headers (player names)
+    sortedPlayers.forEach(player => {
+        const th = headerRow.append('th')
+            .style('color', playerColors[player] || '#333')
+            .text(player);
 
-            // Highlight the corresponding row and column labels
-            svg.selectAll('.col-label').filter(player => player === d.player2)
-                .style('font-weight', 'bold')
-                .style('text-decoration', 'underline');
+        if (player === focusedPlayer) {
+            th.style('font-weight', 'bold');
+        }
+    });
 
-            svg.selectAll('.row-label').filter(player => player === d.player1)
-                .style('font-weight', 'bold')
-                .style('text-decoration', 'underline');
+    // Create tbody
+    const tbody = table.append('tbody');
 
-            showTooltip(event, d);
-        })
-        .on('mouseout', function(event, d) {
-            d3.select(this).attr('stroke', '#fff').attr('stroke-width', 1);
+    // Create rows
+    alphabeticalMatrix.forEach((row, rowIndex) => {
+        const tr = tbody.append('tr');
 
-            // Remove highlight from row and column labels
-            svg.selectAll('.col-label').filter(player => player === d.player2)
-                .style('font-weight', player => player === focusedPlayer ? 'bold' : 'normal')
-                .style('text-decoration', 'none');
+        // Row header (sticky player name)
+        const rowPlayer = sortedPlayers[rowIndex];
+        const th = tr.append('th')
+            .attr('class', 'player-col')
+            .style('color', playerColors[rowPlayer] || '#333')
+            .text(rowPlayer);
 
-            svg.selectAll('.row-label').filter(player => player === d.player1)
-                .style('font-weight', player => player === focusedPlayer ? 'bold' : 'normal')
-                .style('text-decoration', 'none');
-
-            hideTooltip();
-        })
-        .on('click', (event, d) => {
-            if (!d.isSelf) {
-                showSimilarityModal(d);
-            }
-        });
-
-    // Add text labels for percentages in larger cells
-    if (cellSize > 30) {
-        cells.append('text')
-            .attr('class', 'similarity-text')
-            .attr('x', (d, i) => (i % sortedPlayers.length) * cellSize + cellSize / 2)
-            .attr('y', (d, i) => Math.floor(i / sortedPlayers.length) * cellSize + cellSize / 2)
-            .attr('text-anchor', 'middle')
-            .attr('dominant-baseline', 'middle')
-            .attr('font-size', `${Math.min(12, cellSize / 3)}px`)
-            .attr('fill', d => d.similarity > 60 ? '#fff' : '#333')
-            .attr('pointer-events', 'none')
-            .text(d => d.isSelf ? '' : `${d.similarity}%`);
-    }
-
-    // Create sticky header groups AFTER main content so they render on top
-    const colLabelsGroup = svg.append('g')
-        .attr('class', 'similarity-col-labels-group')
-        .attr('transform', `translate(${margin.left},${margin.top})`);
-
-    const rowLabelsGroup = svg.append('g')
-        .attr('class', 'similarity-row-labels-group')
-        .attr('transform', `translate(${margin.left},${margin.top})`);
-
-    const cornerGroup = svg.append('g')
-        .attr('class', 'similarity-corner-group')
-        .attr('transform', `translate(${margin.left},${margin.top})`);
-
-    // Add background rectangles for sticky labels (with 1px overlap to prevent peeking)
-    colLabelsGroup.append('rect')
-        .attr('class', 'col-labels-bg')
-        .attr('x', -1)
-        .attr('y', -margin.top - 1)
-        .attr('width', width + 2)
-        .attr('height', margin.top + 2)
-        .attr('fill', 'white');
-
-    rowLabelsGroup.append('rect')
-        .attr('class', 'row-labels-bg')
-        .attr('x', -margin.left - 1)
-        .attr('y', -1)
-        .attr('width', margin.left + 2)
-        .attr('height', height + 2)
-        .attr('fill', 'white');
-
-    cornerGroup.append('rect')
-        .attr('class', 'corner-bg')
-        .attr('x', -margin.left - 1)
-        .attr('y', -margin.top - 1)
-        .attr('width', margin.left + 2)
-        .attr('height', margin.top + 2)
-        .attr('fill', 'white');
-
-    // Add column labels (top) - alphabetically sorted - in sticky group
-    colLabelsGroup.selectAll('.col-label')
-        .data(sortedPlayers)
-        .enter()
-        .append('text')
-        .attr('class', d => {
-            const classes = ['col-label'];
-            if (d === focusedPlayer) classes.push('focused-label');
-            return classes.join(' ');
-        })
-        .attr('x', (d, i) => i * cellSize + cellSize / 2)
-        .attr('y', -10)
-        .attr('text-anchor', 'start')
-        .attr('transform', (d, i) => `rotate(-45, ${i * cellSize + cellSize / 2}, -10)`)
-        .style('font-size', '11px')
-        .style('fill', d => playerColors[d] || '#333')
-        .style('font-weight', d => d === focusedPlayer ? 'bold' : 'normal')
-        .text(d => d);
-
-    // Add row labels (left) - alphabetically sorted - in sticky group
-    rowLabelsGroup.selectAll('.row-label')
-        .data(sortedPlayers)
-        .enter()
-        .append('text')
-        .attr('class', d => {
-            const classes = ['row-label'];
-            if (d === focusedPlayer) classes.push('focused-label');
-            return classes.join(' ');
-        })
-        .attr('x', -10)
-        .attr('y', (d, i) => i * cellSize + cellSize / 2)
-        .attr('text-anchor', 'end')
-        .attr('dominant-baseline', 'middle')
-        .style('font-size', '11px')
-        .style('fill', d => playerColors[d] || '#333')
-        .style('font-weight', d => d === focusedPlayer ? 'bold' : 'normal')
-        .text(d => d);
-
-    // Make headers sticky on scroll with smooth RAF updates
-    const vizContainerNode = vizContainer.node();
-    let rafId = null;
-
-    vizContainerNode.addEventListener('scroll', function() {
-        if (rafId) {
-            cancelAnimationFrame(rafId);
+        if (rowPlayer === focusedPlayer) {
+            th.style('font-weight', 'bold');
         }
 
-        rafId = requestAnimationFrame(() => {
-            const scrollTop = this.scrollTop;
-            const scrollLeft = this.scrollLeft;
+        // Data cells
+        row.forEach((cellData, colIndex) => {
+            const td = tr.append('td')
+                .style('background-color', cellData.isSelf ? '#e0e0e0' : colorScale(cellData.similarity))
+                .style('cursor', cellData.isSelf ? 'default' : 'pointer')
+                .text(cellData.isSelf ? '' : `${cellData.similarity}%`);
 
-            // Update column labels to stick to top (only move with vertical scroll)
-            colLabelsGroup.attr('transform', `translate(${margin.left},${margin.top + scrollTop})`);
+            if (cellData.isSelf) {
+                td.style('opacity', '0.5');
+            } else if (cellData.player1 === focusedPlayer || cellData.player2 === focusedPlayer) {
+                td.style('border', '2px solid var(--primary-color)');
+            }
 
-            // Update row labels to stick to left (only move with horizontal scroll)
-            rowLabelsGroup.attr('transform', `translate(${margin.left + scrollLeft},${margin.top})`);
+            // Add hover and click interactions
+            if (!cellData.isSelf) {
+                td.on('mouseenter', function(event) {
+                        d3.select(this)
+                            .style('filter', 'brightness(0.9)')
+                            .style('border', '2px solid #333');
 
-            // Update corner to stick to both top-left (move with both scrolls)
-            cornerGroup.attr('transform', `translate(${margin.left + scrollLeft},${margin.top + scrollTop})`);
+                        showTooltip(event, cellData);
+                    })
+                    .on('mouseleave', function() {
+                        d3.select(this)
+                            .style('filter', null)
+                            .style('border', cellData.player1 === focusedPlayer || cellData.player2 === focusedPlayer ?
+                                '2px solid var(--primary-color)' : null);
 
-            rafId = null;
+                        hideTooltip();
+                    })
+                    .on('click', () => showSimilarityModal(cellData));
+            }
         });
-    }, { passive: true });
-
+    });
 
     // Add legend
     addLegend(container, colorScale);

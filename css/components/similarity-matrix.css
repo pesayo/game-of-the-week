@@ -153,19 +153,59 @@
     margin: 0 auto;
 }
 
-/* Sticky header groups - ensure they appear above content */
-.similarity-header-group,
-.similarity-col-labels-group,
-.similarity-row-labels-group,
-.similarity-corner-group {
-    pointer-events: none;
+/* Similarity Matrix Table (similar to picks matrix) */
+.similarity-matrix-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
 }
 
-/* Make text in headers interactive */
-.similarity-header-group text,
-.similarity-col-labels-group text,
-.similarity-row-labels-group text {
-    pointer-events: auto;
+.similarity-matrix-table thead {
+    background-color: var(--gray-50);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.similarity-matrix-table th {
+    padding: 10px 8px;
+    text-align: center;
+    font-weight: 600;
+    color: var(--gray-600);
+    border: 1px solid var(--gray-300);
+    font-size: 11px;
+    min-width: 60px;
+    vertical-align: middle;
+    background-color: var(--gray-50);
+}
+
+.similarity-matrix-table th.player-col {
+    position: sticky;
+    left: 0;
+    background-color: var(--gray-50);
+    z-index: 11;
+    min-width: 120px;
+    text-align: left;
+}
+
+.similarity-matrix-table th.player-col::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 2px;
+    background: var(--gray-300);
+    z-index: 20;
+}
+
+.similarity-matrix-table td {
+    padding: 10px 8px;
+    text-align: center;
+    border: 1px solid var(--gray-300);
+    font-size: 11px;
+    font-weight: 600;
+    transition: all 0.2s ease;
 }
 
 .similarity-cell {
