@@ -628,6 +628,9 @@ function renderFullMatrixView(container, data) {
     // Create tbody (no thead needed - using overlays for headers)
     const tbody = table.append('tbody');
 
+    // Track initial highlight state
+    let initialHighlightActive = true;
+
     // Create rows (no row headers - using overlays)
     alphabeticalMatrix.forEach((row, rowIndex) => {
         const tr = tbody.append('tr')
@@ -658,6 +661,11 @@ function renderFullMatrixView(container, data) {
             // Add hover and click interactions
             if (!cellData.isSelf) {
                 td.on('mouseenter', function(event) {
+                        // Clear initial highlight on first real hover
+                        if (initialHighlightActive) {
+                            initialHighlightActive = false;
+                        }
+
                         const cell = this;
                         const cellRect = cell.getBoundingClientRect();
                         const containerRect = vizContainer.node().getBoundingClientRect();
@@ -732,6 +740,76 @@ function renderFullMatrixView(container, data) {
             }
         });
     });
+
+    // Show initial random highlight to demonstrate the interaction
+    const nonSelfCells = [];
+
+    // Collect all non-self cells
+    alphabeticalMatrix.forEach((row, rowIndex) => {
+        row.forEach((cellData, colIndex) => {
+            if (!cellData.isSelf) {
+                nonSelfCells.push({ rowIndex, colIndex, cellData });
+            }
+        });
+    });
+
+    if (nonSelfCells.length > 0) {
+        // Pick a random non-self cell
+        const randomCell = nonSelfCells[Math.floor(Math.random() * nonSelfCells.length)];
+        const { rowIndex, colIndex, cellData } = randomCell;
+
+        // Find the DOM element
+        const cellElement = tbody.selectAll('tr').nodes()[rowIndex]
+            .querySelectorAll('td')[colIndex];
+        const cellRect = cellElement.getBoundingClientRect();
+        const containerRect = vizContainer.node().getBoundingClientRect();
+        const tableRect = table.node().getBoundingClientRect();
+        const scrollTop = vizContainer.node().scrollTop;
+        const scrollLeft = vizContainer.node().scrollLeft;
+
+        // Show cell overlay
+        const wrapperBgColor = d3.select(cellElement).select('.cell-square-wrapper').style('background-color');
+        cellOverlay
+            .style('display', 'block')
+            .style('left', (cellRect.left - containerRect.left + scrollLeft - 2) + 'px')
+            .style('top', (cellRect.top - containerRect.top + scrollTop - 2) + 'px')
+            .style('width', (cellRect.width + 4) + 'px')
+            .style('height', (cellRect.height + 4) + 'px')
+            .style('background-color', wrapperBgColor)
+            .style('border', '2px solid #333');
+
+        // Show row header overlay
+        const rowPlayer = sortedPlayers[rowIndex];
+        const tableLeftInContainer = tableRect.left - containerRect.left + scrollLeft;
+        const rowCenterY = cellRect.top - containerRect.top + scrollTop + cellRect.height / 2;
+        rowHeaderOverlay
+            .style('display', 'block')
+            .style('left', null)
+            .style('right', `calc(100% - ${tableLeftInContainer}px)`)
+            .style('top', rowCenterY + 'px')
+            .style('color', playerColors[rowPlayer] || '#333')
+            .style('font-weight', rowPlayer === focusedPlayer ? 'bold' : 'normal')
+            .text(rowPlayer);
+
+        // Show column header overlay
+        const colPlayer = sortedPlayers[colIndex];
+        const tableTopInContainer = tableRect.top - containerRect.top + scrollTop;
+        const colCenterX = cellRect.left - containerRect.left + scrollLeft + cellRect.width / 2;
+
+        colHeaderOverlay
+            .style('display', 'block')
+            .style('color', playerColors[colPlayer] || '#333')
+            .style('font-weight', colPlayer === focusedPlayer ? 'bold' : 'normal')
+            .text(colPlayer);
+
+        const overlayRect = colHeaderOverlay.node().getBoundingClientRect();
+        const rotatedWidth = overlayRect.width;
+        const rotatedHeight = overlayRect.height;
+
+        colHeaderOverlay
+            .style('left', (colCenterX - rotatedHeight / 2) + 'px')
+            .style('top', (tableTopInContainer - rotatedWidth / 2 - rotatedHeight / 2) + 'px');
+    }
 
     // Add legend
     addLegend(container, colorScale);
