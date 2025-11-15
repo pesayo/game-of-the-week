@@ -619,10 +619,10 @@ function renderFullMatrixView(container, data) {
         .attr('class', 'similarity-matrix-grid')
         .style('grid-template-columns', `repeat(${sortedPlayers.length}, 1fr)`);
 
-    // Color scale - white (low similarity) to dark blue (high similarity)
+    // Color scale - light blue to dark blue to dark gold to gold
     const colorScale = d3.scaleLinear()
-        .domain([0, 50, 100])
-        .range(['#f0f0f0', '#6baed6', '#08519c']);
+        .domain([0, 33, 67, 100])
+        .range(['#87CEEB', '#08519c', '#B8860B', '#FFD700']);
 
     // Track initial highlight state
     let initialHighlightActive = true;
