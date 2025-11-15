@@ -167,6 +167,9 @@
     border: none;
     box-sizing: border-box;
     position: relative;
+    vertical-align: top;
+    line-height: 0;
+    font-size: 0;
 }
 
 /* Square wrapper using padding-bottom technique */
@@ -175,6 +178,7 @@
     padding-bottom: 100%; /* Creates square: height = width */
     position: relative;
     overflow: hidden;
+    display: block;
 }
 
 /* Hover overlays - positioned absolutely */
