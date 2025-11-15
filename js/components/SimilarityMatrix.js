@@ -308,134 +308,60 @@ function renderPlayerFocusView(container, data) {
 
     // Wrap visualization in scrollable container
     const vizContainer = container.append('div')
-        .attr('class', 'similarity-viz-container')
-        .style('position', 'relative');
+        .attr('class', 'similarity-player-focus-container');
 
-    // Set up dimensions
-    const rowHeight = 35;
-    const cellWidth = 200;
-    const labelWidth = 150;
-    const headerHeight = 50;
-    const margin = { top: headerHeight, right: 20, bottom: 20, left: labelWidth };
-    const width = cellWidth;
-    const height = rowHeight * similarities.length;
-
-    // Color scale - same as full matrix
+    // Color scale - same as grid matrix
     const colorScale = d3.scaleLinear()
-        .domain([0, 50, 100])
-        .range(['#f0f0f0', '#6baed6', '#08519c']);
+        .domain([0, 25, 50, 75, 100])
+        .range(['#f7fbff', '#c6dbef', '#6baed6', '#2171b5', '#08306b']);
 
-    // Add sticky header using HTML (positioned with CSS)
-    const stickyHeader = vizContainer.append('div')
-        .attr('class', 'similarity-sticky-header')
-        .style('position', 'sticky')
-        .style('top', '0')
-        .style('left', `${labelWidth}px`)
-        .style('width', `${cellWidth}px`)
-        .style('height', `${headerHeight}px`)
-        .style('background', 'white')
-        .style('z-index', '10')
-        .style('display', 'flex')
-        .style('align-items', 'center')
-        .style('justify-content', 'center')
-        .style('font-size', '16px')
-        .style('font-weight', 'bold')
+    // Add sticky header
+    vizContainer.append('div')
+        .attr('class', 'player-focus-header')
         .style('color', playerColors[selectedPlayer] || '#333')
         .text(selectedPlayer);
 
-    // Create SVG
-    const svg = vizContainer.append('svg')
-        .attr('class', 'similarity-matrix-svg')
-        .attr('width', width + margin.left + margin.right)
-        .attr('height', height + margin.top + margin.bottom)
-        .style('display', 'block');
+    // Create rows container
+    const rowsContainer = vizContainer.append('div')
+        .attr('class', 'player-focus-rows');
 
-    const g = svg.append('g')
-        .attr('transform', `translate(${margin.left},${margin.top})`);
+    // Create each row
+    similarities.forEach(d => {
+        const row = rowsContainer.append('div')
+            .attr('class', 'player-focus-row')
+            .on('click', () => showSimilarityModal(d))
+            .on('mouseenter', function(event) {
+                d3.select(this).classed('hover', true);
+                showTooltip(event, d);
+            })
+            .on('mouseleave', function(event) {
+                d3.select(this).classed('hover', false);
+                hideTooltip();
+            });
 
-    // Create rows
-    const rows = g.selectAll('.similarity-row')
-        .data(similarities)
-        .enter()
-        .append('g')
-        .attr('class', 'similarity-row')
-        .attr('transform', (d, i) => `translate(0,${i * rowHeight})`);
+        // Player name label
+        row.append('div')
+            .attr('class', 'player-focus-label')
+            .style('color', playerColors[d.player2] || '#333')
+            .text(d.player2);
 
-    // Add player labels (store references for hover highlighting)
-    const rowLabels = rows.append('text')
-        .attr('class', 'player-focus-label')
-        .attr('data-player', d => d.player2)
-        .attr('x', -10)
-        .attr('y', rowHeight / 2)
-        .attr('text-anchor', 'end')
-        .attr('dominant-baseline', 'middle')
-        .style('font-size', '13px')
-        .style('font-weight', '500')
-        .style('fill', d => playerColors[d.player2] || '#333')
-        .text(d => d.player2);
+        // Colored bar container
+        const barContainer = row.append('div')
+            .attr('class', 'player-focus-bar-container');
 
-    // Add colored cells
-    rows.append('rect')
-        .attr('class', 'similarity-cell')
-        .attr('x', 0)
-        .attr('y', 0)
-        .attr('width', cellWidth)
-        .attr('height', rowHeight - 2)
-        .attr('fill', d => colorScale(d.similarity))
-        .attr('stroke', '#fff')
-        .attr('stroke-width', 2)
-        .style('cursor', 'pointer')
-        .on('click', function(event, d) {
-            showSimilarityModal(d);
-        });
+        barContainer.append('div')
+            .attr('class', 'player-focus-bar')
+            .style('background-color', colorScale(d.similarity))
+            .append('span')
+            .attr('class', 'player-focus-percentage')
+            .style('color', d.similarity > 60 ? '#fff' : '#333')
+            .text(`${d.similarity}%`);
 
-    // Add percentage text
-    rows.append('text')
-        .attr('class', 'similarity-percentage-label')
-        .attr('x', cellWidth / 2)
-        .attr('y', rowHeight / 2)
-        .attr('text-anchor', 'middle')
-        .attr('dominant-baseline', 'middle')
-        .style('font-size', '14px')
-        .style('font-weight', 'bold')
-        .style('fill', d => d.similarity > 60 ? '#fff' : '#333')
-        .style('pointer-events', 'none')
-        .text(d => `${d.similarity}%`);
-
-    // Add games count on the right
-    rows.append('text')
-        .attr('class', 'similarity-games-label')
-        .attr('x', cellWidth + 10)
-        .attr('y', rowHeight / 2)
-        .attr('text-anchor', 'start')
-        .attr('dominant-baseline', 'middle')
-        .style('font-size', '12px')
-        .style('fill', '#666')
-        .text(d => `${d.matchingGames}/${d.totalGames}`);
-
-    // Add hover highlighting for the sticky header
-    const stickyHeaderNode = stickyHeader.node();
-    rows.selectAll('.similarity-cell')
-        .on('mouseover', function(event, d) {
-            d3.select(this).attr('stroke', '#333').attr('stroke-width', 2);
-            // Highlight the sticky header
-            stickyHeaderNode.style.textDecoration = 'underline';
-            // Highlight the row label
-            svg.select(`.player-focus-label[data-player="${d.player2}"]`)
-                .style('font-weight', 'bold')
-                .style('text-decoration', 'underline');
-            showTooltip(event, d);
-        })
-        .on('mouseout', function(event, d) {
-            d3.select(this).attr('stroke', '#fff').attr('stroke-width', 2);
-            // Remove highlight from sticky header
-            stickyHeaderNode.style.textDecoration = 'none';
-            // Remove highlight from row label
-            svg.select(`.player-focus-label[data-player="${d.player2}"]`)
-                .style('font-weight', '500')
-                .style('text-decoration', 'none');
-            hideTooltip();
-        });
+        // Games count
+        row.append('div')
+            .attr('class', 'player-focus-games')
+            .text(`${d.matchingGames}/${d.totalGames}`);
+    });
 }
 
 /**

@@ -289,9 +289,82 @@
     cursor: default;
 }
 
-.focused-player-cell {
-    stroke: var(--primary-color) !important;
-    stroke-width: 2px !important;
+/* Player Focus View - HTML/CSS based */
+.similarity-player-focus-container {
+    max-height: 550px;
+    overflow-y: auto;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.player-focus-header {
+    position: sticky;
+    top: 0;
+    background: white;
+    padding: 15px;
+    text-align: center;
+    font-size: 18px;
+    font-weight: bold;
+    border-bottom: 2px solid var(--border-color);
+    z-index: 10;
+}
+
+.player-focus-rows {
+    padding: 10px;
+}
+
+.player-focus-row {
+    display: grid;
+    grid-template-columns: 150px 1fr 80px;
+    gap: 15px;
+    align-items: center;
+    padding: 8px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.player-focus-row:hover,
+.player-focus-row.hover {
+    background-color: var(--gray-50);
+}
+
+.player-focus-label {
+    font-size: 14px;
+    font-weight: 500;
+    text-align: right;
+    padding-right: 10px;
+}
+
+.player-focus-bar-container {
+    position: relative;
+}
+
+.player-focus-bar {
+    height: 30px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid white;
+    transition: border-color 0.2s;
+}
+
+.player-focus-row:hover .player-focus-bar,
+.player-focus-row.hover .player-focus-bar {
+    border-color: #333;
+}
+
+.player-focus-percentage {
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.player-focus-games {
+    font-size: 12px;
+    color: #666;
+    text-align: left;
 }
 
 .col-label,
