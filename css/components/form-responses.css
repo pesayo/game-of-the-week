@@ -1,5 +1,11 @@
 /* Form Responses Page Styles */
 
+/* Header Goblet Sizing */
+.dashboard-header .header-goblet {
+    width: 160px;
+    height: 160px;
+}
+
 /* Back to Dashboard Link */
 .back-to-dashboard {
     position: absolute;
@@ -144,7 +150,7 @@
 .no-responses {
     text-align: center;
     padding: 4rem 2rem;
-    background: var(--surface);
+    background: #ffffff;
     border-radius: 12px;
     color: var(--text-secondary);
 }
@@ -169,7 +175,7 @@
 
 /* Response Card */
 .response-card {
-    background: var(--surface);
+    background: #ffffff;
     border-radius: 12px;
     padding: 1.5rem;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
