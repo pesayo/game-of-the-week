@@ -1,119 +1,9 @@
 /* Similarity Matrix Component Styles */
 
 .similarity-matrix-section {
-    background: var(--card-bg);
-    border-radius: var(--border-radius);
-    padding: 0;
-    box-shadow: var(--shadow-card);
-}
-
-/* Header with controls */
-.similarity-header {
-    padding: var(--spacing-lg);
-    padding-bottom: var(--spacing-md);
-    background: linear-gradient(135deg, rgba(33, 150, 243, 0.05) 0%, rgba(33, 150, 243, 0.02) 100%);
-    border-bottom: 2px solid var(--border-color);
-    border-radius: var(--border-radius) var(--border-radius) 0 0;
-}
-
-.similarity-header .section-title {
-    margin-bottom: 15px;
-}
-
-.similarity-controls-row {
-    display: flex;
-    gap: 15px;
-    flex-wrap: wrap;
-    align-items: center;
-}
-
-/* View Toggle */
-.similarity-view-toggle {
-    display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
-}
-
-.similarity-toggle-btn {
-    padding: 8px 16px;
-    background: white;
-    border: 2px solid var(--border-color);
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 13px;
-    font-weight: 500;
-    color: var(--text-secondary);
-    transition: all 0.2s ease;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-}
-
-.similarity-toggle-btn i {
-    font-size: 14px;
-}
-
-.similarity-toggle-btn:hover {
-    border-color: var(--primary-color);
-    color: var(--primary-color);
-    background: rgba(33, 150, 243, 0.05);
-}
-
-.similarity-toggle-btn.active {
-    background: var(--primary-color);
-    border-color: var(--primary-color);
-    color: white;
-}
-
-/* Game Status Filter */
-.similarity-game-filter {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    flex-wrap: wrap;
-}
-
-.similarity-game-filter .filter-label {
-    font-weight: 600;
-    font-size: 13px;
-    color: var(--text-primary);
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    white-space: nowrap;
-}
-
-.similarity-game-filter .filter-label i {
-    color: var(--primary-color);
-}
-
-.game-status-btn {
-    padding: 7px 14px;
-    background: white;
-    border: 2px solid var(--border-color);
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 13px;
-    font-weight: 500;
-    color: var(--text-secondary);
-    transition: all 0.2s ease;
-}
-
-.game-status-btn:hover {
-    border-color: var(--primary-color);
-    color: var(--primary-color);
-    background: rgba(33, 150, 243, 0.05);
-}
-
-.game-status-btn.active {
-    background: var(--primary-color);
-    border-color: var(--primary-color);
-    color: white;
-}
-
-/* Content area */
-#similarityMatrixContent {
-    padding: var(--spacing-lg);
+    margin-top: 20px;
+    min-width: 0;
+    overflow: hidden;
 }
 
 /* Description */
@@ -132,43 +22,7 @@
     line-height: 1.5;
 }
 
-/* Player Selector (Player Focus View) */
-.player-selector {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    padding: 20px;
-    background: white;
-    border-radius: var(--border-radius);
-    border: 2px solid var(--border-color);
-    margin-bottom: 25px;
-}
-
-.player-selector label {
-    font-weight: 600;
-    color: var(--text-primary);
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    white-space: nowrap;
-}
-
-.player-select-dropdown {
-    flex: 1;
-    max-width: 300px;
-    padding: 10px 15px;
-    font-size: 14px;
-    border: 2px solid var(--border-color);
-    border-radius: 6px;
-    background: white;
-    cursor: pointer;
-    transition: border-color 0.2s ease;
-}
-
-.player-select-dropdown:focus {
-    outline: none;
-    border-color: var(--primary-color);
-}
+/* Player Selector uses matrix-filter-group from picks-matrix.css */
 
 /* Similarity Cards Container (Player Focus View) */
 .similarity-cards-container {
@@ -573,55 +427,6 @@
 
 /* Responsive adjustments */
 @media (max-width: 768px) {
-    .similarity-header {
-        padding: var(--spacing-md);
-    }
-
-    #similarityMatrixContent {
-        padding: var(--spacing-md);
-        overflow-x: scroll;
-    }
-
-    .similarity-controls-row {
-        flex-direction: column;
-        align-items: stretch;
-        gap: 10px;
-    }
-
-    .similarity-view-toggle {
-        flex-direction: column;
-        width: 100%;
-    }
-
-    .similarity-toggle-btn {
-        width: 100%;
-        justify-content: center;
-    }
-
-    .similarity-game-filter {
-        flex-direction: column;
-        align-items: stretch;
-        width: 100%;
-    }
-
-    .similarity-game-filter .filter-label {
-        justify-content: center;
-    }
-
-    .game-status-btn {
-        width: 100%;
-        text-align: center;
-    }
-
-    .player-selector {
-        flex-direction: column;
-        align-items: stretch;
-    }
-
-    .player-select-dropdown {
-        max-width: none;
-    }
-
     .similarity-cards-container {
         grid-template-columns: 1fr;
     }

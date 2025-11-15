@@ -178,7 +178,6 @@ export function renderSimilarityMatrix() {
  */
 export function renderSimilarityControls() {
     renderViewToggleInHeader();
-    renderGameStatusFilterInHeader();
 }
 
 /**
@@ -195,56 +194,80 @@ function renderViewToggleInHeader() {
     ];
 
     toggleContainer.innerHTML = buttons.map(btn => `
-        <button class="similarity-toggle-btn ${currentView === btn.view ? 'active' : ''}"
+        <button class="picks-toggle-btn ${currentView === btn.view ? 'active' : ''}"
                 data-view="${btn.view}">
             <i class="fas ${btn.icon}"></i> ${btn.label}
         </button>
     `).join('');
 
     // Add click handlers
-    toggleContainer.querySelectorAll('.similarity-toggle-btn').forEach(btn => {
+    toggleContainer.querySelectorAll('.picks-toggle-btn').forEach(btn => {
         btn.addEventListener('click', function() {
             currentView = this.getAttribute('data-view');
             renderViewToggleInHeader(); // Update button states
-            renderGameStatusFilterInHeader(); // Update filter states
             renderSimilarityMatrix();
         });
     });
 }
 
 /**
- * Render game status filter buttons in header
+ * Render filters for a specific view
  */
-function renderGameStatusFilterInHeader() {
-    const filterContainer = document.getElementById('similarityGameFilter');
-    if (!filterContainer) return;
+function renderFilters(container, viewType, data) {
+    const filtersDiv = container.append('div')
+        .attr('class', 'matrix-filters');
 
-    const buttons = [
-        { filter: 'all', label: 'All' },
-        { filter: 'played', label: 'Played' },
-        { filter: 'upcoming', label: 'Upcoming' }
-    ];
+    // Player selector for Player Focus view
+    if (viewType === 'player') {
+        const playerGroup = filtersDiv.append('div')
+            .attr('class', 'matrix-filter-group');
 
-    filterContainer.innerHTML = `
-        <span class="filter-label">
-            <i class="fas fa-filter"></i> Games:
-        </span>
-        ${buttons.map(btn => `
-            <button class="game-status-btn ${gameStatusFilter === btn.filter ? 'active' : ''}"
-                    data-filter="${btn.filter}">
-                ${btn.label}
-            </button>
-        `).join('')}
-    `;
+        playerGroup.append('label')
+            .attr('for', 'similarityPlayerSelect')
+            .text('Compare:');
 
-    // Add click handlers
-    filterContainer.querySelectorAll('.game-status-btn').forEach(btn => {
-        btn.addEventListener('click', function() {
-            gameStatusFilter = this.getAttribute('data-filter');
-            renderViewToggleInHeader(); // Update button states
-            renderGameStatusFilterInHeader(); // Update filter states
+        const select = playerGroup.append('select')
+            .attr('id', 'similarityPlayerSelect')
+            .on('change', function() {
+                selectedPlayer = this.value;
+                renderSimilarityMatrix();
+            });
+
+        // Add player options
+        data.players.forEach(player => {
+            select.append('option')
+                .attr('value', player)
+                .property('selected', player === selectedPlayer)
+                .text(player);
+        });
+    }
+
+    // Game status filter for all views
+    const gameGroup = filtersDiv.append('div')
+        .attr('class', 'matrix-filter-group');
+
+    gameGroup.append('label')
+        .attr('for', 'similarityGameFilter')
+        .text('Games:');
+
+    const gameSelect = gameGroup.append('select')
+        .attr('id', 'similarityGameFilter')
+        .on('change', function() {
+            gameStatusFilter = this.value;
             renderSimilarityMatrix();
         });
+
+    const gameOptions = [
+        { value: 'all', label: 'All Games' },
+        { value: 'played', label: 'Played Only' },
+        { value: 'upcoming', label: 'Upcoming Only' }
+    ];
+
+    gameOptions.forEach(opt => {
+        gameSelect.append('option')
+            .attr('value', opt.value)
+            .property('selected', opt.value === gameStatusFilter)
+            .text(opt.label);
     });
 }
 
@@ -254,34 +277,13 @@ function renderGameStatusFilterInHeader() {
 function renderPlayerFocusView(container, data) {
     const playerColors = getPlayerColors();
 
+    // Render filters
+    renderFilters(container, 'player', data);
+
     // Add description
     container.append('div')
         .attr('class', 'similarity-description')
         .html('<p>Select a player to see how their picks compare to everyone else, sorted from most to least similar.</p>');
-
-    // Player selector
-    const selectorDiv = container.append('div')
-        .attr('class', 'player-selector');
-
-    selectorDiv.append('label')
-        .attr('for', 'similarityPlayerSelect')
-        .html('<i class="fas fa-user"></i> Compare:');
-
-    const select = selectorDiv.append('select')
-        .attr('id', 'similarityPlayerSelect')
-        .attr('class', 'player-select-dropdown')
-        .on('change', function() {
-            selectedPlayer = this.value;
-            renderSimilarityMatrix();
-        });
-
-    // Add player options
-    data.players.forEach(player => {
-        select.append('option')
-            .attr('value', player)
-            .property('selected', player === selectedPlayer)
-            .text(player);
-    });
 
     // Get similarities for selected player
     const playerIndex = data.players.indexOf(selectedPlayer);
@@ -340,6 +342,9 @@ function renderPlayerFocusView(container, data) {
  */
 function renderHighlightsView(container, data) {
     const playerColors = getPlayerColors();
+
+    // Render filters
+    renderFilters(container, 'highlights', data);
 
     // Add description
     container.append('div')
@@ -433,6 +438,9 @@ function renderHighlightSection(container, pairs, title, icon, playerColors) {
 function renderFullMatrixView(container, data) {
     const playerColors = getPlayerColors();
     const focusedPlayer = getFocusedPlayer();
+
+    // Render filters
+    renderFilters(container, 'matrix', data);
 
     // Sort players alphabetically for the full matrix view
     const sortedPlayers = [...data.players].sort((a, b) => a.localeCompare(b));
