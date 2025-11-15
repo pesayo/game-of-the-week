@@ -180,25 +180,30 @@
 
 /* Rotated column headers */
 .similarity-matrix-table th.rotated-header {
-    height: 120px;
+    height: 150px;
     width: 40px;
     min-width: 40px;
     max-width: 40px;
     white-space: nowrap;
     vertical-align: bottom;
     padding: 0;
+    position: relative;
+    background-color: var(--gray-50);
 }
 
 .similarity-matrix-table th.rotated-header > div {
-    transform: rotate(-45deg);
-    transform-origin: left bottom;
-    width: 40px;
-    height: 100%;
+    transform: rotate(-90deg);
+    transform-origin: left top;
+    position: absolute;
+    left: 50%;
+    bottom: 0;
+    width: 150px;
+    height: 40px;
     display: flex;
-    align-items: flex-end;
+    align-items: center;
     justify-content: flex-start;
     padding-left: 8px;
-    padding-bottom: 8px;
+    margin-left: -20px;
 }
 
 .similarity-matrix-table th.player-col {
@@ -209,6 +214,10 @@
     min-width: 120px;
     text-align: left;
     padding: 8px 10px;
+}
+
+.similarity-matrix-table th.player-col.corner-cell {
+    z-index: 12;
 }
 
 .similarity-matrix-table th.player-col::after {
