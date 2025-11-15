@@ -257,11 +257,15 @@
 .cell-row-highlight {
     border-top: 2px solid #333 !important;
     border-bottom: 2px solid #333 !important;
+    border-left: none !important;
+    border-right: none !important;
 }
 
 .cell-col-highlight {
     border-left: 2px solid #333 !important;
     border-right: 2px solid #333 !important;
+    border-top: none !important;
+    border-bottom: none !important;
 }
 
 .cell-row-highlight.cell-col-highlight {
