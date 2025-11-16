@@ -225,6 +225,13 @@ function renderViewToggleInHeader() {
         ? buttons.filter(btn => !btn.hideOnMobile)
         : buttons;
 
+    // Hide toggle entirely on mobile when only one view available
+    if (visibleButtons.length <= 1) {
+        toggleContainer.style.display = 'none';
+        return;
+    }
+
+    toggleContainer.style.display = '';
     toggleContainer.innerHTML = visibleButtons.map(btn => `
         <button class="picks-toggle-btn ${currentView === btn.view ? 'active' : ''}"
                 data-view="${btn.view}">
