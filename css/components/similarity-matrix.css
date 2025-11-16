@@ -535,7 +535,6 @@
     position: sticky;
     top: 0;
     z-index: 10;
-    background: var(--bg-light);
 }
 
 .comparison-table th {
@@ -543,7 +542,10 @@
     text-align: left;
     font-weight: 600;
     border-bottom: 2px solid var(--border-color);
-    background: var(--bg-light);
+    background: #f8f9fa;
+    position: sticky;
+    top: 0;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
 .comparison-table th.week-header {
