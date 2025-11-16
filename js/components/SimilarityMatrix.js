@@ -831,34 +831,43 @@ function showSimilarityModal(data) {
     if (data.differences.length === 0) {
         diffList.innerHTML = '<p class="no-differences">These players picked identically on all games!</p>';
     } else {
-        const diffRows = data.differences
+        const tableRows = data.differences
             .sort((a, b) => a.gameNumber - b.gameNumber)
             .map(diff => {
                 const player1Correct = diff.winner && diff.pick1 === diff.winner;
                 const player2Correct = diff.winner && diff.pick2 === diff.winner;
 
                 return `
-                    <div class="difference-row">
-                        <div class="diff-game-info">
-                            <strong>Game ${diff.gameNumber}</strong> (Week ${diff.week}, ${diff.date})
-                        </div>
-                        <div class="diff-picks">
-                            <div class="diff-pick ${player1Correct ? 'correct-pick' : (diff.winner ? 'incorrect-pick' : '')}">
-                                <span class="player-name" style="color: ${playerColors[data.player1] || '#333'}">${data.player1}:</span>
-                                <span class="pick-value">${diff.pick1}</span>
-                                ${diff.winner ? (player1Correct ? '<i class="fas fa-check"></i>' : '<i class="fas fa-times"></i>') : ''}
-                            </div>
-                            <div class="diff-pick ${player2Correct ? 'correct-pick' : (diff.winner ? 'incorrect-pick' : '')}">
-                                <span class="player-name" style="color: ${playerColors[data.player2] || '#333'}">${data.player2}:</span>
-                                <span class="pick-value">${diff.pick2}</span>
-                                ${diff.winner ? (player2Correct ? '<i class="fas fa-check"></i>' : '<i class="fas fa-times"></i>') : ''}
-                            </div>
-                        </div>
-                    </div>
+                    <tr>
+                        <td class="week-cell">${diff.week}</td>
+                        <td class="date-cell">${diff.date}</td>
+                        <td class="pick-cell ${player1Correct ? 'correct-pick' : (diff.winner ? 'incorrect-pick' : '')}">
+                            <span class="pick-value">${diff.pick1}</span>
+                            ${diff.winner ? (player1Correct ? '<i class="fas fa-check"></i>' : '<i class="fas fa-times"></i>') : ''}
+                        </td>
+                        <td class="pick-cell ${player2Correct ? 'correct-pick' : (diff.winner ? 'incorrect-pick' : '')}">
+                            <span class="pick-value">${diff.pick2}</span>
+                            ${diff.winner ? (player2Correct ? '<i class="fas fa-check"></i>' : '<i class="fas fa-times"></i>') : ''}
+                        </td>
+                    </tr>
                 `;
             }).join('');
 
-        diffList.innerHTML = diffRows;
+        diffList.innerHTML = `
+            <table class="comparison-table">
+                <thead>
+                    <tr>
+                        <th class="week-header">Week</th>
+                        <th class="date-header">Date</th>
+                        <th class="player-header" style="color: ${playerColors[data.player1] || '#333'}">${data.player1}</th>
+                        <th class="player-header" style="color: ${playerColors[data.player2] || '#333'}">${data.player2}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${tableRows}
+                </tbody>
+            </table>
+        `;
     }
 
     // Show modal
