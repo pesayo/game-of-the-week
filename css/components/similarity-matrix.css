@@ -449,17 +449,21 @@
 }
 
 .similarity-modal-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    padding: 15px 20px;
-    background: var(--bg-light);
-    border-bottom: 1px solid var(--border-color);
-    border-radius: var(--border-radius) var(--border-radius) 0 0;
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: flex-start !important;
+    padding: 15px 20px !important;
+    border-bottom: 1px solid var(--border-color) !important;
+    border-radius: var(--border-radius) var(--border-radius) 0 0 !important;
+    background: var(--gray-100) !important;
 }
 
 .similarity-modal-title {
     flex: 1;
+}
+
+.similarity-modal-title .modal-subtitle{
+    color: var(--text-secondary);
 }
 
 .similarity-comparison-title {
