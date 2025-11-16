@@ -380,7 +380,7 @@ function renderSimilarityView(container, data) {
     // Create each row
     similarities.forEach(d => {
         const row = rowsContainer.append('div')
-            .attr('class', 'player-focus-row')
+            .attr('class', selectedPlayer ? 'player-focus-row' : 'player-focus-row all-players')
             .on('click', () => showSimilarityModal(d))
             .on('mouseenter', function(event) {
                 d3.select(this).classed('hover', true);

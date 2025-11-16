@@ -330,6 +330,11 @@
     transition: background-color 0.2s;
 }
 
+/* All Players view - wider label column for "Player A vs Player B" */
+.player-focus-row.all-players {
+    grid-template-columns: minmax(200px, auto) 1fr 80px;
+}
+
 .player-focus-row:hover,
 .player-focus-row.hover {
     background-color: var(--gray-50);
@@ -340,6 +345,14 @@
     font-weight: 500;
     text-align: right;
     padding-right: 10px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* All Players view - allow label to expand without truncation */
+.player-focus-row.all-players .player-focus-label {
+    overflow: visible;
 }
 
 .player-focus-bar-container {
