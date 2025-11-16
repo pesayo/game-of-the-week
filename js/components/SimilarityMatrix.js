@@ -373,14 +373,16 @@ function renderSimilarityView(container, data) {
             .text(selectedPlayer);
     }
 
-    // Create rows container
-    const rowsContainer = vizContainer.append('div')
-        .attr('class', 'player-focus-rows');
+    // Create table
+    const table = vizContainer.append('table')
+        .attr('class', 'player-focus-table');
+
+    const tbody = table.append('tbody');
 
     // Create each row
     similarities.forEach(d => {
-        const row = rowsContainer.append('div')
-            .attr('class', selectedPlayer ? 'player-focus-row' : 'player-focus-row all-players')
+        const row = tbody.append('tr')
+            .attr('class', 'player-focus-row')
             .on('click', () => showSimilarityModal(d))
             .on('mouseenter', function(event) {
                 d3.select(this).classed('hover', true);
@@ -391,32 +393,32 @@ function renderSimilarityView(container, data) {
                 hideTooltip();
             });
 
-        // Player name label - show both players if no player selected
-        const label = row.append('div')
+        // Player name label cell - show both players if no player selected
+        const labelCell = row.append('td')
             .attr('class', 'player-focus-label');
 
         if (selectedPlayer) {
             // Just show the opponent name
-            label.style('color', playerColors[d.player2] || '#333')
+            labelCell.style('color', playerColors[d.player2] || '#333')
                 .text(d.player2);
         } else {
             // Show both players
-            label.append('span')
+            labelCell.append('span')
                 .style('color', playerColors[d.player1] || '#333')
                 .text(d.player1);
-            label.append('span')
+            labelCell.append('span')
                 .style('color', '#666')
                 .text(' vs ');
-            label.append('span')
+            labelCell.append('span')
                 .style('color', playerColors[d.player2] || '#333')
                 .text(d.player2);
         }
 
-        // Colored bar container
-        const barContainer = row.append('div')
+        // Colored bar cell
+        const barCell = row.append('td')
             .attr('class', 'player-focus-bar-container');
 
-        barContainer.append('div')
+        barCell.append('div')
             .attr('class', 'player-focus-bar')
             .style('background-color', colorScale(d.similarity))
             .append('span')
@@ -424,8 +426,8 @@ function renderSimilarityView(container, data) {
             .style('color', d.similarity > 60 ? '#fff' : '#333')
             .text(`${d.similarity}%`);
 
-        // Games count
-        row.append('div')
+        // Games count cell
+        row.append('td')
             .attr('class', 'player-focus-games')
             .text(`${d.matchingGames}/${d.totalGames}`);
     });
