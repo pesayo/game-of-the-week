@@ -348,27 +348,35 @@
 .player-focus-bar-container {
     position: relative;
     width: 100%; /* Take up remaining space in table */
-    padding-right: 15px;
+    padding-right: 60px; /* Space for percentage text */
+    background-color: #f0f0f0; /* Light background track */
+    border-radius: 4px;
 }
 
 .player-focus-bar {
     height: 30px;
     border-radius: 4px;
+    min-width: 30px; /* Ensure bar is visible even at low percentages */
     display: flex;
     align-items: center;
-    justify-content: center;
-    border: 2px solid white;
-    transition: border-color 0.2s;
+    justify-content: flex-start;
+    padding-left: 8px;
+    transition: all 0.3s ease;
 }
 
 .player-focus-row:hover .player-focus-bar,
 .player-focus-row.hover .player-focus-bar {
-    border-color: #333;
+    filter: brightness(0.95);
 }
 
 .player-focus-percentage {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
     font-size: 14px;
     font-weight: bold;
+    color: #333;
 }
 
 .player-focus-games {

@@ -420,10 +420,11 @@ function renderSimilarityView(container, data) {
 
         barCell.append('div')
             .attr('class', 'player-focus-bar')
-            .style('background-color', colorScale(d.similarity))
-            .append('span')
+            .style('width', `${d.similarity}%`)
+            .style('background-color', colorScale(d.similarity));
+
+        barCell.append('span')
             .attr('class', 'player-focus-percentage')
-            .style('color', d.similarity > 60 ? '#fff' : '#333')
             .text(`${d.similarity}%`);
 
         // Games count cell
