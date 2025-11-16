@@ -81,6 +81,12 @@ import {
     scrollToHighlightedPlayer
 } from './components/PlayerFocus.js';
 
+import {
+    renderSimilarityMatrix,
+    renderSimilarityControls,
+    setupSimilarityModal
+} from './components/SimilarityMatrix.js';
+
 /**
  * Initialize the application
  */
@@ -167,6 +173,11 @@ async function init() {
         // Render current holders and setup pantheon modal
         renderCurrentHolders();
         setupPantheonModal();
+
+        // Render similarity matrix controls and setup modal
+        renderSimilarityControls();
+        renderSimilarityMatrix();
+        setupSimilarityModal();
 
         // Render player focus dropdown
         renderPlayerFocusDropdown();

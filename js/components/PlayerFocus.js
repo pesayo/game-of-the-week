@@ -8,6 +8,7 @@ import { renderLeaderboard, getDataForView, applyFilters, sortData } from './Lea
 import { renderHorseRace } from './HorseRace.js';
 import { setupCombinedPicksView } from './PicksMatrix.js';
 import { updateProjectedStandings } from './WhatIf.js';
+import { renderSimilarityMatrix, renderSimilarityControls } from './SimilarityMatrix.js';
 
 /**
  * Initialize focused player from localStorage
@@ -158,6 +159,10 @@ export function refreshFocusedViews() {
 
     // Re-render picks view
     setupCombinedPicksView();
+
+    // Re-render similarity matrix to highlight focused player
+    renderSimilarityControls();
+    renderSimilarityMatrix();
 
     // Re-render what-if projected standings
     updateProjectedStandings();
