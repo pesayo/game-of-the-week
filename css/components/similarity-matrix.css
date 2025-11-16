@@ -458,6 +458,15 @@
     background: var(--gray-100) !important;
 }
 
+.similarity-modal-header .modal-close {
+    background: rgba(0, 0, 0, 0.1);
+    color: var(--text-primary);
+}
+
+.similarity-modal-header .modal-close:hover {
+    background: rgba(0, 0, 0, 0.15);
+}
+
 .similarity-modal-title {
     flex: 1;
 }
