@@ -603,11 +603,7 @@ function renderFullMatrixView(container, data) {
             // Inner wrapper for square sizing with colored background
             const wrapper = cell.append('div')
                 .attr('class', 'cell-square-wrapper')
-                .style('background-color', cellData.isSelf ? '#e0e0e0' : colorScale(cellData.similarity));
-
-            if (cellData.isSelf) {
-                wrapper.style('opacity', '0.5');
-            }
+                .style('background-color', cellData.isSelf ? '#9e9e9e' : colorScale(cellData.similarity));
 
             if (!cellData.isSelf) {
                 cell.style('cursor', 'pointer');
