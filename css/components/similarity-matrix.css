@@ -377,6 +377,12 @@
     font-size: 14px;
     font-weight: bold;
     color: #333;
+    text-shadow:
+        -1px -1px 0 #f0f0f0,
+         1px -1px 0 #f0f0f0,
+        -1px  1px 0 #f0f0f0,
+         1px  1px 0 #f0f0f0,
+         0    2px 2px #f0f0f0;
 }
 
 .player-focus-games {
