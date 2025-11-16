@@ -170,11 +170,12 @@ export function renderSimilarityMatrix() {
         return;
     }
 
-    // Set default selected player to focused player if not already set
-    if (!selectedPlayer && focusedPlayer) {
+    // Set default selected player to focused player on initial load only
+    // (null means never set, empty string means user chose "All players")
+    if (selectedPlayer === null && focusedPlayer) {
         selectedPlayer = focusedPlayer;
-    } else if (!selectedPlayer) {
-        selectedPlayer = data.players[0]; // Default to first player
+    } else if (selectedPlayer === null) {
+        selectedPlayer = ''; // Default to all players
     }
 
     const container = d3.select('#similarityMatrixContent');
