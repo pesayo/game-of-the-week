@@ -272,7 +272,7 @@ function renderGameFilter(container) {
 
     const gameOptions = [
         { value: 'all', label: 'All Games' },
-        { value: 'played', label: 'Played Only' },
+        { value: 'played', label: 'Completed Only' },
         { value: 'upcoming', label: 'Upcoming Only' }
     ];
 
