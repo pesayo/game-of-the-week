@@ -567,24 +567,27 @@
 }
 
 .comparison-table td {
-    padding: 12px 10px;
+    padding: 0;
     vertical-align: middle;
 }
 
 .week-cell {
     font-weight: 600;
     color: var(--text-primary);
+    padding: 12px 10px;
 }
 
 .date-cell {
     color: var(--text-secondary);
     font-size: 13px;
+    padding: 12px 10px;
 }
 
 .pick-cell {
     display: flex;
     align-items: center;
     gap: 8px;
+    padding: 12px 10px;
 }
 
 .pick-cell .pick-value {
@@ -645,8 +648,13 @@
         font-size: 12px;
     }
 
-    .comparison-table th,
-    .comparison-table td {
+    .comparison-table th {
+        padding: 8px 6px;
+    }
+
+    .week-cell,
+    .date-cell,
+    .pick-cell {
         padding: 8px 6px;
     }
 

@@ -841,13 +841,17 @@ function showSimilarityModal(data) {
                     <tr>
                         <td class="week-cell">${diff.week}</td>
                         <td class="date-cell">${diff.date}</td>
-                        <td class="pick-cell ${player1Correct ? 'correct-pick' : (diff.winner ? 'incorrect-pick' : '')}">
-                            <span class="pick-value">${diff.pick1}</span>
-                            ${diff.winner ? (player1Correct ? '<i class="fas fa-check"></i>' : '<i class="fas fa-times"></i>') : ''}
+                        <td class="${player1Correct ? 'correct-pick' : (diff.winner ? 'incorrect-pick' : '')}">
+                            <div class="pick-cell">
+                                <span class="pick-value">${diff.pick1}</span>
+                                ${diff.winner ? (player1Correct ? '<i class="fas fa-check"></i>' : '<i class="fas fa-times"></i>') : ''}
+                            </div>
                         </td>
-                        <td class="pick-cell ${player2Correct ? 'correct-pick' : (diff.winner ? 'incorrect-pick' : '')}">
-                            <span class="pick-value">${diff.pick2}</span>
-                            ${diff.winner ? (player2Correct ? '<i class="fas fa-check"></i>' : '<i class="fas fa-times"></i>') : ''}
+                        <td class="${player2Correct ? 'correct-pick' : (diff.winner ? 'incorrect-pick' : '')}">
+                            <div class="pick-cell">
+                                <span class="pick-value">${diff.pick2}</span>
+                                ${diff.winner ? (player2Correct ? '<i class="fas fa-check"></i>' : '<i class="fas fa-times"></i>') : ''}
+                            </div>
                         </td>
                     </tr>
                 `;
