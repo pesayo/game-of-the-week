@@ -522,7 +522,8 @@
 #similarityDifferencesList {
     max-height: 400px;
     overflow-y: auto;
-    padding: 10px 0;
+    padding-bottom: 10px;
+    position: relative;
 }
 
 .comparison-table {
