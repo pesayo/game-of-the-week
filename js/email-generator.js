@@ -810,118 +810,98 @@ function formatUpcomingMatchups() {
     `;
 }
 
-// Format the current standings as an HTML table
+// Format the current standings as a narrative summary
 function formatStandingsTable() {
     const summary = generateDataSummary();
+
+    // Helper to format movement
+    const formatMovement = (player) => {
+        if (player.rankChange > 0) return ` <span style="color: #4CAF50;">↑${player.rankChange}</span>`;
+        if (player.rankChange < 0) return ` <span style="color: #f44336;">↓${Math.abs(player.rankChange)}</span>`;
+        return '';
+    };
+
+    // Helper to detect log-jam (3+ players with same record in top 5)
+    const detectLogJam = (players) => {
+        if (players.length < 3) return null;
+
+        const top5 = players.slice(0, Math.min(5, players.length));
+        const recordCounts = {};
+
+        top5.forEach(p => {
+            const record = `${p.wins}-${p.losses}`;
+            recordCounts[record] = (recordCounts[record] || 0) + 1;
+        });
+
+        // Check if any record appears 3+ times in top 5
+        for (const [record, count] of Object.entries(recordCounts)) {
+            if (count >= 3) {
+                const playersWithRecord = top5.filter(p => `${p.wins}-${p.losses}` === record);
+                return { record, players: playersWithRecord, count };
+            }
+        }
+        return null;
+    };
+
+    // Format top 5 for Goblet
+    const gobletLogJam = detectLogJam(summary.allPlayers);
+    let gobletHTML = '';
+
+    if (gobletLogJam) {
+        gobletHTML = `<p style="margin-bottom: 1rem;"><strong>Top of the standings:</strong> ${gobletLogJam.count} players are tied at <strong>${gobletLogJam.record}</strong> (${gobletLogJam.players.map(p => p.name).join(', ')}).</p>`;
+
+        // Show remaining top 5
+        const remaining = summary.allPlayers.filter(p => `${p.wins}-${p.losses}` !== gobletLogJam.record).slice(0, 5 - gobletLogJam.count);
+        if (remaining.length > 0) {
+            gobletHTML += '<ul style="list-style: none; padding-left: 0; margin-top: 1rem;">';
+            remaining.forEach(p => {
+                gobletHTML += `<li style="margin-bottom: 0.5rem;"><strong>#${p.rank}:</strong> ${p.name} (${p.team}, ${p.position}) — ${p.wins}-${p.losses}${formatMovement(p)}</li>`;
+            });
+            gobletHTML += '</ul>';
+        }
+    } else {
+        gobletHTML = '<ul style="list-style: none; padding-left: 0;">';
+        summary.allPlayers.slice(0, 5).forEach(p => {
+            gobletHTML += `<li style="margin-bottom: 0.5rem;"><strong>#${p.rank}:</strong> ${p.name} (${p.team}, ${p.position}) — ${p.wins}-${p.losses}${formatMovement(p)}</li>`;
+        });
+        gobletHTML += '</ul>';
+    }
+
+    // Format top 5 for Funk-Eng
+    const funkEngPlayers = summary.allPlayers.filter(p => p.isFunkEngEligible);
+    const funkEngLogJam = detectLogJam(funkEngPlayers);
+    let funkEngHTML = '';
+
+    if (funkEngLogJam) {
+        funkEngHTML = `<p style="margin-bottom: 1rem;"><strong>Top of the standings:</strong> ${funkEngLogJam.count} players are tied at <strong>${funkEngLogJam.record}</strong> (${funkEngLogJam.players.map(p => p.name).join(', ')}).</p>`;
+
+        // Show remaining top 5
+        const remaining = funkEngPlayers.filter(p => `${p.wins}-${p.losses}` !== funkEngLogJam.record).slice(0, 5 - funkEngLogJam.count);
+        if (remaining.length > 0) {
+            funkEngHTML += '<ul style="list-style: none; padding-left: 0; margin-top: 1rem;">';
+            remaining.forEach(p => {
+                const funkEngRank = funkEngPlayers.indexOf(p) + 1;
+                funkEngHTML += `<li style="margin-bottom: 0.5rem;"><strong>#${funkEngRank}:</strong> ${p.name} (${p.team}, ${p.position}) — ${p.wins}-${p.losses}${formatMovement(p)}</li>`;
+            });
+            funkEngHTML += '</ul>';
+        }
+    } else {
+        funkEngHTML = '<ul style="list-style: none; padding-left: 0;">';
+        funkEngPlayers.slice(0, 5).forEach((p, index) => {
+            funkEngHTML += `<li style="margin-bottom: 0.5rem;"><strong>#${index + 1}:</strong> ${p.name} (${p.team}, ${p.position}) — ${p.wins}-${p.losses}${formatMovement(p)}</li>`;
+        });
+        funkEngHTML += '</ul>';
+    }
 
     let tableHTML = `
         <div style="margin-top: 2rem; padding-top: 2rem; border-top: 2px solid #e0e0e0;">
             <h2 style="color: #2c3e50; margin-bottom: 1rem;">Current Standings</h2>
 
-            <h3 style="color: #34495e; margin-top: 1.5rem; margin-bottom: 0.5rem;">Goblet (Overall) Standings</h3>
-            <table style="width: 100%; border-collapse: collapse; margin-bottom: 2rem; font-size: 14px;">
-                <thead>
-                    <tr style="background-color: #485962; color: white;">
-                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd; color: white;">Rank</th>
-                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd; color: white;">Player</th>
-                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd; color: white;">Team</th>
-                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd; color: white;">Position</th>
-                        <th style="padding: 10px; text-align: center; border: 1px solid #ddd; color: white;">Record</th>
-                        <th style="padding: 10px; text-align: center; border: 1px solid #ddd; color: white;">Win %</th>
-                        <th style="padding: 10px; text-align: center; border: 1px solid #ddd; color: white;">Movement</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    ${summary.allPlayers.map((player, index) => {
-                        const bgColor = index % 2 === 0 ? '#f8f9fa' : '#ffffff';
-                        let movementIcon = '−';
-                        let movementColor = '#95a5a6';
+            <h3 style="color: #34495e; margin-top: 1.5rem; margin-bottom: 0.5rem;">Goblet (Overall) — Top 5</h3>
+            ${gobletHTML}
 
-                        if (player.rankChange > 0) {
-                            movementIcon = `↑ ${player.rankChange}`;
-                            movementColor = '#4CAF50';
-                        } else if (player.rankChange < 0) {
-                            movementIcon = `↓ ${Math.abs(player.rankChange)}`;
-                            movementColor = '#f44336';
-                        }
-
-                        return `
-                            <tr style="background-color: ${bgColor};">
-                                <td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">${player.rank}</td>
-                                <td style="padding: 8px; border: 1px solid #ddd;">${player.name}</td>
-                                <td style="padding: 8px; border: 1px solid #ddd;">${player.team}</td>
-                                <td style="padding: 8px; border: 1px solid #ddd;">${player.position}</td>
-                                <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">${player.wins}-${player.losses}</td>
-                                <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">${player.winPct}%</td>
-                                <td style="padding: 8px; border: 1px solid #ddd; text-align: center; color: ${movementColor}; font-weight: bold;">${movementIcon}</td>
-                            </tr>
-                        `;
-                    }).join('')}
-                </tbody>
-            </table>
-
-            <h3 style="color: #34495e; margin-top: 1.5rem; margin-bottom: 0.5rem;">Funk-Eng Cup Standings (Leads & Seconds Only)</h3>
-            <table style="width: 100%; border-collapse: collapse; margin-bottom: 2rem; font-size: 14px;">
-                <thead>
-                    <tr style="background-color: #50536A; color: white;">
-                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd; color: white;">Rank</th>
-                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd; color: white;">Player</th>
-                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd; color: white;">Team</th>
-                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd; color: white;">Position</th>
-                        <th style="padding: 10px; text-align: center; border: 1px solid #ddd; color: white;">Record</th>
-                        <th style="padding: 10px; text-align: center; border: 1px solid #ddd; color: white;">Win %</th>
-                        <th style="padding: 10px; text-align: center; border: 1px solid #ddd; color: white;">Movement</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    ${(() => {
-                        // Filter to eligible players and sort by wins/win%
-                        const eligiblePlayers = summary.allPlayers.filter(p => p.isFunkEngEligible);
-
-                        // Assign Funk-Eng specific ranks
-                        let currentRank = 1;
-                        eligiblePlayers.forEach((player, index) => {
-                            if (index > 0) {
-                                const prevPlayer = eligiblePlayers[index - 1];
-                                if (player.wins === prevPlayer.wins && player.winPct === prevPlayer.winPct) {
-                                    player.funkEngRank = prevPlayer.funkEngRank;
-                                } else {
-                                    currentRank = index + 1;
-                                    player.funkEngRank = currentRank;
-                                }
-                            } else {
-                                player.funkEngRank = 1;
-                            }
-                        });
-
-                        return eligiblePlayers.map((player, index) => {
-                            const bgColor = index % 2 === 0 ? '#f8f9fa' : '#ffffff';
-                            let movementIcon = '−';
-                            let movementColor = '#95a5a6';
-
-                            if (player.rankChange > 0) {
-                                movementIcon = `↑ ${player.rankChange}`;
-                                movementColor = '#4CAF50';
-                            } else if (player.rankChange < 0) {
-                                movementIcon = `↓ ${Math.abs(player.rankChange)}`;
-                                movementColor = '#f44336';
-                            }
-
-                            return `
-                                <tr style="background-color: ${bgColor};">
-                                    <td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">${player.funkEngRank}</td>
-                                    <td style="padding: 8px; border: 1px solid #ddd;">${player.name}</td>
-                                    <td style="padding: 8px; border: 1px solid #ddd;">${player.team}</td>
-                                    <td style="padding: 8px; border: 1px solid #ddd;">${player.position}</td>
-                                    <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">${player.wins}-${player.losses}</td>
-                                    <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">${player.winPct}%</td>
-                                    <td style="padding: 8px; border: 1px solid #ddd; text-align: center; color: ${movementColor}; font-weight: bold;">${movementIcon}</td>
-                                </tr>
-                            `;
-                        }).join('');
-                    })()}
-                </tbody>
-            </table>
+            <h3 style="color: #34495e; margin-top: 2rem; margin-bottom: 0.5rem;">Funk-Eng Cup (Leads & Seconds Only) — Top 5</h3>
+            ${funkEngHTML}
 
             <p style="text-align: center; margin-top: 2rem; font-size: 16px;">
                 <strong><a href="https://pesayo.github.io/game-of-the-week/" style="color: #3498db; text-decoration: none;">View Full Dashboard</a> →</strong>
