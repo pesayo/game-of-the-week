@@ -821,25 +821,25 @@ function formatStandingsTable() {
         return '';
     };
 
-    // Helper to detect log-jam (3+ players with same record in top 5)
+    // Helper to detect log-jam (3+ players with same record at the top)
     const detectLogJam = (players) => {
         if (players.length < 3) return null;
 
-        const top5 = players.slice(0, Math.min(5, players.length));
-        const recordCounts = {};
+        // Get the top player's record
+        const topRecord = `${players[0].wins}-${players[0].losses}`;
 
-        top5.forEach(p => {
-            const record = `${p.wins}-${p.losses}`;
-            recordCounts[record] = (recordCounts[record] || 0) + 1;
-        });
+        // Count ALL players with the top record (not just top 5)
+        const playersWithTopRecord = players.filter(p => `${p.wins}-${p.losses}` === topRecord);
 
-        // Check if any record appears 3+ times in top 5
-        for (const [record, count] of Object.entries(recordCounts)) {
-            if (count >= 3) {
-                const playersWithRecord = top5.filter(p => `${p.wins}-${p.losses}` === record);
-                return { record, players: playersWithRecord, count };
-            }
+        // If 3+ players share the top record, it's a log-jam
+        if (playersWithTopRecord.length >= 3) {
+            return {
+                record: topRecord,
+                players: playersWithTopRecord,
+                count: playersWithTopRecord.length
+            };
         }
+
         return null;
     };
 
@@ -848,20 +848,44 @@ function formatStandingsTable() {
     let gobletHTML = '';
 
     if (gobletLogJam) {
-        gobletHTML = `<p style="margin-bottom: 1rem;"><strong>Top of the standings:</strong> ${gobletLogJam.count} players are tied at <strong>${gobletLogJam.record}</strong> (${gobletLogJam.players.map(p => p.name).join(', ')}).</p>`;
+        // Only show names if it's a small log-jam (5 or fewer)
+        const maxNamesToShow = 5;
+        const namesDisplay = gobletLogJam.count <= maxNamesToShow
+            ? ` (${gobletLogJam.players.map(p => p.name).join(', ')})`
+            : '';
 
-        // Show remaining top 5
-        const remaining = summary.allPlayers.filter(p => `${p.wins}-${p.losses}` !== gobletLogJam.record).slice(0, 5 - gobletLogJam.count);
-        if (remaining.length > 0) {
+        gobletHTML = `<p style="margin-bottom: 1rem;"><strong>Top of the standings:</strong> ${gobletLogJam.count} players are tied at <strong>${gobletLogJam.record}</strong>${namesDisplay}.</p>`;
+
+        // Show next 5 players with different records (respecting ties)
+        const remainingPlayers = summary.allPlayers.filter(p => `${p.wins}-${p.losses}` !== gobletLogJam.record);
+        if (remainingPlayers.length > 0) {
+            // Get first 5, then check if there are more with the same record as the 5th
+            const top5Remaining = remainingPlayers.slice(0, 5);
+            const lastRecord = top5Remaining.length > 0 ? `${top5Remaining[top5Remaining.length - 1].wins}-${top5Remaining[top5Remaining.length - 1].losses}` : null;
+
+            // Include all players tied with the 5th player
+            const toShow = lastRecord
+                ? remainingPlayers.filter((p, idx) => idx < 5 || `${p.wins}-${p.losses}` === lastRecord)
+                : top5Remaining;
+
             gobletHTML += '<ul style="list-style: none; padding-left: 0; margin-top: 1rem;">';
-            remaining.forEach(p => {
+            toShow.forEach(p => {
                 gobletHTML += `<li style="margin-bottom: 0.5rem;"><strong>#${p.rank}:</strong> ${p.name} (${p.team}, ${p.position}) — ${p.wins}-${p.losses}${formatMovement(p)}</li>`;
             });
             gobletHTML += '</ul>';
         }
     } else {
+        // No log-jam, but still respect ties in top 5
+        const top5 = summary.allPlayers.slice(0, 5);
+        const lastRecord = top5.length > 0 ? `${top5[top5.length - 1].wins}-${top5[top5.length - 1].losses}` : null;
+
+        // Include all players tied with the 5th player
+        const toShow = lastRecord
+            ? summary.allPlayers.filter((p, idx) => idx < 5 || `${p.wins}-${p.losses}` === lastRecord)
+            : top5;
+
         gobletHTML = '<ul style="list-style: none; padding-left: 0;">';
-        summary.allPlayers.slice(0, 5).forEach(p => {
+        toShow.forEach(p => {
             gobletHTML += `<li style="margin-bottom: 0.5rem;"><strong>#${p.rank}:</strong> ${p.name} (${p.team}, ${p.position}) — ${p.wins}-${p.losses}${formatMovement(p)}</li>`;
         });
         gobletHTML += '</ul>';
@@ -873,22 +897,47 @@ function formatStandingsTable() {
     let funkEngHTML = '';
 
     if (funkEngLogJam) {
-        funkEngHTML = `<p style="margin-bottom: 1rem;"><strong>Top of the standings:</strong> ${funkEngLogJam.count} players are tied at <strong>${funkEngLogJam.record}</strong> (${funkEngLogJam.players.map(p => p.name).join(', ')}).</p>`;
+        // Only show names if it's a small log-jam (5 or fewer)
+        const maxNamesToShow = 5;
+        const namesDisplay = funkEngLogJam.count <= maxNamesToShow
+            ? ` (${funkEngLogJam.players.map(p => p.name).join(', ')})`
+            : '';
 
-        // Show remaining top 5
-        const remaining = funkEngPlayers.filter(p => `${p.wins}-${p.losses}` !== funkEngLogJam.record).slice(0, 5 - funkEngLogJam.count);
-        if (remaining.length > 0) {
+        funkEngHTML = `<p style="margin-bottom: 1rem;"><strong>Top of the standings:</strong> ${funkEngLogJam.count} players are tied at <strong>${funkEngLogJam.record}</strong>${namesDisplay}.</p>`;
+
+        // Show next 5 players with different records (respecting ties)
+        const remainingPlayers = funkEngPlayers.filter(p => `${p.wins}-${p.losses}` !== funkEngLogJam.record);
+        if (remainingPlayers.length > 0) {
+            // Get first 5, then check if there are more with the same record as the 5th
+            const top5Remaining = remainingPlayers.slice(0, 5);
+            const lastRecord = top5Remaining.length > 0 ? `${top5Remaining[top5Remaining.length - 1].wins}-${top5Remaining[top5Remaining.length - 1].losses}` : null;
+
+            // Include all players tied with the 5th player
+            const toShow = lastRecord
+                ? remainingPlayers.filter((p, idx) => idx < 5 || `${p.wins}-${p.losses}` === lastRecord)
+                : top5Remaining;
+
             funkEngHTML += '<ul style="list-style: none; padding-left: 0; margin-top: 1rem;">';
-            remaining.forEach(p => {
+            toShow.forEach(p => {
                 const funkEngRank = funkEngPlayers.indexOf(p) + 1;
                 funkEngHTML += `<li style="margin-bottom: 0.5rem;"><strong>#${funkEngRank}:</strong> ${p.name} (${p.team}, ${p.position}) — ${p.wins}-${p.losses}${formatMovement(p)}</li>`;
             });
             funkEngHTML += '</ul>';
         }
     } else {
+        // No log-jam, but still respect ties in top 5
+        const top5 = funkEngPlayers.slice(0, 5);
+        const lastRecord = top5.length > 0 ? `${top5[top5.length - 1].wins}-${top5[top5.length - 1].losses}` : null;
+
+        // Include all players tied with the 5th player
+        const toShow = lastRecord
+            ? funkEngPlayers.filter((p, idx) => idx < 5 || `${p.wins}-${p.losses}` === lastRecord)
+            : top5;
+
         funkEngHTML = '<ul style="list-style: none; padding-left: 0;">';
-        funkEngPlayers.slice(0, 5).forEach((p, index) => {
-            funkEngHTML += `<li style="margin-bottom: 0.5rem;"><strong>#${index + 1}:</strong> ${p.name} (${p.team}, ${p.position}) — ${p.wins}-${p.losses}${formatMovement(p)}</li>`;
+        toShow.forEach((p, index) => {
+            const funkEngRank = funkEngPlayers.indexOf(p) + 1;
+            funkEngHTML += `<li style="margin-bottom: 0.5rem;"><strong>#${funkEngRank}:</strong> ${p.name} (${p.team}, ${p.position}) — ${p.wins}-${p.losses}${formatMovement(p)}</li>`;
         });
         funkEngHTML += '</ul>';
     }
@@ -897,11 +946,11 @@ function formatStandingsTable() {
         <div style="margin-top: 2rem; padding-top: 2rem; border-top: 2px solid #e0e0e0;">
             <h2 style="color: #2c3e50; margin-bottom: 1rem;">Current Standings</h2>
 
-            <h3 style="color: #34495e; margin-top: 1.5rem; margin-bottom: 0.5rem;">Goblet (Overall) — Top 5</h3>
             ${gobletHTML}
 
-            <h3 style="color: #34495e; margin-top: 2rem; margin-bottom: 0.5rem;">Funk-Eng Cup (Leads & Seconds Only) — Top 5</h3>
-            ${funkEngHTML}
+            <div style="margin-top: 2rem;">
+                ${funkEngHTML}
+            </div>
 
             <p style="text-align: center; margin-top: 2rem; font-size: 16px;">
                 <strong><a href="https://pesayo.github.io/game-of-the-week/" style="color: #3498db; text-decoration: none;">View Full Dashboard</a> →</strong>
