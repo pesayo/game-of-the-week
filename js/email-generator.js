@@ -748,38 +748,14 @@ function formatRecentMatchups() {
             <h3 style="color: #34495e; margin-bottom: 1rem;">Most Recent Result${summary.recentWeekGames.length !== 1 ? 's' : ''}${summary.mostRecentGameDate ? ` (${summary.mostRecentGameDate})` : ''}</h3>
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem;">
                 ${summary.recentWeekGames.map(game => {
-                    // Determine winner and loser
-                    const team1IsWinner = game.winner === game.winner; // winner field contains the winning team name
-                    const team2IsWinner = !team1IsWinner;
-
-                    // Extract skip names from winner/loser
-                    const winnerSkip = game.winnerSkip;
-                    const loserSkip = game.loserSkip;
-
-                    // Check if it was an upset
-                    const upsetBadge = game.isUpset ? '<span style="background: #ff9800; color: white; font-size: 10px; padding: 2px 6px; border-radius: 3px; margin-left: 4px;">UPSET</span>' : '';
-
                     return `
                     <div style="background: linear-gradient(135deg, #f8f9fa 0%, #e8e8e8 100%); border-radius: 8px; padding: 1rem; box-shadow: 0 2px 4px rgba(0,0,0,0.1); border-left: 4px solid #4CAF50;">
                         <div style="text-align: center; font-size: 12px; margin-bottom: 0.75rem; color: #666; border-bottom: 1px solid #ddd; padding-bottom: 0.5rem;">
                             Week ${game.week} • ${game.date}
                         </div>
-                        <div style="display: flex; justify-content: space-between; align-items: center; gap: 0.75rem;">
-                            <div style="flex: 1; text-align: left;">
-                                <div style="font-size: 16px; font-weight: bold; margin-bottom: 0.25rem; color: #2c3e50;">
-                                    ${game.winner}
-                                    <span style="background: #4CAF50; color: white; font-size: 11px; padding: 2px 6px; border-radius: 3px; margin-left: 4px;">W</span>
-                                    ${upsetBadge}
-                                </div>
-                            </div>
-                            <div style="text-align: center; padding: 0 0.5rem;">
-                                <div style="font-size: 14px; font-weight: bold; color: #999;">VS</div>
-                            </div>
-                            <div style="flex: 1; text-align: right;">
-                                <div style="font-size: 16px; font-weight: bold; margin-bottom: 0.25rem; color: #999;">
-                                    ${game.loser}
-                                    <span style="background: #e74c3c; color: white; font-size: 11px; padding: 2px 6px; border-radius: 3px; margin-left: 4px;">L</span>
-                                </div>
+                        <div style="text-align: center;">
+                            <div style="font-size: 16px; color: #2c3e50;">
+                                <strong>${game.winner}</strong> <span style="color: #999;">DEFEATED</span> ${game.loser}
                             </div>
                         </div>
                     </div>
@@ -812,17 +788,9 @@ function formatUpcomingMatchups() {
                         <div style="text-align: center; font-size: 12px; margin-bottom: 0.75rem; opacity: 0.9; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 0.5rem;">
                             ${game.date} • ${game.time} • Sheet ${game.sheet}
                         </div>
-                        <div style="display: flex; justify-content: space-between; align-items: center; gap: 0.75rem;">
-                            <div style="flex: 1; text-align: left;">
-                                <div style="font-size: 16px; font-weight: bold; margin-bottom: 0.25rem;">${game.team1Skip}</div>
-                                ${team1Detail ? `<div style="font-size: 11px; opacity: 0.8;">${team1Detail}</div>` : ''}
-                            </div>
-                            <div style="text-align: center; padding: 0 0.5rem;">
-                                <div style="font-size: 18px; font-weight: bold; color: #C4B99B;">VS</div>
-                            </div>
-                            <div style="flex: 1; text-align: right;">
-                                <div style="font-size: 16px; font-weight: bold; margin-bottom: 0.25rem;">${game.team2Skip}</div>
-                                ${team2Detail ? `<div style="font-size: 11px; opacity: 0.8;">${team2Detail}</div>` : ''}
+                        <div style="text-align: center;">
+                            <div style="font-size: 16px; font-weight: bold;">
+                                ${game.team1Skip} <span style="color: #C4B99B; font-weight: bold;">VS</span> ${game.team2Skip}
                             </div>
                         </div>
                     </div>
