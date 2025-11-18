@@ -754,8 +754,8 @@ function formatRecentMatchups() {
                             Week ${game.week} • ${game.date}
                         </div>
                         <div style="text-align: center;">
-                            <div style="font-size: 16px; font-weight: bold; color: #2c3e50;">
-                                ${game.winner} <span style="color: #999; font-weight: normal;">DEFEATED</span> ${game.loser}
+                            <div style="font-size: 16px; color: #2c3e50;">
+                                <strong>${game.winner}</strong> <span style="color: #999;">DEFEATED</span> ${game.loser}
                             </div>
                         </div>
                     </div>
@@ -788,17 +788,9 @@ function formatUpcomingMatchups() {
                         <div style="text-align: center; font-size: 12px; margin-bottom: 0.75rem; opacity: 0.9; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 0.5rem;">
                             ${game.date} • ${game.time} • Sheet ${game.sheet}
                         </div>
-                        <div style="display: flex; justify-content: space-between; align-items: center; gap: 0.75rem;">
-                            <div style="flex: 1; text-align: left;">
-                                <div style="font-size: 16px; font-weight: bold; margin-bottom: 0.25rem;">${game.team1Skip}</div>
-                                ${team1Detail ? `<div style="font-size: 11px; opacity: 0.8;">${team1Detail}</div>` : ''}
-                            </div>
-                            <div style="text-align: center; padding: 0 0.5rem;">
-                                <div style="font-size: 18px; font-weight: bold; color: #C4B99B;">VS</div>
-                            </div>
-                            <div style="flex: 1; text-align: right;">
-                                <div style="font-size: 16px; font-weight: bold; margin-bottom: 0.25rem;">${game.team2Skip}</div>
-                                ${team2Detail ? `<div style="font-size: 11px; opacity: 0.8;">${team2Detail}</div>` : ''}
+                        <div style="text-align: center;">
+                            <div style="font-size: 16px; font-weight: bold;">
+                                ${game.team1Skip} <span style="color: #C4B99B; font-weight: bold;">VS</span> ${game.team2Skip}
                             </div>
                         </div>
                     </div>
