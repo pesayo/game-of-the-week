@@ -133,7 +133,7 @@ body {
 
 /* Player column - wider */
 .player-col {
-    width: 120px;
+    width: 85px;
     text-align: left !important;
     font-weight: 600;
     position: sticky;

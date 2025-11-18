@@ -65,7 +65,7 @@ export function renderPrintablePicksList() {
         const pageHeader = document.createElement('div');
         pageHeader.className = 'printable-page-header';
         pageHeader.innerHTML = `
-            <h2>Game of the Week - Player Picks</h2>
+            <h2>Wednesday Night Mansfield Game of the Week Picks</h2>
             <div class="page-info">
                 <span>Games ${startIdx + 1}-${endIdx} of ${games.length}</span>
                 <span>Page ${pageNum + 1} of ${totalPages}</span>
