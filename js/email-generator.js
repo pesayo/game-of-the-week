@@ -278,22 +278,18 @@ function displayDataPreview() {
                 </p>
 
                 <div style="background: white; border: 2px solid #e0e0e0; border-radius: 8px; padding: 1.5rem; margin-bottom: 1.5rem; max-height: 600px; overflow-y: auto;">
-                    <!-- Subject Line Placeholder -->
-                    <div style="background: #f0f0f0; padding: 1rem; border-radius: 4px; margin-bottom: 1.5rem; border-left: 4px solid #4CAF50;">
-                        <strong>Subject:</strong> <em style="color: #666;">[AI will generate catchy subject line]</em>
-                    </div>
+                    <!-- Deterministic Sections -->
+                    ${recentResults}
+                    ${upcomingMatchups}
 
                     <!-- AI Narrative Placeholder -->
-                    <div style="background: #fff9e6; padding: 1.5rem; border-radius: 4px; margin-bottom: 1.5rem; border-left: 4px solid #FFC107;">
+                    <div style="background: #fff9e6; padding: 1.5rem; border-radius: 4px; margin-bottom: 1.5rem; margin-top: 1.5rem; border-left: 4px solid #FFC107;">
                         <strong style="color: #f57c00;">📝 AI-Generated Narrative:</strong>
                         <p style="color: #666; font-style: italic; margin-top: 0.5rem;">
                             The AI will generate 3-5 witty paragraphs here based on the latest results, upcoming matchups, and standings...
                         </p>
                     </div>
 
-                    <!-- Deterministic Sections -->
-                    ${recentResults}
-                    ${upcomingMatchups}
                     ${standings}
                 </div>
 
