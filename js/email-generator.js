@@ -848,47 +848,55 @@ function formatStandingsTable() {
     let gobletHTML = '';
 
     if (gobletLogJam) {
-        // Only show names if it's a small log-jam (5 or fewer)
-        const maxNamesToShow = 5;
-        const namesDisplay = gobletLogJam.count <= maxNamesToShow
-            ? ` (${gobletLogJam.players.map(p => p.name).join(', ')})`
-            : '';
+        // For large log-jams (>5), just show the summary without names
+        if (gobletLogJam.count > 5) {
+            gobletHTML = `<p style="margin-bottom: 1rem;"><strong>${gobletLogJam.count} players are tied at <strong>${gobletLogJam.record}</strong></p>`;
+        } else {
+            // For small log-jams (≤5), show names without team/position/movement
+            gobletHTML = `<p style="margin-bottom: 1rem;"><strong>Tied at ${gobletLogJam.record}:</strong> ${gobletLogJam.players.map(p => p.name).join(', ')}</p>`;
 
-        gobletHTML = `<p style="margin-bottom: 1rem;"><strong>Top of the standings:</strong> ${gobletLogJam.count} players are tied at <strong>${gobletLogJam.record}</strong>${namesDisplay}.</p>`;
+            // Show next few players with different records (respecting ties)
+            const remainingPlayers = summary.allPlayers.filter(p => `${p.wins}-${p.losses}` !== gobletLogJam.record);
+            if (remainingPlayers.length > 0 && remainingPlayers.length <= 5) {
+                // Only show if there are 5 or fewer remaining (otherwise it's another big group)
+                const top5Remaining = remainingPlayers.slice(0, 5);
+                const lastRecord = top5Remaining.length > 0 ? `${top5Remaining[top5Remaining.length - 1].wins}-${top5Remaining[top5Remaining.length - 1].losses}` : null;
 
-        // Show next 5 players with different records (respecting ties)
-        const remainingPlayers = summary.allPlayers.filter(p => `${p.wins}-${p.losses}` !== gobletLogJam.record);
-        if (remainingPlayers.length > 0) {
-            // Get first 5, then check if there are more with the same record as the 5th
-            const top5Remaining = remainingPlayers.slice(0, 5);
-            const lastRecord = top5Remaining.length > 0 ? `${top5Remaining[top5Remaining.length - 1].wins}-${top5Remaining[top5Remaining.length - 1].losses}` : null;
+                // Find how many are tied with the 5th player
+                const tiedWithFifth = lastRecord ? remainingPlayers.filter(p => `${p.wins}-${p.losses}` === lastRecord).length : 0;
 
-            // Include all players tied with the 5th player
-            const toShow = lastRecord
-                ? remainingPlayers.filter((p, idx) => idx < 5 || `${p.wins}-${p.losses}` === lastRecord)
-                : top5Remaining;
+                // Only include ties if it doesn't explode the list
+                const toShow = (lastRecord && tiedWithFifth <= 3)
+                    ? remainingPlayers.slice(0, 5 + tiedWithFifth)
+                    : top5Remaining;
 
-            gobletHTML += '<ul style="list-style: none; padding-left: 0; margin-top: 1rem;">';
+                gobletHTML += '<ul style="list-style: none; padding-left: 0; margin-top: 1rem;">';
+                toShow.forEach(p => {
+                    gobletHTML += `<li style="margin-bottom: 0.5rem;"><strong>#${p.rank}:</strong> ${p.name} — ${p.wins}-${p.losses}</li>`;
+                });
+                gobletHTML += '</ul>';
+            }
+        }
+    } else {
+        // No log-jam at top - show top 5 (respecting ties)
+        const top5 = summary.allPlayers.slice(0, 5);
+        if (top5.length > 0) {
+            const lastRecord = `${top5[top5.length - 1].wins}-${top5[top5.length - 1].losses}`;
+            const tiedWithFifth = summary.allPlayers.filter(p => `${p.wins}-${p.losses}` === lastRecord).length;
+
+            // Only include ties if reasonable
+            const toShow = tiedWithFifth <= 3
+                ? summary.allPlayers.filter((p, idx) => {
+                    return idx < 5 || (idx >= 5 && `${p.wins}-${p.losses}` === lastRecord);
+                  })
+                : top5;
+
+            gobletHTML = '<ul style="list-style: none; padding-left: 0;">';
             toShow.forEach(p => {
-                gobletHTML += `<li style="margin-bottom: 0.5rem;"><strong>#${p.rank}:</strong> ${p.name} (${p.team}, ${p.position}) — ${p.wins}-${p.losses}${formatMovement(p)}</li>`;
+                gobletHTML += `<li style="margin-bottom: 0.5rem;"><strong>#${p.rank}:</strong> ${p.name} — ${p.wins}-${p.losses}</li>`;
             });
             gobletHTML += '</ul>';
         }
-    } else {
-        // No log-jam, but still respect ties in top 5
-        const top5 = summary.allPlayers.slice(0, 5);
-        const lastRecord = top5.length > 0 ? `${top5[top5.length - 1].wins}-${top5[top5.length - 1].losses}` : null;
-
-        // Include all players tied with the 5th player
-        const toShow = lastRecord
-            ? summary.allPlayers.filter((p, idx) => idx < 5 || `${p.wins}-${p.losses}` === lastRecord)
-            : top5;
-
-        gobletHTML = '<ul style="list-style: none; padding-left: 0;">';
-        toShow.forEach(p => {
-            gobletHTML += `<li style="margin-bottom: 0.5rem;"><strong>#${p.rank}:</strong> ${p.name} (${p.team}, ${p.position}) — ${p.wins}-${p.losses}${formatMovement(p)}</li>`;
-        });
-        gobletHTML += '</ul>';
     }
 
     // Format top 5 for Funk-Eng
@@ -897,49 +905,57 @@ function formatStandingsTable() {
     let funkEngHTML = '';
 
     if (funkEngLogJam) {
-        // Only show names if it's a small log-jam (5 or fewer)
-        const maxNamesToShow = 5;
-        const namesDisplay = funkEngLogJam.count <= maxNamesToShow
-            ? ` (${funkEngLogJam.players.map(p => p.name).join(', ')})`
-            : '';
+        // For large log-jams (>5), just show the summary without names
+        if (funkEngLogJam.count > 5) {
+            funkEngHTML = `<p style="margin-bottom: 1rem;"><strong>${funkEngLogJam.count} players are tied at <strong>${funkEngLogJam.record}</strong></p>`;
+        } else {
+            // For small log-jams (≤5), show names without team/position/movement
+            funkEngHTML = `<p style="margin-bottom: 1rem;"><strong>Tied at ${funkEngLogJam.record}:</strong> ${funkEngLogJam.players.map(p => p.name).join(', ')}</p>`;
 
-        funkEngHTML = `<p style="margin-bottom: 1rem;"><strong>Top of the standings:</strong> ${funkEngLogJam.count} players are tied at <strong>${funkEngLogJam.record}</strong>${namesDisplay}.</p>`;
+            // Show next few players with different records (respecting ties)
+            const remainingPlayers = funkEngPlayers.filter(p => `${p.wins}-${p.losses}` !== funkEngLogJam.record);
+            if (remainingPlayers.length > 0 && remainingPlayers.length <= 5) {
+                // Only show if there are 5 or fewer remaining (otherwise it's another big group)
+                const top5Remaining = remainingPlayers.slice(0, 5);
+                const lastRecord = top5Remaining.length > 0 ? `${top5Remaining[top5Remaining.length - 1].wins}-${top5Remaining[top5Remaining.length - 1].losses}` : null;
 
-        // Show next 5 players with different records (respecting ties)
-        const remainingPlayers = funkEngPlayers.filter(p => `${p.wins}-${p.losses}` !== funkEngLogJam.record);
-        if (remainingPlayers.length > 0) {
-            // Get first 5, then check if there are more with the same record as the 5th
-            const top5Remaining = remainingPlayers.slice(0, 5);
-            const lastRecord = top5Remaining.length > 0 ? `${top5Remaining[top5Remaining.length - 1].wins}-${top5Remaining[top5Remaining.length - 1].losses}` : null;
+                // Find how many are tied with the 5th player
+                const tiedWithFifth = lastRecord ? remainingPlayers.filter(p => `${p.wins}-${p.losses}` === lastRecord).length : 0;
 
-            // Include all players tied with the 5th player
-            const toShow = lastRecord
-                ? remainingPlayers.filter((p, idx) => idx < 5 || `${p.wins}-${p.losses}` === lastRecord)
-                : top5Remaining;
+                // Only include ties if it doesn't explode the list
+                const toShow = (lastRecord && tiedWithFifth <= 3)
+                    ? remainingPlayers.slice(0, 5 + tiedWithFifth)
+                    : top5Remaining;
 
-            funkEngHTML += '<ul style="list-style: none; padding-left: 0; margin-top: 1rem;">';
+                funkEngHTML += '<ul style="list-style: none; padding-left: 0; margin-top: 1rem;">';
+                toShow.forEach(p => {
+                    const funkEngRank = funkEngPlayers.indexOf(p) + 1;
+                    funkEngHTML += `<li style="margin-bottom: 0.5rem;"><strong>#${funkEngRank}:</strong> ${p.name} — ${p.wins}-${p.losses}</li>`;
+                });
+                funkEngHTML += '</ul>';
+            }
+        }
+    } else {
+        // No log-jam at top - show top 5 (respecting ties)
+        const top5 = funkEngPlayers.slice(0, 5);
+        if (top5.length > 0) {
+            const lastRecord = `${top5[top5.length - 1].wins}-${top5[top5.length - 1].losses}`;
+            const tiedWithFifth = funkEngPlayers.filter(p => `${p.wins}-${p.losses}` === lastRecord).length;
+
+            // Only include ties if reasonable
+            const toShow = tiedWithFifth <= 3
+                ? funkEngPlayers.filter((p, idx) => {
+                    return idx < 5 || (idx >= 5 && `${p.wins}-${p.losses}` === lastRecord);
+                  })
+                : top5;
+
+            funkEngHTML = '<ul style="list-style: none; padding-left: 0;">';
             toShow.forEach(p => {
                 const funkEngRank = funkEngPlayers.indexOf(p) + 1;
-                funkEngHTML += `<li style="margin-bottom: 0.5rem;"><strong>#${funkEngRank}:</strong> ${p.name} (${p.team}, ${p.position}) — ${p.wins}-${p.losses}${formatMovement(p)}</li>`;
+                funkEngHTML += `<li style="margin-bottom: 0.5rem;"><strong>#${funkEngRank}:</strong> ${p.name} — ${p.wins}-${p.losses}</li>`;
             });
             funkEngHTML += '</ul>';
         }
-    } else {
-        // No log-jam, but still respect ties in top 5
-        const top5 = funkEngPlayers.slice(0, 5);
-        const lastRecord = top5.length > 0 ? `${top5[top5.length - 1].wins}-${top5[top5.length - 1].losses}` : null;
-
-        // Include all players tied with the 5th player
-        const toShow = lastRecord
-            ? funkEngPlayers.filter((p, idx) => idx < 5 || `${p.wins}-${p.losses}` === lastRecord)
-            : top5;
-
-        funkEngHTML = '<ul style="list-style: none; padding-left: 0;">';
-        toShow.forEach((p, index) => {
-            const funkEngRank = funkEngPlayers.indexOf(p) + 1;
-            funkEngHTML += `<li style="margin-bottom: 0.5rem;"><strong>#${funkEngRank}:</strong> ${p.name} (${p.team}, ${p.position}) — ${p.wins}-${p.losses}${formatMovement(p)}</li>`;
-        });
-        funkEngHTML += '</ul>';
     }
 
     let tableHTML = `
