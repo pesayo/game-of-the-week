@@ -145,6 +145,90 @@ async function loadGameData() {
     }
 }
 
+// Generate the full AI prompt context
+function generateFullPrompt() {
+    const summary = generateDataSummary();
+    const customPrompt = document.getElementById('promptTemplate')?.value || DEFAULT_PROMPT;
+
+    // Get previous weeks' narratives for context
+    const previousNarratives = gameData.weeklyNarratives
+        .filter(n => n.Narrative && n.Narrative.trim() && parseInt(n.Week) < summary.nextUpcomingWeek)
+        .sort((a, b) => parseInt(a.Week) - parseInt(b.Week));
+
+    // Format previous narratives for context
+    const narrativesContext = previousNarratives.length > 0
+        ? `**PREVIOUS WEEKS' NARRATIVES (for continuity and callbacks):**
+
+${previousNarratives.map(n => `Week ${n.Week} (${n.Date}):
+${n.Narrative}`).join('\n\n')}
+
+`
+        : '';
+
+    // Build the full prompt with data
+    let fullPrompt = `${customPrompt}
+
+${narrativesContext}Here's the current data:
+
+**LEGEND:**
+- Win %: Percentage of games WON (e.g., 66.7% means they won 2 out of 3 games)
+- Form: ALL game results chronologically (W = Win, L = Loss, most recent on right). Use this to identify streaks and trends!
+- Movement: Rank change from last week (↑ = moved up, ↓ = moved down, − = no change)
+
+**IMPORTANT - TEAM vs PICKS:**
+Each player below shows their name followed by (Team, Position). The "Team" is the actual curling team they PLAY FOR in real life. This is separate from their picks - players predict which teams will win each game, and those picks can be ANY team, not just their own team. For example, "Pete Young (Ken Niedhart, Lead)" means Pete Young plays for Ken Niedhart's team, but Pete's picks for who will win games could include Jim Niedhart, Ken Niedhart, or any other team. Do NOT say a player "picks for" or "plays for" a team they selected to win - they are just predicting winners.
+
+**FULL STANDINGS (All ${summary.allPlayers.length} Players):**
+Goblet (Overall) Standings:
+${summary.allPlayers.map((p, i) => {
+    const rankChangeStr = p.rankChange > 0 ? ` (↑${p.rankChange})` : p.rankChange < 0 ? ` (↓${Math.abs(p.rankChange)})` : ' (−)';
+    const formStr = p.allForm ? ` [Form: ${p.allForm}]` : '';
+    return `${p.rank}. ${p.name} (${p.team}, ${p.position}): ${p.wins}-${p.losses} (Win%: ${p.winPct}%)${rankChangeStr}${formStr}`;
+}).join('\n')}
+
+Funk-Eng Cup Eligible Players (Leads & Seconds only):
+${summary.allPlayers.filter(p => p.isFunkEngEligible).map((p, i) => {
+    const rankChangeStr = p.rankChange > 0 ? ` (↑${p.rankChange})` : p.rankChange < 0 ? ` (↓${Math.abs(p.rankChange)})` : ' (−)';
+    const formStr = p.allForm ? ` [Form: ${p.allForm}]` : '';
+    return `${p.rank}. ${p.name} (${p.team}, ${p.position}): ${p.wins}-${p.losses} (Win%: ${p.winPct}%)${rankChangeStr}${formStr}`;
+}).join('\n')}
+
+**MOST RECENT RESULTS${summary.mostRecentGameDate ? ` (${summary.mostRecentGameDate})` : ''} - ${summary.recentWeekGames.length} game${summary.recentWeekGames.length !== 1 ? 's' : ''}:**
+${summary.recentWeekGames.length > 0 ? summary.recentWeekGames.map(g => {
+    const upsetText = g.isUpset ? ' (UPSET - only ' + (100 - g.chalkPercentage) + '% picked them!)' : '';
+    const notesText = g.postGameNotes && g.postGameNotes.trim() ? ` [Post-Game Note: ${g.postGameNotes}]` : '';
+    const winnerRosterText = g.winnerRoster.length > 0 ? ` (Players: ${g.winnerRoster.join(', ')})` : '';
+    const loserRosterText = g.loserRoster.length > 0 ? ` (Players: ${g.loserRoster.join(', ')})` : '';
+    return `- ${g.winner}${winnerRosterText} defeated ${g.loser}${loserRosterText}${upsetText}${notesText}`;
+}).join('\n') : 'No games completed recently'}
+
+**NEXT MATCHUPS${summary.nextUpcomingGameDate ? ` (${summary.nextUpcomingGameDate})` : ''} - ${summary.upcomingWeekGames.length} game${summary.upcomingWeekGames.length !== 1 ? 's' : ''}:**
+${summary.upcomingWeekGames.length > 0 ? summary.upcomingWeekGames.map(g => {
+    const notesText = g.preGameNotes && g.preGameNotes.trim() ? ` [Pre-Game Note: ${g.preGameNotes}]` : '';
+    const team1RosterText = g.team1Roster.length > 0 ? ` (Players: ${g.team1Roster.join(', ')})` : '';
+    const team2RosterText = g.team2Roster.length > 0 ? ` (Players: ${g.team2Roster.join(', ')})` : '';
+    return `- ${g.team1Skip}${team1RosterText} vs ${g.team2Skip}${team2RosterText} (Sheet ${g.sheet}, ${g.date} ${g.time})${notesText}`;
+}).join('\n') : 'No upcoming games scheduled'}
+
+**FUN FACTS:**
+${summary.funFacts.map(f => `- ${f}`).join('\n')}
+
+Now write an engaging, witty email based on this data. Format it as HTML suitable for pasting into Gmail. Use basic HTML tags like <p>, <strong>, <em>, <h2>, <ul>, <li>, etc. Make it fun and entertaining!
+
+CRITICAL FORMATTING INSTRUCTIONS:
+1. Start with a brief, catchy subject line (5-10 words) on the FIRST line, formatted as: <!-- SUBJECT: Your Subject Here -->
+2. (optional) bonus points if the subject is a slightly obscure, but not too obscure, popular movie/tv line, or popular music lyric, if so put it in quotes with a trailing elipsis: <!--- SUBJECT: "Like a dog without a bone, An actor out on loan"… -->
+2. After the subject line, write the email body content (do NOT include greeting or signature)
+3. The subject line comment will be extracted and used as a section header
+4. Example format:
+   <!-- SUBJECT: Ice Cold Takes and Hot Streaks -->
+   <p>Your email content starts here...</p>
+
+The email will have standings and matchups appended automatically.`;
+
+    return fullPrompt;
+}
+
 // Display a preview of the data that will be sent to AI
 function displayDataPreview() {
     const previewDiv = document.getElementById('dataPreview');
@@ -154,68 +238,49 @@ function displayDataPreview() {
         return;
     }
 
-    const summary = generateDataSummary();
+    const fullPrompt = generateFullPrompt();
+
+    // Calculate character and line counts
+    const charCount = fullPrompt.length;
+    const lineCount = fullPrompt.split('\n').length;
+    const wordCount = fullPrompt.split(/\s+/).length;
 
     previewDiv.innerHTML = `
         <div class="data-summary">
             <div class="summary-section">
-                <h3>📊 Full Standings (${summary.allPlayers.length} Players)</h3>
+                <h3>📝 AI Prompt Context</h3>
                 <p style="font-size: 0.9em; color: #666; margin-bottom: 1rem;">
-                    <strong>Win%</strong> = percentage of games won | <strong>Form</strong> = all game results chronologically
+                    <strong>Stats:</strong> ${charCount.toLocaleString()} characters | ${lineCount.toLocaleString()} lines | ${wordCount.toLocaleString()} words
                 </p>
-                <ol>
-                    ${summary.allPlayers.map(p => {
-                        const rankChangeSymbol = p.rankChange > 0 ? `↑${p.rankChange}` : p.rankChange < 0 ? `↓${Math.abs(p.rankChange)}` : '−';
-                        return `
-                            <li>
-                                <strong>${p.name}</strong> (${p.position || 'Unknown'}${p.isFunkEngEligible ? ' - Funk-Eng Eligible' : ''}):<br>
-                                ${p.wins}-${p.losses} (Win: ${p.winPct}%) | Form: ${p.allForm || 'N/A'} | Movement: ${rankChangeSymbol}
-                            </li>
-                        `;
-                    }).join('')}
-                </ol>
-            </div>
-
-            <div class="summary-section">
-                <h3>🎯 Most Recent Results${summary.mostRecentGameDate ? ` - ${summary.mostRecentGameDate}` : ''} (${summary.recentWeekGames.length} game${summary.recentWeekGames.length !== 1 ? 's' : ''})</h3>
-                ${summary.recentWeekGames.length > 0 ? `
-                    <ul>
-                        ${summary.recentWeekGames.map(g => {
-                            const notesText = g.postGameNotes && g.postGameNotes.trim() ? `<br><em style="color: #666; font-size: 0.9em;">Post-Game: ${g.postGameNotes}</em>` : '';
-                            return `
-                            <li>
-                                <strong>${g.winner}</strong> beat ${g.loser}
-                                ${g.isUpset ? ' <span class="upset-tag">UPSET!</span>' : ''}
-                                ${notesText}
-                            </li>
-                        `;
-                        }).join('')}
-                    </ul>
-                ` : '<p>No results yet for this week</p>'}
-            </div>
-
-            <div class="summary-section">
-                <h3>📅 Next Matchups${summary.nextUpcomingGameDate ? ` - ${summary.nextUpcomingGameDate}` : ''} (${summary.upcomingWeekGames.length} game${summary.upcomingWeekGames.length !== 1 ? 's' : ''})</h3>
-                ${summary.upcomingWeekGames.length > 0 ? `
-                    <ul>
-                        ${summary.upcomingWeekGames.map(g => {
-                            const notesText = g.preGameNotes && g.preGameNotes.trim() ? `<br><em style="color: #666; font-size: 0.9em;">Pre-Game: ${g.preGameNotes}</em>` : '';
-                            return `<li>${g.team1Skip} vs ${g.team2Skip} - Sheet ${g.sheet}, ${g.date} ${g.time}${notesText}</li>`;
-                        }).join('')}
-                    </ul>
-                ` : '<p>No upcoming games scheduled</p>'}
-            </div>
-
-            ${summary.funFacts.length > 0 ? `
-                <div class="summary-section">
-                    <h3>🎉 Fun Facts</h3>
-                    <ul>
-                        ${summary.funFacts.map(f => `<li>${f}</li>`).join('')}
-                    </ul>
+                <div style="position: relative;">
+                    <button id="copyPrompt" style="position: absolute; top: 8px; right: 8px; padding: 6px 12px; background: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 12px; z-index: 10;">
+                        📋 Copy Context
+                    </button>
+                    <pre style="background: #f5f5f5; padding: 1.5rem; border-radius: 8px; overflow-x: auto; max-height: 600px; overflow-y: auto; white-space: pre-wrap; word-wrap: break-word; font-size: 13px; line-height: 1.6; font-family: 'Consolas', 'Monaco', 'Courier New', monospace; border: 1px solid #ddd;">${fullPrompt.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</pre>
                 </div>
-            ` : ''}
+            </div>
         </div>
     `;
+
+    // Add copy functionality
+    const copyButton = document.getElementById('copyPrompt');
+    if (copyButton) {
+        copyButton.addEventListener('click', async () => {
+            try {
+                await navigator.clipboard.writeText(fullPrompt);
+                const originalText = copyButton.innerHTML;
+                copyButton.innerHTML = '✅ Copied!';
+                copyButton.style.background = '#2196F3';
+                setTimeout(() => {
+                    copyButton.innerHTML = originalText;
+                    copyButton.style.background = '#4CAF50';
+                }, 2000);
+            } catch (err) {
+                console.error('Failed to copy:', err);
+                showStatus('Failed to copy to clipboard', 'error');
+            }
+        });
+    }
 }
 
 // Calculate what the standings were before the most recent week
@@ -563,84 +628,8 @@ async function generateEmail() {
     try {
         showLoading();
 
-        const summary = generateDataSummary();
-        const customPrompt = document.getElementById('promptTemplate').value;
-
-        // Get previous weeks' narratives for context
-        const previousNarratives = gameData.weeklyNarratives
-            .filter(n => n.Narrative && n.Narrative.trim() && parseInt(n.Week) < summary.nextUpcomingWeek)
-            .sort((a, b) => parseInt(a.Week) - parseInt(b.Week));
-
-        // Format previous narratives for context
-        const narrativesContext = previousNarratives.length > 0
-            ? `**PREVIOUS WEEKS' NARRATIVES (for continuity and callbacks):**
-
-${previousNarratives.map(n => `Week ${n.Week} (${n.Date}):
-${n.Narrative}`).join('\n\n')}
-
-`
-            : '';
-
-        // Build the full prompt with data
-        let fullPrompt = `${customPrompt}
-
-${narrativesContext}Here's the current data:
-
-**LEGEND:**
-- Win %: Percentage of games WON (e.g., 66.7% means they won 2 out of 3 games)
-- Form: ALL game results chronologically (W = Win, L = Loss, most recent on right). Use this to identify streaks and trends!
-- Movement: Rank change from last week (↑ = moved up, ↓ = moved down, − = no change)
-
-**IMPORTANT - TEAM vs PICKS:**
-Each player below shows their name followed by (Team, Position). The "Team" is the actual curling team they PLAY FOR in real life. This is separate from their picks - players predict which teams will win each game, and those picks can be ANY team, not just their own team. For example, "Pete Young (Ken Niedhart, Lead)" means Pete Young plays for Ken Niedhart's team, but Pete's picks for who will win games could include Jim Niedhart, Ken Niedhart, or any other team. Do NOT say a player "picks for" or "plays for" a team they selected to win - they are just predicting winners.
-
-**FULL STANDINGS (All ${summary.allPlayers.length} Players):**
-Goblet (Overall) Standings:
-${summary.allPlayers.map((p, i) => {
-    const rankChangeStr = p.rankChange > 0 ? ` (↑${p.rankChange})` : p.rankChange < 0 ? ` (↓${Math.abs(p.rankChange)})` : ' (−)';
-    const formStr = p.allForm ? ` [Form: ${p.allForm}]` : '';
-    return `${p.rank}. ${p.name} (${p.team}, ${p.position}): ${p.wins}-${p.losses} (Win%: ${p.winPct}%)${rankChangeStr}${formStr}`;
-}).join('\n')}
-
-Funk-Eng Cup Eligible Players (Leads & Seconds only):
-${summary.allPlayers.filter(p => p.isFunkEngEligible).map((p, i) => {
-    const rankChangeStr = p.rankChange > 0 ? ` (↑${p.rankChange})` : p.rankChange < 0 ? ` (↓${Math.abs(p.rankChange)})` : ' (−)';
-    const formStr = p.allForm ? ` [Form: ${p.allForm}]` : '';
-    return `${p.rank}. ${p.name} (${p.team}, ${p.position}): ${p.wins}-${p.losses} (Win%: ${p.winPct}%)${rankChangeStr}${formStr}`;
-}).join('\n')}
-
-**MOST RECENT RESULTS${summary.mostRecentGameDate ? ` (${summary.mostRecentGameDate})` : ''} - ${summary.recentWeekGames.length} game${summary.recentWeekGames.length !== 1 ? 's' : ''}:**
-${summary.recentWeekGames.length > 0 ? summary.recentWeekGames.map(g => {
-    const upsetText = g.isUpset ? ' (UPSET - only ' + (100 - g.chalkPercentage) + '% picked them!)' : '';
-    const notesText = g.postGameNotes && g.postGameNotes.trim() ? ` [Post-Game Note: ${g.postGameNotes}]` : '';
-    const winnerRosterText = g.winnerRoster.length > 0 ? ` (Players: ${g.winnerRoster.join(', ')})` : '';
-    const loserRosterText = g.loserRoster.length > 0 ? ` (Players: ${g.loserRoster.join(', ')})` : '';
-    return `- ${g.winner}${winnerRosterText} defeated ${g.loser}${loserRosterText}${upsetText}${notesText}`;
-}).join('\n') : 'No games completed recently'}
-
-**NEXT MATCHUPS${summary.nextUpcomingGameDate ? ` (${summary.nextUpcomingGameDate})` : ''} - ${summary.upcomingWeekGames.length} game${summary.upcomingWeekGames.length !== 1 ? 's' : ''}:**
-${summary.upcomingWeekGames.length > 0 ? summary.upcomingWeekGames.map(g => {
-    const notesText = g.preGameNotes && g.preGameNotes.trim() ? ` [Pre-Game Note: ${g.preGameNotes}]` : '';
-    const team1RosterText = g.team1Roster.length > 0 ? ` (Players: ${g.team1Roster.join(', ')})` : '';
-    const team2RosterText = g.team2Roster.length > 0 ? ` (Players: ${g.team2Roster.join(', ')})` : '';
-    return `- ${g.team1Skip}${team1RosterText} vs ${g.team2Skip}${team2RosterText} (Sheet ${g.sheet}, ${g.date} ${g.time})${notesText}`;
-}).join('\n') : 'No upcoming games scheduled'}
-
-**FUN FACTS:**
-${summary.funFacts.map(f => `- ${f}`).join('\n')}
-
-Now write an engaging, witty email based on this data. Format it as HTML suitable for pasting into Gmail. Use basic HTML tags like <p>, <strong>, <em>, <h2>, <ul>, <li>, etc. Make it fun and entertaining!
-
-CRITICAL FORMATTING INSTRUCTIONS:
-1. Start with a brief, catchy subject line (5-10 words) on the FIRST line, formatted as: <!-- SUBJECT: Your Subject Here -->
-2. (optional) bonus points if the subject is a slightly obscure, but not too obscure, popular movie/tv line, or popular music lyric, if so put it in quotes with a trailing elipsis: <!--- SUBJECT: “Like a dog without a bone, An actor out on loan”… -->
-2. After the subject line, write the email body content (do NOT include greeting or signature)
-3. The subject line comment will be extracted and used as a section header
-4. Example format:
-   <!-- SUBJECT: Ice Cold Takes and Hot Streaks -->
-   <p>Your email content starts here...</p>
-
-The email will have standings and matchups appended automatically.`;
+        // Generate the full prompt using the shared function
+        const fullPrompt = generateFullPrompt();
 
         // Call Gemini API
         const response = await fetch(`${GEMINI_API_URL}?key=${apiKey}`, {
