@@ -265,7 +265,7 @@ function displayDataPreview() {
     const wordCount = fullPrompt.split(/\s+/).length;
 
     // Generate the deterministic email sections
-    const recentResults = formatRecentResults();
+    const recentResults = formatRecentMatchups();
     const upcomingMatchups = formatUpcomingMatchups();
     const standings = formatStandingsTable();
 
