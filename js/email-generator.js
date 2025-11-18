@@ -264,19 +264,47 @@ function displayDataPreview() {
     const lineCount = fullPrompt.split('\n').length;
     const wordCount = fullPrompt.split(/\s+/).length;
 
+    // Generate the deterministic email sections
+    const recentResults = formatRecentMatchups();
+    const upcomingMatchups = formatUpcomingMatchups();
+    const standings = formatStandingsTable();
+
     previewDiv.innerHTML = `
         <div class="data-summary">
             <div class="summary-section">
-                <h3>📝 AI Prompt Context</h3>
+                <h3>📧 Email Preview</h3>
                 <p style="font-size: 0.9em; color: #666; margin-bottom: 1rem;">
-                    <strong>Stats:</strong> ${charCount.toLocaleString()} characters | ${lineCount.toLocaleString()} lines | ${wordCount.toLocaleString()} words
+                    The narrative section will be AI-generated. Other sections are generated from current data.
                 </p>
-                <div style="position: relative;">
-                    <button id="copyPrompt" style="position: absolute; top: 8px; right: 8px; padding: 6px 12px; background: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 12px; z-index: 10;">
-                        📋 Copy Context
-                    </button>
-                    <pre style="background: #f5f5f5; padding: 1.5rem; border-radius: 8px; overflow-x: auto; max-height: 600px; overflow-y: auto; white-space: pre-wrap; word-wrap: break-word; font-size: 13px; line-height: 1.6; font-family: 'Consolas', 'Monaco', 'Courier New', monospace; border: 1px solid #ddd;">${fullPrompt.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</pre>
+
+                <div style="background: white; border: 2px solid #e0e0e0; border-radius: 8px; padding: 1.5rem; margin-bottom: 1.5rem; max-height: 600px; overflow-y: auto;">
+                    <!-- Deterministic Sections -->
+                    ${recentResults}
+                    ${upcomingMatchups}
+
+                    <!-- AI Narrative Placeholder -->
+                    <div style="background: #fff9e6; padding: 1.5rem; border-radius: 4px; margin-bottom: 1.5rem; margin-top: 1.5rem; border-left: 4px solid #FFC107;">
+                        <strong style="color: #f57c00;">📝 AI-Generated Narrative:</strong>
+                        <p style="color: #666; font-style: italic; margin-top: 0.5rem;">
+                            The AI will generate 3-5 witty paragraphs here based on the latest results, upcoming matchups, and standings...
+                        </p>
+                    </div>
+
+                    ${standings}
                 </div>
+
+                <!-- AI Prompt Context (collapsible) -->
+                <details style="margin-top: 1rem;">
+                    <summary style="cursor: pointer; padding: 0.5rem; background: #f5f5f5; border-radius: 4px; font-weight: bold;">
+                        🤖 View AI Prompt Context (${charCount.toLocaleString()} chars | ${lineCount.toLocaleString()} lines | ${wordCount.toLocaleString()} words)
+                    </summary>
+                    <div style="position: relative; margin-top: 1rem;">
+                        <button id="copyPrompt" style="position: absolute; top: 8px; right: 8px; padding: 6px 12px; background: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 12px; z-index: 10;">
+                            📋 Copy Context
+                        </button>
+                        <pre style="background: #f5f5f5; padding: 1.5rem; border-radius: 8px; overflow-x: auto; max-height: 600px; overflow-y: auto; white-space: pre-wrap; word-wrap: break-word; font-size: 13px; line-height: 1.6; font-family: 'Consolas', 'Monaco', 'Courier New', monospace; border: 1px solid #ddd;">${fullPrompt.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</pre>
+                    </div>
+                </details>
             </div>
         </div>
     `;
@@ -821,25 +849,25 @@ function formatStandingsTable() {
         return '';
     };
 
-    // Helper to detect log-jam (3+ players with same record in top 5)
+    // Helper to detect log-jam (3+ players with same record at the top)
     const detectLogJam = (players) => {
         if (players.length < 3) return null;
 
-        const top5 = players.slice(0, Math.min(5, players.length));
-        const recordCounts = {};
+        // Get the top player's record
+        const topRecord = `${players[0].wins}-${players[0].losses}`;
 
-        top5.forEach(p => {
-            const record = `${p.wins}-${p.losses}`;
-            recordCounts[record] = (recordCounts[record] || 0) + 1;
-        });
+        // Count ALL players with the top record (not just top 5)
+        const playersWithTopRecord = players.filter(p => `${p.wins}-${p.losses}` === topRecord);
 
-        // Check if any record appears 3+ times in top 5
-        for (const [record, count] of Object.entries(recordCounts)) {
-            if (count >= 3) {
-                const playersWithRecord = top5.filter(p => `${p.wins}-${p.losses}` === record);
-                return { record, players: playersWithRecord, count };
-            }
+        // If 3+ players share the top record, it's a log-jam
+        if (playersWithTopRecord.length >= 3) {
+            return {
+                record: topRecord,
+                players: playersWithTopRecord,
+                count: playersWithTopRecord.length
+            };
         }
+
         return null;
     };
 
@@ -848,23 +876,56 @@ function formatStandingsTable() {
     let gobletHTML = '';
 
     if (gobletLogJam) {
-        gobletHTML = `<p style="margin-bottom: 1rem;"><strong>Top of the standings:</strong> ${gobletLogJam.count} players are tied at <strong>${gobletLogJam.record}</strong> (${gobletLogJam.players.map(p => p.name).join(', ')}).</p>`;
+        // For large log-jams (>5), just show the summary without names
+        if (gobletLogJam.count > 5) {
+            gobletHTML = `<p style="margin-bottom: 1rem;"><strong>Goblet:</strong> ${gobletLogJam.count} players are tied at <strong>${gobletLogJam.record}</strong></p>`;
+        } else {
+            // For small log-jams (≤5), show names without team/position/movement
+            gobletHTML = `<p style="margin-bottom: 1rem;"><strong>Goblet - Tied at ${gobletLogJam.record}:</strong> ${gobletLogJam.players.map(p => p.name).join(', ')}</p>`;
 
-        // Show remaining top 5
-        const remaining = summary.allPlayers.filter(p => `${p.wins}-${p.losses}` !== gobletLogJam.record).slice(0, 5 - gobletLogJam.count);
-        if (remaining.length > 0) {
-            gobletHTML += '<ul style="list-style: none; padding-left: 0; margin-top: 1rem;">';
-            remaining.forEach(p => {
-                gobletHTML += `<li style="margin-bottom: 0.5rem;"><strong>#${p.rank}:</strong> ${p.name} (${p.team}, ${p.position}) — ${p.wins}-${p.losses}${formatMovement(p)}</li>`;
+            // Show next few players with different records (respecting ties)
+            const remainingPlayers = summary.allPlayers.filter(p => `${p.wins}-${p.losses}` !== gobletLogJam.record);
+            if (remainingPlayers.length > 0 && remainingPlayers.length <= 5) {
+                // Only show if there are 5 or fewer remaining (otherwise it's another big group)
+                const top5Remaining = remainingPlayers.slice(0, 5);
+                const lastRecord = top5Remaining.length > 0 ? `${top5Remaining[top5Remaining.length - 1].wins}-${top5Remaining[top5Remaining.length - 1].losses}` : null;
+
+                // Find how many are tied with the 5th player
+                const tiedWithFifth = lastRecord ? remainingPlayers.filter(p => `${p.wins}-${p.losses}` === lastRecord).length : 0;
+
+                // Only include ties if it doesn't explode the list
+                const toShow = (lastRecord && tiedWithFifth <= 3)
+                    ? remainingPlayers.slice(0, 5 + tiedWithFifth)
+                    : top5Remaining;
+
+                gobletHTML += '<ul style="list-style: none; padding-left: 0; margin-top: 1rem;">';
+                toShow.forEach(p => {
+                    gobletHTML += `<li style="margin-bottom: 0.5rem;"><strong>#${p.rank}:</strong> ${p.name} — ${p.wins}-${p.losses}</li>`;
+                });
+                gobletHTML += '</ul>';
+            }
+        }
+    } else {
+        // No log-jam at top - show top 5 (respecting ties)
+        const top5 = summary.allPlayers.slice(0, 5);
+        if (top5.length > 0) {
+            const lastRecord = `${top5[top5.length - 1].wins}-${top5[top5.length - 1].losses}`;
+            const tiedWithFifth = summary.allPlayers.filter(p => `${p.wins}-${p.losses}` === lastRecord).length;
+
+            // Only include ties if reasonable
+            const toShow = tiedWithFifth <= 3
+                ? summary.allPlayers.filter((p, idx) => {
+                    return idx < 5 || (idx >= 5 && `${p.wins}-${p.losses}` === lastRecord);
+                  })
+                : top5;
+
+            gobletHTML = '<p style="margin-bottom: 0.5rem;"><strong>Goblet:</strong></p>';
+            gobletHTML += '<ul style="list-style: none; padding-left: 0;">';
+            toShow.forEach(p => {
+                gobletHTML += `<li style="margin-bottom: 0.5rem;"><strong>#${p.rank}:</strong> ${p.name} — ${p.wins}-${p.losses}</li>`;
             });
             gobletHTML += '</ul>';
         }
-    } else {
-        gobletHTML = '<ul style="list-style: none; padding-left: 0;">';
-        summary.allPlayers.slice(0, 5).forEach(p => {
-            gobletHTML += `<li style="margin-bottom: 0.5rem;"><strong>#${p.rank}:</strong> ${p.name} (${p.team}, ${p.position}) — ${p.wins}-${p.losses}${formatMovement(p)}</li>`;
-        });
-        gobletHTML += '</ul>';
     }
 
     // Format top 5 for Funk-Eng
@@ -873,35 +934,69 @@ function formatStandingsTable() {
     let funkEngHTML = '';
 
     if (funkEngLogJam) {
-        funkEngHTML = `<p style="margin-bottom: 1rem;"><strong>Top of the standings:</strong> ${funkEngLogJam.count} players are tied at <strong>${funkEngLogJam.record}</strong> (${funkEngLogJam.players.map(p => p.name).join(', ')}).</p>`;
+        // For large log-jams (>5), just show the summary without names
+        if (funkEngLogJam.count > 5) {
+            funkEngHTML = `<p style="margin-bottom: 1rem;"><strong>Funk-Eng Cup:</strong> ${funkEngLogJam.count} players are tied at <strong>${funkEngLogJam.record}</strong></p>`;
+        } else {
+            // For small log-jams (≤5), show names without team/position/movement
+            funkEngHTML = `<p style="margin-bottom: 1rem;"><strong>Funk-Eng Cup - Tied at ${funkEngLogJam.record}:</strong> ${funkEngLogJam.players.map(p => p.name).join(', ')}</p>`;
 
-        // Show remaining top 5
-        const remaining = funkEngPlayers.filter(p => `${p.wins}-${p.losses}` !== funkEngLogJam.record).slice(0, 5 - funkEngLogJam.count);
-        if (remaining.length > 0) {
-            funkEngHTML += '<ul style="list-style: none; padding-left: 0; margin-top: 1rem;">';
-            remaining.forEach(p => {
+            // Show next few players with different records (respecting ties)
+            const remainingPlayers = funkEngPlayers.filter(p => `${p.wins}-${p.losses}` !== funkEngLogJam.record);
+            if (remainingPlayers.length > 0 && remainingPlayers.length <= 5) {
+                // Only show if there are 5 or fewer remaining (otherwise it's another big group)
+                const top5Remaining = remainingPlayers.slice(0, 5);
+                const lastRecord = top5Remaining.length > 0 ? `${top5Remaining[top5Remaining.length - 1].wins}-${top5Remaining[top5Remaining.length - 1].losses}` : null;
+
+                // Find how many are tied with the 5th player
+                const tiedWithFifth = lastRecord ? remainingPlayers.filter(p => `${p.wins}-${p.losses}` === lastRecord).length : 0;
+
+                // Only include ties if it doesn't explode the list
+                const toShow = (lastRecord && tiedWithFifth <= 3)
+                    ? remainingPlayers.slice(0, 5 + tiedWithFifth)
+                    : top5Remaining;
+
+                funkEngHTML += '<ul style="list-style: none; padding-left: 0; margin-top: 1rem;">';
+                toShow.forEach(p => {
+                    const funkEngRank = funkEngPlayers.indexOf(p) + 1;
+                    funkEngHTML += `<li style="margin-bottom: 0.5rem;"><strong>#${funkEngRank}:</strong> ${p.name} — ${p.wins}-${p.losses}</li>`;
+                });
+                funkEngHTML += '</ul>';
+            }
+        }
+    } else {
+        // No log-jam at top - show top 5 (respecting ties)
+        const top5 = funkEngPlayers.slice(0, 5);
+        if (top5.length > 0) {
+            const lastRecord = `${top5[top5.length - 1].wins}-${top5[top5.length - 1].losses}`;
+            const tiedWithFifth = funkEngPlayers.filter(p => `${p.wins}-${p.losses}` === lastRecord).length;
+
+            // Only include ties if reasonable
+            const toShow = tiedWithFifth <= 3
+                ? funkEngPlayers.filter((p, idx) => {
+                    return idx < 5 || (idx >= 5 && `${p.wins}-${p.losses}` === lastRecord);
+                  })
+                : top5;
+
+            funkEngHTML = '<p style="margin-bottom: 0.5rem;"><strong>Funk-Eng Cup:</strong></p>';
+            funkEngHTML += '<ul style="list-style: none; padding-left: 0;">';
+            toShow.forEach(p => {
                 const funkEngRank = funkEngPlayers.indexOf(p) + 1;
-                funkEngHTML += `<li style="margin-bottom: 0.5rem;"><strong>#${funkEngRank}:</strong> ${p.name} (${p.team}, ${p.position}) — ${p.wins}-${p.losses}${formatMovement(p)}</li>`;
+                funkEngHTML += `<li style="margin-bottom: 0.5rem;"><strong>#${funkEngRank}:</strong> ${p.name} — ${p.wins}-${p.losses}</li>`;
             });
             funkEngHTML += '</ul>';
         }
-    } else {
-        funkEngHTML = '<ul style="list-style: none; padding-left: 0;">';
-        funkEngPlayers.slice(0, 5).forEach((p, index) => {
-            funkEngHTML += `<li style="margin-bottom: 0.5rem;"><strong>#${index + 1}:</strong> ${p.name} (${p.team}, ${p.position}) — ${p.wins}-${p.losses}${formatMovement(p)}</li>`;
-        });
-        funkEngHTML += '</ul>';
     }
 
     let tableHTML = `
         <div style="margin-top: 2rem; padding-top: 2rem; border-top: 2px solid #e0e0e0;">
             <h2 style="color: #2c3e50; margin-bottom: 1rem;">Current Standings</h2>
 
-            <h3 style="color: #34495e; margin-top: 1.5rem; margin-bottom: 0.5rem;">Goblet (Overall) — Top 5</h3>
             ${gobletHTML}
 
-            <h3 style="color: #34495e; margin-top: 2rem; margin-bottom: 0.5rem;">Funk-Eng Cup (Leads & Seconds Only) — Top 5</h3>
-            ${funkEngHTML}
+            <div style="margin-top: 2rem;">
+                ${funkEngHTML}
+            </div>
 
             <p style="text-align: center; margin-top: 2rem; font-size: 16px;">
                 <strong><a href="https://pesayo.github.io/game-of-the-week/" style="color: #3498db; text-decoration: none;">View Full Dashboard</a> →</strong>
