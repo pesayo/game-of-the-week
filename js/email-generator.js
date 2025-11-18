@@ -882,10 +882,10 @@ function formatStandingsTable() {
     if (gobletLogJam) {
         // For large log-jams (>5), just show the summary without names
         if (gobletLogJam.count > 5) {
-            gobletHTML = `<p style="margin-bottom: 1rem;">${gobletLogJam.count} players are tied at <strong>${gobletLogJam.record}</strong></p>`;
+            gobletHTML = `<p style="margin-bottom: 1rem;"><strong>Goblet:</strong> ${gobletLogJam.count} players are tied at <strong>${gobletLogJam.record}</strong></p>`;
         } else {
             // For small log-jams (≤5), show names without team/position/movement
-            gobletHTML = `<p style="margin-bottom: 1rem;"><strong>Tied at ${gobletLogJam.record}:</strong> ${gobletLogJam.players.map(p => p.name).join(', ')}</p>`;
+            gobletHTML = `<p style="margin-bottom: 1rem;"><strong>Goblet - Tied at ${gobletLogJam.record}:</strong> ${gobletLogJam.players.map(p => p.name).join(', ')}</p>`;
 
             // Show next few players with different records (respecting ties)
             const remainingPlayers = summary.allPlayers.filter(p => `${p.wins}-${p.losses}` !== gobletLogJam.record);
@@ -923,7 +923,8 @@ function formatStandingsTable() {
                   })
                 : top5;
 
-            gobletHTML = '<ul style="list-style: none; padding-left: 0;">';
+            gobletHTML = '<p style="margin-bottom: 0.5rem;"><strong>Goblet:</strong></p>';
+            gobletHTML += '<ul style="list-style: none; padding-left: 0;">';
             toShow.forEach(p => {
                 gobletHTML += `<li style="margin-bottom: 0.5rem;"><strong>#${p.rank}:</strong> ${p.name} — ${p.wins}-${p.losses}</li>`;
             });
@@ -939,10 +940,10 @@ function formatStandingsTable() {
     if (funkEngLogJam) {
         // For large log-jams (>5), just show the summary without names
         if (funkEngLogJam.count > 5) {
-            funkEngHTML = `<p style="margin-bottom: 1rem;">${funkEngLogJam.count} players are tied at <strong>${funkEngLogJam.record}</strong></p>`;
+            funkEngHTML = `<p style="margin-bottom: 1rem;"><strong>Funk-Eng Cup:</strong> ${funkEngLogJam.count} players are tied at <strong>${funkEngLogJam.record}</strong></p>`;
         } else {
             // For small log-jams (≤5), show names without team/position/movement
-            funkEngHTML = `<p style="margin-bottom: 1rem;"><strong>Tied at ${funkEngLogJam.record}:</strong> ${funkEngLogJam.players.map(p => p.name).join(', ')}</p>`;
+            funkEngHTML = `<p style="margin-bottom: 1rem;"><strong>Funk-Eng Cup - Tied at ${funkEngLogJam.record}:</strong> ${funkEngLogJam.players.map(p => p.name).join(', ')}</p>`;
 
             // Show next few players with different records (respecting ties)
             const remainingPlayers = funkEngPlayers.filter(p => `${p.wins}-${p.losses}` !== funkEngLogJam.record);
@@ -981,7 +982,8 @@ function formatStandingsTable() {
                   })
                 : top5;
 
-            funkEngHTML = '<ul style="list-style: none; padding-left: 0;">';
+            funkEngHTML = '<p style="margin-bottom: 0.5rem;"><strong>Funk-Eng Cup:</strong></p>';
+            funkEngHTML += '<ul style="list-style: none; padding-left: 0;">';
             toShow.forEach(p => {
                 const funkEngRank = funkEngPlayers.indexOf(p) + 1;
                 funkEngHTML += `<li style="margin-bottom: 0.5rem;"><strong>#${funkEngRank}:</strong> ${p.name} — ${p.wins}-${p.losses}</li>`;
