@@ -16,6 +16,7 @@ const DEFAULT_PROMPT = `You are writing a weekly email to participants in "The G
 3. Previews the upcoming matchups with dramatic flair
 4. Uses curling terminology and puns where appropriate
 5. Keeps a light, entertaining tone - this is for fun!
+6. DO NOT comment on general contrarianism - only mention specific bold picks if they're in the Fun Facts and had a real impact on standings
 
 Note: The teams players have picked are named after the curling team's skip. Some of those skips are also participants in the Game of the Week. All picks are submitted and locked in at the start of the season, there is no changing picks week to week.
 The email should be 3-5 short paragraphs. Be creative and entertaining. Feel free to create amusing narratives or exaggerate for comedic effect.
@@ -159,7 +160,7 @@ function displayDataPreview() {
             <div class="summary-section">
                 <h3>📊 Full Standings (${summary.allPlayers.length} Players)</h3>
                 <p style="font-size: 0.9em; color: #666; margin-bottom: 1rem;">
-                    <strong>Win%</strong> = games won | <strong>Contrarian%</strong> = to-date % of picks against majority (completed games only)
+                    <strong>Win%</strong> = percentage of games won | <strong>Form</strong> = all game results chronologically
                 </p>
                 <ol>
                     ${summary.allPlayers.map(p => {
@@ -167,7 +168,7 @@ function displayDataPreview() {
                         return `
                             <li>
                                 <strong>${p.name}</strong> (${p.position || 'Unknown'}${p.isFunkEngEligible ? ' - Funk-Eng Eligible' : ''}):<br>
-                                ${p.wins}-${p.losses} (Win: ${p.winPct}%, Contrarian: ${p.contrarianPct}%) | Form: ${p.allForm || 'N/A'} | Movement: ${rankChangeSymbol}
+                                ${p.wins}-${p.losses} (Win: ${p.winPct}%) | Form: ${p.allForm || 'N/A'} | Movement: ${rankChangeSymbol}
                             </li>
                         `;
                     }).join('')}
@@ -444,12 +445,46 @@ function generateDataSummary() {
         funFacts.push(`${bestStreak.name} is on a ${actualStreak}-game winning streak!`);
     }
 
-    // Find biggest contrarian
-    const contrarians = leaderboardData.filter(p => p.contrarianPct > 0)
-        .sort((a, b) => b.contrarianPct - a.contrarianPct);
-    if (contrarians.length > 0) {
-        const topContrarian = contrarians[0];
-        funFacts.push(`${topContrarian.name} goes against the grain ${topContrarian.contrarianPct.toFixed(0)}% of the time`);
+    // Find impactful contrarian picks from recent week
+    // These are picks where someone went against the grain (<35% picked the team) and it paid off
+    const impactfulPicks = [];
+    recentWeekGames.forEach(game => {
+        if (game.isUpset && game.chalkPercentage >= 65) { // Winner was picked by <35%
+            // Find players who picked the winner
+            leaderboardData.forEach(player => {
+                const gameResult = player.allResults.find(r =>
+                    r.matchup.week === game.week &&
+                    r.matchup.date === game.date &&
+                    r.pick === game.winner
+                );
+
+                if (gameResult && gameResult.result === 'W') {
+                    // This is impactful if player is top 10 or moved up significantly
+                    const isImpactful = player.rank <= 10 || player.rankChange > 2;
+                    if (isImpactful) {
+                        impactfulPicks.push({
+                            player: player.name,
+                            team: game.winner,
+                            pickPercentage: 100 - game.chalkPercentage,
+                            rank: player.rank,
+                            rankChange: player.rankChange
+                        });
+                    }
+                }
+            });
+        }
+    });
+
+    // Add the most impactful pick to fun facts
+    if (impactfulPicks.length > 0) {
+        // Sort by rank (better players first) then by pick percentage (bolder picks first)
+        impactfulPicks.sort((a, b) => {
+            if (a.rank !== b.rank) return a.rank - b.rank;
+            return a.pickPercentage - b.pickPercentage;
+        });
+        const pick = impactfulPicks[0];
+        const rankInfo = pick.rankChange > 2 ? ` (helping them jump up ${pick.rankChange} spots!)` : ` (currently rank ${pick.rank})`;
+        funFacts.push(`${pick.player} made a bold call on ${pick.team} when only ${pick.pickPercentage}% picked them${rankInfo}`);
     }
 
     // Find most recent upset from recent week
@@ -517,7 +552,6 @@ ${narrativesContext}Here's the current data:
 
 **LEGEND:**
 - Win %: Percentage of games WON (e.g., 66.7% means they won 2 out of 3 games)
-- Contrarian %: To-date percentage of picks AGAINST the majority, calculated only from completed games. Although all picks were locked in at the start of the season for the entire schedule, this percentage only reflects games played so far (e.g., 25% means in 1 out of every 4 completed games, they picked the team that fewer people picked). A player who consistently picked underdogs will have a higher contrarian %.
 - Form: ALL game results chronologically (W = Win, L = Loss, most recent on right). Use this to identify streaks and trends!
 - Movement: Rank change from last week (↑ = moved up, ↓ = moved down, − = no change)
 
@@ -529,14 +563,14 @@ Goblet (Overall) Standings:
 ${summary.allPlayers.map((p, i) => {
     const rankChangeStr = p.rankChange > 0 ? ` (↑${p.rankChange})` : p.rankChange < 0 ? ` (↓${Math.abs(p.rankChange)})` : ' (−)';
     const formStr = p.allForm ? ` [Form: ${p.allForm}]` : '';
-    return `${p.rank}. ${p.name} (${p.team}, ${p.position}): ${p.wins}-${p.losses} (Win%: ${p.winPct}%, Contrarian: ${p.contrarianPct}%)${rankChangeStr}${formStr}`;
+    return `${p.rank}. ${p.name} (${p.team}, ${p.position}): ${p.wins}-${p.losses} (Win%: ${p.winPct}%)${rankChangeStr}${formStr}`;
 }).join('\n')}
 
 Funk-Eng Cup Eligible Players (Leads & Seconds only):
 ${summary.allPlayers.filter(p => p.isFunkEngEligible).map((p, i) => {
     const rankChangeStr = p.rankChange > 0 ? ` (↑${p.rankChange})` : p.rankChange < 0 ? ` (↓${Math.abs(p.rankChange)})` : ' (−)';
     const formStr = p.allForm ? ` [Form: ${p.allForm}]` : '';
-    return `${p.rank}. ${p.name} (${p.team}, ${p.position}): ${p.wins}-${p.losses} (Win%: ${p.winPct}%, Contrarian: ${p.contrarianPct}%)${rankChangeStr}${formStr}`;
+    return `${p.rank}. ${p.name} (${p.team}, ${p.position}): ${p.wins}-${p.losses} (Win%: ${p.winPct}%)${rankChangeStr}${formStr}`;
 }).join('\n')}
 
 **MOST RECENT RESULTS${summary.mostRecentGameDate ? ` (${summary.mostRecentGameDate})` : ''} - ${summary.recentWeekGames.length} game${summary.recentWeekGames.length !== 1 ? 's' : ''}:**
