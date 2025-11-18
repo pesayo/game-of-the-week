@@ -2,7 +2,7 @@
 
 import { fetchAllData } from './data/data-fetcher.js';
 import { processData, analyzePickDistribution } from './data/data-processor.js';
-import { createGameKey } from './utils/parsers.js';
+import { createGameKey, parsePlayerInfo } from './utils/parsers.js';
 
 // Gemini API configuration
 const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:generateContent';
@@ -117,6 +117,9 @@ async function loadGameData() {
             allGames.push(game);
         });
 
+        // Parse player info CSV to create a clean map
+        const { playerMap } = parsePlayerInfo(data.playerInfo);
+
         // Analyze pick distribution
         const pickAnalysis = analyzePickDistribution(data.picks, matchupsMap);
 
@@ -127,7 +130,7 @@ async function loadGameData() {
             allGames,
             matchupsMap,
             pickAnalysis,
-            playerInfo: data.playerInfo,
+            playerInfoMap: playerMap,
             weeklyNarratives: data.weeklyNarratives
         };
         leaderboardData = leaderboard;
@@ -338,9 +341,9 @@ function generateDataSummary() {
 
     // Get all players with Funk-Eng eligibility
     const allPlayers = leaderboardData.map(p => {
-        // Find player info from the data
-        const playerInfo = gameData.playerInfo?.find(pi => pi.Name === p.name) || {};
-        const position = playerInfo.Position || '';
+        // Look up player info from the map (already trimmed and cleaned)
+        const playerInfo = gameData.playerInfoMap?.[p.name] || { team: '', position: '' };
+        const position = playerInfo.position || '';
         const isFunkEngEligible = position === 'Lead' || position === 'Second';
 
         // Get all game results (W/L only, chronological order)
@@ -356,7 +359,7 @@ function generateDataSummary() {
             losses: p.losses,
             winPct: p.winPct.toFixed(1),
             rank: p.rank,
-            team: playerInfo.Team || '',
+            team: playerInfo.team || '',
             position: position,
             isFunkEngEligible: isFunkEngEligible,
             allForm: allForm,
