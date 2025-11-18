@@ -112,7 +112,8 @@ async function loadGameData() {
                 team2Skip: row.Team2_Skip,
                 winner: row.Winner || null,
                 isKeyMatchup: row.Key_Matchup === 'TRUE',
-                notes: row.Notes || ''
+                preGameNotes: row.Pre_Game_Notes || '',
+                postGameNotes: row.Post_Game_Notes || ''
             };
             matchupsMap[gameKey] = game;
             allGames.push(game);
@@ -179,12 +180,16 @@ function displayDataPreview() {
                 <h3>🎯 Most Recent Results${summary.mostRecentGameDate ? ` - ${summary.mostRecentGameDate}` : ''} (${summary.recentWeekGames.length} game${summary.recentWeekGames.length !== 1 ? 's' : ''})</h3>
                 ${summary.recentWeekGames.length > 0 ? `
                     <ul>
-                        ${summary.recentWeekGames.map(g => `
+                        ${summary.recentWeekGames.map(g => {
+                            const notesText = g.postGameNotes && g.postGameNotes.trim() ? `<br><em style="color: #666; font-size: 0.9em;">Post-Game: ${g.postGameNotes}</em>` : '';
+                            return `
                             <li>
                                 <strong>${g.winner}</strong> beat ${g.loser}
                                 ${g.isUpset ? ' <span class="upset-tag">UPSET!</span>' : ''}
+                                ${notesText}
                             </li>
-                        `).join('')}
+                        `;
+                        }).join('')}
                     </ul>
                 ` : '<p>No results yet for this week</p>'}
             </div>
@@ -194,7 +199,7 @@ function displayDataPreview() {
                 ${summary.upcomingWeekGames.length > 0 ? `
                     <ul>
                         ${summary.upcomingWeekGames.map(g => {
-                            const notesText = g.notes && g.notes.trim() ? ` <em>(Note: ${g.notes})</em>` : '';
+                            const notesText = g.preGameNotes && g.preGameNotes.trim() ? `<br><em style="color: #666; font-size: 0.9em;">Pre-Game: ${g.preGameNotes}</em>` : '';
                             return `<li>${g.team1Skip} vs ${g.team2Skip} - Sheet ${g.sheet}, ${g.date} ${g.time}${notesText}</li>`;
                         }).join('')}
                     </ul>
@@ -391,7 +396,8 @@ function generateDataSummary() {
                     date: g.date,
                     week: g.week,
                     isUpset: isUpset,
-                    chalkPercentage: pickInfo ? pickInfo.chalkPercentage : null
+                    chalkPercentage: pickInfo ? pickInfo.chalkPercentage : null,
+                    postGameNotes: g.postGameNotes || ''
                 };
             });
     }
@@ -425,7 +431,7 @@ function generateDataSummary() {
                     time: g.time,
                     week: g.week,
                     sheet: g.sheet,
-                    notes: g.notes
+                    preGameNotes: g.preGameNotes || ''
                 }));
         }
     }
@@ -574,11 +580,15 @@ ${summary.allPlayers.filter(p => p.isFunkEngEligible).map((p, i) => {
 }).join('\n')}
 
 **MOST RECENT RESULTS${summary.mostRecentGameDate ? ` (${summary.mostRecentGameDate})` : ''} - ${summary.recentWeekGames.length} game${summary.recentWeekGames.length !== 1 ? 's' : ''}:**
-${summary.recentWeekGames.length > 0 ? summary.recentWeekGames.map(g => `- ${g.winner} defeated ${g.loser}${g.isUpset ? ' (UPSET - only ' + (100 - g.chalkPercentage) + '% picked them!)' : ''}`).join('\n') : 'No games completed recently'}
+${summary.recentWeekGames.length > 0 ? summary.recentWeekGames.map(g => {
+    const upsetText = g.isUpset ? ' (UPSET - only ' + (100 - g.chalkPercentage) + '% picked them!)' : '';
+    const notesText = g.postGameNotes && g.postGameNotes.trim() ? ` [Post-Game Note: ${g.postGameNotes}]` : '';
+    return `- ${g.winner} defeated ${g.loser}${upsetText}${notesText}`;
+}).join('\n') : 'No games completed recently'}
 
 **NEXT MATCHUPS${summary.nextUpcomingGameDate ? ` (${summary.nextUpcomingGameDate})` : ''} - ${summary.upcomingWeekGames.length} game${summary.upcomingWeekGames.length !== 1 ? 's' : ''}:**
 ${summary.upcomingWeekGames.length > 0 ? summary.upcomingWeekGames.map(g => {
-    const notesText = g.notes && g.notes.trim() ? ` [Note: ${g.notes}]` : '';
+    const notesText = g.preGameNotes && g.preGameNotes.trim() ? ` [Pre-Game Note: ${g.preGameNotes}]` : '';
     return `- ${g.team1Skip} vs ${g.team2Skip} (Sheet ${g.sheet}, ${g.date} ${g.time})${notesText}`;
 }).join('\n') : 'No upcoming games scheduled'}
 
