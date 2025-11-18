@@ -264,19 +264,51 @@ function displayDataPreview() {
     const lineCount = fullPrompt.split('\n').length;
     const wordCount = fullPrompt.split(/\s+/).length;
 
+    // Generate the deterministic email sections
+    const recentResults = formatRecentResults();
+    const upcomingMatchups = formatUpcomingMatchups();
+    const standings = formatStandingsTable();
+
     previewDiv.innerHTML = `
         <div class="data-summary">
             <div class="summary-section">
-                <h3>📝 AI Prompt Context</h3>
+                <h3>📧 Email Preview</h3>
                 <p style="font-size: 0.9em; color: #666; margin-bottom: 1rem;">
-                    <strong>Stats:</strong> ${charCount.toLocaleString()} characters | ${lineCount.toLocaleString()} lines | ${wordCount.toLocaleString()} words
+                    The narrative section will be AI-generated. Other sections are generated from current data.
                 </p>
-                <div style="position: relative;">
-                    <button id="copyPrompt" style="position: absolute; top: 8px; right: 8px; padding: 6px 12px; background: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 12px; z-index: 10;">
-                        📋 Copy Context
-                    </button>
-                    <pre style="background: #f5f5f5; padding: 1.5rem; border-radius: 8px; overflow-x: auto; max-height: 600px; overflow-y: auto; white-space: pre-wrap; word-wrap: break-word; font-size: 13px; line-height: 1.6; font-family: 'Consolas', 'Monaco', 'Courier New', monospace; border: 1px solid #ddd;">${fullPrompt.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</pre>
+
+                <div style="background: white; border: 2px solid #e0e0e0; border-radius: 8px; padding: 1.5rem; margin-bottom: 1.5rem; max-height: 600px; overflow-y: auto;">
+                    <!-- Subject Line Placeholder -->
+                    <div style="background: #f0f0f0; padding: 1rem; border-radius: 4px; margin-bottom: 1.5rem; border-left: 4px solid #4CAF50;">
+                        <strong>Subject:</strong> <em style="color: #666;">[AI will generate catchy subject line]</em>
+                    </div>
+
+                    <!-- AI Narrative Placeholder -->
+                    <div style="background: #fff9e6; padding: 1.5rem; border-radius: 4px; margin-bottom: 1.5rem; border-left: 4px solid #FFC107;">
+                        <strong style="color: #f57c00;">📝 AI-Generated Narrative:</strong>
+                        <p style="color: #666; font-style: italic; margin-top: 0.5rem;">
+                            The AI will generate 3-5 witty paragraphs here based on the latest results, upcoming matchups, and standings...
+                        </p>
+                    </div>
+
+                    <!-- Deterministic Sections -->
+                    ${recentResults}
+                    ${upcomingMatchups}
+                    ${standings}
                 </div>
+
+                <!-- AI Prompt Context (collapsible) -->
+                <details style="margin-top: 1rem;">
+                    <summary style="cursor: pointer; padding: 0.5rem; background: #f5f5f5; border-radius: 4px; font-weight: bold;">
+                        🤖 View AI Prompt Context (${charCount.toLocaleString()} chars | ${lineCount.toLocaleString()} lines | ${wordCount.toLocaleString()} words)
+                    </summary>
+                    <div style="position: relative; margin-top: 1rem;">
+                        <button id="copyPrompt" style="position: absolute; top: 8px; right: 8px; padding: 6px 12px; background: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 12px; z-index: 10;">
+                            📋 Copy Context
+                        </button>
+                        <pre style="background: #f5f5f5; padding: 1.5rem; border-radius: 8px; overflow-x: auto; max-height: 600px; overflow-y: auto; white-space: pre-wrap; word-wrap: break-word; font-size: 13px; line-height: 1.6; font-family: 'Consolas', 'Monaco', 'Courier New', monospace; border: 1px solid #ddd;">${fullPrompt.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</pre>
+                    </div>
+                </details>
             </div>
         </div>
     `;
