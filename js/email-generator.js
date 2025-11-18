@@ -850,7 +850,7 @@ function formatStandingsTable() {
     if (gobletLogJam) {
         // For large log-jams (>5), just show the summary without names
         if (gobletLogJam.count > 5) {
-            gobletHTML = `<p style="margin-bottom: 1rem;"><strong>${gobletLogJam.count} players are tied at <strong>${gobletLogJam.record}</strong></p>`;
+            gobletHTML = `<p style="margin-bottom: 1rem;">${gobletLogJam.count} players are tied at <strong>${gobletLogJam.record}</strong></p>`;
         } else {
             // For small log-jams (≤5), show names without team/position/movement
             gobletHTML = `<p style="margin-bottom: 1rem;"><strong>Tied at ${gobletLogJam.record}:</strong> ${gobletLogJam.players.map(p => p.name).join(', ')}</p>`;
@@ -907,7 +907,7 @@ function formatStandingsTable() {
     if (funkEngLogJam) {
         // For large log-jams (>5), just show the summary without names
         if (funkEngLogJam.count > 5) {
-            funkEngHTML = `<p style="margin-bottom: 1rem;"><strong>${funkEngLogJam.count} players are tied at <strong>${funkEngLogJam.record}</strong></p>`;
+            funkEngHTML = `<p style="margin-bottom: 1rem;">${funkEngLogJam.count} players are tied at <strong>${funkEngLogJam.record}</strong></p>`;
         } else {
             // For small log-jams (≤5), show names without team/position/movement
             funkEngHTML = `<p style="margin-bottom: 1rem;"><strong>Tied at ${funkEngLogJam.record}:</strong> ${funkEngLogJam.players.map(p => p.name).join(', ')}</p>`;
