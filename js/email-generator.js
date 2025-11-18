@@ -2,7 +2,7 @@
 
 import { fetchAllData } from './data/data-fetcher.js';
 import { processData, analyzePickDistribution } from './data/data-processor.js';
-import { createGameKey } from './utils/parsers.js';
+import { createGameKey, parsePlayerInfo } from './utils/parsers.js';
 
 // Gemini API configuration
 const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:generateContent';
@@ -16,6 +16,7 @@ const DEFAULT_PROMPT = `You are writing a weekly email to participants in "The G
 3. Previews the upcoming matchups with dramatic flair
 4. Uses curling terminology and puns where appropriate
 5. Keeps a light, entertaining tone - this is for fun!
+6. DO NOT comment on general contrarianism - only mention specific bold picks if they're in the Fun Facts and had a real impact on standings
 
 Note: The teams players have picked are named after the curling team's skip. Some of those skips are also participants in the Game of the Week. All picks are submitted and locked in at the start of the season, there is no changing picks week to week.
 The email should be 3-5 short paragraphs. Be creative and entertaining. Feel free to create amusing narratives or exaggerate for comedic effect.
@@ -87,6 +88,12 @@ async function loadGameData() {
         const matchupsMap = {};
         const allGames = [];
 
+        // Debug: Log first row to see actual column names
+        if (data.matchups.length > 0) {
+            console.log('First matchup row columns:', Object.keys(data.matchups[0]));
+            console.log('Sample row:', data.matchups[0]);
+        }
+
         data.matchups.forEach((row, index) => {
             const gameKey = createGameKey(row.Week, row.Date, row.Time, row.Sheet);
 
@@ -97,6 +104,10 @@ async function loadGameData() {
             const team2Name = row.Team2_Number && row.Team2_Number.trim()
                 ? `${row.Team2_Number} ${row.Team2_Skip}`
                 : row.Team2_Skip;
+
+            // Try multiple possible column name variations for notes
+            const preGameNotes = row.Pre_Game_Notes || row['Pre-Game Notes'] || row.PreGameNotes || row['Pre Game Notes'] || '';
+            const postGameNotes = row.Post_Game_Notes || row['Post-Game Notes'] || row.PostGameNotes || row['Post Game Notes'] || '';
 
             const game = {
                 gameNumber: index + 1,
@@ -111,11 +122,24 @@ async function loadGameData() {
                 team2Skip: row.Team2_Skip,
                 winner: row.Winner || null,
                 isKeyMatchup: row.Key_Matchup === 'TRUE',
-                notes: row.Notes || ''
+                preGameNotes: preGameNotes,
+                postGameNotes: postGameNotes
             };
+
+            // Debug: Log notes for games with winner or upcoming
+            if (postGameNotes && row.Winner) {
+                console.log(`Game ${index + 1} has post-game notes:`, postGameNotes);
+            }
+            if (preGameNotes && !row.Winner) {
+                console.log(`Game ${index + 1} has pre-game notes:`, preGameNotes);
+            }
+
             matchupsMap[gameKey] = game;
             allGames.push(game);
         });
+
+        // Parse player info CSV to create a clean map
+        const { playerMap } = parsePlayerInfo(data.playerInfo);
 
         // Analyze pick distribution
         const pickAnalysis = analyzePickDistribution(data.picks, matchupsMap);
@@ -127,7 +151,7 @@ async function loadGameData() {
             allGames,
             matchupsMap,
             pickAnalysis,
-            playerInfo: data.playerInfo,
+            playerInfoMap: playerMap,
             weeklyNarratives: data.weeklyNarratives
         };
         leaderboardData = leaderboard;
@@ -140,6 +164,90 @@ async function loadGameData() {
     }
 }
 
+// Generate the full AI prompt context
+function generateFullPrompt() {
+    const summary = generateDataSummary();
+    const customPrompt = document.getElementById('promptTemplate')?.value || DEFAULT_PROMPT;
+
+    // Get previous weeks' narratives for context
+    const previousNarratives = gameData.weeklyNarratives
+        .filter(n => n.Narrative && n.Narrative.trim() && parseInt(n.Week) < summary.nextUpcomingWeek)
+        .sort((a, b) => parseInt(a.Week) - parseInt(b.Week));
+
+    // Format previous narratives for context
+    const narrativesContext = previousNarratives.length > 0
+        ? `**PREVIOUS WEEKS' NARRATIVES (for continuity and callbacks):**
+
+${previousNarratives.map(n => `Week ${n.Week} (${n.Date}):
+${n.Narrative}`).join('\n\n')}
+
+`
+        : '';
+
+    // Build the full prompt with data
+    let fullPrompt = `${customPrompt}
+
+${narrativesContext}Here's the current data:
+
+**LEGEND:**
+- Win %: Percentage of games WON (e.g., 66.7% means they won 2 out of 3 games)
+- Form: ALL game results chronologically (W = Win, L = Loss, most recent on right). Use this to identify streaks and trends!
+- Movement: Rank change from last week (↑ = moved up, ↓ = moved down, − = no change)
+
+**IMPORTANT - TEAM vs PICKS:**
+Each player below shows their name followed by (Team, Position). The "Team" is the actual curling team they PLAY FOR in real life. This is separate from their picks - players predict which teams will win each game, and those picks can be ANY team, not just their own team. For example, "Pete Young (Ken Niedhart, Lead)" means Pete Young plays for Ken Niedhart's team, but Pete's picks for who will win games could include Jim Niedhart, Ken Niedhart, or any other team. Do NOT say a player "picks for" or "plays for" a team they selected to win - they are just predicting winners.
+
+**FULL STANDINGS (All ${summary.allPlayers.length} Players):**
+Goblet (Overall) Standings:
+${summary.allPlayers.map((p, i) => {
+    const rankChangeStr = p.rankChange > 0 ? ` (↑${p.rankChange})` : p.rankChange < 0 ? ` (↓${Math.abs(p.rankChange)})` : ' (−)';
+    const formStr = p.allForm ? ` [Form: ${p.allForm}]` : '';
+    return `${p.rank}. ${p.name} (${p.team}, ${p.position}): ${p.wins}-${p.losses} (Win%: ${p.winPct}%)${rankChangeStr}${formStr}`;
+}).join('\n')}
+
+Funk-Eng Cup Eligible Players (Leads & Seconds only):
+${summary.allPlayers.filter(p => p.isFunkEngEligible).map((p, i) => {
+    const rankChangeStr = p.rankChange > 0 ? ` (↑${p.rankChange})` : p.rankChange < 0 ? ` (↓${Math.abs(p.rankChange)})` : ' (−)';
+    const formStr = p.allForm ? ` [Form: ${p.allForm}]` : '';
+    return `${p.rank}. ${p.name} (${p.team}, ${p.position}): ${p.wins}-${p.losses} (Win%: ${p.winPct}%)${rankChangeStr}${formStr}`;
+}).join('\n')}
+
+**MOST RECENT RESULTS${summary.mostRecentGameDate ? ` (${summary.mostRecentGameDate})` : ''} - ${summary.recentWeekGames.length} game${summary.recentWeekGames.length !== 1 ? 's' : ''}:**
+${summary.recentWeekGames.length > 0 ? summary.recentWeekGames.map(g => {
+    const upsetText = g.isUpset ? ' (UPSET - only ' + (100 - g.chalkPercentage) + '% picked them!)' : '';
+    const notesText = g.postGameNotes && g.postGameNotes.trim() ? ` [Post-Game Note: ${g.postGameNotes}]` : '';
+    const winnerRosterText = g.winnerRoster.length > 0 ? ` (Players: ${g.winnerRoster.join(', ')})` : '';
+    const loserRosterText = g.loserRoster.length > 0 ? ` (Players: ${g.loserRoster.join(', ')})` : '';
+    return `- ${g.winner}${winnerRosterText} defeated ${g.loser}${loserRosterText}${upsetText}${notesText}`;
+}).join('\n') : 'No games completed recently'}
+
+**NEXT MATCHUPS${summary.nextUpcomingGameDate ? ` (${summary.nextUpcomingGameDate})` : ''} - ${summary.upcomingWeekGames.length} game${summary.upcomingWeekGames.length !== 1 ? 's' : ''}:**
+${summary.upcomingWeekGames.length > 0 ? summary.upcomingWeekGames.map(g => {
+    const notesText = g.preGameNotes && g.preGameNotes.trim() ? ` [Pre-Game Note: ${g.preGameNotes}]` : '';
+    const team1RosterText = g.team1Roster.length > 0 ? ` (Players: ${g.team1Roster.join(', ')})` : '';
+    const team2RosterText = g.team2Roster.length > 0 ? ` (Players: ${g.team2Roster.join(', ')})` : '';
+    return `- ${g.team1Skip}${team1RosterText} vs ${g.team2Skip}${team2RosterText} (Sheet ${g.sheet}, ${g.date} ${g.time})${notesText}`;
+}).join('\n') : 'No upcoming games scheduled'}
+
+**FUN FACTS:**
+${summary.funFacts.map(f => `- ${f}`).join('\n')}
+
+Now write an engaging, witty email based on this data. Format it as HTML suitable for pasting into Gmail. Use basic HTML tags like <p>, <strong>, <em>, <h2>, <ul>, <li>, etc. Make it fun and entertaining!
+
+CRITICAL FORMATTING INSTRUCTIONS:
+1. Start with a brief, catchy subject line (5-10 words) on the FIRST line, formatted as: <!-- SUBJECT: Your Subject Here -->
+2. (optional) bonus points if the subject is a slightly obscure, but not too obscure, popular movie/tv line, or popular music lyric, if so put it in quotes with a trailing elipsis: <!--- SUBJECT: "Like a dog without a bone, An actor out on loan"… -->
+2. After the subject line, write the email body content (do NOT include greeting or signature)
+3. The subject line comment will be extracted and used as a section header
+4. Example format:
+   <!-- SUBJECT: Ice Cold Takes and Hot Streaks -->
+   <p>Your email content starts here...</p>
+
+The email will have standings and matchups appended automatically.`;
+
+    return fullPrompt;
+}
+
 // Display a preview of the data that will be sent to AI
 function displayDataPreview() {
     const previewDiv = document.getElementById('dataPreview');
@@ -149,64 +257,49 @@ function displayDataPreview() {
         return;
     }
 
-    const summary = generateDataSummary();
+    const fullPrompt = generateFullPrompt();
+
+    // Calculate character and line counts
+    const charCount = fullPrompt.length;
+    const lineCount = fullPrompt.split('\n').length;
+    const wordCount = fullPrompt.split(/\s+/).length;
 
     previewDiv.innerHTML = `
         <div class="data-summary">
             <div class="summary-section">
-                <h3>📊 Full Standings (${summary.allPlayers.length} Players)</h3>
+                <h3>📝 AI Prompt Context</h3>
                 <p style="font-size: 0.9em; color: #666; margin-bottom: 1rem;">
-                    <strong>Win%</strong> = games won | <strong>Contrarian%</strong> = to-date % of picks against majority (completed games only)
+                    <strong>Stats:</strong> ${charCount.toLocaleString()} characters | ${lineCount.toLocaleString()} lines | ${wordCount.toLocaleString()} words
                 </p>
-                <ol>
-                    ${summary.allPlayers.map(p => {
-                        const rankChangeSymbol = p.rankChange > 0 ? `↑${p.rankChange}` : p.rankChange < 0 ? `↓${Math.abs(p.rankChange)}` : '−';
-                        return `
-                            <li>
-                                <strong>${p.name}</strong> (${p.position || 'Unknown'}${p.isFunkEngEligible ? ' - Funk-Eng Eligible' : ''}):<br>
-                                ${p.wins}-${p.losses} (Win: ${p.winPct}%, Contrarian: ${p.contrarianPct}%) | Form: ${p.allForm || 'N/A'} | Movement: ${rankChangeSymbol}
-                            </li>
-                        `;
-                    }).join('')}
-                </ol>
-            </div>
-
-            <div class="summary-section">
-                <h3>🎯 Most Recent Results${summary.mostRecentGameDate ? ` - ${summary.mostRecentGameDate}` : ''} (${summary.recentWeekGames.length} game${summary.recentWeekGames.length !== 1 ? 's' : ''})</h3>
-                ${summary.recentWeekGames.length > 0 ? `
-                    <ul>
-                        ${summary.recentWeekGames.map(g => `
-                            <li>
-                                <strong>${g.winner}</strong> beat ${g.loser}
-                                ${g.isUpset ? ' <span class="upset-tag">UPSET!</span>' : ''}
-                            </li>
-                        `).join('')}
-                    </ul>
-                ` : '<p>No results yet for this week</p>'}
-            </div>
-
-            <div class="summary-section">
-                <h3>📅 Next Matchups${summary.nextUpcomingGameDate ? ` - ${summary.nextUpcomingGameDate}` : ''} (${summary.upcomingWeekGames.length} game${summary.upcomingWeekGames.length !== 1 ? 's' : ''})</h3>
-                ${summary.upcomingWeekGames.length > 0 ? `
-                    <ul>
-                        ${summary.upcomingWeekGames.map(g => {
-                            const notesText = g.notes && g.notes.trim() ? ` <em>(Note: ${g.notes})</em>` : '';
-                            return `<li>${g.team1Skip} vs ${g.team2Skip} - Sheet ${g.sheet}, ${g.date} ${g.time}${notesText}</li>`;
-                        }).join('')}
-                    </ul>
-                ` : '<p>No upcoming games scheduled</p>'}
-            </div>
-
-            ${summary.funFacts.length > 0 ? `
-                <div class="summary-section">
-                    <h3>🎉 Fun Facts</h3>
-                    <ul>
-                        ${summary.funFacts.map(f => `<li>${f}</li>`).join('')}
-                    </ul>
+                <div style="position: relative;">
+                    <button id="copyPrompt" style="position: absolute; top: 8px; right: 8px; padding: 6px 12px; background: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 12px; z-index: 10;">
+                        📋 Copy Context
+                    </button>
+                    <pre style="background: #f5f5f5; padding: 1.5rem; border-radius: 8px; overflow-x: auto; max-height: 600px; overflow-y: auto; white-space: pre-wrap; word-wrap: break-word; font-size: 13px; line-height: 1.6; font-family: 'Consolas', 'Monaco', 'Courier New', monospace; border: 1px solid #ddd;">${fullPrompt.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</pre>
                 </div>
-            ` : ''}
+            </div>
         </div>
     `;
+
+    // Add copy functionality
+    const copyButton = document.getElementById('copyPrompt');
+    if (copyButton) {
+        copyButton.addEventListener('click', async () => {
+            try {
+                await navigator.clipboard.writeText(fullPrompt);
+                const originalText = copyButton.innerHTML;
+                copyButton.innerHTML = '✅ Copied!';
+                copyButton.style.background = '#2196F3';
+                setTimeout(() => {
+                    copyButton.innerHTML = originalText;
+                    copyButton.style.background = '#4CAF50';
+                }, 2000);
+            } catch (err) {
+                console.error('Failed to copy:', err);
+                showStatus('Failed to copy to clipboard', 'error');
+            }
+        });
+    }
 }
 
 // Calculate what the standings were before the most recent week
@@ -270,6 +363,21 @@ function generateDataSummary() {
         // Date format is M/D/YYYY (e.g., "11/12/2025")
         const [month, day, year] = dateStr.split('/').map(Number);
         return new Date(year, month - 1, day);
+    };
+
+    // Helper function to get players on a team by skip name
+    const getPlayersByTeam = (skipName) => {
+        if (!skipName || !gameData.playerInfoMap) return [];
+
+        return leaderboardData
+            .filter(p => {
+                const playerInfo = gameData.playerInfoMap[p.name];
+                return playerInfo && playerInfo.team === skipName;
+            })
+            .map(p => {
+                const playerInfo = gameData.playerInfoMap[p.name];
+                return `${p.name} (${playerInfo.position})`;
+            });
     };
 
     const now = new Date();
@@ -338,9 +446,9 @@ function generateDataSummary() {
 
     // Get all players with Funk-Eng eligibility
     const allPlayers = leaderboardData.map(p => {
-        // Find player info from the data
-        const playerInfo = gameData.playerInfo?.find(pi => pi.Name === p.name) || {};
-        const position = playerInfo.Position || '';
+        // Look up player info from the map (already trimmed and cleaned)
+        const playerInfo = gameData.playerInfoMap?.[p.name] || { team: '', position: '' };
+        const position = playerInfo.position || '';
         const isFunkEngEligible = position === 'Lead' || position === 'Second';
 
         // Get all game results (W/L only, chronological order)
@@ -356,7 +464,7 @@ function generateDataSummary() {
             losses: p.losses,
             winPct: p.winPct.toFixed(1),
             rank: p.rank,
-            team: playerInfo.Team || '',
+            team: playerInfo.team || '',
             position: position,
             isFunkEngEligible: isFunkEngEligible,
             allForm: allForm,
@@ -376,18 +484,26 @@ function generateDataSummary() {
             .filter(g => g.date === mostRecentDateStr)
             .map(g => {
                 const loserSkip = g.winner === g.team1 ? g.team2Skip : g.team1Skip;
+                const winnerSkip = g.winner;
                 const pickInfo = gameData.pickAnalysis[createGameKey(g.week, g.date, g.time, g.sheet)];
                 const isUpset = pickInfo && pickInfo.chalkPick && g.winner !== pickInfo.chalkPick;
+
+                // Get team rosters
+                const winnerRoster = getPlayersByTeam(winnerSkip);
+                const loserRoster = getPlayersByTeam(loserSkip);
 
                 return {
                     winner: g.winner,
                     loser: g.winner === g.team1 ? g.team2 : g.team1,
-                    winnerSkip: g.winner,
+                    winnerSkip: winnerSkip,
                     loserSkip: loserSkip,
+                    winnerRoster: winnerRoster,
+                    loserRoster: loserRoster,
                     date: g.date,
                     week: g.week,
                     isUpset: isUpset,
-                    chalkPercentage: pickInfo ? pickInfo.chalkPercentage : null
+                    chalkPercentage: pickInfo ? pickInfo.chalkPercentage : null,
+                    postGameNotes: g.postGameNotes || ''
                 };
             });
     }
@@ -412,17 +528,25 @@ function generateDataSummary() {
 
             nextWeekGames = futureGames
                 .filter(g => g.date === nextUpcomingDateStr)
-                .map(g => ({
-                    team1: g.team1,
-                    team2: g.team2,
-                    team1Skip: g.team1Skip,
-                    team2Skip: g.team2Skip,
-                    date: g.date,
-                    time: g.time,
-                    week: g.week,
-                    sheet: g.sheet,
-                    notes: g.notes
-                }));
+                .map(g => {
+                    // Get team rosters
+                    const team1Roster = getPlayersByTeam(g.team1Skip);
+                    const team2Roster = getPlayersByTeam(g.team2Skip);
+
+                    return {
+                        team1: g.team1,
+                        team2: g.team2,
+                        team1Skip: g.team1Skip,
+                        team2Skip: g.team2Skip,
+                        team1Roster: team1Roster,
+                        team2Roster: team2Roster,
+                        date: g.date,
+                        time: g.time,
+                        week: g.week,
+                        sheet: g.sheet,
+                        preGameNotes: g.preGameNotes || ''
+                    };
+                });
         }
     }
 
@@ -441,12 +565,46 @@ function generateDataSummary() {
         funFacts.push(`${bestStreak.name} is on a ${actualStreak}-game winning streak!`);
     }
 
-    // Find biggest contrarian
-    const contrarians = leaderboardData.filter(p => p.contrarianPct > 0)
-        .sort((a, b) => b.contrarianPct - a.contrarianPct);
-    if (contrarians.length > 0) {
-        const topContrarian = contrarians[0];
-        funFacts.push(`${topContrarian.name} goes against the grain ${topContrarian.contrarianPct.toFixed(0)}% of the time`);
+    // Find impactful contrarian picks from recent week
+    // These are picks where someone went against the grain (<35% picked the team) and it paid off
+    const impactfulPicks = [];
+    recentWeekGames.forEach(game => {
+        if (game.isUpset && game.chalkPercentage >= 65) { // Winner was picked by <35%
+            // Find players who picked the winner
+            leaderboardData.forEach(player => {
+                const gameResult = player.allResults.find(r =>
+                    r.matchup.week === game.week &&
+                    r.matchup.date === game.date &&
+                    r.pick === game.winner
+                );
+
+                if (gameResult && gameResult.result === 'W') {
+                    // This is impactful if player is top 10 or moved up significantly
+                    const isImpactful = player.rank <= 10 || player.rankChange > 2;
+                    if (isImpactful) {
+                        impactfulPicks.push({
+                            player: player.name,
+                            team: game.winner,
+                            pickPercentage: 100 - game.chalkPercentage,
+                            rank: player.rank,
+                            rankChange: player.rankChange
+                        });
+                    }
+                }
+            });
+        }
+    });
+
+    // Add the most impactful pick to fun facts
+    if (impactfulPicks.length > 0) {
+        // Sort by rank (better players first) then by pick percentage (bolder picks first)
+        impactfulPicks.sort((a, b) => {
+            if (a.rank !== b.rank) return a.rank - b.rank;
+            return a.pickPercentage - b.pickPercentage;
+        });
+        const pick = impactfulPicks[0];
+        const rankInfo = pick.rankChange > 2 ? ` (helping them jump up ${pick.rankChange} spots!)` : ` (currently rank ${pick.rank})`;
+        funFacts.push(`${pick.player} made a bold call on ${pick.team} when only ${pick.pickPercentage}% picked them${rankInfo}`);
     }
 
     // Find most recent upset from recent week
@@ -489,77 +647,8 @@ async function generateEmail() {
     try {
         showLoading();
 
-        const summary = generateDataSummary();
-        const customPrompt = document.getElementById('promptTemplate').value;
-
-        // Get previous weeks' narratives for context
-        const previousNarratives = gameData.weeklyNarratives
-            .filter(n => n.Narrative && n.Narrative.trim() && parseInt(n.Week) < summary.nextUpcomingWeek)
-            .sort((a, b) => parseInt(a.Week) - parseInt(b.Week));
-
-        // Format previous narratives for context
-        const narrativesContext = previousNarratives.length > 0
-            ? `**PREVIOUS WEEKS' NARRATIVES (for continuity and callbacks):**
-
-${previousNarratives.map(n => `Week ${n.Week} (${n.Date}):
-${n.Narrative}`).join('\n\n')}
-
-`
-            : '';
-
-        // Build the full prompt with data
-        let fullPrompt = `${customPrompt}
-
-${narrativesContext}Here's the current data:
-
-**LEGEND:**
-- Win %: Percentage of games WON (e.g., 66.7% means they won 2 out of 3 games)
-- Contrarian %: To-date percentage of picks AGAINST the majority, calculated only from completed games. Although all picks were locked in at the start of the season for the entire schedule, this percentage only reflects games played so far (e.g., 25% means in 1 out of every 4 completed games, they picked the team that fewer people picked). A player who consistently picked underdogs will have a higher contrarian %.
-- Form: ALL game results chronologically (W = Win, L = Loss, most recent on right). Use this to identify streaks and trends!
-- Movement: Rank change from last week (↑ = moved up, ↓ = moved down, − = no change)
-
-**IMPORTANT - TEAM vs PICKS:**
-Each player below shows their name followed by (Team, Position). The "Team" is the actual curling team they PLAY FOR in real life. This is separate from their picks - players predict which teams will win each game, and those picks can be ANY team, not just their own team. For example, "Pete Young (Ken Niedhart, Lead)" means Pete Young plays for Ken Niedhart's team, but Pete's picks for who will win games could include Jim Niedhart, Ken Niedhart, or any other team. Do NOT say a player "picks for" or "plays for" a team they selected to win - they are just predicting winners.
-
-**FULL STANDINGS (All ${summary.allPlayers.length} Players):**
-Goblet (Overall) Standings:
-${summary.allPlayers.map((p, i) => {
-    const rankChangeStr = p.rankChange > 0 ? ` (↑${p.rankChange})` : p.rankChange < 0 ? ` (↓${Math.abs(p.rankChange)})` : ' (−)';
-    const formStr = p.allForm ? ` [Form: ${p.allForm}]` : '';
-    return `${p.rank}. ${p.name} (${p.team}, ${p.position}): ${p.wins}-${p.losses} (Win%: ${p.winPct}%, Contrarian: ${p.contrarianPct}%)${rankChangeStr}${formStr}`;
-}).join('\n')}
-
-Funk-Eng Cup Eligible Players (Leads & Seconds only):
-${summary.allPlayers.filter(p => p.isFunkEngEligible).map((p, i) => {
-    const rankChangeStr = p.rankChange > 0 ? ` (↑${p.rankChange})` : p.rankChange < 0 ? ` (↓${Math.abs(p.rankChange)})` : ' (−)';
-    const formStr = p.allForm ? ` [Form: ${p.allForm}]` : '';
-    return `${p.rank}. ${p.name} (${p.team}, ${p.position}): ${p.wins}-${p.losses} (Win%: ${p.winPct}%, Contrarian: ${p.contrarianPct}%)${rankChangeStr}${formStr}`;
-}).join('\n')}
-
-**MOST RECENT RESULTS${summary.mostRecentGameDate ? ` (${summary.mostRecentGameDate})` : ''} - ${summary.recentWeekGames.length} game${summary.recentWeekGames.length !== 1 ? 's' : ''}:**
-${summary.recentWeekGames.length > 0 ? summary.recentWeekGames.map(g => `- ${g.winner} defeated ${g.loser}${g.isUpset ? ' (UPSET - only ' + (100 - g.chalkPercentage) + '% picked them!)' : ''}`).join('\n') : 'No games completed recently'}
-
-**NEXT MATCHUPS${summary.nextUpcomingGameDate ? ` (${summary.nextUpcomingGameDate})` : ''} - ${summary.upcomingWeekGames.length} game${summary.upcomingWeekGames.length !== 1 ? 's' : ''}:**
-${summary.upcomingWeekGames.length > 0 ? summary.upcomingWeekGames.map(g => {
-    const notesText = g.notes && g.notes.trim() ? ` [Note: ${g.notes}]` : '';
-    return `- ${g.team1Skip} vs ${g.team2Skip} (Sheet ${g.sheet}, ${g.date} ${g.time})${notesText}`;
-}).join('\n') : 'No upcoming games scheduled'}
-
-**FUN FACTS:**
-${summary.funFacts.map(f => `- ${f}`).join('\n')}
-
-Now write an engaging, witty email based on this data. Format it as HTML suitable for pasting into Gmail. Use basic HTML tags like <p>, <strong>, <em>, <h2>, <ul>, <li>, etc. Make it fun and entertaining!
-
-CRITICAL FORMATTING INSTRUCTIONS:
-1. Start with a brief, catchy subject line (5-10 words) on the FIRST line, formatted as: <!-- SUBJECT: Your Subject Here -->
-2. (optional) bonus points if the subject is a slightly obscure, but not too obscure, popular movie/tv line, or popular music lyric, if so put it in quotes with a trailing elipsis: <!--- SUBJECT: “Like a dog without a bone, An actor out on loan”… -->
-2. After the subject line, write the email body content (do NOT include greeting or signature)
-3. The subject line comment will be extracted and used as a section header
-4. Example format:
-   <!-- SUBJECT: Ice Cold Takes and Hot Streaks -->
-   <p>Your email content starts here...</p>
-
-The email will have standings and matchups appended automatically.`;
+        // Generate the full prompt using the shared function
+        const fullPrompt = generateFullPrompt();
 
         // Call Gemini API
         const response = await fetch(`${GEMINI_API_URL}?key=${apiKey}`, {
@@ -721,118 +810,98 @@ function formatUpcomingMatchups() {
     `;
 }
 
-// Format the current standings as an HTML table
+// Format the current standings as a narrative summary
 function formatStandingsTable() {
     const summary = generateDataSummary();
+
+    // Helper to format movement
+    const formatMovement = (player) => {
+        if (player.rankChange > 0) return ` <span style="color: #4CAF50;">↑${player.rankChange}</span>`;
+        if (player.rankChange < 0) return ` <span style="color: #f44336;">↓${Math.abs(player.rankChange)}</span>`;
+        return '';
+    };
+
+    // Helper to detect log-jam (3+ players with same record in top 5)
+    const detectLogJam = (players) => {
+        if (players.length < 3) return null;
+
+        const top5 = players.slice(0, Math.min(5, players.length));
+        const recordCounts = {};
+
+        top5.forEach(p => {
+            const record = `${p.wins}-${p.losses}`;
+            recordCounts[record] = (recordCounts[record] || 0) + 1;
+        });
+
+        // Check if any record appears 3+ times in top 5
+        for (const [record, count] of Object.entries(recordCounts)) {
+            if (count >= 3) {
+                const playersWithRecord = top5.filter(p => `${p.wins}-${p.losses}` === record);
+                return { record, players: playersWithRecord, count };
+            }
+        }
+        return null;
+    };
+
+    // Format top 5 for Goblet
+    const gobletLogJam = detectLogJam(summary.allPlayers);
+    let gobletHTML = '';
+
+    if (gobletLogJam) {
+        gobletHTML = `<p style="margin-bottom: 1rem;"><strong>Top of the standings:</strong> ${gobletLogJam.count} players are tied at <strong>${gobletLogJam.record}</strong> (${gobletLogJam.players.map(p => p.name).join(', ')}).</p>`;
+
+        // Show remaining top 5
+        const remaining = summary.allPlayers.filter(p => `${p.wins}-${p.losses}` !== gobletLogJam.record).slice(0, 5 - gobletLogJam.count);
+        if (remaining.length > 0) {
+            gobletHTML += '<ul style="list-style: none; padding-left: 0; margin-top: 1rem;">';
+            remaining.forEach(p => {
+                gobletHTML += `<li style="margin-bottom: 0.5rem;"><strong>#${p.rank}:</strong> ${p.name} (${p.team}, ${p.position}) — ${p.wins}-${p.losses}${formatMovement(p)}</li>`;
+            });
+            gobletHTML += '</ul>';
+        }
+    } else {
+        gobletHTML = '<ul style="list-style: none; padding-left: 0;">';
+        summary.allPlayers.slice(0, 5).forEach(p => {
+            gobletHTML += `<li style="margin-bottom: 0.5rem;"><strong>#${p.rank}:</strong> ${p.name} (${p.team}, ${p.position}) — ${p.wins}-${p.losses}${formatMovement(p)}</li>`;
+        });
+        gobletHTML += '</ul>';
+    }
+
+    // Format top 5 for Funk-Eng
+    const funkEngPlayers = summary.allPlayers.filter(p => p.isFunkEngEligible);
+    const funkEngLogJam = detectLogJam(funkEngPlayers);
+    let funkEngHTML = '';
+
+    if (funkEngLogJam) {
+        funkEngHTML = `<p style="margin-bottom: 1rem;"><strong>Top of the standings:</strong> ${funkEngLogJam.count} players are tied at <strong>${funkEngLogJam.record}</strong> (${funkEngLogJam.players.map(p => p.name).join(', ')}).</p>`;
+
+        // Show remaining top 5
+        const remaining = funkEngPlayers.filter(p => `${p.wins}-${p.losses}` !== funkEngLogJam.record).slice(0, 5 - funkEngLogJam.count);
+        if (remaining.length > 0) {
+            funkEngHTML += '<ul style="list-style: none; padding-left: 0; margin-top: 1rem;">';
+            remaining.forEach(p => {
+                const funkEngRank = funkEngPlayers.indexOf(p) + 1;
+                funkEngHTML += `<li style="margin-bottom: 0.5rem;"><strong>#${funkEngRank}:</strong> ${p.name} (${p.team}, ${p.position}) — ${p.wins}-${p.losses}${formatMovement(p)}</li>`;
+            });
+            funkEngHTML += '</ul>';
+        }
+    } else {
+        funkEngHTML = '<ul style="list-style: none; padding-left: 0;">';
+        funkEngPlayers.slice(0, 5).forEach((p, index) => {
+            funkEngHTML += `<li style="margin-bottom: 0.5rem;"><strong>#${index + 1}:</strong> ${p.name} (${p.team}, ${p.position}) — ${p.wins}-${p.losses}${formatMovement(p)}</li>`;
+        });
+        funkEngHTML += '</ul>';
+    }
 
     let tableHTML = `
         <div style="margin-top: 2rem; padding-top: 2rem; border-top: 2px solid #e0e0e0;">
             <h2 style="color: #2c3e50; margin-bottom: 1rem;">Current Standings</h2>
 
-            <h3 style="color: #34495e; margin-top: 1.5rem; margin-bottom: 0.5rem;">Goblet (Overall) Standings</h3>
-            <table style="width: 100%; border-collapse: collapse; margin-bottom: 2rem; font-size: 14px;">
-                <thead>
-                    <tr style="background-color: #485962; color: white;">
-                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd; color: white;">Rank</th>
-                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd; color: white;">Player</th>
-                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd; color: white;">Team</th>
-                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd; color: white;">Position</th>
-                        <th style="padding: 10px; text-align: center; border: 1px solid #ddd; color: white;">Record</th>
-                        <th style="padding: 10px; text-align: center; border: 1px solid #ddd; color: white;">Win %</th>
-                        <th style="padding: 10px; text-align: center; border: 1px solid #ddd; color: white;">Movement</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    ${summary.allPlayers.map((player, index) => {
-                        const bgColor = index % 2 === 0 ? '#f8f9fa' : '#ffffff';
-                        let movementIcon = '−';
-                        let movementColor = '#95a5a6';
+            <h3 style="color: #34495e; margin-top: 1.5rem; margin-bottom: 0.5rem;">Goblet (Overall) — Top 5</h3>
+            ${gobletHTML}
 
-                        if (player.rankChange > 0) {
-                            movementIcon = `↑ ${player.rankChange}`;
-                            movementColor = '#4CAF50';
-                        } else if (player.rankChange < 0) {
-                            movementIcon = `↓ ${Math.abs(player.rankChange)}`;
-                            movementColor = '#f44336';
-                        }
-
-                        return `
-                            <tr style="background-color: ${bgColor};">
-                                <td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">${player.rank}</td>
-                                <td style="padding: 8px; border: 1px solid #ddd;">${player.name}</td>
-                                <td style="padding: 8px; border: 1px solid #ddd;">${player.team}</td>
-                                <td style="padding: 8px; border: 1px solid #ddd;">${player.position}</td>
-                                <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">${player.wins}-${player.losses}</td>
-                                <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">${player.winPct}%</td>
-                                <td style="padding: 8px; border: 1px solid #ddd; text-align: center; color: ${movementColor}; font-weight: bold;">${movementIcon}</td>
-                            </tr>
-                        `;
-                    }).join('')}
-                </tbody>
-            </table>
-
-            <h3 style="color: #34495e; margin-top: 1.5rem; margin-bottom: 0.5rem;">Funk-Eng Cup Standings (Leads & Seconds Only)</h3>
-            <table style="width: 100%; border-collapse: collapse; margin-bottom: 2rem; font-size: 14px;">
-                <thead>
-                    <tr style="background-color: #50536A; color: white;">
-                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd; color: white;">Rank</th>
-                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd; color: white;">Player</th>
-                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd; color: white;">Team</th>
-                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd; color: white;">Position</th>
-                        <th style="padding: 10px; text-align: center; border: 1px solid #ddd; color: white;">Record</th>
-                        <th style="padding: 10px; text-align: center; border: 1px solid #ddd; color: white;">Win %</th>
-                        <th style="padding: 10px; text-align: center; border: 1px solid #ddd; color: white;">Movement</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    ${(() => {
-                        // Filter to eligible players and sort by wins/win%
-                        const eligiblePlayers = summary.allPlayers.filter(p => p.isFunkEngEligible);
-
-                        // Assign Funk-Eng specific ranks
-                        let currentRank = 1;
-                        eligiblePlayers.forEach((player, index) => {
-                            if (index > 0) {
-                                const prevPlayer = eligiblePlayers[index - 1];
-                                if (player.wins === prevPlayer.wins && player.winPct === prevPlayer.winPct) {
-                                    player.funkEngRank = prevPlayer.funkEngRank;
-                                } else {
-                                    currentRank = index + 1;
-                                    player.funkEngRank = currentRank;
-                                }
-                            } else {
-                                player.funkEngRank = 1;
-                            }
-                        });
-
-                        return eligiblePlayers.map((player, index) => {
-                            const bgColor = index % 2 === 0 ? '#f8f9fa' : '#ffffff';
-                            let movementIcon = '−';
-                            let movementColor = '#95a5a6';
-
-                            if (player.rankChange > 0) {
-                                movementIcon = `↑ ${player.rankChange}`;
-                                movementColor = '#4CAF50';
-                            } else if (player.rankChange < 0) {
-                                movementIcon = `↓ ${Math.abs(player.rankChange)}`;
-                                movementColor = '#f44336';
-                            }
-
-                            return `
-                                <tr style="background-color: ${bgColor};">
-                                    <td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">${player.funkEngRank}</td>
-                                    <td style="padding: 8px; border: 1px solid #ddd;">${player.name}</td>
-                                    <td style="padding: 8px; border: 1px solid #ddd;">${player.team}</td>
-                                    <td style="padding: 8px; border: 1px solid #ddd;">${player.position}</td>
-                                    <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">${player.wins}-${player.losses}</td>
-                                    <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">${player.winPct}%</td>
-                                    <td style="padding: 8px; border: 1px solid #ddd; text-align: center; color: ${movementColor}; font-weight: bold;">${movementIcon}</td>
-                                </tr>
-                            `;
-                        }).join('');
-                    })()}
-                </tbody>
-            </table>
+            <h3 style="color: #34495e; margin-top: 2rem; margin-bottom: 0.5rem;">Funk-Eng Cup (Leads & Seconds Only) — Top 5</h3>
+            ${funkEngHTML}
 
             <p style="text-align: center; margin-top: 2rem; font-size: 16px;">
                 <strong><a href="https://pesayo.github.io/game-of-the-week/" style="color: #3498db; text-decoration: none;">View Full Dashboard</a> →</strong>
