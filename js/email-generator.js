@@ -764,22 +764,10 @@ function formatRecentMatchups() {
                         <div style="text-align: center; font-size: 12px; margin-bottom: 0.75rem; color: #666; border-bottom: 1px solid #ddd; padding-bottom: 0.5rem;">
                             Week ${game.week} • ${game.date}
                         </div>
-                        <div style="display: flex; justify-content: space-between; align-items: center; gap: 0.75rem;">
-                            <div style="flex: 1; text-align: left;">
-                                <div style="font-size: 16px; font-weight: bold; margin-bottom: 0.25rem; color: #2c3e50;">
-                                    ${game.winner}
-                                    <span style="background: #4CAF50; color: white; font-size: 11px; padding: 2px 6px; border-radius: 3px; margin-left: 4px;">W</span>
-                                    ${upsetBadge}
-                                </div>
-                            </div>
-                            <div style="text-align: center; padding: 0 0.5rem;">
-                                <div style="font-size: 14px; font-weight: bold; color: #999;">VS</div>
-                            </div>
-                            <div style="flex: 1; text-align: right;">
-                                <div style="font-size: 16px; font-weight: bold; margin-bottom: 0.25rem; color: #999;">
-                                    ${game.loser}
-                                    <span style="background: #e74c3c; color: white; font-size: 11px; padding: 2px 6px; border-radius: 3px; margin-left: 4px;">L</span>
-                                </div>
+                        <div style="text-align: center;">
+                            <div style="font-size: 16px; font-weight: bold; color: #2c3e50;">
+                                ${game.winner} <span style="color: #999; font-weight: normal;">DEFEATED</span> ${game.loser}
+                                ${upsetBadge}
                             </div>
                         </div>
                     </div>
