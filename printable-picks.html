@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Printable Picks List - Game of the Week</title>
+    <link rel="icon" type="image/png" href="assets/images/Goblet.png">
+
+    <!-- External Dependencies -->
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="css/variables.css">
+    <link rel="stylesheet" href="css/components/printable-picks.css">
+</head>
+<body>
+    <!-- Screen-only controls -->
+    <div class="screen-only controls">
+        <button id="backBtn" class="btn-secondary">
+            <i class="fas fa-arrow-left"></i> Back to Dashboard
+        </button>
+        <button id="printBtn" class="btn-primary">
+            <i class="fas fa-print"></i> Print
+        </button>
+    </div>
+
+    <!-- Loading indicator -->
+    <div id="loading" class="loading">
+        <div class="spinner"></div>
+        <p>Loading picks data...</p>
+    </div>
+
+    <!-- Error message -->
+    <div id="error" class="error" style="display: none;">
+        <p>Error loading picks data. Please try again.</p>
+    </div>
+
+    <!-- Printable content -->
+    <div id="printablePicksContainer"></div>
+
+    <!-- JavaScript -->
+    <script type="module">
+        import { fetchAllData } from './js/data/data-fetcher.js';
+        import { analyzePickDistribution, processData } from './js/data/data-processor.js';
+        import { parsePlayerInfo, parseMatchups } from './js/utils/parsers.js';
+        import {
+            setLeaderboardData,
+            setMatchupsData,
+            setPickAnalysis,
+            setRawPicksData
+        } from './js/state/app-state.js';
+        import { renderPrintablePicksList } from './js/components/PrintablePicksList.js';
+
+        // Initialize on page load
+        window.addEventListener('DOMContentLoaded', async () => {
+            const loading = document.getElementById('loading');
+            const error = document.getElementById('error');
+            const container = document.getElementById('printablePicksContainer');
+
+            try {
+                // Fetch all data
+                const { matchups, picks, playerInfo } = await fetchAllData();
+
+                // Store raw picks data
+                setRawPicksData(picks);
+
+                // Parse matchups CSV
+                const { gameMap, gamesArray } = parseMatchups(matchups);
+                setMatchupsData(gameMap);
+
+                // Analyze pick distribution
+                const pickAnalysis = analyzePickDistribution(picks, gameMap);
+                setPickAnalysis(pickAnalysis);
+
+                // Process picks data to create leaderboard
+                const leaderboardData = processData(picks, gameMap, gamesArray, pickAnalysis);
+                setLeaderboardData(leaderboardData);
+
+                // Render picks list
+                renderPrintablePicksList();
+
+                // Hide loading
+                loading.style.display = 'none';
+                container.style.display = 'block';
+            } catch (err) {
+                console.error('Error loading picks:', err);
+                loading.style.display = 'none';
+                error.style.display = 'block';
+            }
+        });
+
+        // Print button
+        document.getElementById('printBtn').addEventListener('click', () => {
+            window.print();
+        });
+
+        // Back button
+        document.getElementById('backBtn').addEventListener('click', () => {
+            window.location.href = 'index.html#picks';
+        });
+    </script>
+</body>
+</html>
