@@ -88,6 +88,12 @@ async function loadGameData() {
         const matchupsMap = {};
         const allGames = [];
 
+        // Debug: Log first row to see actual column names
+        if (data.matchups.length > 0) {
+            console.log('First matchup row columns:', Object.keys(data.matchups[0]));
+            console.log('Sample row:', data.matchups[0]);
+        }
+
         data.matchups.forEach((row, index) => {
             const gameKey = createGameKey(row.Week, row.Date, row.Time, row.Sheet);
 
@@ -98,6 +104,10 @@ async function loadGameData() {
             const team2Name = row.Team2_Number && row.Team2_Number.trim()
                 ? `${row.Team2_Number} ${row.Team2_Skip}`
                 : row.Team2_Skip;
+
+            // Try multiple possible column name variations for notes
+            const preGameNotes = row.Pre_Game_Notes || row['Pre-Game Notes'] || row.PreGameNotes || row['Pre Game Notes'] || '';
+            const postGameNotes = row.Post_Game_Notes || row['Post-Game Notes'] || row.PostGameNotes || row['Post Game Notes'] || '';
 
             const game = {
                 gameNumber: index + 1,
@@ -112,9 +122,18 @@ async function loadGameData() {
                 team2Skip: row.Team2_Skip,
                 winner: row.Winner || null,
                 isKeyMatchup: row.Key_Matchup === 'TRUE',
-                preGameNotes: row.Pre_Game_Notes || '',
-                postGameNotes: row.Post_Game_Notes || ''
+                preGameNotes: preGameNotes,
+                postGameNotes: postGameNotes
             };
+
+            // Debug: Log notes for games with winner or upcoming
+            if (postGameNotes && row.Winner) {
+                console.log(`Game ${index + 1} has post-game notes:`, postGameNotes);
+            }
+            if (preGameNotes && !row.Winner) {
+                console.log(`Game ${index + 1} has pre-game notes:`, preGameNotes);
+            }
+
             matchupsMap[gameKey] = game;
             allGames.push(game);
         });
