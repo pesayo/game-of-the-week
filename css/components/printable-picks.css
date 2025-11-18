@@ -122,8 +122,13 @@ body {
 .printable-picks-table th,
 .printable-picks-table td {
     border: 1px solid #ddd;
-    padding: 4px 2px;
+    padding: 2px 1px;
     text-align: center;
+}
+
+/* Subtle row banding */
+.printable-picks-table tbody tr:nth-child(even) {
+    background-color: #f9f9f9;
 }
 
 /* Player column - wider */
@@ -131,7 +136,6 @@ body {
     width: 120px;
     text-align: left !important;
     font-weight: 600;
-    background: #f8f9fa;
     position: sticky;
     left: 0;
     z-index: 10;
@@ -147,7 +151,7 @@ body {
 .printable-picks-table thead th {
     background: #e9ecef;
     font-weight: 700;
-    padding: 6px 2px;
+    padding: 4px 2px;
 }
 
 .game-header-content {
@@ -178,41 +182,10 @@ body {
     line-height: 1.2;
 }
 
-.game-matchup .team.winner {
-    color: #28a745;
-}
-
 .game-matchup .vs {
     font-size: 7px;
     color: #999;
     font-weight: normal;
-}
-
-.game-matchup .fa-trophy {
-    font-size: 7px;
-    color: #FFD700;
-}
-
-/* Pick cell styles */
-.pick-cell {
-    font-weight: 600;
-    font-size: 10px;
-    padding: 2px;
-}
-
-.pick-cell.correct {
-    background: #d4edda;
-    color: #155724;
-}
-
-.pick-cell.incorrect {
-    background: #f8d7da;
-    color: #721c24;
-}
-
-.pick-cell.pending {
-    background: #fff3cd;
-    color: #856404;
 }
 
 .empty {
@@ -270,44 +243,14 @@ body {
     }
 
     /* Adjust colors for print */
-    .pick-cell.correct {
-        background: #d4edda !important;
-        color: #000 !important;
-        border: 1px solid #c3e6cb !important;
-        -webkit-print-color-adjust: exact;
-        print-color-adjust: exact;
-    }
-
-    .pick-cell.incorrect {
-        background: #f8d7da !important;
-        color: #000 !important;
-        border: 1px solid #f5c6cb !important;
-        -webkit-print-color-adjust: exact;
-        print-color-adjust: exact;
-    }
-
-    .pick-cell.pending {
-        background: #fff3cd !important;
-        color: #000 !important;
-        border: 1px solid #ffeaa7 !important;
-        -webkit-print-color-adjust: exact;
-        print-color-adjust: exact;
-    }
-
-    .player-col {
-        background: #f8f9fa !important;
-        -webkit-print-color-adjust: exact;
-        print-color-adjust: exact;
-    }
-
     .printable-picks-table thead th {
         background: #e9ecef !important;
         -webkit-print-color-adjust: exact;
         print-color-adjust: exact;
     }
 
-    .game-matchup .team.winner {
-        color: #28a745 !important;
+    .printable-picks-table tbody tr:nth-child(even) {
+        background-color: #f9f9f9 !important;
         -webkit-print-color-adjust: exact;
         print-color-adjust: exact;
     }
@@ -325,11 +268,12 @@ body {
 
     /* Slightly smaller font for more density */
     .printable-picks-table {
-        font-size: 9px;
+        font-size: 8px;
     }
 
-    .pick-cell {
-        font-size: 9px;
+    .printable-picks-table th,
+    .printable-picks-table td {
+        font-size: 8px;
     }
 }
 

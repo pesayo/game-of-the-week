@@ -92,27 +92,14 @@ export function renderPrintablePicksList() {
             const gameHeader = document.createElement('th');
             gameHeader.className = 'game-col';
 
-            // Determine matchup display
-            let team1 = game.team1;
-            let team2 = game.team2;
-
-            // For decided games, show winner first with trophy
-            if (game.winner) {
-                if (game.winner === game.team2) {
-                    [team1, team2] = [team2, team1];
-                }
-            }
-
-            const winnerBadge = game.winner ? '<i class="fas fa-trophy"></i>' : '';
-
             gameHeader.innerHTML = `
                 <div class="game-header-content">
                     <div class="game-number">G${game.gameNumber}</div>
                     <div class="game-week">Wk ${game.week}</div>
                     <div class="game-matchup">
-                        <div class="team ${game.winner === team1 ? 'winner' : ''}">${team1}${game.winner === team1 ? ' ' + winnerBadge : ''}</div>
+                        <div class="team">${game.team1}</div>
                         <div class="vs">vs</div>
-                        <div class="team ${game.winner === team2 ? 'winner' : ''}">${team2}${game.winner === team2 ? ' ' + winnerBadge : ''}</div>
+                        <div class="team">${game.team2}</div>
                     </div>
                 </div>
             `;
@@ -125,7 +112,12 @@ export function renderPrintablePicksList() {
         // Table body
         const tbody = document.createElement('tbody');
 
-        leaderboardData.forEach(player => {
+        // Sort players alphabetically
+        const sortedPlayers = [...leaderboardData].sort((a, b) =>
+            a.name.localeCompare(b.name)
+        );
+
+        sortedPlayers.forEach(player => {
             const row = document.createElement('tr');
 
             // Player name cell
@@ -147,18 +139,7 @@ export function renderPrintablePicksList() {
 
                 if (playerRow && playerRow[game.header]) {
                     const pick = playerRow[game.header];
-                    const pickDiv = document.createElement('div');
-                    pickDiv.className = 'pick-cell';
-
-                    // Determine result class
-                    let resultClass = 'pending';
-                    if (game.winner) {
-                        resultClass = (pick === game.winner) ? 'correct' : 'incorrect';
-                    }
-                    pickDiv.classList.add(resultClass);
-
-                    pickDiv.textContent = pick;
-                    pickCell.appendChild(pickDiv);
+                    pickCell.textContent = pick;
                 } else {
                     pickCell.textContent = '-';
                     pickCell.className = 'game-col empty';
