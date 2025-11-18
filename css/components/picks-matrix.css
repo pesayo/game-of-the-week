@@ -445,7 +445,7 @@
     display: flex;
     align-items: center;
     gap: 6px;
-    padding: 8px 16px;
+    padding: 8px 10px;
     background-color: var(--mcc-gold-1);
     color: white;
     text-decoration: none;
@@ -462,5 +462,16 @@
 }
 
 .printable-link i {
-    font-size: 13px;
+    font-size: 14px;
+}
+
+.printable-link-text {
+    display: none;
+}
+
+/* Hide printable link on mobile */
+@media screen and (max-width: 768px) {
+    .printable-link {
+        display: none;
+    }
 }
