@@ -439,3 +439,28 @@
     color: var(--text-secondary);
     font-size: 12px;
 }
+
+/* Printable Link */
+.printable-link {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    background-color: var(--mcc-gold-1);
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.2s;
+}
+
+.printable-link:hover {
+    background-color: var(--mcc-gold-2);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(218, 165, 32, 0.3);
+}
+
+.printable-link i {
+    font-size: 13px;
+}

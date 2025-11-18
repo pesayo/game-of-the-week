@@ -1,0 +1,345 @@
+/* Printable Picks List Styles */
+
+/* ===== Screen Styles ===== */
+body {
+    margin: 0;
+    padding: 20px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    background: #f5f5f5;
+}
+
+.controls {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    display: flex;
+    gap: 10px;
+    z-index: 1000;
+    background: white;
+    padding: 10px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.btn-primary, .btn-secondary {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s;
+}
+
+.btn-primary {
+    background: var(--mcc-gold-1, #DAA520);
+    color: white;
+}
+
+.btn-primary:hover {
+    background: var(--mcc-gold-2, #B8860B);
+}
+
+.btn-secondary {
+    background: #6c757d;
+    color: white;
+}
+
+.btn-secondary:hover {
+    background: #5a6268;
+}
+
+.loading, .error {
+    text-align: center;
+    padding: 40px;
+    font-size: 18px;
+    color: #666;
+}
+
+.spinner {
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid var(--mcc-gold-1, #DAA520);
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 20px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.error {
+    color: #dc3545;
+}
+
+/* ===== Printable Content ===== */
+#printablePicksContainer {
+    display: none; /* Hidden until loaded */
+    max-width: 100%;
+    margin: 0 auto;
+}
+
+.printable-page {
+    background: white;
+    margin-bottom: 20px;
+    padding: 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.printable-page-header {
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #333;
+}
+
+.printable-page-header h2 {
+    margin: 0 0 5px 0;
+    font-size: 20px;
+    color: #333;
+}
+
+.page-info {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    color: #666;
+}
+
+/* ===== Table Styles ===== */
+.printable-picks-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 10px;
+    table-layout: fixed;
+}
+
+.printable-picks-table th,
+.printable-picks-table td {
+    border: 1px solid #ddd;
+    padding: 4px 2px;
+    text-align: center;
+}
+
+/* Player column - wider */
+.player-col {
+    width: 120px;
+    text-align: left !important;
+    font-weight: 600;
+    background: #f8f9fa;
+    position: sticky;
+    left: 0;
+    z-index: 10;
+}
+
+/* Game columns - narrow to fit more */
+.game-col {
+    width: 60px;
+    min-width: 60px;
+}
+
+/* Header styles */
+.printable-picks-table thead th {
+    background: #e9ecef;
+    font-weight: 700;
+    padding: 6px 2px;
+}
+
+.game-header-content {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    font-size: 9px;
+}
+
+.game-number {
+    font-weight: 700;
+    font-size: 10px;
+    color: #333;
+}
+
+.game-week {
+    font-size: 8px;
+    color: #666;
+}
+
+.game-matchup {
+    margin-top: 2px;
+}
+
+.game-matchup .team {
+    font-size: 9px;
+    font-weight: 600;
+    line-height: 1.2;
+}
+
+.game-matchup .team.winner {
+    color: #28a745;
+}
+
+.game-matchup .vs {
+    font-size: 7px;
+    color: #999;
+    font-weight: normal;
+}
+
+.game-matchup .fa-trophy {
+    font-size: 7px;
+    color: #FFD700;
+}
+
+/* Pick cell styles */
+.pick-cell {
+    font-weight: 600;
+    font-size: 10px;
+    padding: 2px;
+}
+
+.pick-cell.correct {
+    background: #d4edda;
+    color: #155724;
+}
+
+.pick-cell.incorrect {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.pick-cell.pending {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.empty {
+    color: #ccc;
+}
+
+/* ===== Print Styles ===== */
+@media print {
+    @page {
+        size: landscape;
+        margin: 0.5in;
+    }
+
+    body {
+        background: white;
+        padding: 0;
+        margin: 0;
+    }
+
+    /* Hide screen-only elements */
+    .screen-only {
+        display: none !important;
+    }
+
+    /* Show printable content */
+    #printablePicksContainer {
+        display: block !important;
+    }
+
+    /* Each page */
+    .printable-page {
+        page-break-after: always;
+        page-break-inside: avoid;
+        margin: 0;
+        padding: 0;
+        box-shadow: none;
+    }
+
+    .printable-page:last-child {
+        page-break-after: auto;
+    }
+
+    /* Prevent table rows from breaking across pages */
+    .printable-picks-table tr {
+        page-break-inside: avoid;
+    }
+
+    /* Make sure headers repeat on each page if table spans multiple pages */
+    .printable-picks-table thead {
+        display: table-header-group;
+    }
+
+    .printable-picks-table tbody {
+        display: table-row-group;
+    }
+
+    /* Adjust colors for print */
+    .pick-cell.correct {
+        background: #d4edda !important;
+        color: #000 !important;
+        border: 1px solid #c3e6cb !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+
+    .pick-cell.incorrect {
+        background: #f8d7da !important;
+        color: #000 !important;
+        border: 1px solid #f5c6cb !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+
+    .pick-cell.pending {
+        background: #fff3cd !important;
+        color: #000 !important;
+        border: 1px solid #ffeaa7 !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+
+    .player-col {
+        background: #f8f9fa !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+
+    .printable-picks-table thead th {
+        background: #e9ecef !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+
+    .game-matchup .team.winner {
+        color: #28a745 !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+
+    /* Ensure borders print */
+    .printable-picks-table,
+    .printable-picks-table th,
+    .printable-picks-table td {
+        border: 1px solid #000 !important;
+    }
+
+    .printable-page-header {
+        border-bottom: 2px solid #000 !important;
+    }
+
+    /* Slightly smaller font for more density */
+    .printable-picks-table {
+        font-size: 9px;
+    }
+
+    .pick-cell {
+        font-size: 9px;
+    }
+}
+
+/* ===== Responsive adjustments for screen ===== */
+@media screen and (max-width: 1200px) {
+    .printable-page {
+        overflow-x: auto;
+    }
+
+    .printable-picks-table {
+        min-width: 800px;
+    }
+}
