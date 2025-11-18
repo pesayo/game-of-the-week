@@ -45,8 +45,8 @@ export function renderPrintablePicksList() {
     const nameHeader = allHeaders.find(h => h.toLowerCase().includes('name'));
 
     // Calculate how many games can fit per page (estimate based on landscape orientation)
-    // We'll use ~12 games per page for landscape letter size
-    const gamesPerPage = 12;
+    // We'll use 10 games per page for landscape letter size
+    const gamesPerPage = 10;
     const totalPages = Math.ceil(games.length / gamesPerPage);
 
     container.innerHTML = '';
