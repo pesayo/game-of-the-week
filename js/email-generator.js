@@ -281,6 +281,21 @@ function generateDataSummary() {
         return new Date(year, month - 1, day);
     };
 
+    // Helper function to get players on a team by skip name
+    const getPlayersByTeam = (skipName) => {
+        if (!skipName || !gameData.playerInfoMap) return [];
+
+        return leaderboardData
+            .filter(p => {
+                const playerInfo = gameData.playerInfoMap[p.name];
+                return playerInfo && playerInfo.team === skipName;
+            })
+            .map(p => {
+                const playerInfo = gameData.playerInfoMap[p.name];
+                return `${p.name} (${playerInfo.position})`;
+            });
+    };
+
     const now = new Date();
 
     // Find the most recent completed game(s) by date
@@ -385,14 +400,21 @@ function generateDataSummary() {
             .filter(g => g.date === mostRecentDateStr)
             .map(g => {
                 const loserSkip = g.winner === g.team1 ? g.team2Skip : g.team1Skip;
+                const winnerSkip = g.winner;
                 const pickInfo = gameData.pickAnalysis[createGameKey(g.week, g.date, g.time, g.sheet)];
                 const isUpset = pickInfo && pickInfo.chalkPick && g.winner !== pickInfo.chalkPick;
+
+                // Get team rosters
+                const winnerRoster = getPlayersByTeam(winnerSkip);
+                const loserRoster = getPlayersByTeam(loserSkip);
 
                 return {
                     winner: g.winner,
                     loser: g.winner === g.team1 ? g.team2 : g.team1,
-                    winnerSkip: g.winner,
+                    winnerSkip: winnerSkip,
                     loserSkip: loserSkip,
+                    winnerRoster: winnerRoster,
+                    loserRoster: loserRoster,
                     date: g.date,
                     week: g.week,
                     isUpset: isUpset,
@@ -422,17 +444,25 @@ function generateDataSummary() {
 
             nextWeekGames = futureGames
                 .filter(g => g.date === nextUpcomingDateStr)
-                .map(g => ({
-                    team1: g.team1,
-                    team2: g.team2,
-                    team1Skip: g.team1Skip,
-                    team2Skip: g.team2Skip,
-                    date: g.date,
-                    time: g.time,
-                    week: g.week,
-                    sheet: g.sheet,
-                    preGameNotes: g.preGameNotes || ''
-                }));
+                .map(g => {
+                    // Get team rosters
+                    const team1Roster = getPlayersByTeam(g.team1Skip);
+                    const team2Roster = getPlayersByTeam(g.team2Skip);
+
+                    return {
+                        team1: g.team1,
+                        team2: g.team2,
+                        team1Skip: g.team1Skip,
+                        team2Skip: g.team2Skip,
+                        team1Roster: team1Roster,
+                        team2Roster: team2Roster,
+                        date: g.date,
+                        time: g.time,
+                        week: g.week,
+                        sheet: g.sheet,
+                        preGameNotes: g.preGameNotes || ''
+                    };
+                });
         }
     }
 
@@ -583,13 +613,17 @@ ${summary.allPlayers.filter(p => p.isFunkEngEligible).map((p, i) => {
 ${summary.recentWeekGames.length > 0 ? summary.recentWeekGames.map(g => {
     const upsetText = g.isUpset ? ' (UPSET - only ' + (100 - g.chalkPercentage) + '% picked them!)' : '';
     const notesText = g.postGameNotes && g.postGameNotes.trim() ? ` [Post-Game Note: ${g.postGameNotes}]` : '';
-    return `- ${g.winner} defeated ${g.loser}${upsetText}${notesText}`;
+    const winnerRosterText = g.winnerRoster.length > 0 ? ` (Players: ${g.winnerRoster.join(', ')})` : '';
+    const loserRosterText = g.loserRoster.length > 0 ? ` (Players: ${g.loserRoster.join(', ')})` : '';
+    return `- ${g.winner}${winnerRosterText} defeated ${g.loser}${loserRosterText}${upsetText}${notesText}`;
 }).join('\n') : 'No games completed recently'}
 
 **NEXT MATCHUPS${summary.nextUpcomingGameDate ? ` (${summary.nextUpcomingGameDate})` : ''} - ${summary.upcomingWeekGames.length} game${summary.upcomingWeekGames.length !== 1 ? 's' : ''}:**
 ${summary.upcomingWeekGames.length > 0 ? summary.upcomingWeekGames.map(g => {
     const notesText = g.preGameNotes && g.preGameNotes.trim() ? ` [Pre-Game Note: ${g.preGameNotes}]` : '';
-    return `- ${g.team1Skip} vs ${g.team2Skip} (Sheet ${g.sheet}, ${g.date} ${g.time})${notesText}`;
+    const team1RosterText = g.team1Roster.length > 0 ? ` (Players: ${g.team1Roster.join(', ')})` : '';
+    const team2RosterText = g.team2Roster.length > 0 ? ` (Players: ${g.team2Roster.join(', ')})` : '';
+    return `- ${g.team1Skip}${team1RosterText} vs ${g.team2Skip}${team2RosterText} (Sheet ${g.sheet}, ${g.date} ${g.time})${notesText}`;
 }).join('\n') : 'No upcoming games scheduled'}
 
 **FUN FACTS:**
